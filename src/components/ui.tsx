@@ -89,7 +89,7 @@ export function Chip({ active, children, onClick, className = '', color }: { act
 
 export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: { id: T; label: string }[] }) {
   return (
-    <div className="no-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-white/[0.08] bg-white/[0.035] p-1 backdrop-blur">
+    <div className="no-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-white/[0.09] bg-[#060a14]/60 p-1 backdrop-blur-md">
       {items.map((it) => (
         <button
           key={it.id}

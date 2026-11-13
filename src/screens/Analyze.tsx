@@ -184,6 +184,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
 
   return (
     <div>
+      <section className="glass-panel p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <Label>{t('uploadTitle')}</Label>
         <Badge tone={left > 0 ? 'cyan' : 'bad'}>{t('analysesLeft', { n: left })}</Badge>
@@ -191,8 +192,8 @@ function FormCheck({ initialEx }: { initialEx: string }) {
       <input ref={input} type="file" accept="image/*,video/*" multiple className="hidden" onChange={(e) => pick(e.target.files)} />
 
       {files.length === 0 ? (
-        <button onClick={() => input.current?.click()} className="mt-2 flex w-full flex-col items-center gap-3 rounded-[20px] border border-dashed border-white/15 px-6 py-10 text-center hover:border-cyan/40">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan/10 text-cyan"><Upload size={24} /></span>
+        <button onClick={() => input.current?.click()} className="glass-drop mt-3 flex w-full flex-col items-center gap-3 rounded-[20px] px-6 py-9 text-center">
+          <span className="grid h-14 w-14 place-items-center rounded-2xl border border-cyan/30 bg-cyan/10 text-cyan shadow-[0_0_28px_-6px_rgba(34,211,238,0.7)]"><Upload size={24} /></span>
           <span className="text-[15px] font-semibold">{t('pickFiles')}</span>
           <span className="max-w-[260px] text-[12.5px] text-muted">{t('uploadSub')}</span>
         </button>
@@ -233,6 +234,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
           {busy ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" /> {t('analyzing')}</> : <>{t('runAnalysis')} <ArrowRight size={17} /></>}
         </Button>
       )}
+      </section>
 
       {result && (
         <div id="result" className="mt-6 scroll-mt-24">
@@ -243,7 +245,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
 
       {s.analyses.length > 0 && (
         <>
-          <div className="label mb-2 mt-7">{t('pastAnalyses')}</div>
+          <div className="label mb-2 mt-7 !text-frost/80">{t('pastAnalyses')}</div>
           <div className="space-y-2">
             {s.analyses.slice(0, 8).map((a) => (
               <Card key={a.id} onClick={() => setView(a)} className="flex items-center gap-3 p-2.5">
@@ -368,7 +370,7 @@ function LiveReps() {
   const mirror = facing === 'user'
 
   return (
-    <div>
+    <div className="glass-panel p-4">
       <div className="flex items-center gap-2">
         <Chip active={kind === 'squat'} onClick={() => !running && setKind('squat')}>{t('camSquat')}</Chip>
         <Chip active={kind === 'pushup'} onClick={() => !running && setKind('pushup')}>{t('camPushup')}</Chip>
@@ -417,7 +419,7 @@ function LiveReps() {
           <Button variant="outline" onClick={save}><Save size={15} /> {t('camSave')}</Button>
         </div>
       )}
-      <p className="mt-4 text-center text-[11.5px] text-dim">MediaPipe Pose · on-device · video never leaves your phone</p>
+      <p className="mt-4 text-center text-[11.5px] text-muted">MediaPipe Pose · on-device · video never leaves your phone</p>
     </div>
   )
 }

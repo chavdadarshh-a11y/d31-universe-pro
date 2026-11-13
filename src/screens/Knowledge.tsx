@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { BookOpen, ChevronLeft, ChevronRight, Download, ExternalLink, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
+import { ArrowUpRight, Play, BookOpen, ChevronLeft, ChevronRight, Download, ExternalLink, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT, type T } from '../i18n'
 import type { StringKey } from '../i18n/strings'
@@ -44,23 +44,86 @@ export function KnowledgeGrid({ query = '' }: { query?: string }) {
   if (!data && error) return <Empty icon={<BookOpen size={28} />} text={t('kOffline')} />
   if (!posts.length) return <Empty icon={<BookOpen size={28} />} text={q ? t('kNoMatch') : t('kNoPosts')} />
   return (
-    <div className="space-y-3" data-testid="knowledge-grid">
-      {posts.map((p, i) => (
-        <button key={p.id} data-testid={`kpost-${p.number}`} onClick={() => navigate(`/knowledge/${p.number}`)} className="rise k-card group relative block w-full overflow-hidden rounded-[22px] border border-white/10 text-left" style={{ animationDelay: `${Math.min(i, 6) * 50}ms` }}>
-          <div className="dark-zone relative aspect-[16/10] w-full overflow-hidden">
-            <Cover p={p} className="transition-transform duration-700 group-hover:scale-[1.04]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#04060c] via-[#04060c]/30 to-transparent" />
-            <span className="absolute left-3 top-3 rounded-lg border border-cyan/40 bg-black/50 px-2 py-1 font-mono text-[12px] font-bold tracking-wider text-cyan backdrop-blur">#{p.number}</span>
-            <div className="absolute inset-x-0 bottom-0 p-4">
-              <h3 className="title-hud text-[17px] leading-snug text-white">{postTitle(p, lang)}</h3>
-              <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[11px] tracking-wide text-white/70">
-                <Film size={12} /> {counts(t, p, lang)}
-              </div>
+    <div data-testid="knowledge-grid">
+      <PostPanels posts={posts} />
+      <p className="pt-3 text-center font-mono text-[10.5px] text-dim">{t('kSynced', { x: new Date(data!.generatedAt).toLocaleString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { dateStyle: 'medium', timeStyle: 'short' }) })}</p>
+    </div>
+  )
+}
+
+const ACCENTS = ['#f7c548', '#22d3ee', '#a78bfa']
+
+/**
+ * Knowledge posts as horizontal expanding panels (3 per page, swipe for more).
+ * Tap a collapsed panel → it grows; tap the open panel or its round button → the post opens.
+ */
+export function PostPanels({ posts }: { posts: KPost[] }) {
+  const t = useT()
+  const lang = useApp((s) => s.lang) as KLang
+  const groups = useMemo(() => {
+    const g: KPost[][] = []
+    for (let i = 0; i < posts.length; i += 3) g.push(posts.slice(i, i + 3))
+    return g
+  }, [posts])
+  const [active, setActive] = useState<Record<number, number>>({})
+  const [page, setPage] = useState(0)
+  const scroller = useRef<HTMLDivElement>(null)
+  const onScroll = () => {
+    const el = scroller.current
+    if (el) setPage(Math.round(el.scrollLeft / Math.max(1, el.clientWidth)))
+  }
+  const goPage = (i: number) => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth, behavior: 'smooth' })
+  const open = (p: KPost) => navigate(`/knowledge/${p.number}`)
+
+  return (
+    <div data-testid="post-panels">
+      <div ref={scroller} onScroll={onScroll} className="no-scrollbar -mx-4 flex snap-x snap-mandatory overflow-x-auto">
+        {groups.map((g, gi) => {
+          const act = Math.min(active[gi] ?? 0, g.length - 1)
+          const small = g.length === 2 ? 2.4 : 1.5
+          return (
+            <div key={gi} className="kp-row w-full shrink-0 snap-center px-4" aria-label={`${gi + 1} / ${groups.length}`}>
+              {g.map((p, i) => {
+                const on = i === act
+                const kc = ACCENTS[(gi * 3 + i) % ACCENTS.length]
+                const title = postTitle(p, lang)
+                const hasVideo = pick(p.videos, lang).files.length > 0
+                return (
+                  <div
+                    key={p.id} role="button" tabIndex={0} data-testid={`kpost-${p.number}`} aria-expanded={on}
+                    aria-label={`#${p.number} ${title}`}
+                    onClick={() => (on ? open(p) : setActive({ ...active, [gi]: i }))}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (on) open(p); else setActive({ ...active, [gi]: i }) } }}
+                    className={`kp dark-zone ${on ? 'is-active' : ''}`}
+                    style={{ flexGrow: on ? 6.5 : small, ['--kc' as string]: kc }}
+                  >
+                    <div className="kp-cover"><Cover p={p} w={900} /></div>
+                    <div className="kp-shade" />
+                    <span className="kp-tag">#{p.number}</span>
+                    <div className="kp-text">
+                      <div className="font-mono text-[9.5px] font-bold uppercase tracking-[0.3em]" style={{ color: kc }}>{t('knowledge')}</div>
+                      <h3 className="kp-title mt-2" style={{ fontSize: title.length > 26 ? 23 : title.length > 14 ? 28 : 34 }}>{title}</h3>
+                    </div>
+                    <div className="kp-meta">{counts(t, p, lang)}</div>
+                    <button
+                      type="button" className="kp-btn" tabIndex={-1} data-testid={on ? 'kpost-open' : undefined}
+                      aria-label={on ? `${t('kOpenPost')} #${p.number}` : `#${p.number}`}
+                      onClick={(e) => { e.stopPropagation(); if (on) open(p); else setActive({ ...active, [gi]: i }) }}
+                    >
+                      {hasVideo ? <Play size={on ? 20 : 17} fill="currentColor" className="ml-0.5" /> : <ArrowUpRight size={on ? 22 : 18} />}
+                    </button>
+                  </div>
+                )
+              })}
             </div>
-          </div>
-        </button>
-      ))}
-      <p className="pt-1 text-center font-mono text-[10.5px] text-dim">{t('kSynced', { x: new Date(data!.generatedAt).toLocaleString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { dateStyle: 'medium', timeStyle: 'short' }) })}</p>
+          )
+        })}
+      </div>
+      {groups.length > 1 && (
+        <div className="kp-dots" role="tablist">
+          {groups.map((_, i) => <button key={i} aria-label={`${i + 1} / ${groups.length}`} aria-current={i === page} onClick={() => goPage(i)} />)}
+        </div>
+      )}
     </div>
   )
 }

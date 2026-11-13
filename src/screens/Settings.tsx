@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Moon, Sun, MonitorSmartphone, Languages, Ruler, Timer, Volume2, Vibrate, Bell, Film, Shield, Download, Upload, Info, Mail, FileText, AlertTriangle, Receipt, Smartphone, Mic } from 'lucide-react'
 import { useApp } from '../store/app'
-import { useSettings, type ThemePref } from '../store/settings'
+import { useSettings, resolvedTheme } from '../store/settings'
 import { useT, LANGS } from '../i18n'
 import { Button, Card, Header, Stepper } from '../components/ui'
 import { navigate } from '../lib/router'
@@ -10,13 +10,11 @@ import { exportBackup, importBackup } from '../lib/backup'
 import { askNotificationPermission, notify } from '../lib/reminders'
 import { useInstallable, promptInstall } from '../components/InstallPrompt'
 import { cloud } from '../lib/cloud'
+import { Switch } from '../components/Switch'
 
+/** All on/off switches use the v4.1 pill switch. */
 export function Toggle({ on, onChange, label, testid }: { on: boolean; onChange: (v: boolean) => void; label: string; testid?: string }) {
-  return (
-    <button role="switch" aria-checked={on} aria-label={label} data-testid={testid} onClick={() => onChange(!on)} className={`toggle relative h-6 w-11 shrink-0 rounded-full transition-colors ${on ? 'bg-cyan' : 'bg-white/15'}`}>
-      <span className={`toggle-knob absolute top-0.5 h-5 w-5 rounded-full transition-all ${on ? 'left-[22px]' : 'left-0.5'}`} />
-    </button>
-  )
+  return <Switch on={on} onChange={onChange} label={label} testid={testid} />
 }
 
 function Row({ icon, label, sub, right, onClick, danger }: { icon: React.ReactNode; label: string; sub?: string; right?: React.ReactNode; onClick?: () => void; danger?: boolean }) {
@@ -60,6 +58,7 @@ export function Settings() {
   const t = useT()
   const s = useApp()
   const st = useSettings()
+  const dark = resolvedTheme(st.theme) === 'night'
   const file = useRef<HTMLInputElement>(null)
   const installable = useInstallable()
   const [perm, setPerm] = useState<string>(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported')
@@ -80,14 +79,15 @@ export function Settings() {
       <Header title={t('settings')} back="#/profile" />
 
       <Section title={t('appearance')}>
-        <div className="px-4 py-3.5">
-          <div className="mb-2.5 text-[14.5px]">{t('theme')}</div>
-          <Seg<ThemePref> testid="theme" value={st.theme} onChange={(v) => st.set({ theme: v })} items={[
-            { id: 'night', label: <><Moon size={14} /> {t('themeNight')}</> },
-            { id: 'light', label: <><Sun size={14} /> {t('themeLight')}</> },
-            { id: 'system', label: <><MonitorSmartphone size={14} /> {t('themeSystem')}</> },
-          ]} />
+        <div className="flex items-center gap-3 px-4 py-4">
+          <span className="text-muted">{dark ? <Moon size={18} /> : <Sun size={18} />}</span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[14.5px]">{t('theme')}</div>
+            <div className="mt-0.5 text-[12px] text-muted">{dark ? t('themeNight') : t('themeLight')}{st.theme === 'system' ? ` · ${t('themeSystem')}` : ''}</div>
+          </div>
+          <Switch variant="sky" size="lg" testid="theme-switch" label={`${t('themeNight')} / ${t('themeLight')}`} on={!dark} onChange={(v) => st.set({ theme: v ? 'light' : 'night' })} />
         </div>
+        <Row icon={<MonitorSmartphone size={18} />} label={t('themeSystem')} right={<Toggle testid="theme-system" label={t('themeSystem')} on={st.theme === 'system'} onChange={(v) => st.set({ theme: v ? 'system' : resolvedTheme('system') })} />} />
         <Row icon={<Film size={18} />} label={t('bgVideo')} sub={t('bgVideoSub')} right={<Toggle testid="bg-toggle" label={t('bgVideo')} on={st.bgVideo} onChange={(v) => st.set({ bgVideo: v })} />} />
         <Row icon={<Smartphone size={18} />} label={t('dataSaver')} sub={t('dataSaverSub')} right={<Toggle testid="datasaver-toggle" label={t('dataSaver')} on={st.reduceData} onChange={(v) => st.set({ reduceData: v })} />} />
       </Section>

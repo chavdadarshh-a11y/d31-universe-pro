@@ -23,6 +23,7 @@ import { Cosmos } from './components/Cosmos'
 import { Settings } from './screens/Settings'
 import { Knowledge, KnowledgePost } from './screens/Knowledge'
 import { NotFound } from './screens/NotFound'
+import { NeonInputs } from './components/NeonInputs'
 import { InstallPrompt } from './components/InstallPrompt'
 import { useSettings, applyTheme } from './store/settings'
 import { useReminders } from './lib/reminders'
@@ -127,7 +128,7 @@ export default function App() {
     if (onboarded && !root) navigate('/home')
   }, [onboarded, root])
 
-  if (!onboarded && root !== 'legal' && root !== 'auth') return (<><Cosmos /><GradDefs /><Onboarding key={accountKey} /><Toast /></>)
+  if (!onboarded && root !== 'legal' && root !== 'auth') return (<><Cosmos /><GradDefs /><Onboarding key={accountKey} /><Toast /><NeonInputs /></>)
 
   let screen: React.ReactNode
   let showNav = true
@@ -172,6 +173,7 @@ export default function App() {
       <ClipViewer />
       {showNav && <InstallPrompt />}
       <Toast />
+      <NeonInputs />
     </div>
   )
 }

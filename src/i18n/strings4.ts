@@ -46,7 +46,7 @@ export const en4 = {
   kNoPdfs: 'There are no PDFs for this post yet. They will show here as soon as they are added to Drive.',
   kNoVideos: 'There are no videos for this post yet. They will show here as soon as they are added to Drive.',
   kNoPhotos: 'There are no photos for this post yet. They will show here as soon as they are added to Drive.',
-  kNoPosts: 'No posts yet. New posts appear here automatically.', kNoMatch: 'No post matches your search.', kSearchPh: 'Search posts…', kOffline: 'Could not load posts. Check your internet and try again.',
+  kNoPosts: 'No posts yet. New posts appear here automatically.', kNoMatch: 'No post matches your search.', kSearchPh: 'Search posts…', kOpenPost: 'Open post', kTapHint: 'Tap a panel to expand · tap again to open', kOffline: 'Could not load posts. Check your internet and try again.',
   kNotFound: 'This post was not found.', kFallback: 'Not available in {a} yet — showing {b}.', kSynced: 'Synced from Drive · {x}',
   kDownload: 'Download', kPlatinumOnly: 'Downloads are Platinum only', kOpenDrive: 'Open in Drive', kAll: 'All posts',
 }
@@ -94,7 +94,7 @@ export const hi4: D4 = {
   kNoPdfs: 'इस पोस्ट के लिए अभी कोई PDF नहीं है. Drive में जुड़ते ही यहाँ दिखेंगे.',
   kNoVideos: 'इस पोस्ट के लिए अभी कोई वीडियो नहीं है. Drive में जुड़ते ही यहाँ दिखेंगे.',
   kNoPhotos: 'इस पोस्ट के लिए अभी कोई फ़ोटो नहीं है. Drive में जुड़ते ही यहाँ दिखेंगी.',
-  kNoPosts: 'अभी कोई पोस्ट नहीं. नई पोस्ट अपने आप यहाँ आएँगी.', kNoMatch: 'कोई पोस्ट नहीं मिली.', kSearchPh: 'पोस्ट खोजें…', kOffline: 'पोस्ट लोड नहीं हुईं. इंटरनेट चेक करके फिर कोशिश करें.',
+  kNoPosts: 'अभी कोई पोस्ट नहीं. नई पोस्ट अपने आप यहाँ आएँगी.', kNoMatch: 'कोई पोस्ट नहीं मिली.', kSearchPh: 'पोस्ट खोजें…', kOpenPost: 'पोस्ट खोलें', kTapHint: 'पैनल पर टैप करें · फिर से टैप करके खोलें', kOffline: 'पोस्ट लोड नहीं हुईं. इंटरनेट चेक करके फिर कोशिश करें.',
   kNotFound: 'यह पोस्ट नहीं मिली.', kFallback: '{a} में अभी नहीं — {b} दिखा रहे हैं.', kSynced: 'Drive से सिंक · {x}',
   kDownload: 'डाउनलोड', kPlatinumOnly: 'डाउनलोड सिर्फ प्लैटिनम में', kOpenDrive: 'Drive में खोलें', kAll: 'सभी पोस्ट',
 }
@@ -140,7 +140,7 @@ export const gu4: D4 = {
   kNoPdfs: 'આ પોસ્ટ માટે હજી કોઈ PDF નથી. Drive માં ઉમેરાતાં જ અહીં દેખાશે.',
   kNoVideos: 'આ પોસ્ટ માટે હજી કોઈ વીડિયો નથી. Drive માં ઉમેરાતાં જ અહીં દેખાશે.',
   kNoPhotos: 'આ પોસ્ટ માટે હજી કોઈ ફોટો નથી. Drive માં ઉમેરાતાં જ અહીં દેખાશે.',
-  kNoPosts: 'હજી કોઈ પોસ્ટ નથી. નવી પોસ્ટ આપોઆપ અહીં આવશે.', kNoMatch: 'કોઈ પોસ્ટ મળી નહીં.', kSearchPh: 'પોસ્ટ શોધો…', kOffline: 'પોસ્ટ લોડ ન થઈ. ઇન્ટરનેટ તપાસી ફરી પ્રયાસ કરો.',
+  kNoPosts: 'હજી કોઈ પોસ્ટ નથી. નવી પોસ્ટ આપોઆપ અહીં આવશે.', kNoMatch: 'કોઈ પોસ્ટ મળી નહીં.', kSearchPh: 'પોસ્ટ શોધો…', kOpenPost: 'પોસ્ટ ખોલો', kTapHint: 'પેનલ પર ટેપ કરો · ફરી ટેપ કરીને ખોલો', kOffline: 'પોસ્ટ લોડ ન થઈ. ઇન્ટરનેટ તપાસી ફરી પ્રયાસ કરો.',
   kNotFound: 'આ પોસ્ટ મળી નહીં.', kFallback: '{a} માં હજી નથી — {b} બતાવીએ છીએ.', kSynced: 'Drive થી સિંક · {x}',
   kDownload: 'ડાઉનલોડ', kPlatinumOnly: 'ડાઉનલોડ ફક્ત પ્લેટિનમમાં', kOpenDrive: 'Drive માં ખોલો', kAll: 'બધી પોસ્ટ',
 }

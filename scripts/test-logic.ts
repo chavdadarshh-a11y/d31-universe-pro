@@ -1,5 +1,7 @@
 // Unit checks for pure logic (run: npm test). Uses Node's built-in TypeScript stripping.
 import { createHmac } from 'node:crypto'
+import { computeRecords, isPR, ladderStatus, summarizeSets, volumeOf } from '../src/lib/training.ts'
+import { LADDER_BY_ID } from '../src/data/ladders.ts'
 import { computeStreak, epley, nutritionTargets, readinessBand, readinessScore, weeklyBuckets } from '../src/lib/util.ts'
 
 let failed = 0
@@ -17,6 +19,25 @@ ok(tg.protein === 140, 'protein 2 g/kg for muscle gain')
 ok(readinessScore({ sleepH: 8, sleepQ: 5, soreness: 1, energy: 5, stress: 1 }) === 100, 'perfect check-in = 100')
 ok(readinessBand(readinessScore({ sleepH: 4, sleepQ: 1, soreness: 5, energy: 1, stress: 5 })) === 'easy', 'bad check-in → recovery day')
 ok(weeklyBuckets([s(0), s(1)], 8).length === 8, '8 weekly buckets')
+
+// v3 manual logging: free-form sets, warm-ups never count, ladders read only real logs
+type St = { reps: number; kg: number; secs?: number; type?: 'warmup' | 'working' | 'drop' | 'failure'; done: boolean }
+const sess = (o: number, exId: string, sets: St[]) => ({ ...s(o), id: `${exId}${o}`, exercises: [{ exId, sets }] })
+ok(summarizeSets([{ reps: 8, kg: 20, done: true }, { reps: 8, kg: 20, done: true }, { reps: 8, kg: 20, done: true }, { reps: 8, kg: 20, done: true }], 'reps') === '4×8 @ 20kg', 'summary collapses identical sets (4×8 @ 20kg)')
+ok(summarizeSets([{ reps: 15, kg: 0, done: true }, { reps: 11, kg: 0, done: true }, { reps: 7, kg: 0, done: true }, { reps: 5, kg: 0, done: true }, { reps: 3, kg: 0, done: true }], 'reps') === '15, 11, 7, 5 +1', 'summary keeps any number of uneven sets')
+ok(summarizeSets([{ reps: 10, kg: 10, type: 'warmup', done: true }, { reps: 5, kg: 40, done: true }], 'reps') === '1×5 @ 40kg', 'summary skips warm-ups')
+const warm = [sess(1, 'barbell-row', [{ reps: 10, kg: 100, type: 'warmup', done: true }, { reps: 8, kg: 50, done: true }])]
+const recs = computeRecords(warm, () => 'reps')
+ok(recs.length === 1 && recs[0].kg === 50, 'warm-up sets are excluded from PRs')
+ok(volumeOf(warm[0].exercises[0].sets) === 400, 'volume excludes warm-ups (8×50 = 400)')
+ok(isPR('barbell-row', { reps: 8, kg: 55, done: true }, 'reps', warm), 'heavier working set is a PR')
+ok(!isPR('barbell-row', { reps: 8, kg: 55, type: 'warmup', done: true }, 'reps', warm), 'heavier warm-up is NOT a PR')
+const fl = LADDER_BY_ID['front-lever']
+ok(ladderStatus(fl, []).current === 0 && ladderStatus(fl, []).cleared.every((c) => !c), 'empty log → ladder at step 1, nothing cleared (no fake progress)')
+const flLog = [sess(2, 'pull-up', [8, 9, 8].map((r) => ({ reps: r, kg: 0, done: true }))), sess(1, 'tuck-front-lever', [12, 10, 9].map((x) => ({ reps: 0, kg: 0, secs: x, done: true })))]
+ok(ladderStatus(fl, flLog).current === 1, 'tuck 12/10/9 s does not clear 3×10 s')
+flLog[1].exercises[0].sets[2].secs = 10
+ok(ladderStatus(fl, flLog).current === 2, '3 holds ≥10 s clear tuck → advanced tuck is next')
 
 // Razorpay signature: same algorithm as supabase/functions/razorpay-verify
 const secret = 'test_secret', order = 'order_ABC', pay = 'pay_XYZ'

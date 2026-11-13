@@ -1,18 +1,19 @@
 import { useState } from 'react'
-import { Plus, Play, Pencil, Trash2, Dumbbell, CalendarDays, CheckCircle2 } from 'lucide-react'
+import { Plus, Play, Pencil, Trash2, Dumbbell, CalendarDays, CheckCircle2, Zap } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Chip, Confirm, Empty, Header, LockTag, Tabs } from '../components/ui'
 import { PROGRAMS } from '../data/programs'
-import { EX_BY_ID, exName } from '../data/exercises'
+import { exOf, exName } from '../data/exercises'
+import { Photo } from '../components/hud'
 import { navigate, hashQuery } from '../lib/router'
 import { hasPlan } from '../lib/plans'
 import { estimateMinutes } from '../lib/plan'
-import { startWorkout } from '../lib/workout'
+import { startEmpty, startWorkout } from '../lib/workout'
 import { cloud } from '../lib/cloud'
 import type { Program } from '../types'
 
-const KIND_ACCENT: Record<Program['kind'], string> = { split: '#22d3ee', skill: '#c084fc', strength: '#fb923c', mobility: '#a3e635' }
+const KIND_ACCENT: Record<Program['kind'], string> = { split: '#22d3ee', skill: '#f7c548', strength: '#f472d0', mobility: '#a3e635' }
 
 export function Train() {
   const t = useT()
@@ -26,7 +27,15 @@ export function Train() {
   return (
     <div>
       <Header title={t('navTrain')} right={<Button size="sm" variant="ghost" onClick={() => navigate('/train/builder')}><Plus size={16} /> {t('newWorkout')}</Button>} />
-      <Tabs value={tab} onChange={setTab} items={[{ id: 'programs', label: t('programs') }, { id: 'mine', label: t('myWorkouts') }]} />
+      <button onClick={() => { if (!s.active) startEmpty(t('emptyWorkout')); navigate('/player') }} className="card hud-gold holo-sweep mb-3 flex w-full items-center gap-3 p-4 text-left">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-gold/50 bg-gold/10"><Zap size={20} color="url(#g-gold)" strokeWidth={2.4} /></span>
+        <span className="min-w-0 flex-1">
+          <span className="title-hud block text-[13.5px] text-gold">{s.active ? t('resume') : t('emptyWorkout')}</span>
+          <span className="mt-0.5 block text-[12px] leading-snug text-muted">{t('freeLog')}</span>
+        </span>
+        <Play size={18} className="text-gold" fill="currentColor" />
+      </button>
+      <Tabs value={tab} onChange={setTab} items={[{ id: 'programs', label: t('programs') }, { id: 'mine', label: t('routines') }]} />
 
       {tab === 'programs' && (
         <>
@@ -40,24 +49,32 @@ export function Train() {
               const locked = !hasPlan(plan, p.plan)
               const active = s.activeProgramId === p.id
               return (
-                <Card key={p.id} onClick={() => navigate(`/train/program/${p.id}`)} className="relative overflow-hidden p-4">
-                  <span className="absolute inset-y-0 left-0 w-1" style={{ background: `linear-gradient(180deg, ${KIND_ACCENT[p.kind]}, ${KIND_ACCENT[p.kind]}33)`, boxShadow: `0 0 12px ${KIND_ACCENT[p.kind]}88` }} />
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <Badge tone="muted">{t(`kind_${p.kind}`)}</Badge>
-                        <Badge tone="muted">{t(`level_${p.level}`)}</Badge>
-                        {active && <Badge tone="cyan"><CheckCircle2 size={10} /> {t('isActive')}</Badge>}
-                      </div>
-                      <h3 className="mt-2 text-[17px] font-bold leading-tight">{p.name}</h3>
+                <Card key={p.id} onClick={() => navigate(`/train/program/${p.id}`)} className="relative overflow-hidden">
+                  {p.media && (
+                    <div className="scanlines relative h-[124px]">
+                      <Photo name={p.media} small alt="" />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.1),rgba(4,6,12,0.92))]" />
                     </div>
-                    {locked && <LockTag label={t(`plan_${p.plan}`)} />}
-                  </div>
-                  <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-muted">{p.description}</p>
-                  <div className="mt-3 flex items-center gap-4 text-[12px] text-dim">
-                    <span className="flex items-center gap-1"><CalendarDays size={13} /> {p.weeks} {t('weeks')}</span>
-                    <span className="flex items-center gap-1"><Dumbbell size={13} /> {p.daysPerWeek}{t('perWeek')}</span>
-                    <span>~{estimateMinutes(p.days[0].items)} {t('min')}</span>
+                  )}
+                  <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: `linear-gradient(180deg, ${KIND_ACCENT[p.kind]}, ${KIND_ACCENT[p.kind]}22)`, boxShadow: `0 0 14px ${KIND_ACCENT[p.kind]}aa` }} />
+                  <div className={`relative p-4 ${p.media ? '-mt-12 pt-0' : ''}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge tone="muted">{t(`kind_${p.kind}`)}</Badge>
+                          <Badge tone="muted">{t(`level_${p.level}`)}</Badge>
+                          {active && <Badge tone="cyan"><CheckCircle2 size={10} /> {t('isActive')}</Badge>}
+                        </div>
+                        <h3 className="title-hud mt-2 text-[15px] leading-tight">{p.name}</h3>
+                      </div>
+                      {locked && <LockTag label={t(`plan_${p.plan}`)} />}
+                    </div>
+                    <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-muted">{p.description}</p>
+                    <div className="mt-3 flex items-center gap-4 text-[12px] text-dim">
+                      <span className="flex items-center gap-1"><CalendarDays size={13} /> {p.weeks} {t('weeks')}</span>
+                      <span className="flex items-center gap-1"><Dumbbell size={13} /> {p.daysPerWeek}{t('perWeek')}</span>
+                      <span>~{estimateMinutes(p.days[0].items)} {t('min')}</span>
+                    </div>
                   </div>
                 </Card>
               )
@@ -80,7 +97,7 @@ export function Train() {
                   <button aria-label={t('delete')} className="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-white/5" onClick={() => setDel(w.id)}><Trash2 size={15} /></button>
                 </div>
               </div>
-              <p className="mt-1 line-clamp-2 text-[13px] text-muted">{w.items.map((i) => exName(EX_BY_ID[i.exId], s.lang)).join(' · ')}</p>
+              <p className="mt-1 line-clamp-2 text-[13px] text-muted">{w.items.map((i) => exName(exOf(i.exId), s.lang)).join(' · ')}</p>
               <Button size="sm" className="mt-3" onClick={() => { if (!s.active) startWorkout(w.name, w.items); navigate('/player') }}>
                 <Play size={14} fill="currentColor" /> {t('start')} · ~{estimateMinutes(w.items)} {t('min')}
               </Button>

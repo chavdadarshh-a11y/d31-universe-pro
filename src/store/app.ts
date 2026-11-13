@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type {
-  ActiveWorkout, AnalysisRecord, CheckIn, CustomWorkout, FoodEntry, Lang, Measurement, PlanId,
+  ActiveWorkout, AnalysisRecord, CheckIn, CustomWorkout, Exercise, FoodEntry, Lang, Measurement, PlanId,
   Profile, ProgressPhoto, WorkoutSession,
 } from '../types'
 import { dayKey, uid } from '../lib/util'
@@ -17,6 +17,7 @@ export type AppState = {
   activeProgramId?: string
   programDay: Record<string, number>
   customWorkouts: CustomWorkout[]
+  customExercises: Exercise[]
   sessions: WorkoutSession[]
   measurements: Measurement[]
   photos: ProgressPhoto[]
@@ -48,6 +49,8 @@ export type AppState = {
   addAnalysis: (a: AnalysisRecord) => void
   saveCustom: (w: CustomWorkout) => void
   deleteCustom: (id: string) => void
+  saveCustomExercise: (e: Exercise) => void
+  deleteCustomExercise: (id: string) => void
   showToast: (msg: string) => void
   resetAll: () => void
 }
@@ -65,6 +68,7 @@ const initial = {
   activeProgramId: undefined,
   programDay: {},
   customWorkouts: [],
+  customExercises: [] as Exercise[],
   sessions: [],
   measurements: [],
   photos: [],
@@ -123,6 +127,8 @@ export const useApp = create<AppState>()(
       addAnalysis: (a) => set({ analyses: [a, ...get().analyses].slice(0, 30) }),
       saveCustom: (w) => set({ customWorkouts: [w, ...get().customWorkouts.filter((x) => x.id !== w.id)] }),
       deleteCustom: (id) => set({ customWorkouts: get().customWorkouts.filter((x) => x.id !== id) }),
+      saveCustomExercise: (e) => set({ customExercises: [{ ...e, custom: true }, ...get().customExercises.filter((x) => x.id !== e.id)] }),
+      deleteCustomExercise: (id) => set({ customExercises: get().customExercises.filter((x) => x.id !== id) }),
       showToast: (msg) => {
         if (toastTimer) clearTimeout(toastTimer)
         set({ toast: msg })
@@ -132,7 +138,22 @@ export const useApp = create<AppState>()(
     }),
     {
       name: 'd31-pro-v1',
+      version: 3,
       storage: createJSONStorage(() => localStorage),
+      // v1/v2 → v3: sets gain a type; custom exercises list added. Nothing is deleted.
+      migrate: (persisted, version) => {
+        const st = (persisted ?? {}) as Partial<AppState>
+        if (version < 3) {
+          st.customExercises = st.customExercises ?? []
+          const fix = <T extends { exercises?: { sets: { type?: string }[] }[] }>(x: T) => {
+            x.exercises?.forEach((e) => e.sets.forEach((set) => { set.type = set.type ?? 'working' }))
+            return x
+          }
+          st.sessions = (st.sessions ?? []).map(fix)
+          if (st.active) st.active.log.forEach((l) => l.sets.forEach((set) => { set.type = set.type ?? 'working' }))
+        }
+        return st as AppState
+      },
       partialize: (s) => {
         const { toast: _t, set: _s, ...rest } = s
         void _t

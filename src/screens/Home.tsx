@@ -1,15 +1,18 @@
-import { Flame, ScanLine, Camera, Utensils, HeartPulse, ChevronRight, Lock, Play, Droplets } from 'lucide-react'
+import { Flame, ScanLine, Camera, Utensils, HeartPulse, ChevronRight, Lock, Play, Droplets, Plus, Activity } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
-import { Button, Card, Label, Ring, SectionHead, Badge } from '../components/ui'
+import { Button, Card, Ring, Badge } from '../components/ui'
 import { LogoMark, Wordmark } from '../components/Brand'
 import { OfferBanner } from '../components/OfferBanner'
+import { CountUp, HudTitle, IconTile, Photo } from '../components/hud'
 import { navigate } from '../lib/router'
 import { PROGRAM_BY_ID } from '../data/programs'
-import { EX_BY_ID, exName } from '../data/exercises'
-import { computeStreak, dayKey, fmtNum, nutritionTargets, readinessBand, weekStart } from '../lib/util'
+import { LADDERS } from '../data/ladders'
+import { exOf, exName } from '../data/exercises'
+import { computeStreak, dayKey, nutritionTargets, readinessBand, weekStart } from '../lib/util'
 import { estimateMinutes } from '../lib/plan'
-import { startWorkout } from '../lib/workout'
+import { startEmpty, startWorkout } from '../lib/workout'
+import { ladderStatus } from '../lib/training'
 import { hasPlan } from '../lib/plans'
 
 export function Home() {
@@ -33,8 +36,8 @@ export function Home() {
   const water = s.water[today] ?? 0
   const band = checkin ? readinessBand(checkin.score) : null
   const bandColor = band === 'hard' ? '#34d399' : band === 'moderate' ? '#fbbf24' : '#f87171'
-  const hour = new Date().getHours()
-  const name = s.profile.name || 'Athlete'
+  const name = s.profile.name || t('athleteLbl')
+  const heroPhoto = program?.media ?? 'sl-rdl'
 
   const start = () => {
     if (!program || !day) return
@@ -42,107 +45,139 @@ export function Home() {
     if (!s.active) startWorkout(`${program.name} · ${day.name}`, day.items, program.id, dayIdx)
     navigate('/player')
   }
+  const free = () => {
+    if (!s.active) startEmpty(t('emptyWorkout'))
+    navigate('/player')
+  }
 
   return (
-    <div className="pt-[calc(env(safe-area-inset-top)+14px)]">
+    <div className="pt-[calc(env(safe-area-inset-top)+12px)]">
       <div className="flex items-center gap-3">
-        <span className="rounded-2xl shadow-[0_0_24px_-6px_rgba(34,211,238,0.6)]"><LogoMark size={44} /></span>
+        <span className="rounded-2xl shadow-[0_0_26px_-6px_rgba(247,197,72,0.65)]"><LogoMark size={42} /></span>
         <div className="min-w-0 flex-1">
-          <Wordmark className="block text-[11px]" />
-          <div className="label mt-0.5">{new Date().toLocaleDateString(s.lang === 'en' ? 'en-IN' : `${s.lang}-IN`, { weekday: 'long', day: 'numeric', month: 'short' })}</div>
-          <h1 className="truncate text-[23px] font-bold tracking-tight">{t('hello', { n: name })} {hour < 12 ? '☀️' : hour < 18 ? '⚡' : '🌙'}</h1>
+          <Wordmark className="block text-[15px]" />
+          <div className="mt-0.5 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.22em] text-cyan/80">
+            <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-lime shadow-[0_0_8px_rgba(163,230,53,0.9)]" />
+            {t('systemOnline')} · {new Date().toLocaleDateString(s.lang === 'en' ? 'en-IN' : `${s.lang}-IN`, { weekday: 'short', day: 'numeric', month: 'short' })}
+          </div>
         </div>
         <button onClick={() => navigate('/membership')}><Badge tone={plan === 'free' ? 'muted' : 'gold'}>{t(`plan_${plan}`)}</Badge></button>
       </div>
 
-      {/* Today's workout */}
-      <div className="neon-border neon-shadow hero-glow relative mt-5 overflow-hidden rounded-[22px]">
-        <span aria-hidden className="bg-neon absolute inset-x-0 top-0 h-[3px]" />
-        <div className="grid-bg border-b border-white/[0.06] p-4">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2"><span className="pulse-dot h-2 w-2 rounded-full bg-lime shadow-[0_0_10px_rgba(163,230,53,0.9)]" /><Label className="!text-cyan">{t('todayWorkout')}</Label></span>
-            {program && <span className="font-mono text-[11px] text-dim">{dayIdx + 1}/{program.days.length}</span>}
+      {/* HERO */}
+      <section className="card hud-full neon-shadow relative mt-4 overflow-hidden !rounded-[24px]">
+        <div className="scanlines holo-sweep relative h-[300px]">
+          <Photo name={heroPhoto} alt={t('photoOf', { x: program?.name ?? 'D31' })} eager />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.55)_0%,rgba(4,6,12,0.05)_32%,rgba(4,6,12,0.35)_58%,rgba(4,6,12,0.97)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,6,12,0.55),transparent_55%)]" />
+          <div className="absolute left-4 top-4 z-[2]">
+            <div className="font-mono text-[9.5px] uppercase tracking-[0.24em] text-gold/90">{t('scanLabel')} · {t('todayWorkout')}</div>
+            <h1 className="title-hud mt-1.5 text-[24px] leading-[1.05] text-frost drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">{t('hello', { n: name })}</h1>
+            <p className="mt-1.5 inline-block max-w-[240px] rounded-md bg-[#04060c]/70 px-2 py-0.5 text-[12px] font-semibold text-cyan backdrop-blur">{t('heroKicker')}</p>
           </div>
-          {program && day ? (
-            <>
-              <h2 className="mt-2 text-[22px] font-bold leading-tight">{day.name}</h2>
-              <p className="mt-0.5 text-[13px] text-muted">{program.name} · ~{estimateMinutes(day.items)} {t('min')} · {day.items.length} {t('exercises').toLowerCase()}</p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {day.items.map((it) => (
-                  <span key={it.exId} className="rounded-lg border border-white/[0.07] bg-white/[0.05] px-2 py-1 text-[12px] text-frost/90">
-                    {exName(EX_BY_ID[it.exId], s.lang)} <span className="text-dim">{it.sets}×{it.reps ?? `${it.secs}s`}</span>
-                  </span>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p className="mt-2 text-sm text-muted">{t('noProgram')}</p>
-          )}
+          <div className="absolute inset-x-4 bottom-3 z-[2]">
+            {program && day ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md border border-gold/50 bg-gold/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-gold">{dayIdx + 1}/{program.days.length}</span>
+                  <span className="truncate text-[12px] text-muted">{program.name} · ~{estimateMinutes(day.items)} {t('min')}</span>
+                </div>
+                <h2 className="mt-1 truncate text-[22px] font-bold leading-tight">{day.name}</h2>
+                <div className="no-scrollbar mt-2 flex gap-1.5 overflow-x-auto">
+                  {day.items.map((it, k) => (
+                    <span key={k} className="shrink-0 rounded-lg border border-cyan/20 bg-[#04060c]/70 px-2 py-1 text-[11.5px] text-frost/90 backdrop-blur">
+                      {exName(exOf(it.exId), s.lang)} <span className="text-cyan/80">{it.sets}×{it.target ?? it.reps ?? `${it.secs}s`}</span>
+                    </span>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-[14px] text-frost/90">{t('noProgram')}</p>
+            )}
+          </div>
         </div>
         <div className="flex gap-2 p-3">
           {program && day ? (
-            <>
-              <Button className="flex-1" onClick={start} variant={locked ? 'gold' : 'primary'}>
-                {locked ? <><Lock size={16} /> {t('unlockWith', { p: t(`plan_${program.plan}`) })}</> : <><Play size={16} fill="currentColor" /> {s.active ? t('resume') : t('start')}</>}
-              </Button>
-              <Button variant="ghost" onClick={() => navigate(`/train/program/${program.id}`)}>{t('seeAll')}</Button>
-            </>
+            <Button className="flex-1" onClick={start} variant={locked ? 'gold' : 'primary'}>
+              {locked ? <><Lock size={16} /> {t('unlockWith', { p: t(`plan_${program.plan}`) })}</> : <><Play size={16} fill="currentColor" /> {s.active ? t('resume') : t('start')}</>}
+            </Button>
           ) : (
             <Button className="flex-1" onClick={() => navigate('/train')}>{t('choose')}</Button>
           )}
+          <Button variant="outline" onClick={free} aria-label={t('emptyWorkout')}><Plus size={16} /> {t('emptyWorkout')}</Button>
         </div>
-      </div>
+      </section>
 
-      {/* Stats */}
-      <div className="mt-3 grid grid-cols-3 gap-3">
-        <Card className="p-3.5">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-[linear-gradient(135deg,rgba(251,146,60,0.25),rgba(244,114,208,0.2))]"><Flame size={17} className="text-orange" /></span>
-          <div className="font-display mt-2 text-2xl font-bold tabular-nums">{streak}</div>
-          <div className="text-[11px] text-muted">{t('streak')}</div>
+      {/* Readouts */}
+      <div className="mt-3 grid grid-cols-3 gap-2.5">
+        <Card className="p-3">
+          <IconTile icon={Flame} grad="gold" size={30} />
+          <div className="readout-gold mt-2 text-[26px] font-bold leading-none"><CountUp value={streak} /></div>
+          <div className="mt-1 text-[10.5px] text-muted">{t('streak')}</div>
         </Card>
         <Card className="flex flex-col items-center justify-center p-3">
-          <Ring value={weekSessions.length / weekTarget} size={56} stroke={5}>
-            <span className="text-sm font-bold tabular-nums">{weekSessions.length}/{weekTarget}</span>
+          <Ring value={weekSessions.length / weekTarget} size={58} stroke={5}>
+            <span className="readout text-[14px] font-bold">{weekSessions.length}/{weekTarget}</span>
           </Ring>
-          <div className="mt-1.5 text-[11px] text-muted">{t('thisWeek')}</div>
+          <div className="mt-1.5 text-[10.5px] text-muted">{t('thisWeek')}</div>
         </Card>
-        <Card className="p-3.5" onClick={() => navigate('/fuel?tab=recovery')}>
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-[linear-gradient(135deg,rgba(52,211,153,0.22),rgba(163,230,53,0.18))]"><HeartPulse size={17} style={{ color: checkin ? bandColor : '#8b93a3' }} /></span>
-          <div className="font-display mt-2 text-2xl font-bold tabular-nums">{checkin ? checkin.score : '—'}</div>
-          <div className="text-[11px] text-muted">{t('readiness')}</div>
+        <Card className="p-3" onClick={() => navigate('/fuel?tab=recovery')}>
+          <IconTile icon={HeartPulse} grad="lime" size={30} />
+          <div className="readout mt-2 text-[26px] font-bold leading-none" style={{ color: checkin ? bandColor : undefined }}>{checkin ? <CountUp value={checkin.score} /> : '—'}</div>
+          <div className="mt-1 text-[10.5px] text-muted">{t('readiness')}</div>
         </Card>
       </div>
 
-      {/* Readiness advice */}
-      <Card className="mt-3 flex items-center gap-3 p-4" onClick={() => navigate('/fuel?tab=recovery')}>
-        <span className="h-10 w-1.5 shrink-0 rounded-full" style={{ background: checkin ? bandColor : '#2c3545' }} />
-        <p className="flex-1 text-[14px] leading-snug">{checkin && band ? t(`rec_${band}`) : t('readinessNone')}</p>
+      <Card className="mt-2.5 flex items-center gap-3 p-3.5" onClick={() => navigate('/fuel?tab=recovery')}>
+        <span className="h-9 w-1.5 shrink-0 rounded-full" style={{ background: checkin ? bandColor : '#2c3545', boxShadow: checkin ? `0 0 12px ${bandColor}` : undefined }} />
+        <p className="flex-1 text-[13.5px] leading-snug">{checkin && band ? t(`rec_${band}`) : t('readinessNone')}</p>
         <ChevronRight size={18} className="text-dim" />
       </Card>
 
+      {/* Skill paths */}
+      <HudTitle tag="LADDERS" action={<button className="text-[11px] font-semibold text-cyan" onClick={() => navigate('/library?tab=paths')}>{t('seeAll')}</button>}>{t('skillPaths')}</HudTitle>
+      <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+        {LADDERS.map((l) => {
+          const st = ladderStatus(l, s.sessions)
+          const cur = l.steps[st.current]
+          return (
+            <button key={l.id} onClick={() => navigate(`/path/${l.id}`)} className="card relative h-[168px] w-[150px] shrink-0 snap-start overflow-hidden text-left">
+              {l.media ? <Photo name={l.media} small alt="" className="absolute inset-0 opacity-80" /> : <div className="grid-bg absolute inset-0" style={{ background: `radial-gradient(120% 90% at 0% 0%, ${l.accent}33, transparent 60%)` }} />}
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_25%,rgba(4,6,12,0.95))]" />
+              <div className="absolute inset-x-3 bottom-3">
+                <div className="font-mono text-[9px] uppercase tracking-[0.2em]" style={{ color: l.accent }}>{t('stepOf', { n: st.current + 1, t: l.steps.length })}</div>
+                <div className="title-hud mt-1 text-[12.5px] leading-tight">{l.name}</div>
+                <div className="mt-1 truncate text-[11px] text-muted">{exName(exOf(cur.exId), s.lang)}</div>
+                <div className="mt-2 flex gap-0.5">{l.steps.map((_, k) => <span key={k} className="h-1 flex-1 rounded-full" style={{ background: st.cleared[k] ? l.accent : k === st.current ? `${l.accent}66` : 'rgba(255,255,255,0.12)' }} />)}</div>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
       <OfferBanner />
 
-      <SectionHead title={t('quick')} />
+      <HudTitle tag="QUICK">{t('quick')}</HudTitle>
       <div className="grid grid-cols-4 gap-2.5">
         {[
-          { icon: ScanLine, label: t('qAnalyze'), to: '/analyze', c: 'text-cyan bg-[linear-gradient(135deg,rgba(34,211,238,0.25),rgba(96,165,250,0.15))] shadow-[0_0_16px_-6px_rgba(34,211,238,0.8)]' },
-          { icon: Camera, label: t('qCamera'), to: '/analyze?tab=live', c: 'text-violet bg-[linear-gradient(135deg,rgba(167,139,250,0.28),rgba(244,114,208,0.15))] shadow-[0_0_16px_-6px_rgba(167,139,250,0.8)]' },
-          { icon: Utensils, label: t('qMeal'), to: '/fuel?tab=nutrition', c: 'text-orange bg-[linear-gradient(135deg,rgba(251,146,60,0.26),rgba(245,185,66,0.15))] shadow-[0_0_16px_-6px_rgba(251,146,60,0.8)]' },
-          { icon: HeartPulse, label: t('qCheckin'), to: '/fuel?tab=recovery', c: 'text-lime bg-[linear-gradient(135deg,rgba(163,230,53,0.24),rgba(52,211,153,0.15))] shadow-[0_0_16px_-6px_rgba(163,230,53,0.8)]' },
-        ].map(({ icon: Icon, label, to, c }) => (
-          <button key={to} onClick={() => navigate(to)} className="card flex flex-col items-center gap-2 px-1 py-3.5 hover:border-cyan/25">
-            <span className={`grid h-10 w-10 place-items-center rounded-xl ${c}`}><Icon size={19} /></span>
-            <span className="text-center text-[11.5px] font-medium leading-tight">{label}</span>
+          { icon: ScanLine, label: t('qAnalyze'), to: '/analyze', g: 'cyan' as const },
+          { icon: Camera, label: t('qCamera'), to: '/analyze?tab=live', g: 'magenta' as const },
+          { icon: Utensils, label: t('qMeal'), to: '/fuel?tab=nutrition', g: 'gold' as const },
+          { icon: Activity, label: t('qCheckin'), to: '/fuel?tab=recovery', g: 'lime' as const },
+        ].map(({ icon, label, to, g }) => (
+          <button key={to} onClick={() => navigate(to)} className="card flex flex-col items-center gap-2 px-1 py-3.5">
+            <IconTile icon={icon} grad={g} />
+            <span className="text-center text-[11px] font-semibold leading-tight">{label}</span>
           </button>
         ))}
       </div>
 
-      <SectionHead title={t('fuelToday')} action={<button className="text-xs font-semibold text-cyan" onClick={() => navigate('/fuel')}>{t('seeAll')}</button>} />
+      <HudTitle tag="FUEL" action={<button className="text-[11px] font-semibold text-cyan" onClick={() => navigate('/fuel')}>{t('seeAll')}</button>}>{t('fuelToday')}</HudTitle>
       <Card className="flex items-center gap-4 p-4" onClick={() => navigate('/fuel?tab=nutrition')}>
-        <Ring value={kcal / targets.kcal} size={76} stroke={7} color="#f5b942">
+        <Ring value={kcal / targets.kcal} size={78} stroke={7} color="#f7c548">
           <div>
-            <div className="text-[15px] font-extrabold tabular-nums leading-none">{fmtNum(kcal)}</div>
-            <div className="mt-0.5 text-[10px] text-muted">/{fmtNum(targets.kcal)}</div>
+            <div className="readout-gold text-[15px] font-bold leading-none">{Math.round(kcal).toLocaleString('en-IN')}</div>
+            <div className="mt-0.5 text-[10px] text-muted">/{targets.kcal.toLocaleString('en-IN')}</div>
           </div>
         </Ring>
         <div className="flex-1 space-y-2.5">
@@ -154,11 +189,12 @@ export function Home() {
           </div>
         </div>
       </Card>
+      <p className="mt-6 text-center font-mono text-[9.5px] uppercase tracking-[0.3em] text-dim">D31.UNIVERSE · {t('byDarshan')}</p>
     </div>
   )
 }
 
-const BAR_END: Record<string, string> = { '#22d3ee': '#a78bfa', '#f5b942': '#fb923c', '#34d399': '#a3e635', '#a78bfa': '#f472d0', '#f87171': '#f472d0' }
+const BAR_END: Record<string, string> = { '#22d3ee': '#a78bfa', '#f5b942': '#fb923c', '#f7c548': '#fb923c', '#34d399': '#a3e635', '#a78bfa': '#f472d0', '#f87171': '#f472d0' }
 
 export function Bar({ label, value, max, unit, color }: { label: string; value: number; max: number; unit: string; color: string }) {
   return (
@@ -168,7 +204,7 @@ export function Bar({ label, value, max, unit, color }: { label: string; value: 
         <span className="font-semibold tabular-nums">{Math.round(value)}<span className="text-dim">/{max}{unit}</span></span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
-        <div className="h-full rounded-full" style={{ width: `${Math.min(100, (value / Math.max(1, max)) * 100)}%`, background: `linear-gradient(90deg, ${color}, ${BAR_END[color] ?? color})` }} />
+        <div className="h-full rounded-full" style={{ width: `${Math.min(100, (value / Math.max(1, max)) * 100)}%`, background: `linear-gradient(90deg, ${color}, ${BAR_END[color] ?? color})`, boxShadow: `0 0 10px ${color}88` }} />
       </div>
     </div>
   )

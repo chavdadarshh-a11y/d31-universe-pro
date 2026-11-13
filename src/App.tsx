@@ -18,6 +18,9 @@ import { Profile } from './screens/Profile'
 import { Membership } from './screens/Membership'
 import { Legal } from './screens/Legal'
 import { Auth } from './screens/Auth'
+import { PathDetail } from './screens/PathDetail'
+import { Cosmos } from './components/Cosmos'
+import { GradDefs } from './components/hud'
 import { fmtClock } from './lib/util'
 import { useNow } from './lib/hooks'
 
@@ -35,18 +38,18 @@ const NAV = [
 function BottomNav({ current }: { current: string }) {
   const t = useT()
   return (
-    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 bg-[#07080b]/88 backdrop-blur-xl" aria-label="Main">
-      <span aria-hidden className="bg-neon absolute inset-x-0 top-0 h-px opacity-50" />
+    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 bg-[#04060c]/85 backdrop-blur-xl" aria-label="Main">
+      <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,#f7c548,#22d3ee,transparent)] opacity-60" />
       <div className="mx-auto grid max-w-lg grid-cols-6 px-1">
         {NAV.map(({ id, icon: Icon, key }) => {
           const active = current === id
           return (
             <button key={id} onClick={() => navigate('/' + id)} aria-current={active ? 'page' : undefined} className="relative flex h-[62px] flex-col items-center justify-center gap-1">
-              {active && <span aria-hidden className="bg-neon-static absolute top-0 h-[3px] w-8 rounded-b-full shadow-[0_0_12px_2px_rgba(34,211,238,0.55)]" />}
-              <span className={`grid h-7 w-12 place-items-center rounded-full transition-all ${active ? 'bg-[linear-gradient(135deg,rgba(34,211,238,0.25),rgba(167,139,250,0.25))] text-cyan shadow-[0_0_18px_-4px_rgba(34,211,238,0.7)]' : 'text-dim'}`}>
+              {active && <span aria-hidden className="absolute top-0 h-[3px] w-8 rounded-b-full bg-[linear-gradient(90deg,#f7c548,#22d3ee)] shadow-[0_0_12px_2px_rgba(247,197,72,0.5)]" />}
+              <span className={`grid h-7 w-12 place-items-center rounded-full transition-all ${active ? 'border border-gold/40 bg-[linear-gradient(135deg,rgba(247,197,72,0.18),rgba(34,211,238,0.18))] text-gold shadow-[0_0_18px_-4px_rgba(247,197,72,0.7)]' : 'text-dim'}`}>
                 <Icon size={19} strokeWidth={active ? 2.4 : 2} />
               </span>
-              <span className={`text-[10.5px] font-semibold leading-none ${active ? 'text-frost' : 'text-dim'}`}>{t(key)}</span>
+              <span className={`font-ui text-[10px] font-semibold uppercase leading-none tracking-[0.06em] ${active ? 'text-gold' : 'text-dim'}`}>{t(key)}</span>
             </button>
           )
         })}
@@ -98,7 +101,7 @@ export default function App() {
     if (onboarded && !root) navigate('/home')
   }, [onboarded, root])
 
-  if (!onboarded && root !== 'legal') return (<><Onboarding /><Toast /></>)
+  if (!onboarded && root !== 'legal') return (<><Cosmos /><GradDefs /><Onboarding /><Toast /></>)
 
   let screen: React.ReactNode
   let showNav = true
@@ -116,13 +119,16 @@ export default function App() {
     case 'profile': screen = <Profile />; break
     case 'membership': screen = <Membership />; break
     case 'legal': screen = <Legal doc={a ?? 'privacy'} />; showNav = onboarded; break
+    case 'path': screen = <PathDetail id={a ?? ''} />; break
     case 'auth': screen = <Auth />; showNav = false; break
     default: screen = <Home />
   }
-  const navId = NAV.some((n) => n.id === root) ? root : root === 'fuel' ? 'home' : root === 'membership' ? 'profile' : ''
+  const navId = NAV.some((n) => n.id === root) ? root : root === 'fuel' ? 'home' : root === 'path' ? 'library' : root === 'membership' ? 'profile' : ''
 
   return (
-    <div className="mx-auto min-h-dvh max-w-lg px-4">
+    <div className="relative z-[1] mx-auto min-h-dvh max-w-lg px-4">
+      <Cosmos />
+      <GradDefs />
       {!isLive && (
         <div className="-mx-4 flex items-center justify-center gap-2 bg-[linear-gradient(90deg,rgba(245,185,66,0.12),rgba(251,146,60,0.12))] px-4 py-1.5 text-center text-[11px] font-medium leading-tight text-gold">
           <span className="rounded bg-gold px-1 font-mono text-[9px] font-bold text-black">{t('demo')}</span>

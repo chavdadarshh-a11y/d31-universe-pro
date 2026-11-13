@@ -2,7 +2,7 @@ export type Lang = 'en' | 'hi' | 'gu'
 export type PlanId = 'free' | 'pro' | 'premium' | 'coaching'
 export type Goal = 'muscle' | 'fatloss' | 'strength' | 'skills' | 'mobility'
 export type Level = 'beginner' | 'intermediate' | 'advanced'
-export type Equipment = 'none' | 'dumbbell' | 'barbell' | 'bar' | 'band' | 'bench' | 'kettlebell'
+export type Equipment = 'none' | 'dumbbell' | 'barbell' | 'bar' | 'band' | 'bench' | 'kettlebell' | 'cable'
 export type Category = 'strength' | 'calisthenics' | 'mobility' | 'cardio'
 export type D31Layer = 'RANGE' | 'CONTROL' | 'FORCE' | 'EXPRESSION' | 'IDENTITY'
 
@@ -28,9 +28,16 @@ export type Exercise = {
   cues: string[]
   mistakes: string[]
   benefits: string[]
+  /** Photo of Darshan doing this exercise (public/media/<media>.webp) */
+  media?: string
+  /** Progression ladder this exercise belongs to */
+  ladder?: string
+  /** User-created exercise (stored on the phone) */
+  custom?: boolean
 }
 
-export type PlanItem = { exId: string; sets: number; reps?: number; secs?: number; rest: number }
+/** A template line. Every number is only a SUGGESTION — the logger lets the user add/remove sets and change everything. */
+export type PlanItem = { exId: string; sets: number; reps?: number; secs?: number; rest: number; target?: string; note?: string }
 export type ProgramDay = { name: string; items: PlanItem[] }
 export type Program = {
   id: string
@@ -44,12 +51,17 @@ export type Program = {
   equipment: Equipment[]
   description: string
   days: ProgramDay[]
+  /** Cover photo (public/media/<media>.webp) */
+  media?: string
+  /** Skill ladder this program drives */
+  ladder?: string
 }
 
-export type CustomWorkout = { id: string; name: string; items: PlanItem[]; createdAt: string }
+export type CustomWorkout = { id: string; name: string; items: PlanItem[]; createdAt: string; note?: string }
 
-export type LoggedSet = { reps: number; kg: number; secs?: number; done: boolean }
-export type LoggedExercise = { exId: string; sets: LoggedSet[] }
+export type SetType = 'warmup' | 'working' | 'drop' | 'failure'
+export type LoggedSet = { reps: number; kg: number; secs?: number; rpe?: number; note?: string; type?: SetType; done: boolean }
+export type LoggedExercise = { exId: string; sets: LoggedSet[]; note?: string }
 export type WorkoutSession = {
   id: string
   name: string

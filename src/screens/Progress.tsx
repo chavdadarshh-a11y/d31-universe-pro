@@ -4,7 +4,7 @@ import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Confirm, Empty, Header, Label, Sheet, Stepper, Tabs } from '../components/ui'
 import { BarChart, LineChart } from '../components/Charts'
-import { EX_BY_ID, exName } from '../data/exercises'
+import { exOf, exName } from '../data/exercises'
 import { compressImage, computeStreak, dayKey, fmtClock, fmtDate, fmtNum, weeklyBuckets } from '../lib/util'
 import { computeRecords } from '../lib/workout'
 import { cloud } from '../lib/cloud'
@@ -84,7 +84,7 @@ function History() {
               <div className="border-t border-white/[0.06] px-4 pb-3 pt-2">
                 {x.exercises.map((e, i) => (
                   <div key={i} className="flex items-start justify-between gap-3 py-1.5 text-[13px]">
-                    <span className="text-frost/90">{EX_BY_ID[e.exId] ? exName(EX_BY_ID[e.exId], s.lang) : e.exId}</span>
+                    <span className="text-frost/90">{exName(exOf(e.exId), s.lang)}</span>
                     <span className="text-right font-mono text-[12px] text-muted">{e.sets.map((st) => (st.secs && !st.reps ? `${st.secs}s` : st.kg ? `${st.kg}×${st.reps}` : `${st.reps}`)).join('  ')}</span>
                   </div>
                 ))}
@@ -188,7 +188,7 @@ function Records() {
         <Card key={r.exId} className="flex items-center gap-3 p-4">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/12 text-gold"><Trophy size={18} /></span>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[15px] font-semibold">{exName(EX_BY_ID[r.exId], s.lang)}</div>
+            <div className="truncate text-[15px] font-semibold">{exName(exOf(r.exId), s.lang)}</div>
             <div className="text-[12px] text-muted">{fmtDate(r.date, s.lang)}</div>
           </div>
           <div className="text-right">

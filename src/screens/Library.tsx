@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Search, SlidersHorizontal, X, FileText, PlayCircle } from 'lucide-react'
+import { Search, SlidersHorizontal, X, FileText, PlayCircle, Plus } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Chip, CHIP_COLORS, Empty, Header, Label, Sheet, Tabs } from '../components/ui'
 import { BodyThumb, BACK_IDS, FRONT_IDS } from '../components/BodyMap'
-import { EXERCISES, exName } from '../data/exercises'
+import { allExercises, exName, exOf } from '../data/exercises'
+import { LADDERS } from '../data/ladders'
+import { Photo } from '../components/hud'
+import { CustomExerciseSheet } from '../components/ExercisePicker'
+import { ladderStatus } from '../lib/training'
+import { hashQuery } from '../lib/router'
 import { SAMPLE_POSTS } from '../data/posts'
 import { fetchPosts, type D31Post } from '../lib/posts'
 import { navigate } from '../lib/router'
@@ -13,11 +18,12 @@ import type { Category, Equipment, Exercise, MuscleId } from '../types'
 
 const MUSCLES: MuscleId[] = ['chest', 'shoulders', 'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'traps', 'lats', 'upper_back', 'lower_back', 'glutes', 'quads', 'hamstrings', 'adductors', 'calves', 'rear_delts']
 const CATS: Category[] = ['strength', 'calisthenics', 'mobility', 'cardio']
-const EQUIP: Equipment[] = ['none', 'dumbbell', 'barbell', 'bar', 'bench', 'kettlebell']
+const EQUIP: Equipment[] = ['none', 'dumbbell', 'barbell', 'bar', 'bench', 'kettlebell', 'cable']
 
 const realLink = (u: string) => !!u && !u.includes('example.com')
 
 function Thumb({ e }: { e: Exercise }) {
+  if (e.media) return <div className="relative h-[76px] w-[56px] shrink-0 overflow-hidden rounded-xl border border-gold/30"><Photo name={e.media} small alt="" /></div>
   const backOnly = (m: MuscleId) => BACK_IDS.has(m) && !FRONT_IDS.has(m)
   const frontOnly = (m: MuscleId) => FRONT_IDS.has(m) && !BACK_IDS.has(m)
   const backHeavy = e.primary.filter(backOnly).length > e.primary.filter(frontOnly).length
@@ -31,7 +37,10 @@ function Thumb({ e }: { e: Exercise }) {
 export function Library() {
   const t = useT()
   const lang = useApp((s) => s.lang)
-  const [tab, setTab] = useState<'ex' | 'kn'>('ex')
+  const customs = useApp((s) => s.customExercises)
+  const sessions = useApp((s) => s.sessions)
+  const [tab, setTab] = useState<'ex' | 'paths' | 'kn'>(() => (hashQuery().get('tab') as 'paths') || 'ex')
+  const [create, setCreate] = useState(false)
   const [q, setQ] = useState('')
   const [cat, setCat] = useState<Category | null>(null)
   const [muscle, setMuscle] = useState<MuscleId | null>(null)
@@ -50,7 +59,7 @@ export function Library() {
   const ql = q.trim().toLowerCase()
   const list = useMemo(
     () =>
-      EXERCISES.filter(
+      allExercises().filter(
         (e) =>
           (!ql || [e.name, e.nameHi, e.nameGu, e.summary, ...e.primary.map((m) => t(`m_${m}`))].some((x) => x.toLowerCase().includes(ql))) &&
           (!cat || e.category === cat) &&
@@ -59,7 +68,7 @@ export function Library() {
           (!level || e.level === level),
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ql, cat, muscle, equip, level, lang],
+    [ql, cat, muscle, equip, level, lang, customs],
   )
   const shownPosts = isLive ? posts : posts.filter((p) => !ql || `${p.title} ${p.core_skill} ${p.layer} ${p.skills.join(' ')}`.toLowerCase().includes(ql))
   const nFilters = [muscle, equip, level].filter((x) => x !== null).length
@@ -68,8 +77,29 @@ export function Library() {
   return (
     <div>
       <Header title={t('navLibrary')} sub={t('librarySub')} />
-      <Tabs value={tab} onChange={setTab} items={[{ id: 'ex', label: t('exercises') }, { id: 'kn', label: t('knowledge') }]} />
-      <div className="mt-3 flex gap-2">
+      <Tabs value={tab} onChange={setTab} items={[{ id: 'ex', label: t('exercises') }, { id: 'paths', label: t('skillPaths') }, { id: 'kn', label: t('knowledge') }]} />
+      {tab === 'paths' && (
+        <div className="mt-3 space-y-3">
+          <p className="text-[13px] leading-snug text-muted">{t('skillPathsSub')}</p>
+          {LADDERS.map((l) => {
+            const st = ladderStatus(l, sessions)
+            return (
+              <Card key={l.id} onClick={() => navigate(`/path/${l.id}`)} className="relative flex items-center gap-3 overflow-hidden p-3">
+                <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl border" style={{ borderColor: `${l.accent}55` }}>
+                  {l.media ? <Photo name={l.media} small alt="" /> : <div className="grid-bg h-full w-full" style={{ background: `radial-gradient(circle at 30% 30%, ${l.accent}44, transparent 70%)` }} />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="title-hud text-[13.5px]">{l.name}</div>
+                  <div className="mt-0.5 truncate text-[12px] text-muted">{t('currentStep')}: {exName(exOf(l.steps[st.current].exId), lang)}</div>
+                  <div className="mt-2 flex gap-0.5">{l.steps.map((_, k) => <span key={k} className="h-1.5 flex-1 rounded-full" style={{ background: st.cleared[k] ? l.accent : k === st.current ? `${l.accent}66` : 'rgba(255,255,255,0.1)' }} />)}</div>
+                </div>
+                <span className="font-mono text-[11px]" style={{ color: l.accent }}>{st.current + 1}/{l.steps.length}</span>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+      {tab !== 'paths' && <div className="mt-3 flex gap-2">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
           <input className="field pl-9" placeholder={t('searchPh')} value={q} onChange={(e) => setQ(e.target.value)} type="search" />
@@ -80,7 +110,7 @@ export function Library() {
             {nFilters > 0 && <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-cyan text-[11px] font-bold text-black">{nFilters}</span>}
           </button>
         )}
-      </div>
+      </div>}
 
       {tab === 'ex' && (
         <>
@@ -95,7 +125,10 @@ export function Library() {
               {level && <Chip active onClick={() => setLevel(null)}>{levelLabel(level)} <X size={12} className="ml-1 inline" /></Chip>}
             </div>
           )}
-          <div className="label mb-2 mt-4">{t('results', { n: list.length })}</div>
+          <div className="mb-2 mt-4 flex items-center justify-between">
+            <span className="label">{t('results', { n: list.length })}</span>
+            <button onClick={() => setCreate(true)} className="flex items-center gap-1 text-[12px] font-semibold text-gold"><Plus size={14} /> {t('createExercise')}</button>
+          </div>
           {list.length === 0 && <Empty text={t('noResults')} />}
           <div className="space-y-2">
             {list.map((e) => (
@@ -107,6 +140,7 @@ export function Library() {
                   <div className="mt-1.5 flex gap-1.5">
                     <Badge tone="muted">{t(`cat_${e.category}`)}</Badge>
                     <Badge tone={e.level === 3 ? 'violet' : 'muted'}>{levelLabel(e.level)}</Badge>
+                    {e.custom && <Badge tone="gold">{t('customTag')}</Badge>}
                   </div>
                 </div>
               </Card>
@@ -133,6 +167,8 @@ export function Library() {
           ))}
         </div>
       )}
+
+      <CustomExerciseSheet open={create} onClose={() => setCreate(false)} onSaved={(e) => navigate(`/library/${e.id}`)} />
 
       <Sheet open={filters} onClose={() => setFilters(false)} title={t('filters')}>
         <Label>{t('muscle')}</Label>

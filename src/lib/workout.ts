@@ -1,53 +1,100 @@
 import { useApp } from '../store/app'
-import { EX_BY_ID } from '../data/exercises'
+import { exOf } from '../data/exercises'
 import { PROGRAM_BY_ID } from '../data/programs'
-import type { ActiveWorkout, LoggedExercise, PlanItem, WorkoutSession } from '../types'
-import { epley, uid } from './util'
+import type { ActiveWorkout, CustomWorkout, LoggedExercise, LoggedSet, PlanItem, WorkoutSession } from '../types'
+import { uid } from './util'
 import { cloud } from './cloud'
+import { computeRecords as computeRecordsPure, isPR, previousSets, summarizeSets, volumeOf, type PRecord } from './training'
+
+export type { PRecord }
+const trackingOf = (id: string) => exOf(id).tracking
 
 /** Last weight used for an exercise, for smart pre-fill */
 export function lastKg(exId: string): number {
-  for (const s of useApp.getState().sessions) {
-    const ex = s.exercises.find((e) => e.exId === exId)
-    const done = ex?.sets.filter((x) => x.done && x.kg > 0)
-    if (done && done.length) return done[done.length - 1].kg
-  }
-  return 0
+  const prev = previousSets(exId, useApp.getState().sessions)
+  const w = prev?.sets.filter((x) => x.kg > 0)
+  return w && w.length ? w[w.length - 1].kg : 0
+}
+
+export function computeRecords(sessions: WorkoutSession[]): PRecord[] {
+  return computeRecordsPure(sessions, trackingOf)
+}
+
+export function lastTime(exId: string): { text: string; date: string } | null {
+  const prev = previousSets(exId, useApp.getState().sessions)
+  if (!prev) return null
+  return { text: summarizeSets(prev.sets, trackingOf(exId)), date: prev.date }
+}
+
+export function prevSetsOf(exId: string): LoggedSet[] {
+  return previousSets(exId, useApp.getState().sessions)?.sets ?? []
+}
+
+export function setIsPR(exId: string, set: LoggedSet): boolean {
+  return isPR(exId, set, trackingOf(exId), useApp.getState().sessions)
+}
+
+/** Build the starting rows for one exercise: previous performance first, template target second. */
+function seedSets(item: PlanItem): LoggedSet[] {
+  const prev = prevSetsOf(item.exId).filter((x) => (x.type ?? 'working') !== 'warmup')
+  const n = Math.max(1, item.sets)
+  return Array.from({ length: n }, (_, i) => {
+    const p = prev[Math.min(i, prev.length - 1)]
+    return {
+      reps: p?.reps ?? item.reps ?? 0,
+      kg: p?.kg ?? lastKg(item.exId),
+      secs: p?.secs ?? item.secs,
+      type: 'working' as const,
+      done: false,
+    }
+  })
 }
 
 export function startWorkout(name: string, items: PlanItem[], programId?: string, dayIndex?: number) {
-  const log: LoggedExercise[] = items.map((it) => ({
-    exId: it.exId,
-    sets: Array.from({ length: it.sets }, () => ({ reps: it.reps ?? 0, secs: it.secs, kg: lastKg(it.exId), done: false })),
-  }))
+  const log: LoggedExercise[] = items.map((it) => ({ exId: it.exId, sets: seedSets(it), note: it.note }))
   const active: ActiveWorkout = { name, programId, dayIndex, startedAt: new Date().toISOString(), items, log, current: 0 }
   useApp.setState({ active })
 }
 
-export type PRecord = { exId: string; kind: 'weight' | 'reps' | 'time'; value: number; kg?: number; reps?: number; date: string }
+/** Free-form session: start empty, add whatever you actually train. */
+export function startEmpty(name: string) {
+  useApp.setState({ active: { name, startedAt: new Date().toISOString(), items: [], log: [], current: 0 } })
+}
 
-/** Personal records across all sessions (derived — no extra table needed). */
-export function computeRecords(sessions: WorkoutSession[]): PRecord[] {
-  const best = new Map<string, PRecord>()
-  const ordered = [...sessions].sort((a, b) => a.startedAt.localeCompare(b.startedAt))
-  for (const s of ordered) {
-    for (const ex of s.exercises) {
-      const meta = EX_BY_ID[ex.exId]
-      if (!meta) continue
-      for (const set of ex.sets) {
-        if (!set.done) continue
-        let rec: PRecord | null = null
-        if (meta.tracking === 'time') rec = { exId: ex.exId, kind: 'time', value: set.secs ?? 0, date: s.startedAt }
-        else if (set.kg > 0) rec = { exId: ex.exId, kind: 'weight', value: epley(set.kg, set.reps), kg: set.kg, reps: set.reps, date: s.startedAt }
-        else rec = { exId: ex.exId, kind: 'reps', value: set.reps, reps: set.reps, date: s.startedAt }
-        const cur = best.get(ex.exId)
-        // a weighted record always beats a bodyweight one for the same exercise
-        const better = !cur || (rec.kind === 'weight' && cur.kind !== 'weight') || (rec.kind === cur.kind && rec.value > cur.value)
-        if (better && rec.value > 0) best.set(ex.exId, rec)
-      }
+export function itemFor(exId: string): PlanItem {
+  const e = exOf(exId)
+  return e.tracking === 'time' ? { exId, sets: 1, secs: 20, rest: 90 } : { exId, sets: 1, reps: 0, rest: useApp.getState().restDefault }
+}
+
+export function addExerciseToActive(exId: string) {
+  const a = useApp.getState().active
+  if (!a) return
+  const item = itemFor(exId)
+  useApp.setState({ active: { ...a, items: [...a.items, item], log: [...a.log, { exId, sets: seedSets(item) }], current: a.log.length } })
+}
+
+export function patchActive(fn: (a: ActiveWorkout) => ActiveWorkout) {
+  const a = useApp.getState().active
+  if (a) useApp.setState({ active: fn(a) })
+}
+
+/** Turn what was actually logged into a reusable routine (targets = what you did). */
+export function routineFromLog(name: string, a: ActiveWorkout): CustomWorkout {
+  const items: PlanItem[] = a.log.map((l, i) => {
+    const work = l.sets.filter((s) => (s.type ?? 'working') !== 'warmup')
+    const ref = work[work.length - 1] ?? l.sets[0]
+    const tr = trackingOf(l.exId)
+    return {
+      exId: l.exId,
+      sets: Math.max(1, l.sets.length),
+      reps: tr === 'reps' ? ref?.reps : undefined,
+      secs: tr === 'time' ? ref?.secs ?? 20 : undefined,
+      rest: a.items[i]?.rest ?? useApp.getState().restDefault,
+      target: summarizeSets(l.sets, tr) || undefined,
+      note: l.note,
     }
-  }
-  return [...best.values()].sort((a, b) => b.date.localeCompare(a.date))
+  })
+  return { id: uid(), name, items, createdAt: new Date().toISOString() }
 }
 
 export function finishWorkout(): { session: WorkoutSession; newPRs: PRecord[] } | null {
@@ -55,8 +102,10 @@ export function finishWorkout(): { session: WorkoutSession; newPRs: PRecord[] } 
   const a = st.active
   if (!a) return null
   const before = new Map(computeRecords(st.sessions).map((r) => [r.exId, r]))
-  const exercises = a.log.map((l) => ({ exId: l.exId, sets: l.sets.filter((s) => s.done) })).filter((l) => l.sets.length)
-  const volumeKg = exercises.reduce((v, e) => v + e.sets.reduce((x, s) => x + s.kg * s.reps, 0), 0)
+  const exercises = a.log
+    .map((l) => ({ exId: l.exId, note: l.note, sets: l.sets.filter((s) => s.done).map((s) => ({ ...s, type: s.type ?? 'working' })) }))
+    .filter((l) => l.sets.length)
+  const volumeKg = exercises.reduce((v, e) => v + volumeOf(e.sets), 0)
   const session: WorkoutSession = {
     id: uid(),
     name: a.name,
@@ -78,7 +127,7 @@ export function finishWorkout(): { session: WorkoutSession; newPRs: PRecord[] } 
   const after = computeRecords([session, ...st.sessions])
   const newPRs = after.filter((r) => {
     const b = before.get(r.exId)
-    return r.date === session.startedAt && (!b || r.value > b.value || (r.kind === 'weight' && b.kind !== 'weight'))
+    return r.date === session.startedAt && !!b && (r.value > b.value || (r.kind === 'weight' && b.kind !== 'weight'))
   })
   return { session, newPRs }
 }

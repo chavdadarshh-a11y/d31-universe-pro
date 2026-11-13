@@ -4,6 +4,7 @@ import { useApp } from '../store/app'
 import { useT, LANGS } from '../i18n'
 import { Button, Stepper } from '../components/ui'
 import { LogoMark, Wordmark } from '../components/Brand'
+import { Photo } from '../components/hud'
 import { navigate } from '../lib/router'
 import type { Equipment, Goal, Level, Profile } from '../types'
 import { PROGRAMS } from '../data/programs'
@@ -78,16 +79,21 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
 
       {step === 0 && (
         <div className="flex flex-1 flex-col">
-          <div className="grid-bg -mx-5 flex flex-1 flex-col items-center justify-center px-5 py-10 text-center">
-            <LogoMark size={76} />
-            <Wordmark className="mt-6 text-lg" />
-            <h1 className="mt-5 text-[30px] font-extrabold leading-tight tracking-tight">{t('obWelcome')}</h1>
-            <p className="mt-3 max-w-xs text-[15px] text-muted">{t('obWelcomeSub')}</p>
+          <div className="card hud-full scanlines holo-sweep relative flex min-h-[420px] flex-1 flex-col items-center justify-end overflow-hidden px-5 pb-7 text-center">
+            <Photo name="front-lever" alt={t('photoOf', { x: 'Front Lever' })} eager />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.35)_0%,rgba(4,6,12,0.1)_35%,rgba(4,6,12,0.95)_80%)]" />
+            <div className="relative z-[2] flex flex-col items-center">
+              <span className="rounded-2xl shadow-[0_0_30px_-4px_rgba(247,197,72,0.7)]"><LogoMark size={64} /></span>
+              <Wordmark className="mt-4 text-lg" />
+              <div className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.26em] text-cyan/90">{t('heroKicker')}</div>
+              <h1 className="title-hud mt-3 text-[24px] leading-tight">{t('obWelcome')}</h1>
+              <p className="mt-2 max-w-xs text-[14px] text-frost/80">{t('obWelcomeSub')}</p>
+            </div>
           </div>
           <div className="label mb-3 mt-6">{t('obLanguage')}</div>
           <div className="grid grid-cols-3 gap-2">
             {LANGS.map((l) => (
-              <button key={l.id} onClick={() => setLang(l.id)} className={`h-14 rounded-2xl border text-[15px] font-semibold ${lang === l.id ? 'border-cyan/60 bg-cyan/10 text-cyan' : 'border-white/10 bg-white/[0.03] text-muted'}`}>
+              <button key={l.id} onClick={() => setLang(l.id)} className={`h-14 rounded-2xl border text-[15px] font-semibold ${lang === l.id ? 'border-gold/60 bg-gold/10 text-gold' : 'border-white/10 bg-white/[0.03] text-muted'}`}>
                 {l.native}
               </button>
             ))}

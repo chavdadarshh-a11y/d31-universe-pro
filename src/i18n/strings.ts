@@ -101,6 +101,22 @@ export const en = {
   validUntil: 'Active until {d}', signInToBuy: 'Sign in first so your membership is saved to your account.', unlockWith: 'Unlock with {p}',
   // legal page labels
   lastUpdated: 'Last updated',
+  // v3 — logger, skill paths, redesign
+  eq_cable: 'Cable / machine',
+  emptyWorkout: 'Empty workout', freeLog: 'Log freely — any exercise, any number of sets, your reps, your kg.', logWorkout: 'Log workout',
+  addSet: 'Add set', duplicate: 'Duplicate', removeSet: 'Remove set', removeExercise: 'Remove exercise', moveUp: 'Move up', moveDown: 'Move down',
+  setType: 'Set type', st_warmup: 'Warm-up', st_working: 'Working', st_drop: 'Drop set', st_failure: 'To failure',
+  rpe: 'RPE', rpeHint: 'Effort 6–10 (10 = no reps left)', note: 'Note', addNote: 'Add note', notePh: 'e.g. left side weaker, 4 s lowering',
+  previous: 'Previous', lastTime: 'Last time', suggested: 'Suggested', suggestedHint: 'Targets are only suggestions. Add or remove sets and change reps, kg, time and RPE freely.',
+  newPR: 'New PR', saveRoutine: 'Save as routine', routineName: 'Routine name', routineSaved: 'Routine saved', routines: 'My routines',
+  createExercise: 'Create custom exercise', exNameLbl: 'Exercise name', tracking: 'Track by', trk_reps: 'Reps & weight', trk_time: 'Time / hold',
+  primaryPick: 'Main muscles', customTag: 'Custom', holdSec: 'Hold', kgOpt: '+kg', secShort: 's', setsLogged: 'Sets logged', liveVolume: 'Volume',
+  skillPaths: 'Skill paths', skillPathsSub: 'Progression ladders with clear criteria. Your status comes only from your own logs.',
+  stepOf: 'Step {n} of {t}', cleared: 'Cleared', currentStep: 'Current step', goalLbl: 'Move up when', yourBest: 'Your best',
+  noLogsYet: 'No logs yet — log this exercise and your progress appears here.', startHere: 'Start here', partOfPath: 'Part of a skill path',
+  openPath: 'Open path', heroKicker: 'Real biomechanics. No guesswork.', byDarshan: 'by Darshan Chavda', athleteLbl: 'Athlete',
+  sessionsLbl: 'Sessions', noSessionsYet: 'No sessions logged yet.', targetLbl: 'Target', restLbl: 'rest',
+  photoOf: 'Darshan Chavda — {x}', systemOnline: 'System online', scanLabel: 'D31 // HUD',
 }
 
 export type StringKey = keyof typeof en
@@ -189,6 +205,21 @@ export const hi: Dict = {
   demoPay: 'डेमो चेकआउट: कोई पैसा नहीं कटेगा. असली पेमेंट के लिए Razorpay keys जोड़ें.', demoPayConfirm: 'डेमो में {p} चालू करें',
   validUntil: '{d} तक चालू', signInToBuy: 'पहले साइन इन करें ताकि मेंबरशिप आपके अकाउंट में सेव हो.', unlockWith: '{p} से अनलॉक करें',
   lastUpdated: 'आखिरी अपडेट',
+  eq_cable: 'केबल / मशीन',
+  emptyWorkout: 'खाली वर्कआउट', freeLog: 'खुलकर लॉग करें — कोई भी एक्सरसाइज़, जितने चाहें सेट, आपके रेप्स, आपका वज़न।', logWorkout: 'वर्कआउट लॉग करें',
+  addSet: 'सेट जोड़ें', duplicate: 'कॉपी करें', removeSet: 'सेट हटाएँ', removeExercise: 'एक्सरसाइज़ हटाएँ', moveUp: 'ऊपर करें', moveDown: 'नीचे करें',
+  setType: 'सेट का प्रकार', st_warmup: 'वार्म-अप', st_working: 'वर्किंग', st_drop: 'ड्रॉप सेट', st_failure: 'फेलियर तक',
+  rpe: 'RPE', rpeHint: 'मेहनत 6–10 (10 = एक भी रेप बाकी नहीं)', note: 'नोट', addNote: 'नोट जोड़ें', notePh: 'जैसे: बायाँ साइड कमज़ोर, 4 सेकंड नीचे',
+  previous: 'पिछली बार', lastTime: 'पिछली बार', suggested: 'सुझाव', suggestedHint: 'टारगेट सिर्फ़ सुझाव हैं। सेट जोड़ें/हटाएँ, रेप्स, kg, समय और RPE खुद बदलें।',
+  newPR: 'नया PR', saveRoutine: 'रूटीन के रूप में सेव करें', routineName: 'रूटीन का नाम', routineSaved: 'रूटीन सेव हो गया', routines: 'मेरे रूटीन',
+  createExercise: 'अपनी एक्सरसाइज़ बनाएँ', exNameLbl: 'एक्सरसाइज़ का नाम', tracking: 'कैसे ट्रैक करें', trk_reps: 'रेप्स और वज़न', trk_time: 'समय / होल्ड',
+  primaryPick: 'मुख्य मसल्स', customTag: 'कस्टम', holdSec: 'होल्ड', kgOpt: '+kg', secShort: 'से', setsLogged: 'सेट लॉग हुए', liveVolume: 'वॉल्यूम',
+  skillPaths: 'स्किल पाथ', skillPathsSub: 'साफ़ क्राइटेरिया वाली प्रोग्रेशन सीढ़ी। आपका स्टेटस सिर्फ़ आपके अपने लॉग से आता है।',
+  stepOf: 'स्टेप {n} / {t}', cleared: 'पूरा', currentStep: 'मौजूदा स्टेप', goalLbl: 'आगे बढ़ें जब', yourBest: 'आपका बेस्ट',
+  noLogsYet: 'अभी कोई लॉग नहीं — यह एक्सरसाइज़ लॉग करें, प्रोग्रेस यहाँ दिखेगी।', startHere: 'यहाँ से शुरू करें', partOfPath: 'स्किल पाथ का हिस्सा',
+  openPath: 'पाथ खोलें', heroKicker: 'असली बायोमैकेनिक्स। कोई अंदाज़ा नहीं।', byDarshan: 'Darshan Chavda द्वारा', athleteLbl: 'एथलीट',
+  sessionsLbl: 'सेशन', noSessionsYet: 'अभी कोई सेशन लॉग नहीं हुआ।', targetLbl: 'टारगेट', restLbl: 'आराम',
+  photoOf: 'Darshan Chavda — {x}', systemOnline: 'सिस्टम ऑनलाइन', scanLabel: 'D31 // HUD',
 }
 
 export const gu: Dict = {
@@ -274,6 +305,21 @@ export const gu: Dict = {
   demoPay: 'ડેમો ચેકઆઉટ: કોઈ પૈસા નહીં કપાય. સાચા પેમેન્ટ માટે Razorpay keys ઉમેરો.', demoPayConfirm: 'ડેમોમાં {p} ચાલુ કરો',
   validUntil: '{d} સુધી ચાલુ', signInToBuy: 'પહેલા સાઇન ઇન કરો જેથી મેમ્બરશિપ તમારા એકાઉન્ટમાં સેવ થાય.', unlockWith: '{p} થી અનલૉક કરો',
   lastUpdated: 'છેલ્લું અપડેટ',
+  eq_cable: 'કેબલ / મશીન',
+  emptyWorkout: 'ખાલી વર્કઆઉટ', freeLog: 'મુક્તપણે લૉગ કરો — કોઈપણ એક્સરસાઇઝ, જેટલા જોઈએ એટલા સેટ, તમારા રેપ્સ, તમારું વજન.', logWorkout: 'વર્કઆઉટ લૉગ કરો',
+  addSet: 'સેટ ઉમેરો', duplicate: 'કૉપી કરો', removeSet: 'સેટ કાઢો', removeExercise: 'એક્સરસાઇઝ કાઢો', moveUp: 'ઉપર ખસેડો', moveDown: 'નીચે ખસેડો',
+  setType: 'સેટનો પ્રકાર', st_warmup: 'વૉર્મ-અપ', st_working: 'વર્કિંગ', st_drop: 'ડ્રૉપ સેટ', st_failure: 'ફેલ્યોર સુધી',
+  rpe: 'RPE', rpeHint: 'મહેનત 6–10 (10 = એક પણ રેપ બાકી નહીં)', note: 'નોંધ', addNote: 'નોંધ ઉમેરો', notePh: 'જેમ કે: ડાબી બાજુ નબળી, 4 સેકન્ડ નીચે',
+  previous: 'ગયા વખતે', lastTime: 'ગયા વખતે', suggested: 'સૂચન', suggestedHint: 'ટાર્ગેટ ફક્ત સૂચન છે. સેટ ઉમેરો/કાઢો, રેપ્સ, kg, સમય અને RPE જાતે બદલો.',
+  newPR: 'નવો PR', saveRoutine: 'રૂટિન તરીકે સેવ કરો', routineName: 'રૂટિનનું નામ', routineSaved: 'રૂટિન સેવ થયું', routines: 'મારા રૂટિન',
+  createExercise: 'પોતાની એક્સરસાઇઝ બનાવો', exNameLbl: 'એક્સરસાઇઝનું નામ', tracking: 'કેવી રીતે ટ્રેક કરવું', trk_reps: 'રેપ્સ અને વજન', trk_time: 'સમય / હોલ્ડ',
+  primaryPick: 'મુખ્ય મસલ્સ', customTag: 'કસ્ટમ', holdSec: 'હોલ્ડ', kgOpt: '+kg', secShort: 'સે', setsLogged: 'સેટ લૉગ થયા', liveVolume: 'વોલ્યુમ',
+  skillPaths: 'સ્કિલ પાથ', skillPathsSub: 'સ્પષ્ટ માપદંડ સાથે પ્રોગ્રેશન સીડી. તમારું સ્ટેટસ ફક્ત તમારા પોતાના લૉગ પરથી આવે છે.',
+  stepOf: 'સ્ટેપ {n} / {t}', cleared: 'પૂર્ણ', currentStep: 'હાલનું સ્ટેપ', goalLbl: 'આગળ વધો જ્યારે', yourBest: 'તમારું બેસ્ટ',
+  noLogsYet: 'હજી કોઈ લૉગ નથી — આ એક્સરસાઇઝ લૉગ કરો, પ્રોગ્રેસ અહીં દેખાશે.', startHere: 'અહીંથી શરૂ કરો', partOfPath: 'સ્કિલ પાથનો ભાગ',
+  openPath: 'પાથ ખોલો', heroKicker: 'સાચું બાયોમિકેનિક્સ. કોઈ અંદાજ નહીં.', byDarshan: 'Darshan Chavda દ્વારા', athleteLbl: 'એથ્લીટ',
+  sessionsLbl: 'સેશન', noSessionsYet: 'હજી કોઈ સેશન લૉગ થયું નથી.', targetLbl: 'ટાર્ગેટ', restLbl: 'આરામ',
+  photoOf: 'Darshan Chavda — {x}', systemOnline: 'સિસ્ટમ ઓનલાઇન', scanLabel: 'D31 // HUD',
 }
 
 export const DICTS = { en, hi, gu } as const

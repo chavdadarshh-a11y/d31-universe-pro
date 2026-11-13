@@ -7,10 +7,10 @@ export function Button({
   variant = 'primary', size = 'md', className = '', children, ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: BtnVariant; size?: 'sm' | 'md' | 'lg' }) {
   const v: Record<BtnVariant, string> = {
-    primary: 'bg-neon-static text-[#060a14] shadow-[0_8px_24px_-10px_rgba(34,211,238,0.7)] hover:brightness-110 active:brightness-95',
+    primary: 'bg-neon-static text-[#05080f] font-bold shadow-[0_10px_28px_-12px_rgba(247,197,72,0.75),0_8px_24px_-14px_rgba(34,211,238,0.8)] hover:brightness-110 active:brightness-95',
     gold: 'bg-[linear-gradient(110deg,#f5b942,#fb923c)] text-[#1a1203] shadow-[0_8px_24px_-12px_rgba(251,146,60,0.7)] hover:brightness-110',
-    ghost: 'bg-white/5 text-frost hover:bg-white/10',
-    outline: 'border border-white/15 text-frost hover:border-white/30 bg-transparent',
+    ghost: 'bg-white/[0.06] text-frost border border-white/[0.07] hover:bg-white/10',
+    outline: 'border border-cyan/35 text-frost hover:border-cyan/70 bg-cyan/[0.04] shadow-[inset_0_0_18px_-10px_rgba(34,211,238,0.6)]',
     danger: 'bg-bad/15 text-bad border border-bad/30 hover:bg-bad/25',
   }
   const s = { sm: 'h-9 px-3 text-[13px] rounded-xl', md: 'h-11 px-4 text-[15px] rounded-2xl', lg: 'h-13 px-5 text-base rounded-2xl' }[size]
@@ -40,8 +40,10 @@ export function Label({ children, className = '' }: { children: ReactNode; class
 
 export function SectionHead({ title, action }: { title: string; action?: ReactNode }) {
   return (
-    <div className="mb-2.5 mt-6 flex items-center justify-between px-0.5">
-      <Label>{title}</Label>
+    <div className="mb-2.5 mt-7 flex items-center gap-2 px-0.5">
+      <span aria-hidden className="h-2 w-2 rotate-45 bg-gold shadow-[0_0_8px_rgba(247,197,72,0.8)]" />
+      <Label className="!text-frost/90">{title}</Label>
+      <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-cyan/40 via-cyan/10 to-transparent" />
       {action}
     </div>
   )
@@ -49,18 +51,18 @@ export function SectionHead({ title, action }: { title: string; action?: ReactNo
 
 export function Header({ title, back, right, sub }: { title: string; back?: boolean | string; right?: ReactNode; sub?: string }) {
   return (
-    <header className="sticky top-0 z-30 -mx-4 mb-3 flex items-center gap-2 bg-void/80 px-4 pb-3 pt-[calc(env(safe-area-inset-top)+12px)] backdrop-blur-xl">
+    <header className="sticky top-0 z-30 -mx-4 mb-3 flex items-center gap-2 bg-[#04060c]/72 px-4 pb-3 pt-[calc(env(safe-area-inset-top)+12px)] backdrop-blur-xl">
       {back && (
-        <button aria-label="Back" onClick={() => (typeof back === 'string' ? (window.location.hash = back) : goBack())} className="-ml-2 grid h-9 w-9 place-items-center rounded-xl text-muted hover:bg-white/5 hover:text-frost">
-          <ChevronLeft size={22} />
+        <button aria-label="Back" onClick={() => (typeof back === 'string' ? (window.location.hash = back) : goBack())} className="-ml-2 grid h-9 w-9 place-items-center rounded-xl border border-white/[0.07] text-muted hover:bg-white/5 hover:text-frost">
+          <ChevronLeft size={20} />
         </button>
       )}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-[20px] font-bold tracking-tight">{title}</h1>
-        {sub && <div className="truncate text-xs text-muted">{sub}</div>}
+        <h1 className="title-hud truncate text-[17px] leading-tight text-frost">{title}</h1>
+        {sub && <div className="mt-0.5 truncate text-xs text-muted">{sub}</div>}
       </div>
       {right}
-      <span aria-hidden className="bg-neon absolute inset-x-0 bottom-0 h-px opacity-60" />
+      <span aria-hidden className="bg-neon absolute inset-x-0 bottom-0 h-px opacity-70" />
     </header>
   )
 }
@@ -91,7 +93,7 @@ export function Tabs<T extends string>({ value, onChange, items }: { value: T; o
         <button
           key={it.id}
           onClick={() => onChange(it.id)}
-          className={`h-9 flex-1 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition-colors ${value === it.id ? 'bg-[linear-gradient(110deg,rgba(34,211,238,0.22),rgba(167,139,250,0.22),rgba(244,114,208,0.18))] text-frost shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]' : 'text-muted hover:text-frost'}`}
+          className={`h-9 flex-1 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition-colors ${value === it.id ? 'bg-[linear-gradient(110deg,rgba(247,197,72,0.22),rgba(34,211,238,0.2))] text-frost shadow-[inset_0_0_0_1px_rgba(247,197,72,0.45),0_0_18px_-8px_rgba(247,197,72,0.7)]' : 'text-muted hover:text-frost'}`}
         >
           {it.label}
         </button>
@@ -100,7 +102,7 @@ export function Tabs<T extends string>({ value, onChange, items }: { value: T; o
   )
 }
 
-const GRAD_END: Record<string, string> = { '#22d3ee': '#c084fc', '#f5b942': '#fb923c', '#34d399': '#a3e635', '#a78bfa': '#f472d0', '#fbbf24': '#fb923c', '#f87171': '#f472d0' }
+const GRAD_END: Record<string, string> = { '#22d3ee': '#c084fc', '#f5b942': '#fb923c', '#f7c548': '#fb923c', '#34d399': '#a3e635', '#a78bfa': '#f472d0', '#fbbf24': '#fb923c', '#f87171': '#f472d0' }
 
 export function Ring({ value, size = 64, stroke = 6, color = '#22d3ee', children }: { value: number; size?: number; stroke?: number; color?: string; children?: ReactNode }) {
   const r = (size - stroke) / 2
@@ -140,7 +142,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true">
       <button aria-label="Close" className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="sheet-in relative max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#0c0f14] px-5 pb-[calc(env(safe-area-inset-bottom)+20px)] pt-3">
+      <div className="sheet-in relative max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-cyan/20 bg-[linear-gradient(180deg,#0d1424,#070a12)] px-5 shadow-[0_-20px_60px_-30px_rgba(34,211,238,0.5)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-3">
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/15" />
         {title && (
           <div className="mb-4 flex items-center justify-between">

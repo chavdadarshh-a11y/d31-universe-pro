@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-13T20:16:55.181Z",
+ "generatedAt": "2026-11-13T21:44:35.711Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -835,7 +835,6 @@
    },
    "meta": null,
    "warnings": [
-    "Non-image in COVER folder ignored: prompt generater.pdf (move it to PDF/<language>)",
     "\"હેન્ડસ્ટેન્ડ_વોકનું_વિજ્ઞાન__ઊંધા_કેવી_રીતે_ચલાય_.mp4\" is in the HI folder but its name is Gujarati — shown under GU",
     "Duplicate hidden: \"एक_हाथ_के_हैंडस्टैंड_का_विज्ञान (1).mp4\" appears twice in Video/hi",
     "Duplicate hidden: \"हैंडस्टैंड_का_विज्ञान (1).mp4\" appears twice in Video/hi",
@@ -867,8 +866,8 @@
   {
    "id": "1BE9MEGTmzzkDqTuS5WeLJCLrjCkbJTf8",
    "number": 504,
-   "title": "DUO Iron & Aether (The Duality of Movement)",
-   "rawName": "504. DUO Iron & Aether (The Duality of Movement)",
+   "title": "DUO The Duality of Movement Iron-Aether",
+   "rawName": "504. DUO The Duality of Movement Iron-Aether",
    "cover": {
     "id": "18AVtFO-eY3XKF5VHvQHLIN6WidZRVsOj",
     "name": "DW709499.JPG.jpg",

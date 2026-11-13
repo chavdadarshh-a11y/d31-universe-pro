@@ -6,7 +6,7 @@ import { Badge, Button, Card, Header, Label, Sheet } from '../components/ui'
 import { BodyMap, MUSCLE_COLORS } from '../components/BodyMap'
 import { allExercises, exName } from '../data/exercises'
 import { LADDER_BY_ID } from '../data/ladders'
-import { Photo } from '../components/hud'
+import { ClipPlayer, Photo } from '../components/hud'
 import { computeRecords } from '../lib/workout'
 import { criterionText, summarizeSets } from '../lib/training'
 import { navigate } from '../lib/router'
@@ -40,7 +40,13 @@ export function ExerciseDetail({ id }: { id: string }) {
   return (
     <div>
       <Header title={exName(e, s.lang)} sub={s.lang !== 'en' ? e.name : undefined} back="#/library" />
-      {e.media && (
+      {e.clip ? (
+        <div className="card hud-full relative -mt-1 mb-3 h-[360px] overflow-hidden">
+          <ClipPlayer name={e.clip} alt={t('photoOf', { x: e.name })} />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(4,6,12,0.92))]" />
+          <div className="absolute bottom-3 left-4 z-[2] font-mono text-[9.5px] uppercase tracking-[0.24em] text-gold/90">{t('byDarshan')}</div>
+        </div>
+      ) : e.media && (
         <div className="card hud-full scanlines holo-sweep relative -mt-1 mb-3 h-[230px] overflow-hidden">
           <Photo smart name={e.media} alt={t('photoOf', { x: e.name })} eager />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(4,6,12,0.92))]" />

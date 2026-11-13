@@ -143,7 +143,7 @@ export function Home() {
           const cur = l.steps[st.current]
           return (
             <button key={l.id} onClick={() => navigate(`/path/${l.id}`)} className="card relative h-[168px] w-[150px] shrink-0 snap-start overflow-hidden text-left">
-              {l.media ? <Photo name={l.media} small alt="" className="absolute inset-0 opacity-80" /> : <div className="grid-bg absolute inset-0" style={{ background: `radial-gradient(120% 90% at 0% 0%, ${l.accent}33, transparent 60%)` }} />}
+              {l.media ? <Photo name={l.media} small alt="" className="absolute inset-0 opacity-80" /> : <div className="absolute inset-0" style={{ background: `radial-gradient(120% 90% at 0% 0%, ${l.accent}33, transparent 60%)` }} />}
               <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_25%,rgba(4,6,12,0.95))]" />
               <div className="absolute inset-x-3 bottom-3">
                 <div className="font-mono text-[9px] uppercase tracking-[0.2em]" style={{ color: l.accent }}>{t('stepOf', { n: st.current + 1, t: l.steps.length })}</div>

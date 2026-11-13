@@ -191,7 +191,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
       <input ref={input} type="file" accept="image/*,video/*" multiple className="hidden" onChange={(e) => pick(e.target.files)} />
 
       {files.length === 0 ? (
-        <button onClick={() => input.current?.click()} className="grid-bg mt-2 flex w-full flex-col items-center gap-3 rounded-[20px] border border-dashed border-white/15 px-6 py-10 text-center hover:border-cyan/40">
+        <button onClick={() => input.current?.click()} className="mt-2 flex w-full flex-col items-center gap-3 rounded-[20px] border border-dashed border-white/15 px-6 py-10 text-center hover:border-cyan/40">
           <span className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan/10 text-cyan"><Upload size={24} /></span>
           <span className="text-[15px] font-semibold">{t('pickFiles')}</span>
           <span className="max-w-[260px] text-[12.5px] text-muted">{t('uploadSub')}</span>
@@ -380,7 +380,7 @@ function LiveReps() {
         <video ref={video} playsInline muted className={`absolute inset-0 h-full w-full object-cover ${mirror ? '-scale-x-100' : ''} ${running ? '' : 'opacity-0'}`} />
         <canvas ref={canvas} className={`absolute inset-0 h-full w-full object-cover ${mirror ? '-scale-x-100' : ''}`} />
         {!running && (
-          <div className="grid-bg absolute inset-0 flex flex-col items-center justify-center gap-3 p-8 text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-8 text-center">
             <span className="grid h-16 w-16 place-items-center rounded-2xl bg-violet/12 text-violet"><Camera size={28} /></span>
             <p className="max-w-[250px] text-[13.5px] leading-relaxed text-muted">{state === 'denied' ? t('camDenied') : state === 'error' ? errMsg : state === 'loading' ? t('camLoading') : t('camTip')}</p>
           </div>

@@ -136,5 +136,11 @@ export const EX_MEDIA: Record<string, string> = {
   'human-flag-progression': 'shoot/067', 'straddle-human-flag': 'shoot/067', 'middle-split': 'shoot/034',
 }
 
+/** Exercise id → looping clip cut from Darshan's own Drive videos (public/media/clips). */
+export const EX_CLIPS: Record<string, string> = {
+  deadlift: 'deadlift', 'human-flag-progression': 'human-flag-progression',
+  'monkey-bar-traverse': 'monkey-bar-traverse', 'inverted-hang': 'inverted-hang',
+}
+
 /** Today hero rotation (sharp, full-body, no overlays). */
 export const HERO_ROTATION = ['shoot/023', 'shoot/079', 'shoot/019', 'shoot/072', 'shoot/057', 'shoot/056', 'sl-rdl', 'shoot/064']

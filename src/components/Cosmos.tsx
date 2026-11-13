@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
+import { mediaUrl } from './hud'
 
 /**
  * Layered futuristic background: animated aurora mesh (CSS), a canvas starfield with
- * three depth layers that parallax on scroll, and a perspective holo-grid horizon.
+ * three depth layers that parallax on scroll, over Darshan's cosmic Shiva artwork (darkened for readability).
  * Cheap on phones: DPR capped at 1.5, ~30 fps, paused when the tab is hidden,
  * and fully static when the user prefers reduced motion.
  */
@@ -65,12 +66,11 @@ export function Cosmos() {
   }, [])
   return (
     <div className="cosmos" aria-hidden>
+      <img className="shiva" src={mediaUrl('shiva-720')} srcSet={`${mediaUrl('shiva-720')} 720w, ${mediaUrl('shiva')} 981w`} sizes="100vw" alt="" decoding="async" fetchPriority="low" />
+      <div className="shiva-veil" />
       <div className="aurora a1" />
       <div className="aurora a2" />
-      <div className="aurora a3" />
-      <div className="aurora a4" />
       <canvas ref={ref} />
-      <div className="horizon"><i /></div>
       <div className="vignette" />
     </div>
   )

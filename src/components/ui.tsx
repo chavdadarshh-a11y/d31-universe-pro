@@ -237,7 +237,7 @@ export function Scale({ value, onChange, low, high }: { value: number; onChange:
 
 export function Empty({ icon, text, action }: { icon?: ReactNode; text: string; action?: ReactNode }) {
   return (
-    <div className="card grid-bg flex flex-col items-center gap-3 px-6 py-9 text-center">
+    <div className="card flex flex-col items-center gap-3 px-6 py-9 text-center">
       {icon && <div className="text-dim">{icon}</div>}
       <p className="max-w-[260px] text-sm text-muted">{text}</p>
       {action}

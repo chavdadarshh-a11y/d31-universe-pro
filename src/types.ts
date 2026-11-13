@@ -30,6 +30,8 @@ export type Exercise = {
   benefits: string[]
   /** Photo of Darshan doing this exercise (public/media/<media>.webp) */
   media?: string
+  /** Short looping clip of Darshan doing this exercise (public/media/clips/<clip>.mp4|.webm) */
+  clip?: string
   /** Progression ladder this exercise belongs to */
   ladder?: string
   /** User-created exercise (stored on the phone) */

@@ -1,5 +1,5 @@
 import type { Exercise } from '../types'
-import { EX_MEDIA } from './gallery'
+import { EX_CLIPS, EX_MEDIA } from './gallery'
 import { useApp } from '../store/app'
 
 /**
@@ -771,10 +771,31 @@ export const EXERCISES: Exercise[] = [
     mistakes: ['Knees rolling in', 'Rounding the spine', 'Forcing range'],
     benefits: ['Adductor flexibility', 'Hip health', 'Supports straddle skills'],
   },
+  {
+    id: 'monkey-bar-traverse', name: 'Monkey Bar Traverse', nameHi: 'मंकी बार ट्रैवर्स', nameGu: 'મંકી બાર ટ્રાવર્સ',
+    category: 'calisthenics', equipment: ['bar'], level: 1, layer: 'CONTROL', tracking: 'reps',
+    primary: ['forearms', 'lats'], secondary: ['biceps', 'shoulders', 'abs'],
+    summary: 'Swing hand over hand along a run of overhead bars or rings. Grip, shoulder control and timing in one move.',
+    steps: ['Hang from the first rung with active shoulders.', 'Shift your weight to one arm and reach to the next rung.', 'Catch it, let the swing settle, then bring the other hand through.', 'Keep moving to the end; count one length as one rep.'],
+    cues: ['Shoulders active, not shrugged', 'Use a small hip swing for rhythm', 'Look at the next rung before you reach'],
+    mistakes: ['Hanging on bent, tired arms', 'Wild leg swinging', 'Reaching too far and losing grip'],
+    benefits: ['Grip strength and endurance', 'Shoulder stability', 'Carries over to pull-ups and levers'],
+  },
+  {
+    id: 'inverted-hang', name: 'Inverted Hang (Tuck-Through)', nameHi: 'इनवर्टेड हैंग', nameGu: 'ઇન્વર્ટેડ હેંગ',
+    category: 'calisthenics', equipment: ['bar'], level: 2, layer: 'CONTROL', tracking: 'reps',
+    primary: ['abs', 'lats'], secondary: ['shoulders', 'forearms', 'biceps'],
+    summary: 'From a hang, tuck the knees and roll back until you hang upside down, then return. Builds the pull and core control behind levers.',
+    steps: ['Hang from a bar with a firm grip.', 'Pull the knees to the chest and lift the hips over your head.', 'Pass the legs between your arms until you hang upside down.', 'Hold a moment, then lower the hips back down slowly to a dead hang.'],
+    cues: ['Arms stay straight', 'Tight tuck, knees to chest', 'Move slowly on the way down'],
+    mistakes: ['Kicking up with momentum', 'Letting go with one hand', 'Dropping fast out of the inversion'],
+    benefits: ['Core and lat strength', 'Comfort upside down', 'Lead-up to front lever and skin-the-cat'],
+  },
 ]
 
 export const EX_BY_ID: Record<string, Exercise> = Object.fromEntries(EXERCISES.map((e) => [e.id, e]))
 for (const [id, m] of Object.entries(EX_MEDIA)) if (EX_BY_ID[id]) EX_BY_ID[id].media = m
+for (const [id, c] of Object.entries(EX_CLIPS)) if (EX_BY_ID[id]) EX_BY_ID[id].clip = c
 
 const UNKNOWN: Exercise = {
   id: 'unknown', name: 'Exercise', nameHi: 'एक्सरसाइज़', nameGu: 'એક્સરસાઇઝ', category: 'strength', equipment: ['none'], level: 1, layer: 'FORCE',

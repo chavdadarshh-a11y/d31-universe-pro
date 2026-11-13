@@ -7,6 +7,30 @@ const BASE = import.meta.env.BASE_URL || '/'
 /** URL of one of Darshan's photos in public/media. */
 export const mediaUrl = (name: string, small = false) => `${BASE}media/${name}${small ? '-sm' : ''}.webp`
 
+/** Short muted looping clip of Darshan. Plays only while on screen; poster only with reduced motion. */
+export function ClipPlayer({ name, alt, className = '' }: { name: string; alt: string; className?: string }) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [still] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  const poster = `${BASE}media/clips/${name}-poster.webp`
+  useEffect(() => {
+    const v = ref.current
+    if (!v || still || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(([en]) => {
+      if (en.isIntersecting) v.play().catch(() => {})
+      else v.pause()
+    }, { threshold: 0.25 })
+    io.observe(v)
+    return () => { io.disconnect(); v.pause() }
+  }, [still])
+  if (still) return <img src={poster} alt={alt} loading="lazy" decoding="async" className={`h-full w-full object-cover ${className}`} />
+  return (
+    <video ref={ref} className={`h-full w-full object-cover ${className}`} poster={poster} muted loop playsInline preload="none" aria-label={alt}>
+      <source src={`${BASE}media/clips/${name}.webm`} type="video/webm" />
+      <source src={`${BASE}media/clips/${name}.mp4`} type="video/mp4" />
+    </video>
+  )
+}
+
 /** Focal points so object-cover keeps the athlete in frame. */
 const FOCUS: Record<string, string> = {
   'front-lever': '50% 56%', 'sl-rdl': '58% 45%', 'pull-up': '50% 35%', nordic: '35% 70%',

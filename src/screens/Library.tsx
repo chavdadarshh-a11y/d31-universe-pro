@@ -6,7 +6,7 @@ import { Badge, Button, Card, Chip, CHIP_COLORS, Empty, Header, Label, Sheet, Ta
 import { BodyThumb, BACK_IDS, FRONT_IDS } from '../components/BodyMap'
 import { allExercises, exName, exOf } from '../data/exercises'
 import { LADDERS } from '../data/ladders'
-import { Photo } from '../components/hud'
+import { ClipPlayer, Photo } from '../components/hud'
 import { ShootGallery } from '../components/Gallery'
 import { CustomExerciseSheet } from '../components/ExercisePicker'
 import { ladderStatus } from '../lib/training'
@@ -21,9 +21,13 @@ const MUSCLES: MuscleId[] = ['chest', 'shoulders', 'biceps', 'triceps', 'forearm
 const CATS: Category[] = ['strength', 'calisthenics', 'mobility', 'cardio']
 const EQUIP: Equipment[] = ['none', 'dumbbell', 'barbell', 'bar', 'bench', 'kettlebell', 'cable']
 
+// your own exercises first, then the ones with Darshan's video clips, then the rest (stable sort)
+const rank = (e: Exercise) => (e.custom ? 0 : e.clip ? 1 : 2)
+
 const realLink = (u: string) => !!u && !u.includes('example.com')
 
 function Thumb({ e }: { e: Exercise }) {
+  if (e.clip) return <div className="relative h-[76px] w-[56px] shrink-0 overflow-hidden rounded-xl border border-gold/30"><ClipPlayer name={e.clip} alt="" /></div>
   if (e.media) return <div className="relative h-[76px] w-[56px] shrink-0 overflow-hidden rounded-xl border border-gold/30"><Photo name={e.media} small alt="" /></div>
   const backOnly = (m: MuscleId) => BACK_IDS.has(m) && !FRONT_IDS.has(m)
   const frontOnly = (m: MuscleId) => FRONT_IDS.has(m) && !BACK_IDS.has(m)
@@ -67,7 +71,7 @@ export function Library() {
           (!muscle || e.primary.includes(muscle) || e.secondary.includes(muscle)) &&
           (!equip || e.equipment.includes(equip)) &&
           (!level || e.level === level),
-      ),
+      ).sort((a, b) => rank(a) - rank(b)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [ql, cat, muscle, equip, level, lang, customs],
   )
@@ -88,7 +92,7 @@ export function Library() {
             return (
               <Card key={l.id} onClick={() => navigate(`/path/${l.id}`)} className="relative flex items-center gap-3 overflow-hidden p-3">
                 <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl border" style={{ borderColor: `${l.accent}55` }}>
-                  {l.media ? <Photo name={l.media} small alt="" /> : <div className="grid-bg h-full w-full" style={{ background: `radial-gradient(circle at 30% 30%, ${l.accent}44, transparent 70%)` }} />}
+                  {l.media ? <Photo name={l.media} small alt="" /> : <div className="h-full w-full" style={{ background: `radial-gradient(circle at 30% 30%, ${l.accent}44, transparent 70%)` }} />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="title-hud text-[13.5px]">{l.name}</div>

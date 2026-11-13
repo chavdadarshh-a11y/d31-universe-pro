@@ -29,9 +29,10 @@ export function Progress() {
           [t('totalWorkouts'), String(s.sessions.length)],
           [t('totalVolume'), `${fmtNum(totalVolume / 1000 >= 10 ? totalVolume / 1000 : totalVolume)}${totalVolume / 1000 >= 10 ? 't' : 'kg'}`],
           [t('streak'), String(computeStreak(s.sessions))],
-        ].map(([k, v]) => (
-          <div key={k} className="card p-3">
-            <div className="text-[20px] font-extrabold tabular-nums">{v}</div>
+        ].map(([k, v], i) => (
+          <div key={k} className="card relative overflow-hidden p-3">
+            <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: ['linear-gradient(90deg,#22d3ee,#a78bfa)', 'linear-gradient(90deg,#a78bfa,#f472d0)', 'linear-gradient(90deg,#fb923c,#f5b942)'][i] }} />
+            <div className="font-display text-[22px] font-bold tabular-nums" style={{ color: ['#67e8f9', '#d8b4fe', '#fdba74'][i] }}>{v}</div>
             <div className="truncate text-[11px] text-muted">{k}</div>
           </div>
         ))}

@@ -3,6 +3,7 @@
  * Visual rule for D31: thin lines + small joint dots + angle pills. No glow, no blobs.
  */
 import type { NormalizedLandmark, PoseLandmarker as PL } from '@mediapipe/tasks-vision'
+import { angle, conf, evaluatePose, L, layoutLabels, R, reliable, type JointAngle, type PoseResult } from './poseFilter'
 
 const WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm'
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task'
@@ -31,41 +32,22 @@ export function getLandmarker(mode: 'IMAGE' | 'VIDEO'): Promise<PL> {
   return cache[mode]!
 }
 
-/** Angle ABC in degrees (B is the vertex). */
-export function angle(a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark): number {
-  const ab = Math.atan2(a.y - b.y, a.x - b.x)
-  const cb = Math.atan2(c.y - b.y, c.x - b.x)
-  let deg = Math.abs(((ab - cb) * 180) / Math.PI)
-  if (deg > 180) deg = 360 - deg
-  return deg
-}
-
-// MediaPipe indices
-export const L = { sh: 11, el: 13, wr: 15, hip: 23, knee: 25, ank: 27 }
-export const R = { sh: 12, el: 14, wr: 16, hip: 24, knee: 26, ank: 28 }
+export { angle, L, R, evaluatePose, type JointAngle, type PoseResult } from './poseFilter'
 
 const BONES: [number, number][] = [
   [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24],
-  [23, 25], [25, 27], [24, 26], [26, 28], [27, 31], [28, 32],
+  [23, 25], [25, 27], [24, 26], [26, 28],
 ]
 
-const vis = (p?: NormalizedLandmark) => !!p && (p.visibility ?? 1) > 0.5
-
-/** Pick the side facing the camera (higher visibility). */
+/** Pick the side facing the camera (higher confidence). */
 export function bestSide(lm: NormalizedLandmark[]) {
-  const score = (s: typeof L) => [s.sh, s.el, s.hip, s.knee, s.ank].reduce((a, i) => a + (lm[i]?.visibility ?? 0), 0)
+  const score = (s: typeof L) => [s.sh, s.el, s.hip, s.knee, s.ank].reduce((a, i) => a + conf(lm[i]), 0)
   return score(L) >= score(R) ? L : R
 }
 
-export type JointAngle = { name: 'knee' | 'hip' | 'elbow'; deg: number; at: NormalizedLandmark }
-
+/** Angles that pass every reliability check (empty if fewer than 2 joints pass). */
 export function keyAngles(lm: NormalizedLandmark[]): JointAngle[] {
-  const s = bestSide(lm)
-  const out: JointAngle[] = []
-  if (vis(lm[s.hip]) && vis(lm[s.knee]) && vis(lm[s.ank])) out.push({ name: 'knee', deg: angle(lm[s.hip], lm[s.knee], lm[s.ank]), at: lm[s.knee] })
-  if (vis(lm[s.sh]) && vis(lm[s.hip]) && vis(lm[s.knee])) out.push({ name: 'hip', deg: angle(lm[s.sh], lm[s.hip], lm[s.knee]), at: lm[s.hip] })
-  if (vis(lm[s.sh]) && vis(lm[s.el]) && vis(lm[s.wr])) out.push({ name: 'elbow', deg: angle(lm[s.sh], lm[s.el], lm[s.wr]), at: lm[s.el] })
-  return out
+  return evaluatePose(lm).angles
 }
 
 export function drawPose(
@@ -73,16 +55,19 @@ export function drawPose(
   lm: NormalizedLandmark[],
   w: number,
   h: number,
-  opts: { angles?: JointAngle[]; mirror?: boolean } = {},
+  opts: { angles?: JointAngle[]; mirror?: boolean; result?: PoseResult } = {},
 ) {
-  const px = (p: NormalizedLandmark) => [(opts.mirror ? 1 - p.x : p.x) * w, p.y * h] as const
+  const res = opts.result ?? evaluatePose(lm)
+  if (!res.ok) return res
+  const ok = new Set(res.points)
+  const px = (p: { x: number; y: number }) => [(opts.mirror ? 1 - p.x : p.x) * w, p.y * h] as const
   const lw = Math.max(1.5, Math.min(w, h) / 260)
   ctx.save()
   ctx.lineCap = 'round'
   ctx.lineWidth = lw
   ctx.strokeStyle = 'rgba(34, 211, 238, 0.95)'
   for (const [a, b] of BONES) {
-    if (!vis(lm[a]) || !vis(lm[b])) continue
+    if (!ok.has(a) || !ok.has(b)) continue
     const [x1, y1] = px(lm[a])
     const [x2, y2] = px(lm[b])
     ctx.beginPath()
@@ -91,38 +76,46 @@ export function drawPose(
     ctx.stroke()
   }
   ctx.fillStyle = '#ffffff'
-  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]) {
-    if (!vis(lm[i])) continue
+  for (const i of ok) {
     const [x, y] = px(lm[i])
     ctx.beginPath()
     ctx.arc(x, y, lw * 1.8, 0, Math.PI * 2)
     ctx.fill()
   }
-  // angle pills, offset to the side so they never cover the joint
-  const fs = Math.round(Math.max(11, Math.min(w, h) / 34))
-  ctx.font = `600 ${fs}px "JetBrains Mono", ui-monospace, monospace`
-  ctx.textBaseline = 'middle'
-  for (const a of opts.angles ?? []) {
-    const [x, y] = px(a.at)
-    const label = `${a.name.toUpperCase()} ${Math.round(a.deg)}°`
-    const tw = ctx.measureText(label).width
+  // angle pills: laid out so they never overlap each other or leave the image
+  const angles = opts.angles ?? []
+  if (angles.length) {
+    const fs = Math.round(Math.max(11, Math.min(w, h) / 34))
+    ctx.font = `600 ${fs}px "JetBrains Mono", ui-monospace, monospace`
+    ctx.textBaseline = 'middle'
     const padX = fs * 0.6
-    const bw = tw + padX * 2
     const bh = fs * 1.8
-    let bx = x + fs * 1.2
-    if (bx + bw > w - 4) bx = x - fs * 1.2 - bw
-    const by = Math.min(h - bh - 4, Math.max(4, y - bh / 2))
-    ctx.fillStyle = 'rgba(8, 10, 14, 0.82)'
-    ctx.strokeStyle = 'rgba(34, 211, 238, 0.7)'
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.roundRect(bx, by, bw, bh, bh / 2)
-    ctx.fill()
-    ctx.stroke()
-    ctx.fillStyle = '#e6fbff'
-    ctx.fillText(label, bx + padX, by + bh / 2 + 1)
+    const labels = angles.map((a) => `${a.name.toUpperCase()} ${Math.round(a.deg)}°`)
+    const boxes = layoutLabels(
+      angles.map((a, i) => { const [x, y] = px(a.at); return { x, y, w: ctx.measureText(labels[i]).width + padX * 2, h: bh } }),
+      w, h, 4, Math.max(3, fs * 0.3),
+    )
+    boxes.forEach((r, i) => {
+      if (!r) return
+      const [jx, jy] = px(angles[i].at)
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(jx, jy)
+      ctx.lineTo(Math.min(Math.max(jx, r.x), r.x + r.w), Math.min(Math.max(jy, r.y), r.y + r.h))
+      ctx.stroke()
+      ctx.fillStyle = 'rgba(8, 10, 14, 0.85)'
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.75)'
+      ctx.beginPath()
+      ctx.roundRect(r.x, r.y, r.w, r.h, r.h / 2)
+      ctx.fill()
+      ctx.stroke()
+      ctx.fillStyle = '#e6fbff'
+      ctx.fillText(labels[i], r.x + padX, r.y + r.h / 2 + 1)
+    })
   }
   ctx.restore()
+  return res
 }
 
 /** Rep counter state machine with hysteresis, for squats (knee) and push-ups (elbow). */
@@ -142,7 +135,7 @@ export class RepCounter {
   update(lm: NormalizedLandmark[]): { counted: boolean; angle: number | null } {
     const s = bestSide(lm)
     const pts = this.kind === 'squat' ? [s.hip, s.knee, s.ank] : [s.sh, s.el, s.wr]
-    if (!pts.every((i) => vis(lm[i]))) return { counted: false, angle: null }
+    if (!evaluatePose(lm).ok || !pts.every((i) => reliable(lm[i]))) return { counted: false, angle: null }
     const raw = angle(lm[pts[0]], lm[pts[1]], lm[pts[2]])
     this.smooth = this.smooth * 0.6 + raw * 0.4
     this.lastAngle = this.smooth

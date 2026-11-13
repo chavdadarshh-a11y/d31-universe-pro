@@ -1,8 +1,8 @@
 export function Wordmark({ className = '' }: { className?: string }) {
   return (
-    <span className={`font-mono font-bold tracking-[0.18em] ${className}`}>
+    <span className={`font-brand font-extrabold tracking-[0.14em] ${className}`}>
       <span className="text-gold">D31</span>
-      <span className="text-frost">.UNIVERSE</span>
+      <span className="text-grad">.UNIVERSE</span>
     </span>
   )
 }

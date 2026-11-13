@@ -57,6 +57,7 @@ export const en = {
   pickFiles: 'Choose photos / video', yourQuestion: 'What should the coach check?', questionPh: 'e.g. Is my squat depth OK? My knees hurt at the bottom.',
   forExercise: 'Exercise (optional)', runAnalysis: 'Run form analysis', analyzing: 'Analyzing your form…', analysesLeft: '{n} analyses left this month',
   skeleton: 'Pose lines', anglesNote: 'Joint angles measured on your photo', pastAnalyses: 'Past analyses', signInToAnalyze: 'Sign in to run AI analysis on your uploads.',
+  angleNotMeasurable: 'Angle not reliably measurable from this view. Show the full joint (e.g. hip, knee and ankle) clearly in frame.', joint_knee: 'Knee', joint_hip: 'Hip', joint_elbow: 'Elbow',
   demoAnalysis: 'DEMO result — sample text. Add your Gemini key to the Supabase function for real analysis.',
   h_WHAT_I_SEE: 'What I see', h_QUICK_VERDICT: 'Quick verdict', h_WHATS_GOOD: 'What’s good', h_FIX_THIS: 'Fix this', h_TECHNIQUE: 'Technique', h_NEXT_MOVE: 'Next move',
   // camera
@@ -151,6 +152,7 @@ export const hi: Dict = {
   pickFiles: 'फ़ोटो / वीडियो चुनें', yourQuestion: 'कोच क्या चेक करे?', questionPh: 'जैसे: क्या मेरी स्क्वाट डेप्थ ठीक है? नीचे घुटने में दर्द होता है.',
   forExercise: 'एक्सरसाइज़ (वैकल्पिक)', runAnalysis: 'फ़ॉर्म एनालिसिस चलाएँ', analyzing: 'आपका फ़ॉर्म देखा जा रहा है…', analysesLeft: 'इस महीने {n} एनालिसिस बाकी',
   skeleton: 'पोज़ लाइन्स', anglesNote: 'आपकी फ़ोटो पर मापे गए जोड़ों के कोण', pastAnalyses: 'पुराने एनालिसिस', signInToAnalyze: 'अपलोड पर AI एनालिसिस के लिए साइन इन करें.',
+  angleNotMeasurable: 'इस व्यू से कोण भरोसे से नहीं मापा जा सकता. पूरा जोड़ (जैसे हिप, घुटना और टखना) फ़्रेम में साफ़ दिखाएँ.', joint_knee: 'घुटना', joint_hip: 'हिप', joint_elbow: 'कोहनी',
   demoAnalysis: 'डेमो रिज़ल्ट — सैंपल टेक्स्ट. असली एनालिसिस के लिए Supabase function में Gemini key जोड़ें.',
   h_WHAT_I_SEE: 'मुझे क्या दिखा', h_QUICK_VERDICT: 'फटाफट फ़ैसला', h_WHATS_GOOD: 'क्या अच्छा है', h_FIX_THIS: 'यह सुधारें', h_TECHNIQUE: 'तकनीक', h_NEXT_MOVE: 'अगला कदम',
   camSquat: 'स्क्वाट', camPushup: 'पुश-अप', camStart: 'कैमरा शुरू करें', camStop: 'रोकें', camReps: 'रेप्स', camLoading: 'पोज़ मॉडल लोड हो रहा है…',
@@ -235,6 +237,7 @@ export const gu: Dict = {
   pickFiles: 'ફોટો / વીડિયો પસંદ કરો', yourQuestion: 'કોચ શું ચેક કરે?', questionPh: 'જેમ કે: મારી સ્ક્વોટ ડેપ્થ બરાબર છે? નીચે ઘૂંટણમાં દુખે છે.',
   forExercise: 'એક્સરસાઇઝ (વૈકલ્પિક)', runAnalysis: 'ફોર્મ એનાલિસિસ ચલાવો', analyzing: 'તમારું ફોર્મ જોવાઈ રહ્યું છે…', analysesLeft: 'આ મહિને {n} એનાલિસિસ બાકી',
   skeleton: 'પોઝ લાઇન્સ', anglesNote: 'તમારા ફોટો પર માપેલા સાંધાના ખૂણા', pastAnalyses: 'જૂના એનાલિસિસ', signInToAnalyze: 'અપલોડ પર AI એનાલિસિસ માટે સાઇન ઇન કરો.',
+  angleNotMeasurable: 'આ વ્યૂથી ખૂણો ભરોસાપાત્ર રીતે માપી શકાતો નથી. આખો સાંધો (જેમ કે હિપ, ઘૂંટણ અને પગની ઘૂંટી) ફ્રેમમાં સ્પષ્ટ બતાવો.', joint_knee: 'ઘૂંટણ', joint_hip: 'હિપ', joint_elbow: 'કોણી',
   demoAnalysis: 'ડેમો રિઝલ્ટ — સેમ્પલ ટેક્સ્ટ. સાચા એનાલિસિસ માટે Supabase function માં Gemini key ઉમેરો.',
   h_WHAT_I_SEE: 'મને શું દેખાયું', h_QUICK_VERDICT: 'ઝડપી નિર્ણય', h_WHATS_GOOD: 'શું સારું છે', h_FIX_THIS: 'આ સુધારો', h_TECHNIQUE: 'ટેકનિક', h_NEXT_MOVE: 'આગળનું પગલું',
   camSquat: 'સ્ક્વોટ', camPushup: 'પુશ-અપ', camStart: 'કેમેરા શરૂ કરો', camStop: 'બંધ કરો', camReps: 'રેપ્સ', camLoading: 'પોઝ મોડલ લોડ થઈ રહ્યું છે…',

@@ -2,7 +2,7 @@ import { Flame, ScanLine, Camera, Utensils, HeartPulse, ChevronRight, Lock, Play
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
 import { Button, Card, Label, Ring, SectionHead, Badge } from '../components/ui'
-import { LogoMark } from '../components/Brand'
+import { LogoMark, Wordmark } from '../components/Brand'
 import { OfferBanner } from '../components/OfferBanner'
 import { navigate } from '../lib/router'
 import { PROGRAM_BY_ID } from '../data/programs'
@@ -46,28 +46,30 @@ export function Home() {
   return (
     <div className="pt-[calc(env(safe-area-inset-top)+14px)]">
       <div className="flex items-center gap-3">
-        <LogoMark size={40} />
+        <span className="rounded-2xl shadow-[0_0_24px_-6px_rgba(34,211,238,0.6)]"><LogoMark size={44} /></span>
         <div className="min-w-0 flex-1">
-          <div className="label">{new Date().toLocaleDateString(s.lang === 'en' ? 'en-IN' : `${s.lang}-IN`, { weekday: 'long', day: 'numeric', month: 'short' })}</div>
-          <h1 className="truncate text-[22px] font-extrabold tracking-tight">{t('hello', { n: name })} {hour < 12 ? '☀️' : hour < 18 ? '⚡' : '🌙'}</h1>
+          <Wordmark className="block text-[11px]" />
+          <div className="label mt-0.5">{new Date().toLocaleDateString(s.lang === 'en' ? 'en-IN' : `${s.lang}-IN`, { weekday: 'long', day: 'numeric', month: 'short' })}</div>
+          <h1 className="truncate text-[23px] font-bold tracking-tight">{t('hello', { n: name })} {hour < 12 ? '☀️' : hour < 18 ? '⚡' : '🌙'}</h1>
         </div>
         <button onClick={() => navigate('/membership')}><Badge tone={plan === 'free' ? 'muted' : 'gold'}>{t(`plan_${plan}`)}</Badge></button>
       </div>
 
       {/* Today's workout */}
-      <Card className="mt-5 overflow-hidden">
+      <div className="neon-border neon-shadow hero-glow relative mt-5 overflow-hidden rounded-[22px]">
+        <span aria-hidden className="bg-neon absolute inset-x-0 top-0 h-[3px]" />
         <div className="grid-bg border-b border-white/[0.06] p-4">
           <div className="flex items-center justify-between">
-            <Label>{t('todayWorkout')}</Label>
+            <span className="flex items-center gap-2"><span className="pulse-dot h-2 w-2 rounded-full bg-lime shadow-[0_0_10px_rgba(163,230,53,0.9)]" /><Label className="!text-cyan">{t('todayWorkout')}</Label></span>
             {program && <span className="font-mono text-[11px] text-dim">{dayIdx + 1}/{program.days.length}</span>}
           </div>
           {program && day ? (
             <>
-              <h2 className="mt-2 text-xl font-bold leading-tight">{day.name}</h2>
+              <h2 className="mt-2 text-[22px] font-bold leading-tight">{day.name}</h2>
               <p className="mt-0.5 text-[13px] text-muted">{program.name} · ~{estimateMinutes(day.items)} {t('min')} · {day.items.length} {t('exercises').toLowerCase()}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {day.items.map((it) => (
-                  <span key={it.exId} className="rounded-lg bg-white/[0.05] px-2 py-1 text-[12px] text-frost/90">
+                  <span key={it.exId} className="rounded-lg border border-white/[0.07] bg-white/[0.05] px-2 py-1 text-[12px] text-frost/90">
                     {exName(EX_BY_ID[it.exId], s.lang)} <span className="text-dim">{it.sets}×{it.reps ?? `${it.secs}s`}</span>
                   </span>
                 ))}
@@ -89,13 +91,13 @@ export function Home() {
             <Button className="flex-1" onClick={() => navigate('/train')}>{t('choose')}</Button>
           )}
         </div>
-      </Card>
+      </div>
 
       {/* Stats */}
       <div className="mt-3 grid grid-cols-3 gap-3">
         <Card className="p-3.5">
-          <Flame size={18} className="text-gold" />
-          <div className="mt-2 text-2xl font-extrabold tabular-nums">{streak}</div>
+          <span className="grid h-8 w-8 place-items-center rounded-xl bg-[linear-gradient(135deg,rgba(251,146,60,0.25),rgba(244,114,208,0.2))]"><Flame size={17} className="text-orange" /></span>
+          <div className="font-display mt-2 text-2xl font-bold tabular-nums">{streak}</div>
           <div className="text-[11px] text-muted">{t('streak')}</div>
         </Card>
         <Card className="flex flex-col items-center justify-center p-3">
@@ -105,8 +107,8 @@ export function Home() {
           <div className="mt-1.5 text-[11px] text-muted">{t('thisWeek')}</div>
         </Card>
         <Card className="p-3.5" onClick={() => navigate('/fuel?tab=recovery')}>
-          <HeartPulse size={18} style={{ color: checkin ? bandColor : '#5c6575' }} />
-          <div className="mt-2 text-2xl font-extrabold tabular-nums">{checkin ? checkin.score : '—'}</div>
+          <span className="grid h-8 w-8 place-items-center rounded-xl bg-[linear-gradient(135deg,rgba(52,211,153,0.22),rgba(163,230,53,0.18))]"><HeartPulse size={17} style={{ color: checkin ? bandColor : '#8b93a3' }} /></span>
+          <div className="font-display mt-2 text-2xl font-bold tabular-nums">{checkin ? checkin.score : '—'}</div>
           <div className="text-[11px] text-muted">{t('readiness')}</div>
         </Card>
       </div>
@@ -123,12 +125,12 @@ export function Home() {
       <SectionHead title={t('quick')} />
       <div className="grid grid-cols-4 gap-2.5">
         {[
-          { icon: ScanLine, label: t('qAnalyze'), to: '/analyze', c: 'text-cyan bg-cyan/10' },
-          { icon: Camera, label: t('qCamera'), to: '/analyze?tab=live', c: 'text-violet bg-violet/10' },
-          { icon: Utensils, label: t('qMeal'), to: '/fuel?tab=nutrition', c: 'text-gold bg-gold/10' },
-          { icon: HeartPulse, label: t('qCheckin'), to: '/fuel?tab=recovery', c: 'text-ok bg-ok/10' },
+          { icon: ScanLine, label: t('qAnalyze'), to: '/analyze', c: 'text-cyan bg-[linear-gradient(135deg,rgba(34,211,238,0.25),rgba(96,165,250,0.15))] shadow-[0_0_16px_-6px_rgba(34,211,238,0.8)]' },
+          { icon: Camera, label: t('qCamera'), to: '/analyze?tab=live', c: 'text-violet bg-[linear-gradient(135deg,rgba(167,139,250,0.28),rgba(244,114,208,0.15))] shadow-[0_0_16px_-6px_rgba(167,139,250,0.8)]' },
+          { icon: Utensils, label: t('qMeal'), to: '/fuel?tab=nutrition', c: 'text-orange bg-[linear-gradient(135deg,rgba(251,146,60,0.26),rgba(245,185,66,0.15))] shadow-[0_0_16px_-6px_rgba(251,146,60,0.8)]' },
+          { icon: HeartPulse, label: t('qCheckin'), to: '/fuel?tab=recovery', c: 'text-lime bg-[linear-gradient(135deg,rgba(163,230,53,0.24),rgba(52,211,153,0.15))] shadow-[0_0_16px_-6px_rgba(163,230,53,0.8)]' },
         ].map(({ icon: Icon, label, to, c }) => (
-          <button key={to} onClick={() => navigate(to)} className="card flex flex-col items-center gap-2 px-1 py-3.5 hover:border-white/15">
+          <button key={to} onClick={() => navigate(to)} className="card flex flex-col items-center gap-2 px-1 py-3.5 hover:border-cyan/25">
             <span className={`grid h-10 w-10 place-items-center rounded-xl ${c}`}><Icon size={19} /></span>
             <span className="text-center text-[11.5px] font-medium leading-tight">{label}</span>
           </button>
@@ -156,6 +158,8 @@ export function Home() {
   )
 }
 
+const BAR_END: Record<string, string> = { '#22d3ee': '#a78bfa', '#f5b942': '#fb923c', '#34d399': '#a3e635', '#a78bfa': '#f472d0', '#f87171': '#f472d0' }
+
 export function Bar({ label, value, max, unit, color }: { label: string; value: number; max: number; unit: string; color: string }) {
   return (
     <div>
@@ -164,7 +168,7 @@ export function Bar({ label, value, max, unit, color }: { label: string; value: 
         <span className="font-semibold tabular-nums">{Math.round(value)}<span className="text-dim">/{max}{unit}</span></span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
-        <div className="h-full rounded-full" style={{ width: `${Math.min(100, (value / Math.max(1, max)) * 100)}%`, background: color }} />
+        <div className="h-full rounded-full" style={{ width: `${Math.min(100, (value / Math.max(1, max)) * 100)}%`, background: `linear-gradient(90deg, ${color}, ${BAR_END[color] ?? color})` }} />
       </div>
     </div>
   )

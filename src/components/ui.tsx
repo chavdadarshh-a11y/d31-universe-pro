@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode, type ButtonHTMLAttributes } from 'react'
+import { useEffect, useId, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { ChevronLeft, Lock, X } from 'lucide-react'
 import { goBack } from '../lib/router'
 
@@ -7,8 +7,8 @@ export function Button({
   variant = 'primary', size = 'md', className = '', children, ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: BtnVariant; size?: 'sm' | 'md' | 'lg' }) {
   const v: Record<BtnVariant, string> = {
-    primary: 'bg-cyan text-[#041016] hover:bg-[#4ee0f3] active:bg-[#1bb8d1]',
-    gold: 'bg-gold text-[#1a1203] hover:bg-[#f8c868]',
+    primary: 'bg-neon-static text-[#060a14] shadow-[0_8px_24px_-10px_rgba(34,211,238,0.7)] hover:brightness-110 active:brightness-95',
+    gold: 'bg-[linear-gradient(110deg,#f5b942,#fb923c)] text-[#1a1203] shadow-[0_8px_24px_-12px_rgba(251,146,60,0.7)] hover:brightness-110',
     ghost: 'bg-white/5 text-frost hover:bg-white/10',
     outline: 'border border-white/15 text-frost hover:border-white/30 bg-transparent',
     danger: 'bg-bad/15 text-bad border border-bad/30 hover:bg-bad/25',
@@ -17,7 +17,7 @@ export function Button({
   return (
     <button
       {...rest}
-      className={`inline-flex items-center justify-center gap-2 font-semibold transition-colors disabled:opacity-40 disabled:pointer-events-none select-none ${v[variant]} ${s} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 font-semibold transition-[color,background-color,filter,border-color] disabled:opacity-40 disabled:pointer-events-none select-none ${v[variant]} ${s} ${className}`}
     >
       {children}
     </button>
@@ -27,7 +27,7 @@ export function Button({
 export function Card({ className = '', children, onClick }: { className?: string; children: ReactNode; onClick?: () => void }) {
   if (onClick)
     return (
-      <button onClick={onClick} className={`card block w-full text-left transition-colors hover:border-white/15 active:bg-white/[0.02] ${className}`}>
+      <button onClick={onClick} className={`card block w-full text-left transition-colors hover:border-cyan/25 active:bg-white/[0.02] ${className}`}>
         {children}
       </button>
     )
@@ -49,30 +49,36 @@ export function SectionHead({ title, action }: { title: string; action?: ReactNo
 
 export function Header({ title, back, right, sub }: { title: string; back?: boolean | string; right?: ReactNode; sub?: string }) {
   return (
-    <header className="sticky top-0 z-30 -mx-4 mb-3 flex items-center gap-2 border-b border-white/[0.06] bg-void/85 px-4 pb-3 pt-[calc(env(safe-area-inset-top)+12px)] backdrop-blur-xl">
+    <header className="sticky top-0 z-30 -mx-4 mb-3 flex items-center gap-2 bg-void/80 px-4 pb-3 pt-[calc(env(safe-area-inset-top)+12px)] backdrop-blur-xl">
       {back && (
         <button aria-label="Back" onClick={() => (typeof back === 'string' ? (window.location.hash = back) : goBack())} className="-ml-2 grid h-9 w-9 place-items-center rounded-xl text-muted hover:bg-white/5 hover:text-frost">
           <ChevronLeft size={22} />
         </button>
       )}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-[19px] font-bold tracking-tight">{title}</h1>
+        <h1 className="truncate text-[20px] font-bold tracking-tight">{title}</h1>
         {sub && <div className="truncate text-xs text-muted">{sub}</div>}
       </div>
       {right}
+      <span aria-hidden className="bg-neon absolute inset-x-0 bottom-0 h-px opacity-60" />
     </header>
   )
 }
 
-export function Chip({ active, children, onClick, className = '' }: { active?: boolean; children: ReactNode; onClick?: () => void; className?: string }) {
+export const CHIP_COLORS = ['#22d3ee', '#a78bfa', '#f472d0', '#a3e635', '#fb923c', '#f5b942', '#34d399', '#60a5fa']
+
+export function Chip({ active, children, onClick, className = '', color }: { active?: boolean; children: ReactNode; onClick?: () => void; className?: string; color?: string }) {
+  const c = color ?? '#22d3ee'
   return (
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`h-8 shrink-0 whitespace-nowrap rounded-full border px-3 text-[13px] font-medium transition-colors ${
-        active ? 'border-cyan/60 bg-cyan/12 text-cyan' : 'border-white/10 bg-white/[0.03] text-muted hover:text-frost'
+      style={active ? { borderColor: `${c}99`, background: `${c}24`, color: c, boxShadow: `0 0 14px -6px ${c}` } : color ? { borderColor: `${c}33` } : undefined}
+      className={`inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[13px] font-medium transition-colors ${
+        active ? '' : 'border-white/10 bg-white/[0.03] text-muted hover:text-frost'
       } ${className}`}
     >
+      {color && !active && <span className="h-1.5 w-1.5 rounded-full" style={{ background: c }} />}
       {children}
     </button>
   )
@@ -80,12 +86,12 @@ export function Chip({ active, children, onClick, className = '' }: { active?: b
 
 export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: { id: T; label: string }[] }) {
   return (
-    <div className="no-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-white/[0.07] bg-white/[0.03] p-1">
+    <div className="no-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-white/[0.08] bg-white/[0.035] p-1 backdrop-blur">
       {items.map((it) => (
         <button
           key={it.id}
           onClick={() => onChange(it.id)}
-          className={`h-9 flex-1 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition-colors ${value === it.id ? 'bg-white/10 text-frost' : 'text-muted hover:text-frost'}`}
+          className={`h-9 flex-1 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition-colors ${value === it.id ? 'bg-[linear-gradient(110deg,rgba(34,211,238,0.22),rgba(167,139,250,0.22),rgba(244,114,208,0.18))] text-frost shadow-[inset_0_0_0_1px_rgba(34,211,238,0.35)]' : 'text-muted hover:text-frost'}`}
         >
           {it.label}
         </button>
@@ -94,15 +100,25 @@ export function Tabs<T extends string>({ value, onChange, items }: { value: T; o
   )
 }
 
+const GRAD_END: Record<string, string> = { '#22d3ee': '#c084fc', '#f5b942': '#fb923c', '#34d399': '#a3e635', '#a78bfa': '#f472d0', '#fbbf24': '#fb923c', '#f87171': '#f472d0' }
+
 export function Ring({ value, size = 64, stroke = 6, color = '#22d3ee', children }: { value: number; size?: number; stroke?: number; color?: string; children?: ReactNode }) {
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
-  const v = Math.max(0, Math.min(1, value))
+  const v = Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0))
+  const gid = useId().replace(/:/g, '')
+  const end = GRAD_END[color.toLowerCase()] ?? color
   return (
     <div className="relative grid place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} fill="none" />
-        <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v)} style={{ transition: 'stroke-dashoffset .5s' }} />
+        <defs>
+          <linearGradient id={`rg${gid}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={color} />
+            <stop offset="100%" stopColor={end} />
+          </linearGradient>
+        </defs>
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={`url(#rg${gid})`} strokeWidth={stroke} fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v)} style={{ transition: 'stroke-dashoffset .5s' }} />
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">{children}</div>
     </div>
@@ -152,7 +168,7 @@ export function Confirm({ open, text, confirmLabel, cancelLabel, danger, onConfi
   )
 }
 
-export function Badge({ children, tone = 'cyan', className = '' }: { children: ReactNode; tone?: 'cyan' | 'gold' | 'violet' | 'muted' | 'ok' | 'bad'; className?: string }) {
+export function Badge({ children, tone = 'cyan', className = '' }: { children: ReactNode; tone?: 'cyan' | 'gold' | 'violet' | 'muted' | 'ok' | 'bad' | 'magenta' | 'lime'; className?: string }) {
   const t = {
     cyan: 'bg-cyan/12 text-cyan border-cyan/25',
     gold: 'bg-gold/12 text-gold border-gold/30',
@@ -160,6 +176,8 @@ export function Badge({ children, tone = 'cyan', className = '' }: { children: R
     muted: 'bg-white/5 text-muted border-white/10',
     ok: 'bg-ok/12 text-ok border-ok/30',
     bad: 'bg-bad/12 text-bad border-bad/30',
+    magenta: 'bg-magenta/12 text-magenta border-magenta/30',
+    lime: 'bg-lime/12 text-lime border-lime/30',
   }[tone]
   return <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider ${t} ${className}`}>{children}</span>
 }
@@ -201,7 +219,7 @@ export function Scale({ value, onChange, low, high }: { value: number; onChange:
           <button
             key={n}
             onClick={() => onChange(n)}
-            className={`h-10 rounded-xl border text-sm font-semibold transition-colors ${value === n ? 'border-cyan/60 bg-cyan/15 text-cyan' : 'border-white/10 bg-white/[0.03] text-muted'}`}
+            className={`h-10 rounded-xl border text-sm font-semibold transition-colors ${value === n ? 'border-cyan/60 bg-[linear-gradient(135deg,rgba(34,211,238,0.22),rgba(167,139,250,0.22))] text-cyan' : 'border-white/10 bg-white/[0.03] text-muted'}`}
           >
             {n}
           </button>

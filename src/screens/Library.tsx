@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Search, SlidersHorizontal, X, FileText, PlayCircle } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
-import { Badge, Button, Card, Chip, Empty, Header, Label, Sheet, Tabs } from '../components/ui'
+import { Badge, Button, Card, Chip, CHIP_COLORS, Empty, Header, Label, Sheet, Tabs } from '../components/ui'
 import { BodyThumb, BACK_IDS, FRONT_IDS } from '../components/BodyMap'
 import { EXERCISES, exName } from '../data/exercises'
 import { SAMPLE_POSTS } from '../data/posts'
@@ -86,7 +86,7 @@ export function Library() {
         <>
           <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4">
             <Chip active={!cat} onClick={() => setCat(null)}>{t('all')}</Chip>
-            {CATS.map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(cat === c ? null : c)}>{t(`cat_${c}`)}</Chip>)}
+            {CATS.map((c, i) => <Chip key={c} color={CHIP_COLORS[i % CHIP_COLORS.length]} active={cat === c} onClick={() => setCat(cat === c ? null : c)}>{t(`cat_${c}`)}</Chip>)}
           </div>
           {nFilters > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">

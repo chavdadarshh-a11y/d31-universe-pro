@@ -35,13 +35,15 @@ const NAV = [
 function BottomNav({ current }: { current: string }) {
   const t = useT()
   return (
-    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.07] bg-[#07080b]/92 backdrop-blur-xl" aria-label="Main">
+    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 bg-[#07080b]/88 backdrop-blur-xl" aria-label="Main">
+      <span aria-hidden className="bg-neon absolute inset-x-0 top-0 h-px opacity-50" />
       <div className="mx-auto grid max-w-lg grid-cols-6 px-1">
         {NAV.map(({ id, icon: Icon, key }) => {
           const active = current === id
           return (
-            <button key={id} onClick={() => navigate('/' + id)} aria-current={active ? 'page' : undefined} className="flex h-[62px] flex-col items-center justify-center gap-1">
-              <span className={`grid h-7 w-12 place-items-center rounded-full transition-colors ${active ? 'bg-cyan/14 text-cyan' : 'text-dim'}`}>
+            <button key={id} onClick={() => navigate('/' + id)} aria-current={active ? 'page' : undefined} className="relative flex h-[62px] flex-col items-center justify-center gap-1">
+              {active && <span aria-hidden className="bg-neon-static absolute top-0 h-[3px] w-8 rounded-b-full shadow-[0_0_12px_2px_rgba(34,211,238,0.55)]" />}
+              <span className={`grid h-7 w-12 place-items-center rounded-full transition-all ${active ? 'bg-[linear-gradient(135deg,rgba(34,211,238,0.25),rgba(167,139,250,0.25))] text-cyan shadow-[0_0_18px_-4px_rgba(34,211,238,0.7)]' : 'text-dim'}`}>
                 <Icon size={19} strokeWidth={active ? 2.4 : 2} />
               </span>
               <span className={`text-[10.5px] font-semibold leading-none ${active ? 'text-frost' : 'text-dim'}`}>{t(key)}</span>
@@ -59,8 +61,8 @@ function ResumeBar() {
   const now = useNow(1000)
   if (!active) return null
   return (
-    <button onClick={() => navigate('/player')} className="fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-[480px] items-center gap-3 rounded-2xl border border-cyan/30 bg-[#0b1a1f] px-4 py-3 text-left">
-      <span className="grid h-9 w-9 place-items-center rounded-full bg-cyan text-[#041016]"><Play size={16} fill="currentColor" /></span>
+    <button onClick={() => navigate('/player')} className="neon-border neon-shadow fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-[480px] items-center gap-3 rounded-2xl bg-[#0b1420]/95 px-4 py-3 text-left backdrop-blur-xl">
+      <span className="bg-neon-static grid h-9 w-9 place-items-center rounded-full text-[#060a14]"><Play size={16} fill="currentColor" /></span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">{active.name}</span>
         <span className="text-xs text-muted">{t('resume')}</span>
@@ -122,7 +124,7 @@ export default function App() {
   return (
     <div className="mx-auto min-h-dvh max-w-lg px-4">
       {!isLive && (
-        <div className="-mx-4 flex items-center justify-center gap-2 bg-gold/10 px-4 py-1.5 text-center text-[11px] font-medium leading-tight text-gold">
+        <div className="-mx-4 flex items-center justify-center gap-2 bg-[linear-gradient(90deg,rgba(245,185,66,0.12),rgba(251,146,60,0.12))] px-4 py-1.5 text-center text-[11px] font-medium leading-tight text-gold">
           <span className="rounded bg-gold px-1 font-mono text-[9px] font-bold text-black">{t('demo')}</span>
           <span>{t('demoBanner')}</span>
         </div>

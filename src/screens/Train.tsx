@@ -12,7 +12,7 @@ import { startWorkout } from '../lib/workout'
 import { cloud } from '../lib/cloud'
 import type { Program } from '../types'
 
-const KIND_ACCENT: Record<Program['kind'], string> = { split: '#22d3ee', skill: '#a78bfa', strength: '#f5b942', mobility: '#34d399' }
+const KIND_ACCENT: Record<Program['kind'], string> = { split: '#22d3ee', skill: '#c084fc', strength: '#fb923c', mobility: '#a3e635' }
 
 export function Train() {
   const t = useT()
@@ -32,7 +32,7 @@ export function Train() {
         <>
           <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4">
             {(['all', 'split', 'skill', 'strength', 'mobility'] as const).map((k) => (
-              <Chip key={k} active={kind === k} onClick={() => setKind(k)}>{k === 'all' ? t('all') : t(`kind_${k}`)}</Chip>
+              <Chip key={k} active={kind === k} color={k === 'all' ? '#f472d0' : KIND_ACCENT[k]} onClick={() => setKind(k)}>{k === 'all' ? t('all') : t(`kind_${k}`)}</Chip>
             ))}
           </div>
           <div className="mt-3 space-y-3">
@@ -41,7 +41,7 @@ export function Train() {
               const active = s.activeProgramId === p.id
               return (
                 <Card key={p.id} onClick={() => navigate(`/train/program/${p.id}`)} className="relative overflow-hidden p-4">
-                  <span className="absolute inset-y-0 left-0 w-1" style={{ background: KIND_ACCENT[p.kind] }} />
+                  <span className="absolute inset-y-0 left-0 w-1" style={{ background: `linear-gradient(180deg, ${KIND_ACCENT[p.kind]}, ${KIND_ACCENT[p.kind]}33)`, boxShadow: `0 0 12px ${KIND_ACCENT[p.kind]}88` }} />
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">

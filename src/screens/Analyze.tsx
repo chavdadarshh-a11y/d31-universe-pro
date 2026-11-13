@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Upload, Eye, CheckCircle2, AlertTriangle, Wrench, Target, ArrowRight, X, LogIn, Camera, Square, RotateCcw, Save, Volume2, VolumeX, SwitchCamera, Zap } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
@@ -9,7 +9,7 @@ import { runAnalysis, HEADER_KEYS, D31_ANALYSIS_HEADERS } from '../lib/analyze'
 import { isLive } from '../lib/env'
 import { PLAN_BY_ID } from '../lib/plans'
 import { compressImage, fmtDate, speak, uid } from '../lib/util'
-import { drawPose, getLandmarker, keyAngles, RepCounter, type RepKind } from '../lib/pose'
+import { drawPose, evaluatePose, getLandmarker, RepCounter, type RepKind } from '../lib/pose'
 import { cloud } from '../lib/cloud'
 import type { AnalysisRecord, WorkoutSession } from '../types'
 
@@ -63,7 +63,9 @@ function ResultCards({ sections, raw, demo }: { sections: Record<string, string>
 function PosePreview({ file, show }: { file: File; show: boolean }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const [img, setImg] = useState<HTMLImageElement | null>(null)
-  const [lm, setLm] = useState<import('@mediapipe/tasks-vision').NormalizedLandmark[] | null>(null)
+  // undefined = still detecting, null = no pose found
+  const [lm, setLm] = useState<import('@mediapipe/tasks-vision').NormalizedLandmark[] | null | undefined>(undefined)
+  const pose = useMemo(() => evaluatePose(lm ?? null), [lm])
   const t = useT()
   useEffect(() => {
     const url = URL.createObjectURL(file)
@@ -94,16 +96,21 @@ function PosePreview({ file, show }: { file: File; show: boolean }) {
     const ctx = c.getContext('2d')!
     ctx.imageSmoothingQuality = 'high'
     ctx.drawImage(img, 0, 0, c.width, c.height)
-    if (show && lm) drawPose(ctx, lm, c.width, c.height, { angles: keyAngles(lm) })
-  }, [img, lm, show])
-  const angles = lm ? keyAngles(lm) : []
+    if (show && lm) drawPose(ctx, lm, c.width, c.height, { angles: pose.angles, result: pose })
+  }, [img, lm, show, pose])
   return (
     <div>
       <canvas ref={canvas} className="w-full rounded-2xl bg-black" />
-      {show && angles.length > 0 && (
+      {show && lm !== undefined && pose.notMeasurable && (
+        <div className="mt-2 flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/[0.07] px-3 py-2 text-[12.5px] leading-snug text-gold">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+          <span>{t('angleNotMeasurable')}</span>
+        </div>
+      )}
+      {show && pose.angles.length > 0 && (
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] text-dim">{t('anglesNote')}:</span>
-          {angles.map((a) => <Badge key={a.name} tone="cyan">{a.name} {Math.round(a.deg)}°</Badge>)}
+          {pose.angles.map((a) => <Badge key={a.name} tone="cyan">{t(`joint_${a.name}`)} {Math.round(a.deg)}°</Badge>)}
         </div>
       )}
     </div>

@@ -1,0 +1,138 @@
+import { lazy, Suspense, useEffect } from 'react'
+import { Home as HomeIcon, Dumbbell, ScanLine, BookOpen, LineChart, User, Play } from 'lucide-react'
+import { useRoute, navigate } from './lib/router'
+import { useApp } from './store/app'
+import { useT } from './i18n'
+import { isLive } from './lib/env'
+import { Onboarding } from './screens/Onboarding'
+import { Home } from './screens/Home'
+import { Train } from './screens/Train'
+import { ProgramDetail } from './screens/ProgramDetail'
+import { Builder } from './screens/Builder'
+import { Player } from './screens/Player'
+import { Library } from './screens/Library'
+import { ExerciseDetail } from './screens/ExerciseDetail'
+import { Progress } from './screens/Progress'
+import { Fuel } from './screens/Fuel'
+import { Profile } from './screens/Profile'
+import { Membership } from './screens/Membership'
+import { Legal } from './screens/Legal'
+import { Auth } from './screens/Auth'
+import { fmtClock } from './lib/util'
+import { useNow } from './lib/hooks'
+
+const Analyze = lazy(() => import('./screens/Analyze'))
+
+const NAV = [
+  { id: 'home', icon: HomeIcon, key: 'navHome' },
+  { id: 'train', icon: Dumbbell, key: 'navTrain' },
+  { id: 'analyze', icon: ScanLine, key: 'navAnalyze' },
+  { id: 'library', icon: BookOpen, key: 'navLibrary' },
+  { id: 'progress', icon: LineChart, key: 'navProgress' },
+  { id: 'profile', icon: User, key: 'navProfile' },
+] as const
+
+function BottomNav({ current }: { current: string }) {
+  const t = useT()
+  return (
+    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.07] bg-[#07080b]/92 backdrop-blur-xl" aria-label="Main">
+      <div className="mx-auto grid max-w-lg grid-cols-6 px-1">
+        {NAV.map(({ id, icon: Icon, key }) => {
+          const active = current === id
+          return (
+            <button key={id} onClick={() => navigate('/' + id)} aria-current={active ? 'page' : undefined} className="flex h-[62px] flex-col items-center justify-center gap-1">
+              <span className={`grid h-7 w-12 place-items-center rounded-full transition-colors ${active ? 'bg-cyan/14 text-cyan' : 'text-dim'}`}>
+                <Icon size={19} strokeWidth={active ? 2.4 : 2} />
+              </span>
+              <span className={`text-[10.5px] font-semibold leading-none ${active ? 'text-frost' : 'text-dim'}`}>{t(key)}</span>
+            </button>
+          )
+        })}
+      </div>
+    </nav>
+  )
+}
+
+function ResumeBar() {
+  const active = useApp((s) => s.active)
+  const t = useT()
+  const now = useNow(1000)
+  if (!active) return null
+  return (
+    <button onClick={() => navigate('/player')} className="fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-[480px] items-center gap-3 rounded-2xl border border-cyan/30 bg-[#0b1a1f] px-4 py-3 text-left">
+      <span className="grid h-9 w-9 place-items-center rounded-full bg-cyan text-[#041016]"><Play size={16} fill="currentColor" /></span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold">{active.name}</span>
+        <span className="text-xs text-muted">{t('resume')}</span>
+      </span>
+      <span className="font-mono text-sm tabular-nums text-cyan">{fmtClock((now - new Date(active.startedAt).getTime()) / 1000)}</span>
+    </button>
+  )
+}
+
+function Toast() {
+  const toast = useApp((s) => s.toast)
+  if (!toast) return null
+  return (
+    <div role="status" className="rise fixed inset-x-4 top-[calc(env(safe-area-inset-top)+12px)] z-[60] mx-auto max-w-sm rounded-2xl border border-white/10 bg-[#121822] px-4 py-3 text-center text-sm font-medium shadow-2xl">
+      {toast}
+    </div>
+  )
+}
+
+export default function App() {
+  const parts = useRoute()
+  const hasActive = useApp((s) => !!s.active)
+  const onboarded = useApp((s) => s.onboarded)
+  const lang = useApp((s) => s.lang)
+  const [root, a, b] = parts
+  const t = useT()
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
+
+  useEffect(() => {
+    if (onboarded && !root) navigate('/home')
+  }, [onboarded, root])
+
+  if (!onboarded && root !== 'legal') return (<><Onboarding /><Toast /></>)
+
+  let screen: React.ReactNode
+  let showNav = true
+  switch (root) {
+    case 'train':
+      if (a === 'program' && b) screen = <ProgramDetail id={b} />
+      else if (a === 'builder') screen = <Builder editId={b} />
+      else screen = <Train />
+      break
+    case 'player': screen = <Player />; showNav = false; break
+    case 'analyze': screen = <Suspense fallback={<div className="p-8 text-center text-muted">…</div>}><Analyze /></Suspense>; break
+    case 'library': screen = a ? <ExerciseDetail id={a} /> : <Library />; break
+    case 'progress': screen = <Progress />; break
+    case 'fuel': screen = <Fuel />; break
+    case 'profile': screen = <Profile />; break
+    case 'membership': screen = <Membership />; break
+    case 'legal': screen = <Legal doc={a ?? 'privacy'} />; showNav = onboarded; break
+    case 'auth': screen = <Auth />; showNav = false; break
+    default: screen = <Home />
+  }
+  const navId = NAV.some((n) => n.id === root) ? root : root === 'fuel' ? 'home' : root === 'membership' ? 'profile' : ''
+
+  return (
+    <div className="mx-auto min-h-dvh max-w-lg px-4">
+      {!isLive && (
+        <div className="-mx-4 flex items-center justify-center gap-2 bg-gold/10 px-4 py-1.5 text-center text-[11px] font-medium leading-tight text-gold">
+          <span className="rounded bg-gold px-1 font-mono text-[9px] font-bold text-black">{t('demo')}</span>
+          <span>{t('demoBanner')}</span>
+        </div>
+      )}
+      <main className={showNav ? (hasActive ? 'pb-nav-resume' : 'pb-nav') : 'pb-8'}>
+        <div key={window.location.hash} className="rise">{screen}</div>
+      </main>
+      {showNav && root !== 'player' && <ResumeBar />}
+      {showNav && <BottomNav current={navId} />}
+      <Toast />
+    </div>
+  )
+}

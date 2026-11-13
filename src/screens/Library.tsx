@@ -1,0 +1,164 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Search, SlidersHorizontal, X, FileText, PlayCircle } from 'lucide-react'
+import { useApp } from '../store/app'
+import { useT } from '../i18n'
+import { Badge, Button, Card, Chip, Empty, Header, Label, Sheet, Tabs } from '../components/ui'
+import { BodyThumb, BACK_IDS, FRONT_IDS } from '../components/BodyMap'
+import { EXERCISES, exName } from '../data/exercises'
+import { SAMPLE_POSTS } from '../data/posts'
+import { fetchPosts, type D31Post } from '../lib/posts'
+import { navigate } from '../lib/router'
+import { isLive } from '../lib/env'
+import type { Category, Equipment, Exercise, MuscleId } from '../types'
+
+const MUSCLES: MuscleId[] = ['chest', 'shoulders', 'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'traps', 'lats', 'upper_back', 'lower_back', 'glutes', 'quads', 'hamstrings', 'adductors', 'calves', 'rear_delts']
+const CATS: Category[] = ['strength', 'calisthenics', 'mobility', 'cardio']
+const EQUIP: Equipment[] = ['none', 'dumbbell', 'barbell', 'bar', 'bench', 'kettlebell']
+
+const realLink = (u: string) => !!u && !u.includes('example.com')
+
+function Thumb({ e }: { e: Exercise }) {
+  const backOnly = (m: MuscleId) => BACK_IDS.has(m) && !FRONT_IDS.has(m)
+  const frontOnly = (m: MuscleId) => FRONT_IDS.has(m) && !BACK_IDS.has(m)
+  const backHeavy = e.primary.filter(backOnly).length > e.primary.filter(frontOnly).length
+  return (
+    <div className="h-[76px] w-[56px] shrink-0 rounded-xl bg-[#0a0d12] py-1.5">
+      <BodyThumb primary={e.primary} secondary={e.secondary} view={backHeavy ? 'back' : 'front'} />
+    </div>
+  )
+}
+
+export function Library() {
+  const t = useT()
+  const lang = useApp((s) => s.lang)
+  const [tab, setTab] = useState<'ex' | 'kn'>('ex')
+  const [q, setQ] = useState('')
+  const [cat, setCat] = useState<Category | null>(null)
+  const [muscle, setMuscle] = useState<MuscleId | null>(null)
+  const [equip, setEquip] = useState<Equipment | null>(null)
+  const [level, setLevel] = useState<1 | 2 | 3 | null>(null)
+  const [filters, setFilters] = useState(false)
+  const [posts, setPosts] = useState<D31Post[]>(SAMPLE_POSTS)
+  const [post, setPost] = useState<D31Post | null>(null)
+
+  useEffect(() => {
+    if (tab !== 'kn' || !isLive) return
+    const id = setTimeout(() => fetchPosts(q).then((p) => p && setPosts(p)), 250)
+    return () => clearTimeout(id)
+  }, [q, tab])
+
+  const ql = q.trim().toLowerCase()
+  const list = useMemo(
+    () =>
+      EXERCISES.filter(
+        (e) =>
+          (!ql || [e.name, e.nameHi, e.nameGu, e.summary, ...e.primary.map((m) => t(`m_${m}`))].some((x) => x.toLowerCase().includes(ql))) &&
+          (!cat || e.category === cat) &&
+          (!muscle || e.primary.includes(muscle) || e.secondary.includes(muscle)) &&
+          (!equip || e.equipment.includes(equip)) &&
+          (!level || e.level === level),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [ql, cat, muscle, equip, level, lang],
+  )
+  const shownPosts = isLive ? posts : posts.filter((p) => !ql || `${p.title} ${p.core_skill} ${p.layer} ${p.skills.join(' ')}`.toLowerCase().includes(ql))
+  const nFilters = [muscle, equip, level].filter((x) => x !== null).length
+  const levelLabel = (l: 1 | 2 | 3) => t(l === 1 ? 'level_beginner' : l === 2 ? 'level_intermediate' : 'level_advanced')
+
+  return (
+    <div>
+      <Header title={t('navLibrary')} sub={t('librarySub')} />
+      <Tabs value={tab} onChange={setTab} items={[{ id: 'ex', label: t('exercises') }, { id: 'kn', label: t('knowledge') }]} />
+      <div className="mt-3 flex gap-2">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
+          <input className="field pl-9" placeholder={t('searchPh')} value={q} onChange={(e) => setQ(e.target.value)} type="search" />
+        </div>
+        {tab === 'ex' && (
+          <button onClick={() => setFilters(true)} className="relative grid h-[46px] w-[46px] place-items-center rounded-xl border border-white/10 text-muted" aria-label={t('filters')}>
+            <SlidersHorizontal size={18} />
+            {nFilters > 0 && <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-cyan text-[11px] font-bold text-black">{nFilters}</span>}
+          </button>
+        )}
+      </div>
+
+      {tab === 'ex' && (
+        <>
+          <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4">
+            <Chip active={!cat} onClick={() => setCat(null)}>{t('all')}</Chip>
+            {CATS.map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(cat === c ? null : c)}>{t(`cat_${c}`)}</Chip>)}
+          </div>
+          {nFilters > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {muscle && <Chip active onClick={() => setMuscle(null)}>{t(`m_${muscle}`)} <X size={12} className="ml-1 inline" /></Chip>}
+              {equip && <Chip active onClick={() => setEquip(null)}>{t(`eq_${equip}`)} <X size={12} className="ml-1 inline" /></Chip>}
+              {level && <Chip active onClick={() => setLevel(null)}>{levelLabel(level)} <X size={12} className="ml-1 inline" /></Chip>}
+            </div>
+          )}
+          <div className="label mb-2 mt-4">{t('results', { n: list.length })}</div>
+          {list.length === 0 && <Empty text={t('noResults')} />}
+          <div className="space-y-2">
+            {list.map((e) => (
+              <Card key={e.id} onClick={() => navigate(`/library/${e.id}`)} className="flex items-center gap-3 p-2.5 pr-4">
+                <Thumb e={e} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[15px] font-semibold">{exName(e, lang)}</div>
+                  <div className="mt-0.5 truncate text-[12.5px] text-muted">{e.primary.map((m) => t(`m_${m}`)).join(' · ')}</div>
+                  <div className="mt-1.5 flex gap-1.5">
+                    <Badge tone="muted">{t(`cat_${e.category}`)}</Badge>
+                    <Badge tone={e.level === 3 ? 'violet' : 'muted'}>{levelLabel(e.level)}</Badge>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
+
+      {tab === 'kn' && (
+        <div className="mt-3 space-y-3">
+          {!isLive && <p className="text-[12px] text-dim">{t('demo')} · sample posts</p>}
+          {shownPosts.map((p) => (
+            <Card key={p.post_id} onClick={() => setPost(p)} className="overflow-hidden">
+              <div className="relative h-36 bg-panel-2">
+                <img src={p.cover_url} alt="" loading="lazy" className="h-full w-full object-cover opacity-80" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0e1117] via-transparent" />
+                <Badge tone="cyan" className="absolute left-3 top-3">{p.layer}</Badge>
+              </div>
+              <div className="p-4 pt-1">
+                <h3 className="text-[16px] font-bold leading-snug">{p.title}</h3>
+                <p className="mt-1 line-clamp-2 text-[13px] text-muted">{p.content.summary}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Sheet open={filters} onClose={() => setFilters(false)} title={t('filters')}>
+        <Label>{t('muscle')}</Label>
+        <div className="mt-2 flex flex-wrap gap-1.5">{MUSCLES.map((m) => <Chip key={m} active={muscle === m} onClick={() => setMuscle(muscle === m ? null : m)}>{t(`m_${m}`)}</Chip>)}</div>
+        <Label className="mt-5">{t('equipment')}</Label>
+        <div className="mt-2 flex flex-wrap gap-1.5">{EQUIP.map((e) => <Chip key={e} active={equip === e} onClick={() => setEquip(equip === e ? null : e)}>{t(`eq_${e}`)}</Chip>)}</div>
+        <Label className="mt-5">{t('level')}</Label>
+        <div className="mt-2 flex flex-wrap gap-1.5">{([1, 2, 3] as const).map((l) => <Chip key={l} active={level === l} onClick={() => setLevel(level === l ? null : l)}>{levelLabel(l)}</Chip>)}</div>
+        <div className="mt-6 grid grid-cols-2 gap-2">
+          <Button variant="ghost" onClick={() => { setMuscle(null); setEquip(null); setLevel(null) }}>{t('all')}</Button>
+          <Button onClick={() => setFilters(false)}>{t('results', { n: list.length })}</Button>
+        </div>
+      </Sheet>
+
+      <Sheet open={!!post} onClose={() => setPost(null)} title={post?.title}>
+        {post && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-1.5"><Badge tone="cyan">{post.layer}</Badge>{post.skills.map((s) => <Badge key={s} tone="muted">{s}</Badge>)}</div>
+            {(['summary', 'technique', 'biomechanics', 'coaching'] as const).map((k) => post.content[k] && (
+              <div key={k}><Label>{k}</Label><p className="mt-1.5 text-[14px] leading-relaxed text-frost/90">{post.content[k]}</p></div>
+            ))}
+            {post.videos.filter(realLink).map((v) => <a key={v} href={v} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-cyan"><PlayCircle size={16} /> Video</a>)}
+            {post.pdfs.filter(realLink).map((v) => <a key={v} href={v} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-cyan"><FileText size={16} /> PDF</a>)}
+          </div>
+        )}
+      </Sheet>
+    </div>
+  )
+}

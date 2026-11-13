@@ -1,0 +1,20 @@
+# Minimal Supabase CLI config for D31.UNIVERSE PRO
+project_id = "d31-universe-pro"
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["https://d31-universe.ai.studio", "https://*.vercel.app", "https://*.netlify.app"]
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+
+[functions.analyze-media]
+verify_jwt = true
+
+[functions.razorpay-create-order]
+verify_jwt = true
+
+[functions.razorpay-verify]
+verify_jwt = true

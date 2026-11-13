@@ -20,6 +20,12 @@ import { Legal } from './screens/Legal'
 import { Auth } from './screens/Auth'
 import { PathDetail } from './screens/PathDetail'
 import { Cosmos } from './components/Cosmos'
+import { Settings } from './screens/Settings'
+import { Knowledge, KnowledgePost } from './screens/Knowledge'
+import { NotFound } from './screens/NotFound'
+import { InstallPrompt } from './components/InstallPrompt'
+import { useSettings, applyTheme } from './store/settings'
+import { useReminders } from './lib/reminders'
 import { ClipViewer, GradDefs } from './components/hud'
 import { EndWorkoutSheet, SessionClock } from './components/EndWorkout'
 
@@ -37,7 +43,7 @@ const NAV = [
 function BottomNav({ current }: { current: string }) {
   const t = useT()
   return (
-    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 bg-[#04060c]/85 backdrop-blur-xl" aria-label="Main">
+    <nav className="nav-bar safe-bottom fixed inset-x-0 bottom-0 z-40 bg-[#04060c]/85 backdrop-blur-xl" aria-label="Main">
       <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,#f7c548,#22d3ee,transparent)] opacity-60" />
       <div className="mx-auto grid max-w-lg grid-cols-6 px-1">
         {NAV.map(({ id, icon: Icon, key }) => {
@@ -76,7 +82,7 @@ function ResumeBar() {
         <button aria-label={t('endWorkout')} data-testid="resume-end" onClick={() => setEnd(true)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-bad/30 bg-bad/10 text-bad"><Square size={14} fill="currentColor" /></button>
       </div>
       <EndWorkoutSheet open={end} onClose={() => setEnd(false)} onFinished={(r) => {
-        if (r) { useApp.getState().showToast(t('workoutSaved', { n: r.session.exercises.reduce((n, e) => n + e.sets.length, 0) })); navigate('/progress') }
+        if (r) { { const n = r.session.exercises.reduce((m, e) => m + e.sets.length, 0); useApp.getState().showToast(t(n === 1 ? 'workoutSaved1' : 'workoutSaved', { n })) }; navigate('/progress') }
       }} />
     </>
   )
@@ -104,11 +110,24 @@ export default function App() {
     document.documentElement.lang = lang
   }, [lang])
 
+  const theme = useSettings((s) => s.theme)
+  const units = useSettings((s) => `${s.weightUnit}${s.lengthUnit}`)
+  const accountKey = useApp((s) => s.user?.id ?? 'guest')
+  useEffect(() => {
+    applyTheme(theme)
+    if (theme !== 'system') return
+    const mq = window.matchMedia('(prefers-color-scheme: light)')
+    const on = () => applyTheme('system')
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [theme])
+  useReminders()
+
   useEffect(() => {
     if (onboarded && !root) navigate('/home')
   }, [onboarded, root])
 
-  if (!onboarded && root !== 'legal') return (<><Cosmos /><GradDefs /><Onboarding /><Toast /></>)
+  if (!onboarded && root !== 'legal' && root !== 'auth') return (<><Cosmos /><GradDefs /><Onboarding key={accountKey} /><Toast /></>)
 
   let screen: React.ReactNode
   let showNav = true
@@ -128,9 +147,12 @@ export default function App() {
     case 'legal': screen = <Legal doc={a ?? 'privacy'} />; showNav = onboarded; break
     case 'path': screen = <PathDetail id={a ?? ''} />; break
     case 'auth': screen = <Auth />; showNav = false; break
-    default: screen = <Home />
+    case 'settings': screen = <Settings />; break
+    case 'knowledge': screen = a ? <KnowledgePost id={decodeURIComponent(a)} /> : <Knowledge />; break
+    case 'home': case undefined: case '': screen = <Home />; break
+    default: screen = <NotFound />
   }
-  const navId = NAV.some((n) => n.id === root) ? root : root === 'fuel' ? 'home' : root === 'path' ? 'library' : root === 'membership' ? 'profile' : ''
+  const navId = NAV.some((n) => n.id === root) ? root : root === 'fuel' ? 'home' : root === 'path' ? 'library' : root === 'membership' || root === 'settings' ? 'profile' : root === 'knowledge' ? 'library' : ''
 
   return (
     <div className="relative z-[1] mx-auto min-h-dvh max-w-lg px-4">
@@ -143,11 +165,12 @@ export default function App() {
         </div>
       )}
       <main className={showNav ? (hasActive ? 'pb-nav-resume' : 'pb-nav') : 'pb-8'}>
-        <div key={window.location.hash} className="rise">{screen}</div>
+        <div key={`${window.location.hash}|${units}|${accountKey}`} className="rise">{screen}</div>
       </main>
       {showNav && root !== 'player' && <ResumeBar />}
       {showNav && <BottomNav current={navId} />}
       <ClipViewer />
+      {showNav && <InstallPrompt />}
       <Toast />
     </div>
   )

@@ -1,4 +1,5 @@
 import type { CheckIn, Profile, WorkoutSession, LoggedSet } from '../types'
+import { useSettings } from '../store/settings'
 
 export const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36))
 
@@ -137,6 +138,9 @@ export function speak(text: string, lang: string) {
 }
 
 export function beep() {
+  const { sound, vibration } = useSettings.getState()
+  if (vibration && navigator.vibrate) navigator.vibrate(200)
+  if (!sound) return
   try {
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     const ctx = new Ctx()
@@ -148,7 +152,6 @@ export function beep() {
     o.connect(g).connect(ctx.destination)
     o.start()
     o.stop(ctx.currentTime + 0.35)
-    if (navigator.vibrate) navigator.vibrate(200)
   } catch {
     /* audio not available */
   }

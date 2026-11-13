@@ -59,7 +59,7 @@ export function EndWorkoutSheet({ open, onClose, onFinished, minimize = false }:
           <div className="flex items-center justify-between rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3">
             <div className="min-w-0">
               <div className="truncate text-[14px] font-semibold text-frost">{a.name}</div>
-              <div className="font-mono text-[11px] text-muted">{t('setsTicked', { n })}{a.pausedAt ? ` · ${t('timerPaused')}` : ''}</div>
+              <div className="font-mono text-[11px] text-muted">{t(n === 1 ? 'setsTicked1' : 'setsTicked', { n })}{a.pausedAt ? ` · ${t('timerPaused')}` : ''}</div>
             </div>
             <SessionClock a={a} className="readout text-[20px] font-bold text-cyan" />
           </div>
@@ -73,9 +73,9 @@ export function EndWorkoutSheet({ open, onClose, onFinished, minimize = false }:
               : <Button variant="ghost" onClick={() => pauseActive()}><Pause size={15} /> {t('pauseLbl')}</Button>}
             {minimize
               ? <Button variant="ghost" onClick={() => { onClose(); navigate('/home') }}><Minimize2 size={15} /> {t('minimize').split(' · ')[0]}</Button>
-              : <Button variant="ghost" onClick={() => { onClose(); navigate('/player') }}><Play size={15} /> {t('resume')}</Button>}
+              : <Button variant="ghost" onClick={() => { onClose(); navigate('/player') }}><Play size={15} /> <span className="whitespace-nowrap">{t('resumeLbl')}</span></Button>}
           </div>
-          {n > 0 && <Button className="w-full" onClick={save} data-testid="save-finish"><Check size={16} /> {t('saveFinish', { n })}</Button>}
+          {n > 0 && <Button className="w-full" onClick={save} data-testid="save-finish"><Check size={16} /> {t(n === 1 ? 'saveFinish1' : 'saveFinish', { n })}</Button>}
           <Button variant="danger" className="w-full" onClick={() => setStep('discard')} data-testid="end-discard"><Trash2 size={15} /> {n > 0 ? t('endDiscard') : t('endWorkout')}</Button>
         </div>
       )}

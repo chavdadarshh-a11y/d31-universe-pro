@@ -1,3 +1,4 @@
+import { wTxt } from './units'
 // Pure training logic (no store / DOM imports) so it can be unit-tested with plain Node.
 import type { LoggedSet, SetType, WorkoutSession } from '../types'
 import type { Criterion, Ladder } from '../data/ladders'
@@ -60,7 +61,7 @@ export function previousSets(exId: string, sessions: WorkoutSession[]): { sets: 
   return null
 }
 
-const kgTxt = (kg: number) => `${Number.isInteger(kg) ? kg : kg.toFixed(1)}kg`
+const kgTxt = (kg: number) => wTxt(kg)
 
 /** Short human summary: '4×8 @ 20kg', '3×10s', '20kg×8, 22.5kg×6'. */
 export function summarizeSets(sets: LoggedSet[], tracking: Tracking): string {

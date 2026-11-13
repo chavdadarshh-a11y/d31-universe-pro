@@ -1,5 +1,5 @@
 export type Lang = 'en' | 'hi' | 'gu'
-export type PlanId = 'free' | 'pro' | 'premium' | 'coaching'
+export type PlanId = 'free' | 'pro' | 'platinum'
 export type Goal = 'muscle' | 'fatloss' | 'strength' | 'skills' | 'mobility'
 export type Level = 'beginner' | 'intermediate' | 'advanced'
 export type Equipment = 'none' | 'dumbbell' | 'barbell' | 'bar' | 'band' | 'bench' | 'kettlebell' | 'cable'

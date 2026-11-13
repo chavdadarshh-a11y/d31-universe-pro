@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ScanLine, Plus, Check, X, Sparkles, ListOrdered, History, Trophy, Route, Trash2 } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
@@ -11,6 +11,27 @@ import { computeRecords } from '../lib/workout'
 import { criterionText, summarizeSets } from '../lib/training'
 import { navigate } from '../lib/router'
 import { cloud } from '../lib/cloud'
+import { wTxt } from '../lib/units'
+import { DownloadButton } from '../components/DownloadButton'
+import { isClipSaved, removeClipOffline, saveClipOffline } from '../lib/offline'
+
+const clipUrls = (name: string) => ['mp4', 'webm'].map((x) => `${import.meta.env.BASE_URL}media/clips/${name}.${x}`).concat(`${import.meta.env.BASE_URL}media/clips/${name}-poster.webp`)
+
+/** Platinum: keep Darshan's clip on the phone for training without internet. */
+function OfflineClip({ name }: { name: string }) {
+  const t = useT()
+  const toast = useApp((s) => s.showToast)
+  const [saved, setSaved] = useState<boolean | null>(null)
+  useEffect(() => { void isClipSaved(clipUrls(name)[0]).then(setSaved) }, [name])
+  if (saved)
+    return (
+      <div className="mb-3 flex items-center justify-between rounded-xl border border-ok/30 bg-ok/[0.06] px-3 py-2.5 text-[13px] text-ok" data-testid="clip-saved">
+        <span className="flex items-center gap-2"><Check size={15} /> {t('savedOffline')}</span>
+        <button className="text-[12px] text-muted underline" onClick={async () => { await removeClipOffline(clipUrls(name)); setSaved(false) }}>{t('remove')}</button>
+      </div>
+    )
+  return <DownloadButton className="mb-3 w-full" feature="download.clips" testid="clip-offline" label={t('saveOffline')} run={async () => { await saveClipOffline(clipUrls(name)); setSaved(true); toast(t('savedOffline')) }} />
+}
 
 export function ExerciseDetail({ id }: { id: string }) {
   const t = useT()
@@ -41,19 +62,20 @@ export function ExerciseDetail({ id }: { id: string }) {
     <div>
       <Header title={exName(e, s.lang)} sub={s.lang !== 'en' ? e.name : undefined} back="#/library" />
       {e.clip ? (
-        <div className="card clip-ring relative -mt-1 mb-3 h-[360px] cursor-pointer overflow-hidden" role="button" tabIndex={0} onClick={() => openClip({ name: e.clip!, title: exName(e, s.lang), exId: e.id })}>
+        <div className="dark-zone card clip-ring relative -mt-1 mb-3 h-[360px] cursor-pointer overflow-hidden" role="button" tabIndex={0} onClick={() => openClip({ name: e.clip!, title: exName(e, s.lang), exId: e.id })}>
           <ClipPlayer name={e.clip} alt={t('photoOf', { x: e.name })} />
           <span className="clip-badge absolute right-3 top-3 z-[2] flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.18em]"><span className="clip-dot" />CLIP · ⛶</span>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(4,6,12,0.92))]" />
           <div className="absolute bottom-3 left-4 z-[2] font-mono text-[9.5px] uppercase tracking-[0.24em] text-gold/90">{t('byDarshan')}</div>
         </div>
       ) : e.media && (
-        <div className="card hud-full scanlines holo-sweep relative -mt-1 mb-3 h-[230px] overflow-hidden">
+        <div className="dark-zone card hud-full scanlines holo-sweep relative -mt-1 mb-3 h-[230px] overflow-hidden">
           <Photo smart name={e.media} alt={t('photoOf', { x: e.name })} eager />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(4,6,12,0.92))]" />
           <div className="absolute bottom-3 left-4 z-[2] font-mono text-[9.5px] uppercase tracking-[0.24em] text-gold/90">{t('byDarshan')}</div>
         </div>
       )}
+      {e.clip && <OfflineClip name={e.clip} />}
       <div className="flex flex-wrap gap-1.5">
         <Badge tone="muted">{t(`cat_${e.category}`)}</Badge>
         <Badge tone={e.level === 3 ? 'violet' : 'muted'}>{levelLabel}</Badge>
@@ -64,7 +86,7 @@ export function ExerciseDetail({ id }: { id: string }) {
 
       <Card className="mt-4 p-4">
         <div className="mb-2 flex items-center gap-2"><History size={16} className="text-cyan" /><Label>{t('lastTime')}</Label>
-          {rec && <span className="ml-auto flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-mono text-[11px] text-gold"><Trophy size={12} /> {t('yourBest')}: {rec.kind === 'time' ? `${rec.value}s` : rec.kind === 'weight' ? `${rec.kg}kg × ${rec.reps}` : `${rec.value}`}</span>}
+          {rec && <span className="ml-auto flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2 py-0.5 font-mono text-[11px] text-gold"><Trophy size={12} /> {t('yourBest')}: {rec.kind === 'time' ? `${rec.value}s` : rec.kind === 'weight' ? `${wTxt(rec.kg ?? 0)} × ${rec.reps}` : `${rec.value}`}</span>}
         </div>
         {history.length === 0 ? (
           <p className="text-[13px] text-muted">{t('noLogsYet')}</p>

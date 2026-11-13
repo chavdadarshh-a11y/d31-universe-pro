@@ -15,7 +15,31 @@ import { computeStreak, dayKey, nutritionTargets, readinessBand, weekStart } fro
 import { estimateMinutes } from '../lib/plan'
 import { startEmpty, startWorkout } from '../lib/workout'
 import { ladderStatus } from '../lib/training'
-import { hasPlan } from '../lib/plans'
+import { canProgram } from '../lib/entitlements'
+import { useKnowledge, visiblePosts, kImg, postTitle } from '../lib/knowledge'
+
+/** Latest Knowledge posts strip — the cards come from Darshan's Drive folder. */
+function HomeKnowledge() {
+  const t = useT()
+  const lang = useApp((s) => s.lang)
+  const posts = visiblePosts(useKnowledge().data).slice().reverse().slice(0, 6)
+  if (!posts.length) return null
+  return (
+    <>
+      <HudTitle tag="KNOWLEDGE" action={<button className="text-[11px] font-semibold text-cyan" onClick={() => navigate('/knowledge')}>{t('seeAll')}</button>}>{t('knowledge')}</HudTitle>
+      <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1" data-testid="home-knowledge">
+        {posts.map((p) => (
+          <button key={p.id} onClick={() => navigate(`/knowledge/${p.number}`)} className="dark-zone k-card relative h-[150px] w-[132px] shrink-0 overflow-hidden rounded-2xl border border-white/10 text-left">
+            {p.cover ? <img src={kImg(p.cover.id, 400)} alt="" loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" /> : <div className="grid h-full w-full place-items-center bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.3),transparent_60%),#070b14] font-display text-[34px] font-extrabold text-cyan/60">{p.number}</div>}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#04060c] via-[#04060c]/20 to-transparent" />
+            <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 font-mono text-[10px] font-bold text-cyan">#{p.number}</span>
+            <span className="absolute inset-x-2 bottom-2 line-clamp-2 text-[12px] font-bold leading-tight text-white">{postTitle(p, lang)}</span>
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
 
 export function Home() {
   const t = useT()
@@ -26,7 +50,7 @@ export function Home() {
   const program = s.activeProgramId ? PROGRAM_BY_ID[s.activeProgramId] : undefined
   const dayIdx = program ? (s.programDay[program.id] ?? 0) % program.days.length : 0
   const day = program?.days[dayIdx]
-  const locked = program ? !hasPlan(plan, program.plan) : false
+  const locked = program ? !canProgram(program.plan, plan) : false
   const streak = computeStreak(s.sessions)
   const ws = weekStart(new Date()).getTime()
   const weekSessions = s.sessions.filter((x) => new Date(x.startedAt).getTime() >= ws)
@@ -67,7 +91,7 @@ export function Home() {
 
       {/* HERO */}
       <section className="card hud-full neon-shadow relative mt-4 overflow-hidden !rounded-[24px]">
-        <div className="scanlines holo-sweep relative h-[300px]">
+        <div className="dark-zone scanlines holo-sweep relative h-[300px]">
           <HeroRotator first={program?.media} alt={t('photoOf', { x: program?.name ?? 'D31' })} />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.55)_0%,rgba(4,6,12,0.05)_32%,rgba(4,6,12,0.35)_58%,rgba(4,6,12,0.97)_100%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,6,12,0.55),transparent_55%)]" />
@@ -138,6 +162,9 @@ export function Home() {
         <p className="flex-1 text-[13.5px] leading-snug">{checkin && band ? t(`rec_${band}`) : t('readinessNone')}</p>
         <ChevronRight size={18} className="text-dim" />
       </Card>
+
+      {/* Knowledge (auto-fed from Drive) */}
+      <HomeKnowledge />
 
       {/* Skill paths */}
       <HudTitle tag="LADDERS" action={<button className="text-[11px] font-semibold text-cyan" onClick={() => navigate('/library?tab=paths')}>{t('seeAll')}</button>}>{t('skillPaths')}</HudTitle>

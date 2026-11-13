@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Search, SlidersHorizontal, X, FileText, PlayCircle, Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Search, SlidersHorizontal, X, Plus } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Chip, CHIP_COLORS, Empty, Header, Label, Sheet, Tabs } from '../components/ui'
@@ -11,10 +11,8 @@ import { ShootGallery } from '../components/Gallery'
 import { CustomExerciseSheet } from '../components/ExercisePicker'
 import { ladderStatus } from '../lib/training'
 import { hashQuery } from '../lib/router'
-import { SAMPLE_POSTS } from '../data/posts'
-import { fetchPosts, type D31Post } from '../lib/posts'
+import { KnowledgeGrid } from './Knowledge'
 import { navigate } from '../lib/router'
-import { isLive } from '../lib/env'
 import type { Category, Equipment, Exercise, MuscleId } from '../types'
 
 const MUSCLES: MuscleId[] = ['chest', 'shoulders', 'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'traps', 'lats', 'upper_back', 'lower_back', 'glutes', 'quads', 'hamstrings', 'adductors', 'calves', 'rear_delts']
@@ -24,7 +22,6 @@ const EQUIP: Equipment[] = ['none', 'dumbbell', 'barbell', 'bar', 'bench', 'kett
 // your own exercises first, then the ones with Darshan's video clips, then the rest (stable sort)
 const rank = (e: Exercise) => (e.custom ? 0 : e.clip ? 1 : 2)
 
-const realLink = (u: string) => !!u && !u.includes('example.com')
 
 function Thumb({ e }: { e: Exercise }) {
   if (e.clip) return <ClipThumb name={e.clip} title={e.name} exId={e.id} className="h-[76px] w-[56px] shrink-0" />
@@ -52,14 +49,6 @@ export function Library() {
   const [equip, setEquip] = useState<Equipment | null>(null)
   const [level, setLevel] = useState<1 | 2 | 3 | null>(null)
   const [filters, setFilters] = useState(false)
-  const [posts, setPosts] = useState<D31Post[]>(SAMPLE_POSTS)
-  const [post, setPost] = useState<D31Post | null>(null)
-
-  useEffect(() => {
-    if (tab !== 'kn' || !isLive) return
-    const id = setTimeout(() => fetchPosts(q).then((p) => p && setPosts(p)), 250)
-    return () => clearTimeout(id)
-  }, [q, tab])
 
   const ql = q.trim().toLowerCase()
   const list = useMemo(
@@ -75,7 +64,6 @@ export function Library() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [ql, cat, muscle, equip, level, lang, customs],
   )
-  const shownPosts = isLive ? posts : posts.filter((p) => !ql || `${p.title} ${p.core_skill} ${p.layer} ${p.skills.join(' ')}`.toLowerCase().includes(ql))
   const nFilters = [muscle, equip, level].filter((x) => x !== null).length
   const levelLabel = (l: 1 | 2 | 3) => t(l === 1 ? 'level_beginner' : l === 2 ? 'level_intermediate' : 'level_advanced')
 
@@ -155,24 +143,7 @@ export function Library() {
         </>
       )}
 
-      {tab === 'kn' && (
-        <div className="mt-3 space-y-3">
-          {!isLive && <p className="text-[12px] text-dim">{t('demo')} · sample posts</p>}
-          {shownPosts.map((p) => (
-            <Card key={p.post_id} onClick={() => setPost(p)} className="overflow-hidden">
-              <div className="relative h-36 bg-panel-2">
-                <img src={p.cover_url} alt="" loading="lazy" className="h-full w-full object-cover opacity-80" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e1117] via-transparent" />
-                <Badge tone="cyan" className="absolute left-3 top-3">{p.layer}</Badge>
-              </div>
-              <div className="p-4 pt-1">
-                <h3 className="text-[16px] font-bold leading-snug">{p.title}</h3>
-                <p className="mt-1 line-clamp-2 text-[13px] text-muted">{p.content.summary}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+      {tab === 'kn' && <div className="mt-3"><KnowledgeGrid query={q} /></div>}
 
       <CustomExerciseSheet open={create} onClose={() => setCreate(false)} onSaved={(e) => navigate(`/library/${e.id}`)} />
 
@@ -189,18 +160,6 @@ export function Library() {
         </div>
       </Sheet>
 
-      <Sheet open={!!post} onClose={() => setPost(null)} title={post?.title}>
-        {post && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-1.5"><Badge tone="cyan">{post.layer}</Badge>{post.skills.map((s) => <Badge key={s} tone="muted">{s}</Badge>)}</div>
-            {(['summary', 'technique', 'biomechanics', 'coaching'] as const).map((k) => post.content[k] && (
-              <div key={k}><Label>{k}</Label><p className="mt-1.5 text-[14px] leading-relaxed text-frost/90">{post.content[k]}</p></div>
-            ))}
-            {post.videos.filter(realLink).map((v) => <a key={v} href={v} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-cyan"><PlayCircle size={16} /> Video</a>)}
-            {post.pdfs.filter(realLink).map((v) => <a key={v} href={v} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-cyan"><FileText size={16} /> PDF</a>)}
-          </div>
-        )}
-      </Sheet>
     </div>
   )
 }

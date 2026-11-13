@@ -1,0 +1,43 @@
+name: Knowledge sync (Drive → app)
+# Reads the public Drive folder "D31 KNOWLEDGE" and publishes knowledge/posts.json.
+# Runs every 30 minutes and on demand (Actions → Knowledge sync → Run workflow).
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: knowledge-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read Drive
+        env:
+          # Optional. Without it the public folder view is used. With it, the official Drive API is used.
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: node scripts/sync-knowledge.mjs --out public/knowledge/posts.json
+      - name: Commit to main (so the next app build has it)
+        run: |
+          git config user.name "d31-knowledge-bot"
+          git config user.email "d31-knowledge-bot@users.noreply.github.com"
+          git add public/knowledge/posts.json
+          if git diff --cached --quiet; then echo "no change"; echo "CHANGED=0" >> $GITHUB_ENV; exit 0; fi
+          git commit -m "knowledge: sync from Drive"
+          git push
+          echo "CHANGED=1" >> $GITHUB_ENV
+      - name: Publish to the live site (gh-pages)
+        if: env.CHANGED == '1'
+        run: |
+          cp public/knowledge/posts.json /tmp/posts.json
+          git fetch origin gh-pages --depth 1
+          git checkout -B gh-pages origin/gh-pages
+          mkdir -p knowledge && cp /tmp/posts.json knowledge/posts.json
+          git add knowledge/posts.json
+          git diff --cached --quiet || (git commit -m "knowledge: sync from Drive" && git push origin gh-pages)

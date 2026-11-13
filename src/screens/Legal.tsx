@@ -3,7 +3,7 @@ import { useT } from '../i18n'
 import { Header } from '../components/ui'
 import { env } from '../lib/env'
 
-const UPDATED = '12 November 2026'
+const UPDATED = '14 November 2026'
 
 /**
  * Plain-language legal pages. They are a solid starting point written for an Indian
@@ -19,9 +19,10 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
         ['What we collect', 'Account data (email, name), your fitness profile (goal, level, equipment, age, height, weight, sex, activity), workouts, body measurements, nutrition and recovery logs, progress photos you choose to upload, and photos or videos you submit for form analysis. Payment details are handled by Razorpay; we only receive an order ID, payment ID and status.'],
         ['How we use it', 'To run the features you use: plans, tracking, calorie targets, AI form analysis and membership. We do not sell your data and we do not use your photos or videos for advertising.'],
         ['AI form analysis', 'When you run a form check, the media you select is sent securely to our server and processed by Google Gemini to generate feedback. We store the text result in your account. The live rep counter runs entirely on your device; camera video is never uploaded.'],
-        ['Guest mode', 'If you use the app without an account, your data stays in your browser storage on this device only. Clearing browser data deletes it.'],
+        ['Guest mode & on-device accounts', 'If you use the app as a guest, or with an account created on this phone (demo mode), your data stays in your browser storage on this device only. Passwords of on-device accounts are salted and hashed and never leave the phone. Clearing browser data deletes it.'],
+        ['D31 Knowledge', 'Knowledge posts, photos, PDFs and videos are loaded from D31’s public Google Drive folder. Opening them contacts Google’s servers, which may log your IP address like any website.'],
         ['Storage & security', 'Signed-in data is stored with Supabase (row-level security: only you can read your rows). Progress photos are kept in a private storage bucket.'],
-        ['Your rights', `You can export your data from Profile → Export, and delete it from Profile → Reset (device) or by asking us to delete your account. To exercise any right, ${contact}. We respond within 30 days.`],
+        ['Your rights', `You can export a JSON backup from Settings → Privacy & data, and delete your account and all its data yourself from Profile → Delete account (cloud accounts are deleted on our server too). To exercise any right, ${contact}. We respond within 30 days.`],
         ['Children', 'D31 is not intended for children under 13. Users aged 13–17 should use the app with a parent or guardian’s consent.'],
         ['Changes', 'If we change this policy we will update the date above and notify you in the app.'],
       ],
@@ -31,7 +32,7 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
       body: [
         ['Agreement', `By using D31.UNIVERSE you agree to these terms with ${biz}. If you do not agree, please do not use the app.`],
         ['Your account', 'Keep your login secure. You are responsible for activity on your account. One account per person.'],
-        ['Memberships', 'Pro, Premium and Coaching are monthly passes billed in INR through Razorpay. Each purchase gives 30 days of access. The launch offer (first 131 members get Pro free for 1 month) and the 7-day free trial can be used once per person.'],
+        ['Memberships', 'Free, Pro (₹149) and Platinum (₹499) are the tiers. Pro and Platinum are 30-day passes billed in INR through Razorpay and do not auto-renew. Downloads (program PDFs, history export, offline clips, Knowledge PDFs/videos) are part of Platinum. The launch offer (first 131 members get Pro free for 1 month) and the 7-day free trial can be used once per person.'],
         ['Acceptable use', 'Do not upload content you do not have rights to, content of other people without their consent, or anything illegal or abusive. Do not attempt to reverse engineer, overload or misuse the AI analysis service.'],
         ['Content', 'Programs, exercise descriptions, videos and D31 Knowledge posts are © Darshan Chavda / D31. You may use them for personal training only.'],
         ['No medical advice', 'See the Health Disclaimer. You train at your own risk.'],
@@ -52,9 +53,8 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
     refunds: {
       title: 'Refund & Cancellation Policy',
       body: [
-        ['Monthly passes', 'Memberships are one-month passes; they do not auto-renew. Your access simply ends after 30 days unless you buy again.'],
+        ['30-day passes', 'Memberships are 30-day passes; they do not auto-renew. Your access simply ends after 30 days unless you buy again.'],
         ['Refunds', `If you are charged by mistake or cannot access paid features because of a fault on our side, ${contact} within 7 days of payment with your Razorpay payment ID. Approved refunds are returned to the original payment method within 5–7 working days.`],
-        ['Coaching', 'Coaching includes a scheduled 1-on-1 call. If the call has not taken place, you can cancel within 7 days for a full refund. After the call, the month is non-refundable.'],
         ['Free offers', 'Launch-offer months and free trials are free and do not convert to paid automatically.'],
       ],
     },

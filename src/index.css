@@ -179,3 +179,65 @@
 @keyframes hero-drift { from { transform: scale(1.04) translate3d(0,0,0) } to { transform: scale(1.12) translate3d(-1.5%,-1%,0) } }
 .hero-drift { animation: hero-drift 7s ease-out both; will-change: transform; }
 @media (prefers-reduced-motion: reduce) { .hero-drift { animation: none } }
+
+/* ── v4 bits ── */
+.platinum-card { background: linear-gradient(150deg, rgba(229, 228, 226, 0.13), rgba(167, 139, 250, 0.08) 50%, rgba(34, 211, 238, 0.06)), linear-gradient(165deg, rgba(16, 24, 40, 0.82), rgba(6, 9, 16, 0.86)); border-color: rgba(229, 228, 226, 0.4); }
+.platinum-card::after { --c: rgba(229, 228, 226, 0.95); }
+.text-platinum { background: linear-gradient(90deg, #ffffff, #c7d2fe 35%, #e5e4e2 60%, #a5f3fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.avatar-ring { box-shadow: 0 0 0 1.5px rgba(247, 197, 72, 0.8), 0 0 0 4px rgba(34, 211, 238, 0.22), 0 8px 24px -10px rgba(34, 211, 238, 0.6); }
+.toggle-knob { background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35); }
+.k-card { box-shadow: 0 18px 40px -26px rgba(34, 211, 238, 0.7); }
+.k-card:hover { border-color: rgba(34, 211, 238, 0.45); }
+
+/* ── LIGHT theme: same HUD language, daylight palette ── */
+html.light {
+  --color-void: #eef2f8;
+  --color-panel: #ffffff;
+  --color-panel-2: #e6ecf5;
+  --color-line: rgba(10, 20, 40, 0.1);
+  --color-frost: #0b1220;
+  --color-muted: #4a5670;
+  --color-dim: #6b7690;
+  --color-cyan: #0891b2;
+  --color-gold: #b7791f;
+  --color-violet: #7c3aed;
+  --color-ok: #059669;
+  --color-bad: #dc2626;
+  --color-magenta: #c026d3;
+  --color-lime: #4d7c0f;
+  /* white overlays/borders (bg-white/5, border-white/10 …) become ink tints */
+  --color-white: #0b1220;
+  color-scheme: light;
+}
+html.light body { background: var(--color-void); }
+html.light .card {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(241, 246, 252, 0.9));
+  border-color: rgba(8, 145, 178, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 14px 30px -22px rgba(15, 40, 80, 0.45);
+}
+html.light .card::after { --c: rgba(8, 145, 178, 0.8); }
+html.light .card-2 { background: rgba(255, 255, 255, 0.85); }
+html.light .hero-glow { background: radial-gradient(120% 90% at 0% 0%, rgba(8, 145, 178, 0.14), transparent 55%), radial-gradient(100% 90% at 100% 0%, rgba(183, 121, 31, 0.12), transparent 55%), linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(236, 242, 250, 0.95)); }
+html.light .field, html.light .num { background: #ffffff; border-color: rgba(8, 60, 100, 0.18); color: #0b1220; }
+html.light .field::placeholder, html.light .num::placeholder { color: #8a94a8; }
+html.light .readout { text-shadow: 0 0 12px rgba(8, 145, 178, 0.25); }
+html.light .readout-gold { color: #b7791f; text-shadow: none; }
+html.light .text-platinum { background-image: linear-gradient(90deg, #334155, #6d28d9 45%, #475569 70%, #0e7490); }
+html.light .platinum-card { background: linear-gradient(150deg, rgba(203, 213, 225, 0.5), rgba(167, 139, 250, 0.14) 50%, rgba(34, 211, 238, 0.1)), #fff; border-color: rgba(100, 116, 139, 0.45); }
+html.light .platinum-card::after { --c: rgba(100, 116, 139, 0.9); }
+html.light .scanlines::before { mix-blend-mode: multiply; background: repeating-linear-gradient(180deg, rgba(8, 60, 100, 0.04) 0 1px, transparent 1px 3px); }
+html.light .label { color: #4a5670; }
+html.light .toggle-knob { background: #fff; }
+html.light header[class*="bg-[#04060c]"] { background-color: rgba(238, 242, 248, 0.8); }
+html.light .nav-bar { background-color: rgba(246, 249, 253, 0.9); box-shadow: 0 -10px 30px -20px rgba(15, 40, 80, 0.35); }
+html.light .sheet-in { background: linear-gradient(180deg, #fbfdff, #eef3fa); border-color: rgba(8, 145, 178, 0.25); }
+html.light [class*="bg-[#0"]:not(.dark-zone):not(.dark-zone *):not(header):not(.sheet-in) { background-color: rgba(255, 255, 255, 0.92); }
+html.light .neon-border.bg-\[\#0b1420\]\/95 { background-color: rgba(255, 255, 255, 0.95); }
+html.light .clip-badge { background: rgba(255, 255, 255, 0.9); color: #b7791f; }
+/* cosmos by daylight: the Shiva artwork stays, washed in frost */
+html.light .cosmos { background: radial-gradient(120% 80% at 50% -10%, #ffffff 0%, #eef3fa 45%, #e3eaf4 100%); }
+html.light .shiva-veil { background: radial-gradient(120% 70% at 50% 28%, rgba(238, 242, 248, 0.72), rgba(238, 242, 248, 0.9) 70%), linear-gradient(180deg, rgba(238, 242, 248, 0.8), rgba(238, 242, 248, 0.94)); }
+html.light .aurora { mix-blend-mode: multiply; opacity: 0.22; }
+html.light .vignette { background: radial-gradient(130% 90% at 50% 40%, transparent 60%, rgba(120, 140, 170, 0.18) 100%); }
+/* photo / video areas keep their night look so text on images stays readable */
+.dark-zone { --color-white: #ffffff; --color-frost: #eef3fa; --color-muted: #94a0b4; --color-dim: #64708a; --color-cyan: #22d3ee; --color-gold: #f7c548; color: #eef3fa; }

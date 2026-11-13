@@ -1,3 +1,4 @@
+import { toW, fromW, wUnit, wTxt } from '../lib/units'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, X, Plus, Timer, Trophy, MoreHorizontal, Copy, Trash2, ArrowUp, ArrowDown, Info, StickyNote, History, Save, Play, Pause } from 'lucide-react'
@@ -222,7 +223,7 @@ export function Player() {
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.07]"><div className="bg-neon-static h-full rounded-full transition-all" style={{ width: `${(doneSets / Math.max(1, totalSets)) * 100}%` }} /></div>
         <div className="mt-2 grid grid-cols-3 text-center">
           <div><div className="readout text-[15px] font-bold text-cyan">{doneSets}<span className="text-dim">/{totalSets}</span></div><div className="label !text-[9px]">{t('setsLogged')}</div></div>
-          <div><div className="readout-gold text-[15px] font-bold">{Math.round(vol).toLocaleString('en-IN')}<span className="ml-0.5 text-[10px] text-dim">kg</span></div><div className="label !text-[9px]">{t('liveVolume')}</div></div>
+          <div><div className="readout-gold text-[15px] font-bold">{Math.round(toW(vol)).toLocaleString('en-IN')}<span className="ml-0.5 text-[10px] text-dim">{wUnit()}</span></div><div className="label !text-[9px]">{t('liveVolume')}</div></div>
           <div><div className="readout text-[15px] font-bold text-violet">{a.log.length}</div><div className="label !text-[9px]">{t('exercises')}</div></div>
         </div>
       </div>
@@ -295,7 +296,7 @@ export function Player() {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <label><span className="label">{t('kg')}</span><div className="mt-1.5"><NumIn label={t('kg')} value={sheetSet.kg} onChange={(v) => patchSet(setSheet, { kg: v })} placeholder="0" /></div></label>
+              <label><span className="label">{wUnit()}</span><div className="mt-1.5"><NumIn label={wUnit()} value={toW(sheetSet.kg)} onChange={(v) => patchSet(setSheet, { kg: fromW(v) })} placeholder="0" /></div></label>
               <label><span className="label">{t('reps')}</span><div className="mt-1.5"><NumIn label={t('reps')} step="numeric" value={sheetSet.reps} onChange={(v) => patchSet(setSheet, { reps: Math.round(v) })} placeholder="0" /></div></label>
               <label><span className="label">{t('sec')}</span><div className="mt-1.5"><NumIn label={t('sec')} step="numeric" value={sheetSet.secs} onChange={(v) => patchSet(setSheet, { secs: Math.round(v) || undefined })} placeholder="—" /></div></label>
             </div>
@@ -352,7 +353,7 @@ export function Player() {
         })()}
       </Sheet>
 
-      <Confirm open={confirmFinish} text={`${t('finishQ')} (${t('setsTicked', { n: doneSets })})`} confirmLabel={t('finish')} cancelLabel={t('cancel')} onClose={() => setConfirmFinish(false)} onConfirm={finish} />
+      <Confirm open={confirmFinish} text={`${t('finishQ')} (${t(doneSets === 1 ? 'setsTicked1' : 'setsTicked', { n: doneSets })})`} confirmLabel={t('finish')} cancelLabel={t('cancel')} onClose={() => setConfirmFinish(false)} onConfirm={finish} />
       <EndWorkoutSheet open={menu} minimize onClose={() => setMenu(false)} onFinished={(r) => { setRest(null); setHold(null); if (r) setSummary(r); else navigate('/home') }} />
     </div>
   )
@@ -385,7 +386,7 @@ const ExerciseBlock = memo(function ExerciseBlock({ i, a, record, hold, onPatch,
   const prevTxt = (si: number) => {
     const p = prev[si]
     if (!p) return '—'
-    return timed ? `${p.secs ?? 0}s${p.kg ? `+${p.kg}` : ''}` : p.kg ? `${p.kg}×${p.reps}` : `${p.reps}`
+    return timed ? `${p.secs ?? 0}s${p.kg ? `+${toW(p.kg)}` : ''}` : p.kg ? `${toW(p.kg)}×${p.reps}` : `${p.reps}`
   }
   const complete = l.sets.length > 0 && l.sets.every((s) => s.done)
   return (
@@ -412,8 +413,8 @@ const ExerciseBlock = memo(function ExerciseBlock({ i, a, record, hold, onPatch,
       <div className="grid grid-cols-[34px_minmax(0,1fr)_64px_58px_42px] items-center gap-1.5 px-3 text-center">
         <span className="label !text-[9px]">{t('sets')}</span>
         <span className="label !text-[9px]">{t('previous')}</span>
-        <span className="label !text-[9px]">{timed ? t('sec') : t('kg')}</span>
-        <span className="label !text-[9px]">{timed ? t('kgOpt') : t('reps')}</span>
+        <span className="label !text-[9px]">{timed ? t('sec') : wUnit()}</span>
+        <span className="label !text-[9px]">{timed ? `+${wUnit()}` : t('reps')}</span>
         <span />
       </div>
       <div className="space-y-1.5 px-3 pb-2 pt-1.5">
@@ -430,10 +431,10 @@ const ExerciseBlock = memo(function ExerciseBlock({ i, a, record, hold, onPatch,
                 {timed ? (
                   hold && hold.set === si ? <HoldCell end={hold.end} onFinish={onHoldEnd} /> : <NumIn label={t('sec')} step="numeric" value={st.secs} placeholder={String(prev[si]?.secs ?? it?.secs ?? '')} onChange={(v) => onPatch(si, { secs: Math.round(v) })} />
                 ) : (
-                  <NumIn label={t('kg')} value={st.kg} placeholder={prev[si]?.kg ? String(prev[si].kg) : '0'} onChange={(v) => onPatch(si, { kg: v })} />
+                  <NumIn label={wUnit()} value={toW(st.kg)} placeholder={prev[si]?.kg ? String(toW(prev[si].kg)) : '0'} onChange={(v) => onPatch(si, { kg: fromW(v) })} />
                 )}
                 {timed ? (
-                  <NumIn label={t('kgOpt')} value={st.kg} placeholder="—" onChange={(v) => onPatch(si, { kg: v })} />
+                  <NumIn label={`+${wUnit()}`} value={toW(st.kg)} placeholder="—" onChange={(v) => onPatch(si, { kg: fromW(v) })} />
                 ) : (
                   <NumIn label={t('reps')} step="numeric" value={st.reps} placeholder={String(prev[si]?.reps ?? it?.reps ?? '')} onChange={(v) => onPatch(si, { reps: Math.round(v) })} />
                 )}
@@ -475,7 +476,7 @@ function Summary({ data, onDone }: { data: { session: WorkoutSession; newPRs: PR
       </div>
       <div className="mt-6 grid grid-cols-3 gap-2">
         <div className="card p-3 text-center"><div className="readout text-[18px] font-bold">{fmtClock(session.durationSec)}</div><div className="mt-1 text-[11px] text-muted">{t('duration')}</div></div>
-        <div className="card p-3 text-center"><div className="readout-gold text-[18px] font-bold">{session.volumeKg > 0 ? <CountUp value={session.volumeKg} /> : <CountUp value={reps} />}</div><div className="mt-1 text-[11px] text-muted">{session.volumeKg > 0 ? `${t('volume')} (kg)` : t('reps')}</div></div>
+        <div className="card p-3 text-center"><div className="readout-gold text-[18px] font-bold">{session.volumeKg > 0 ? <CountUp value={Math.round(toW(session.volumeKg))} /> : <CountUp value={reps} />}</div><div className="mt-1 text-[11px] text-muted">{session.volumeKg > 0 ? `${t('volume')} (${wUnit()})` : t('reps')}</div></div>
         <div className="card p-3 text-center"><div className="readout text-[18px] font-bold"><CountUp value={sets} /></div><div className="mt-1 text-[11px] text-muted">{t('setsDone')}</div></div>
       </div>
       {newPRs.length > 0 && (
@@ -485,7 +486,7 @@ function Summary({ data, onDone }: { data: { session: WorkoutSession; newPRs: PR
             {newPRs.map((r) => (
               <li key={r.exId} className="flex justify-between gap-3 text-[14px]">
                 <span className="truncate">{exName(exOf(r.exId), lang)}</span>
-                <span className="font-mono text-gold">{r.kind === 'weight' ? `${r.kg}kg × ${r.reps}` : r.kind === 'time' ? `${r.value}s` : `${r.value} ${t('reps').toLowerCase()}`}</span>
+                <span className="font-mono text-gold">{r.kind === 'weight' ? `${wTxt(r.kg ?? 0)} × ${r.reps}` : r.kind === 'time' ? `${r.value}s` : `${r.value} ${t('reps').toLowerCase()}`}</span>
               </li>
             ))}
           </ul>

@@ -24,7 +24,7 @@ export function PathDetail({ id }: { id: string }) {
     <div>
       <Header title={l.name} sub={t('skillPaths')} back="#/library?tab=paths" />
       {l.media && (
-        <div className="card hud-full scanlines holo-sweep relative -mt-1 mb-3 h-[220px] overflow-hidden">
+        <div className="dark-zone card hud-full scanlines holo-sweep relative -mt-1 mb-3 h-[220px] overflow-hidden">
           <Photo smart name={l.media} alt={t('photoOf', { x: l.name })} eager />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(4,6,12,0.92))]" />
           <div className="absolute bottom-3 left-4 z-[2] font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: l.accent }}>{t('stepOf', { n: st.current + 1, t: l.steps.length })}</div>

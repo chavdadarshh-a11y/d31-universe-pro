@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { mediaUrl } from './hud'
+import { useSettings } from '../store/settings'
 
 /**
  * Layered futuristic background: animated aurora mesh (CSS), a canvas starfield with
@@ -11,6 +12,11 @@ const BASE = import.meta.env.BASE_URL || '/'
 
 /** Live looping Shiva background (muted, 10 s seamless loop). Static artwork with reduced motion / Save-Data / video error. */
 function LiveShiva() {
+  const allow = useSettings((s) => s.bgVideo && !s.reduceData)
+  return allow ? <LiveShivaVideo /> : <img className="shiva" src={mediaUrl('shiva-720')} srcSet={`${mediaUrl('shiva-720')} 720w, ${mediaUrl('shiva')} 981w`} sizes="100vw" alt="" decoding="async" fetchPriority="low" />
+}
+
+function LiveShivaVideo() {
   const vref = useRef<HTMLVideoElement>(null)
   const [still, setStill] = useState(() => {
     if (typeof window === 'undefined') return true

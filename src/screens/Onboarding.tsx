@@ -5,10 +5,11 @@ import { useT, LANGS } from '../i18n'
 import { Button, Stepper } from '../components/ui'
 import { LogoMark, Wordmark } from '../components/Brand'
 import { Photo } from '../components/hud'
-import { navigate } from '../lib/router'
+import { navigate, hashQuery } from '../lib/router'
 import type { Equipment, Goal, Level, Profile } from '../types'
 import { PROGRAMS } from '../data/programs'
 import { cloud } from '../lib/cloud'
+import { useUnits } from '../lib/units'
 
 const GOALS: Goal[] = ['muscle', 'fatloss', 'strength', 'skills', 'mobility']
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced']
@@ -39,9 +40,10 @@ export function pickProgram(goal: Goal, equipment: Equipment[]): string {
 
 export function Onboarding({ editing = false, onDone }: { editing?: boolean; onDone?: () => void }) {
   const t = useT()
-  const { lang, setLang, profile, setProfile, completeOnboarding, set } = useApp()
-  const [step, setStep] = useState(editing ? 1 : 0)
+  const { lang, setLang, profile, setProfile, completeOnboarding, set, user } = useApp()
+  const [step, setStep] = useState(editing || user || hashQuery().get('guest') === '1' ? 1 : 0)
   const total = 5
+  const u = useUnits()
 
   const finish = () => {
     if (!editing) {
@@ -98,7 +100,11 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
               </button>
             ))}
           </div>
-          <Button size="lg" className="mt-5 w-full" onClick={() => setStep(1)}>{t('continue')}</Button>
+          <Button size="lg" className="mt-5 w-full" data-testid="ob-create" onClick={() => navigate('/auth?mode=up')}>{t('createAccount')}</Button>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Button variant="outline" data-testid="ob-login" onClick={() => navigate('/auth?mode=in')}>{t('signIn')}</Button>
+            <Button variant="ghost" data-testid="ob-guest" onClick={() => setStep(1)}>{t('guest')}</Button>
+          </div>
           <p className="mt-4 text-center text-[11px] leading-relaxed text-dim">
             <a href="#/legal/terms" className="underline">{t('terms')}</a> · <a href="#/legal/privacy" className="underline">{t('privacy')}</a> · <a href="#/legal/disclaimer" className="underline">{t('disclaimer')}</a>
           </p>
@@ -128,7 +134,7 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
         </Step>
       )}
       {step === 4 && (
-        <Step title={t('obBody')} sub={t('obBodySub')}>
+        <Step title={t('obBody')} sub={t('obBodyOptional')}>
           <label className="block">
             <span className="label">{t('obName')}</span>
             <input className="field mt-1.5" value={profile.name} onChange={(e) => setProfile({ name: e.target.value })} placeholder="Darshan" autoComplete="given-name" />
@@ -140,8 +146,8 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
           </div>
           <div className="grid grid-cols-3 gap-2">
             <label><span className="label">{t('age')}</span><div className="mt-1.5"><Stepper value={profile.age} onChange={(v) => setProfile({ age: v })} min={13} max={90} /></div></label>
-            <label><span className="label">{t('height')}</span><div className="mt-1.5"><Stepper value={profile.heightCm} onChange={(v) => setProfile({ heightCm: v })} min={120} max={230} /></div></label>
-            <label><span className="label">{t('weight')}</span><div className="mt-1.5"><Stepper value={profile.weightKg} onChange={(v) => setProfile({ weightKg: v })} step={0.5} min={30} max={250} /></div></label>
+            <label><span className="label">{t('height')} ({u.l})</span><div className="mt-1.5"><Stepper value={u.toL(profile.heightCm)} onChange={(v) => setProfile({ heightCm: Math.round(u.fromL(v)) })} min={u.l === 'in' ? 47 : 120} max={u.l === 'in' ? 91 : 230} /></div></label>
+            <label><span className="label">{t('weight')} ({u.w})</span><div className="mt-1.5"><Stepper value={u.toW(profile.weightKg)} onChange={(v) => setProfile({ weightKg: Math.round(u.fromW(v) * 10) / 10 })} step={u.w === 'lb' ? 1 : 0.5} min={u.w === 'lb' ? 66 : 30} max={u.w === 'lb' ? 550 : 250} /></div></label>
           </div>
           <div>
             <span className="label">{t('activity')}</span>
@@ -155,10 +161,11 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
       )}
 
       {step > 0 && (
-        <Button size="lg" className="mt-6 w-full" onClick={() => (step < total - 1 ? setStep(step + 1) : finish())}>
+        <Button size="lg" className="mt-6 w-full" data-testid="ob-next" onClick={() => (step < total - 1 ? setStep(step + 1) : finish())}>
           {step < total - 1 ? t('continue') : editing ? t('save') : t('obFinish')}
         </Button>
       )}
+      {step === total - 1 && !editing && <button className="mt-2 w-full py-2 text-[13px] text-muted" onClick={finish}>{t('skipForNow')}</button>}
     </div>
   )
 }

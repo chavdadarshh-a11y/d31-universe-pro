@@ -4,6 +4,7 @@
  * (row-level security limits every row to its owner).
  */
 import { supabase } from './supabase'
+import { normalizePlan } from './plans'
 import { useApp, type Membership } from '../store/app'
 import type { CheckIn, CustomWorkout, FoodEntry, Measurement, PlanId, ProgressPhoto, WorkoutSession } from '../types'
 
@@ -145,7 +146,7 @@ export async function refreshMembership(): Promise<Membership | null> {
     return null
   }
   const m: Membership = data && data.status === 'active'
-    ? { plan: data.plan as PlanId, until: data.current_period_end ?? undefined, source: data.source }
+    ? { plan: normalizePlan(data.plan) as PlanId, until: data.current_period_end ?? undefined, source: data.source }
     : { plan: 'free', source: 'none' }
   useApp.setState({ membership: m, launchClaimed: data?.source === 'launch_offer' || st.launchClaimed })
   return m
@@ -172,14 +173,14 @@ export async function claimOffer(kind: 'launch' | 'trial'): Promise<{ ok: boolea
 
 export async function initAuth() {
   if (!supabase) return
-  const apply = async (user: { id: string; email?: string } | null) => {
+  const { adoptSupabaseUser } = await import('./accounts')
+  const apply = async (user: { id: string; email?: string; user_metadata?: Record<string, unknown> } | null) => {
     const prev = useApp.getState().user
-    useApp.setState({ user: user ? { id: user.id, email: user.email ?? '' } : null })
+    await adoptSupabaseUser(user)
     if (user && prev?.id !== user.id) {
       await cloud.profile()
       await Promise.all([pullAll(), refreshMembership()])
     }
-    if (!user && prev) useApp.setState({ membership: { plan: 'free', source: 'none' } })
   }
   const { data } = await supabase.auth.getSession()
   await apply(data.session?.user ?? null)

@@ -41,7 +41,7 @@ export function Viewer({ list, index, onIndex, onClose }: { list: ShootPhoto[]; 
   }, [index, list])
   if (!p) return null
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label={p.title} className="fixed inset-0 z-[70] flex flex-col bg-[#03050b]/97 backdrop-blur-md"
+    <div role="dialog" aria-modal="true" aria-label={p.title} className="dark-zone fixed inset-0 z-[70] flex flex-col bg-[#03050b]/97 backdrop-blur-md"
       onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
       onTouchEnd={(e) => { if (touch.current === null) return; const dx = e.changedTouches[0].clientX - touch.current; if (Math.abs(dx) > 45) go(dx < 0 ? 1 : -1); touch.current = null }}>
       <div className="flex items-center gap-3 px-4 pb-2 pt-[calc(env(safe-area-inset-top)+12px)]">

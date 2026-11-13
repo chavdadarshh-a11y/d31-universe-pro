@@ -80,7 +80,7 @@ export function ClipViewer() {
     if (v.paused) { v.play().catch(() => {}); setPaused(false) } else { v.pause(); setPaused(true) }
   }
   return (
-    <div role="dialog" aria-modal="true" aria-label={c.title} data-testid="clip-viewer" className="fixed inset-0 z-[70] flex flex-col bg-black/95 backdrop-blur-md">
+    <div role="dialog" aria-modal="true" aria-label={c.title} data-testid="clip-viewer" className="dark-zone fixed inset-0 z-[70] flex flex-col bg-black/95 backdrop-blur-md">
       <div className="flex items-center gap-3 px-4 pb-2 pt-[calc(env(safe-area-inset-top)+12px)]">
         <div className="min-w-0 flex-1">
           <div className="clip-badge inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.18em]"><span className="clip-dot" />CLIP</div>

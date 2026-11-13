@@ -8,9 +8,10 @@ import { ClipThumb, Photo } from '../components/hud'
 import { BodyMap } from '../components/BodyMap'
 import { LADDER_BY_ID } from '../data/ladders'
 import { navigate } from '../lib/router'
-import { hasPlan } from '../lib/plans'
+import { canProgram } from '../lib/entitlements'
 import { estimateMinutes } from '../lib/plan'
 import { startWorkout } from '../lib/workout'
+import { DownloadButton } from '../components/DownloadButton'
 
 export function ProgramDetail({ id }: { id: string }) {
   const t = useT()
@@ -18,7 +19,7 @@ export function ProgramDetail({ id }: { id: string }) {
   const p = PROGRAM_BY_ID[id]
   if (!p) return <div><Header title="—" back="#/train" /><p className="text-muted">{t('empty')}</p></div>
   const plan = effectivePlan(s.membership)
-  const locked = !hasPlan(plan, p.plan)
+  const locked = !canProgram(p.plan, plan)
   const active = s.activeProgramId === p.id
   const next = (s.programDay[p.id] ?? 0) % p.days.length
 
@@ -33,7 +34,7 @@ export function ProgramDetail({ id }: { id: string }) {
     <div>
       <Header title={p.name} back="#/train" />
       {p.media && (
-        <div className="card hud-full scanlines relative -mt-1 mb-3 h-[190px] overflow-hidden">
+        <div className="dark-zone card hud-full scanlines relative -mt-1 mb-3 h-[190px] overflow-hidden">
           <Photo smart name={p.media} alt={t('photoOf', { x: p.name })} eager />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(4,6,12,0.9))]" />
           <div className="title-hud absolute bottom-3 left-4 z-[2] text-[18px] text-frost">{p.name}</div>
@@ -48,6 +49,11 @@ export function ProgramDetail({ id }: { id: string }) {
       </div>
       <p className="mt-3 text-[15px] leading-relaxed text-frost/90">{p.description}</p>
       <p className="mt-3 rounded-xl border border-gold/20 bg-gold/[0.05] px-3 py-2 text-[12px] leading-snug text-gold/90">{t('suggestedHint')}</p>
+      <DownloadButton className="mt-3 w-full" feature="download.programPdf" testid="program-pdf" label={t('downloadPlanPdf')} run={async () => {
+        const { programPdf, saveBlob, slug } = await import('../lib/exports')
+        saveBlob(`${slug(p.name).startsWith("d31") ? "" : "d31-"}${slug(p.name)}-program.pdf`, await programPdf(p))
+        s.showToast(t('pdfReady'))
+      }} />
       {p.ladder && LADDER_BY_ID[p.ladder] && (
         <Button variant="outline" size="sm" className="mt-3" onClick={() => navigate(`/path/${p.ladder}`)}>{t('skillPaths')}: {LADDER_BY_ID[p.ladder].name}</Button>
       )}

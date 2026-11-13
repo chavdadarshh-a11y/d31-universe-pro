@@ -7,7 +7,7 @@ import { PROGRAMS } from '../data/programs'
 import { exOf, exName } from '../data/exercises'
 import { Photo } from '../components/hud'
 import { navigate, hashQuery } from '../lib/router'
-import { hasPlan } from '../lib/plans'
+import { canProgram } from '../lib/entitlements'
 import { estimateMinutes } from '../lib/plan'
 import { startEmpty, startWorkout } from '../lib/workout'
 import { cloud } from '../lib/cloud'
@@ -46,7 +46,7 @@ export function Train() {
           </div>
           <div className="mt-3 space-y-3">
             {list.map((p) => {
-              const locked = !hasPlan(plan, p.plan)
+              const locked = !canProgram(p.plan, plan)
               const active = s.activeProgramId === p.id
               return (
                 <Card key={p.id} onClick={() => navigate(`/train/program/${p.id}`)} className="relative overflow-hidden">

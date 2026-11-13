@@ -5,8 +5,12 @@ import type {
   Profile, ProgressPhoto, WorkoutSession,
 } from '../types'
 import { dayKey, uid } from '../lib/util'
+import { dataKey } from '../lib/accountKeys'
+import { normalizePlan } from '../lib/plans'
 
 export type Membership = { plan: PlanId; until?: string; source: 'none' | 'razorpay' | 'launch_offer' | 'trial' | 'demo' }
+
+export type AccountUser = { id: string; email: string; name?: string; avatar?: string; provider?: 'local' | 'supabase' }
 
 export type AppState = {
   onboarded: boolean
@@ -29,7 +33,8 @@ export type AppState = {
   membership: Membership
   launchClaimed: boolean
   trialUsed: boolean
-  user: { id: string; email: string } | null
+  /** Signed-in account (local on-device account in demo mode, Supabase user when live). */
+  user: AccountUser | null
   toast: string | null
 
   set: (p: Partial<AppState>) => void
@@ -57,6 +62,14 @@ export type AppState = {
 
 const defaultProfile: Profile = {
   name: '', goal: 'muscle', level: 'beginner', equipment: ['none'], sex: 'male', age: 25, heightCm: 172, weightKg: 70, activity: 1.375,
+}
+
+export const STORE_VERSION = 4
+/** A brand-new account's data (what gets written for a fresh account before it is loaded). */
+export function blankPersisted(extra: Partial<AppState> = {}) {
+  const { toast: _t, ...rest } = initial
+  void _t
+  return { state: { ...rest, ...extra }, version: STORE_VERSION }
 }
 
 const initial = {
@@ -138,8 +151,13 @@ export const useApp = create<AppState>()(
     }),
     {
       name: 'd31-pro-v1',
-      version: 3,
-      storage: createJSONStorage(() => localStorage),
+      version: 4,
+      // one blob per account: the key is resolved at call time from the current session
+      storage: createJSONStorage(() => ({
+        getItem: () => localStorage.getItem(dataKey()),
+        setItem: (_n: string, v: string) => localStorage.setItem(dataKey(), v),
+        removeItem: () => localStorage.removeItem(dataKey()),
+      })),
       // v1/v2 → v3: sets gain a type; custom exercises list added. Nothing is deleted.
       migrate: (persisted, version) => {
         const st = (persisted ?? {}) as Partial<AppState>
@@ -152,6 +170,8 @@ export const useApp = create<AppState>()(
           st.sessions = (st.sessions ?? []).map(fix)
           if (st.active) st.active.log.forEach((l) => l.sets.forEach((set) => { set.type = set.type ?? 'working' }))
         }
+        // v4: tiers are free / pro / platinum
+        if (st.membership) st.membership = { ...st.membership, plan: normalizePlan(st.membership.plan as string) }
         return st as AppState
       },
       partialize: (s) => {
@@ -166,7 +186,8 @@ export const useApp = create<AppState>()(
 
 /** Effective plan honouring expiry */
 export function effectivePlan(m: Membership): PlanId {
-  if (m.plan === 'free') return 'free'
+  const p = normalizePlan(m.plan)
+  if (p === 'free') return 'free'
   if (m.until && new Date(m.until).getTime() < Date.now()) return 'free'
-  return m.plan
+  return p
 }

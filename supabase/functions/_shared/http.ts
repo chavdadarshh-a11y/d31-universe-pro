@@ -31,5 +31,6 @@ export async function requireUser(req: Request): Promise<User | null> {
   return data.user;
 }
 
-export const PLAN_PRICES_PAISE: Record<string, number> = { pro: 14900, premium: 49900, coaching: 149900 };
-export const PLAN_ANALYSES: Record<string, number> = { free: 3, pro: 30, premium: 100, coaching: 300 };
+// Must match src/config/plans.ts (the app shows these; the server charges these).
+export const PLAN_PRICES_PAISE: Record<string, number> = { pro: 14900, platinum: 49900 };
+export const PLAN_ANALYSES: Record<string, number> = { free: 3, pro: 30, platinum: 100, premium: 100, coaching: 100 };

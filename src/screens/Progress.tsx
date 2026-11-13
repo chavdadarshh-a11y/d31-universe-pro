@@ -9,7 +9,9 @@ import { compressImage, computeStreak, dayKey, fmtClock, fmtDate, fmtNum, weekly
 import { computeRecords } from '../lib/workout'
 import { cloud } from '../lib/cloud'
 import { hashQuery, navigate } from '../lib/router'
-import { hasPlan } from '../lib/plans'
+import { can } from '../lib/entitlements'
+import { wTxt, toW, wUnit, useUnits } from '../lib/units'
+import { DownloadButton } from '../components/DownloadButton'
 import type { Measurement } from '../types'
 
 type Tab = 'history' | 'charts' | 'body' | 'records' | 'photos'
@@ -27,7 +29,7 @@ export function Progress() {
       <div className="mb-3 grid grid-cols-3 gap-2">
         {[
           [t('totalWorkouts'), String(s.sessions.length)],
-          [t('totalVolume'), `${fmtNum(totalVolume / 1000 >= 10 ? totalVolume / 1000 : totalVolume)}${totalVolume / 1000 >= 10 ? 't' : 'kg'}`],
+          [t('totalVolume'), totalVolume >= 10000 && wUnit() === 'kg' ? `${fmtNum(totalVolume / 1000)}t` : `${fmtNum(toW(totalVolume))}${wUnit()}`],
           [t('streak'), String(computeStreak(s.sessions))],
         ].map(([k, v], i) => (
           <div key={k} className="card relative overflow-hidden p-3">
@@ -60,6 +62,17 @@ function History() {
   if (!s.sessions.length) return <Empty icon={<Dumbbell size={28} />} text={t('noHistory')} action={<Button size="sm" onClick={() => navigate('/train')}>{t('choose')}</Button>} />
   return (
     <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2" data-testid="history-export">
+        <DownloadButton feature="download.history" testid="history-pdf" label="PDF" run={async () => {
+          const { historyPdf, saveBlob } = await import('../lib/exports')
+          saveBlob(`d31-history-${new Date().toISOString().slice(0, 10)}.pdf`, await historyPdf(s.sessions, s.user?.name || s.profile.name))
+          s.showToast(t('pdfReady'))
+        }} />
+        <DownloadButton feature="download.history" testid="history-csv" label="CSV" run={async () => {
+          const { historyCsv, saveCsv } = await import('../lib/exports')
+          saveCsv(`d31-history-${new Date().toISOString().slice(0, 10)}.csv`, historyCsv(s.sessions))
+        }} />
+      </div>
       {s.sessions.map((x) => {
         const sets = x.exercises.reduce((n, e) => n + e.sets.length, 0)
         const isOpen = open === x.id
@@ -73,8 +86,8 @@ function History() {
                 <div className="truncate text-[15px] font-semibold">{x.name}</div>
                 <div className="mt-0.5 flex gap-3 text-[12px] text-muted">
                   <span className="flex items-center gap-1"><Clock size={12} />{fmtClock(x.durationSec)}</span>
-                  <span>{sets} {t('sets').toLowerCase()}</span>
-                  {x.volumeKg > 0 && <span>{fmtNum(x.volumeKg)} kg</span>}
+                  <span>{t(sets === 1 ? 'setsN1' : 'setsN', { n: sets })}</span>
+                  {x.volumeKg > 0 && <span>{wTxt(x.volumeKg, true)}</span>}
                 </div>
               </div>
               {x.source === 'camera' && <Badge tone="violet">CAM</Badge>}
@@ -85,7 +98,7 @@ function History() {
                 {x.exercises.map((e, i) => (
                   <div key={i} className="flex items-start justify-between gap-3 py-1.5 text-[13px]">
                     <span className="text-frost/90">{exName(exOf(e.exId), s.lang)}</span>
-                    <span className="text-right font-mono text-[12px] text-muted">{e.sets.map((st) => (st.secs && !st.reps ? `${st.secs}s` : st.kg ? `${st.kg}×${st.reps}` : `${st.reps}`)).join('  ')}</span>
+                    <span className="text-right font-mono text-[12px] text-muted">{e.sets.map((st) => (st.secs && !st.reps ? `${st.secs}s` : st.kg ? `${wTxt(st.kg)}×${st.reps}` : `${st.reps}`)).join('  ')}</span>
                   </div>
                 ))}
                 <button className="mt-2 flex items-center gap-1.5 text-[12px] text-bad" onClick={() => setDel(x.id)}><Trash2 size={13} /> {t('delete')}</button>
@@ -112,7 +125,7 @@ function Charts() {
       <Card className="p-4">
         <Label>{t('bodyWeight')}</Label>
         <div className="mt-3">
-          {weights.length ? <LineChart data={weights.map((m) => ({ label: fmtDate(m.date, 'en').replace(' ', '\u00a0'), value: m.weightKg! }))} unit="" /> : <p className="py-6 text-center text-sm text-muted">{t('addMeasurement')} → {t('body')}</p>}
+          {weights.length ? <LineChart data={weights.map((m) => ({ label: fmtDate(m.date, 'en').replace(' ', '\u00a0'), value: toW(m.weightKg!) }))} unit="" /> : <p className="py-6 text-center text-sm text-muted">{t('addMeasurement')} → {t('body')}</p>}
         </div>
       </Card>
     </div>
@@ -125,6 +138,7 @@ function Body() {
   const last = s.measurements[s.measurements.length - 1]
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<Omit<Measurement, 'id'>>({ date: dayKey(), weightKg: last?.weightKg ?? s.profile.weightKg, waistCm: last?.waistCm, chestCm: last?.chestCm, armCm: last?.armCm, thighCm: last?.thighCm, bodyFat: last?.bodyFat })
+  const u = useUnits()
   const fields: [keyof Measurement, string, number][] = [['weightKg', t('weight'), 0.1], ['waistCm', t('waist'), 0.5], ['chestCm', t('chest'), 0.5], ['armCm', t('arm'), 0.5], ['thighCm', t('thigh'), 0.5], ['bodyFat', t('bodyFat'), 0.5]]
   const save = () => {
     const m = s.addMeasurement(form)
@@ -133,6 +147,11 @@ function Body() {
     setOpen(false)
   }
   const rows = [...s.measurements].reverse()
+  const isW = (k: keyof Measurement) => k === 'weightKg'
+  const isL = (k: keyof Measurement) => String(k).endsWith('Cm')
+  const disp = (k: keyof Measurement, v: number) => (isW(k) ? u.toW(v) : isL(k) ? u.toL(v) : v)
+  const back = (k: keyof Measurement, v: number) => (isW(k) ? u.fromW(v) : isL(k) ? u.fromL(v) : v)
+  const lbl = (k: keyof Measurement, l: string) => l.replace(/\((kg|cm)\)/, `(${isW(k) ? u.w : isL(k) ? u.l : '$1'})`)
   return (
     <div>
       <Button className="w-full" onClick={() => setOpen(true)}><Plus size={16} /> {t('addMeasurement')}</Button>
@@ -148,13 +167,15 @@ function Body() {
               </div>
               <div className="mt-2 grid grid-cols-3 gap-x-3 gap-y-2">
                 {fields.map(([k, label]) => {
-                  const v = m[k] as number | undefined
-                  if (v === undefined || v === null) return null
-                  const pv = prev?.[k] as number | undefined
+                  const raw = m[k] as number | undefined
+                  if (raw === undefined || raw === null) return null
+                  const v = disp(k, raw)
+                  const pr = prev?.[k] as number | undefined
+                  const pv = pr !== undefined && pr !== null ? disp(k, pr) : undefined
                   const d = pv !== undefined ? +(v - pv).toFixed(1) : 0
                   return (
                     <div key={k}>
-                      <div className="truncate text-[10.5px] text-dim">{label.replace(/ \(.*\)/, '')}</div>
+                      <div className="truncate text-[10.5px] text-dim">{label.replace(/ \(.*\)/, '')}{isW(k) ? ` · ${u.w}` : isL(k) ? ` · ${u.l}` : ''}</div>
                       <div className="text-[15px] font-bold tabular-nums">{v}{d !== 0 && <span className={`ml-1 text-[11px] font-medium ${d < 0 ? 'text-ok' : 'text-gold'}`}>{d > 0 ? '+' : ''}{d}</span>}</div>
                     </div>
                   )
@@ -168,7 +189,7 @@ function Body() {
         <label className="block"><span className="label">{t('date')}</span><input type="date" className="field mt-1.5" value={form.date} max={dayKey()} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {fields.map(([k, label, step]) => (
-            <div key={k}><div className="label mb-1.5">{label}</div><Stepper value={(form[k as keyof typeof form] as number) ?? 0} step={step} onChange={(v) => setForm({ ...form, [k]: v || undefined })} /></div>
+            <div key={k}><div className="label mb-1.5">{lbl(k, label)}</div><Stepper value={disp(k, (form[k as keyof typeof form] as number) ?? 0)} step={step} onChange={(v) => setForm({ ...form, [k]: v ? back(k, v) : undefined })} /></div>
           ))}
         </div>
         <Button className="mt-5 w-full" onClick={save}>{t('save')}</Button>
@@ -192,8 +213,8 @@ function Records() {
             <div className="text-[12px] text-muted">{fmtDate(r.date, s.lang)}</div>
           </div>
           <div className="text-right">
-            <div className="font-mono text-[16px] font-bold text-gold">{r.kind === 'weight' ? `${r.kg} × ${r.reps}` : r.kind === 'time' ? `${r.value}s` : `${r.value}`}</div>
-            <div className="text-[10.5px] text-dim">{r.kind === 'weight' ? `${t('est1rm')} ${Math.round(r.value)} kg` : r.kind === 'reps' ? t('reps') : t('hold')}</div>
+            <div className="font-mono text-[16px] font-bold text-gold">{r.kind === 'weight' ? `${wTxt(r.kg ?? 0)} × ${r.reps}` : r.kind === 'time' ? `${r.value}s` : `${r.value}`}</div>
+            <div className="text-[10.5px] text-dim">{r.kind === 'weight' ? `${t('est1rm')} ${wTxt(Math.round(r.value))}` : r.kind === 'reps' ? t('reps') : t('hold')}</div>
           </div>
         </Card>
       ))}
@@ -208,7 +229,7 @@ function Photos() {
   const [sel, setSel] = useState<string[]>([])
   const [compare, setCompare] = useState(false)
   const [del, setDel] = useState<string | null>(null)
-  const allowed = hasPlan(effectivePlan(s.membership), 'pro')
+  const allowed = can('photos.compare', effectivePlan(s.membership))
 
   const add = async (f: File | undefined) => {
     if (!f) return

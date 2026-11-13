@@ -18,7 +18,7 @@ function safeEqual(a: string, b: string) {
   return diff === 0;
 }
 
-const RANK: Record<string, number> = { free: 0, pro: 1, premium: 2, coaching: 3 };
+const RANK: Record<string, number> = { free: 0, pro: 1, platinum: 2, premium: 2, coaching: 2 };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

@@ -6,9 +6,10 @@ import { launchSpotsLeft } from '../lib/cloud'
 import { navigate } from '../lib/router'
 import { LAUNCH_SPOTS } from '../lib/plans'
 
-/** One component for the launch offer everywhere, so the copy can never drift. */
-export function useLaunchSpots(): number {
-  const [spots, setSpots] = useState<number>(LAUNCH_SPOTS)
+/** Real spots left from the server (Supabase RPC), or null when there is no real count.
+ *  null means: never show a counter (no fake stats). */
+export function useLaunchSpots(): number | null {
+  const [spots, setSpots] = useState<number | null>(null)
   useEffect(() => {
     let alive = true
     launchSpotsLeft().then((n) => alive && n !== null && setSpots(n))
@@ -31,12 +32,14 @@ export function OfferBanner() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <span className="label !text-gold">{t('offerTitle')}</span>
-            <span className="font-mono text-[11px] font-bold text-gold">{spots > 0 ? t('offerSpots', { n: spots }) : ''}</span>
+            {spots !== null && spots > 0 && <span data-testid="offer-spots" className="font-mono text-[11px] font-bold text-gold">{t('offerSpots', { n: spots })}</span>}
           </div>
           <p className="mt-1 text-[14px] leading-snug text-frost">{t('offerBody')}</p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full rounded-full bg-gold" style={{ width: `${(1 - spots / LAUNCH_SPOTS) * 100}%` }} />
-          </div>
+          {spots !== null && (
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-gold" style={{ width: `${Math.min(100, Math.max(0, (1 - spots / LAUNCH_SPOTS) * 100))}%` }} />
+            </div>
+          )}
         </div>
       </div>
     </button>

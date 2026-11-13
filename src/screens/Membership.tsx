@@ -95,7 +95,7 @@ export function Membership() {
   }
 
   const offerUsed = s.launchClaimed || s.trialUsed || plan !== 'free'
-  const launchOpen = spots > 0
+  const launchOpen = spots === null || spots > 0
   const table = rows(t)
 
   return (
@@ -121,9 +121,9 @@ export function Membership() {
 
       {/* launch offer */}
       <div className="mt-4 rounded-[20px] border border-gold/30 bg-gold/[0.05] p-4">
-        <div className="flex items-center gap-2"><Gift size={17} className="text-gold" /><span className="label !text-gold">{t('offerTitle')}</span><span className="ml-auto font-mono text-[11px] font-bold text-gold">{launchOpen ? t('offerSpots', { n: spots }) : ''}</span></div>
+        <div className="flex items-center gap-2"><Gift size={17} className="text-gold" /><span className="label !text-gold">{t('offerTitle')}</span>{spots !== null && spots > 0 && <span data-testid="offer-spots" className="ml-auto font-mono text-[11px] font-bold text-gold">{t('offerSpots', { n: spots })}</span>}</div>
         <p className="mt-2 text-[14px] leading-snug">{launchOpen ? t('offerBody') : t('offerGone')}</p>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gold" style={{ width: `${(1 - spots / LAUNCH_SPOTS) * 100}%` }} /></div>
+        {spots !== null && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gold" style={{ width: `${Math.min(100, Math.max(0, (1 - spots / LAUNCH_SPOTS) * 100))}%` }} /></div>}
         {s.membership.source === 'launch_offer' && plan !== 'free' ? (
           <div className="mt-3 flex items-center gap-2 text-sm text-ok"><Check size={16} /> {t('offerClaimed')}</div>
         ) : !offerUsed ? (

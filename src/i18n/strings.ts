@@ -117,6 +117,7 @@ export const en = {
   openPath: 'Open path', heroKicker: 'Real biomechanics. No guesswork.', byDarshan: 'by Darshan Chavda', athleteLbl: 'Athlete',
   sessionsLbl: 'Sessions', noSessionsYet: 'No sessions logged yet.', targetLbl: 'Target', restLbl: 'rest',
   photoOf: 'Darshan Chavda — {x}', systemOnline: 'System online', gallery: 'D31 Shoot', galleryTab: 'Shoot', learnTab: 'Learn', gallerySub: 'Every photo from the D31 folder — tap to view full screen.', gcat_brand: 'Portraits', gcat_skills: 'Skills', gcat_strength: 'Strength', gcat_physique: 'Physique', gcat_blueprint: 'Blueprints', openExercise: 'Open exercise', photosN: '{n} photos', closeLbl: 'Close', prevLbl: 'Previous', nextLbl: 'Next', seeGallery: 'Open the D31 Shoot', scanLabel: 'D31 // HUD',
+  pauseLbl: 'Pause', resumeLbl: 'Resume', pausedLbl: 'Paused', workoutMenu: 'Workout', minimize: 'Minimise · keep it running', endWorkout: 'End workout', saveFinish: 'Finish & save · {n} sets', endDiscard: 'End & discard', noSetsQ: 'No set is ticked ✓ yet, so there is nothing to save. End this workout without saving?', keepTraining: 'Keep training', staleMsg: 'This workout has been open since {x}. Finish it or end it.', workoutSaved: '✓ Workout saved · {n} sets', tickHint: 'Tick ✓ each set you finish. Only ticked sets are saved.', clipLbl: 'Clip', playClip: 'Play clip', clipSource: 'Darshan’s own training video', timerPaused: 'Timer paused', setsTicked: '{n} sets ticked',
 }
 
 export type StringKey = keyof typeof en
@@ -220,6 +221,7 @@ export const hi: Dict = {
   openPath: 'पाथ खोलें', heroKicker: 'असली बायोमैकेनिक्स। कोई अंदाज़ा नहीं।', byDarshan: 'Darshan Chavda द्वारा', athleteLbl: 'एथलीट',
   sessionsLbl: 'सेशन', noSessionsYet: 'अभी कोई सेशन लॉग नहीं हुआ।', targetLbl: 'टारगेट', restLbl: 'आराम',
   photoOf: 'Darshan Chavda — {x}', systemOnline: 'सिस्टम ऑनलाइन', gallery: 'D31 शूट', galleryTab: 'शूट', learnTab: 'सीखें', gallerySub: 'D31 फ़ोल्डर की हर फ़ोटो — फुल स्क्रीन देखने के लिए टैप करें।', gcat_brand: 'पोर्ट्रेट', gcat_skills: 'स्किल्स', gcat_strength: 'स्ट्रेंथ', gcat_physique: 'फिज़ीक', gcat_blueprint: 'ब्लूप्रिंट', openExercise: 'एक्सरसाइज़ खोलें', photosN: '{n} फ़ोटो', closeLbl: 'बंद करें', prevLbl: 'पिछली', nextLbl: 'अगली', seeGallery: 'D31 शूट खोलें', scanLabel: 'D31 // HUD',
+  pauseLbl: 'रोकें', resumeLbl: 'फिर शुरू', pausedLbl: 'रुका हुआ', workoutMenu: 'वर्कआउट', minimize: 'छोटा करें · चालू रखें', endWorkout: 'वर्कआउट खत्म करें', saveFinish: 'पूरा करें और सेव करें · {n} सेट', endDiscard: 'खत्म करें, सेव नहीं', noSetsQ: 'अभी कोई सेट ✓ टिक नहीं है, इसलिए सेव करने को कुछ नहीं. बिना सेव किए वर्कआउट खत्म करें?', keepTraining: 'ट्रेनिंग जारी रखें', staleMsg: 'यह वर्कआउट {x} से खुला है. इसे पूरा करें या खत्म करें.', workoutSaved: '✓ वर्कआउट सेव · {n} सेट', tickHint: 'हर पूरा सेट ✓ टिक करें. सिर्फ टिक किए सेट सेव होते हैं.', clipLbl: 'क्लिप', playClip: 'क्लिप चलाएँ', clipSource: 'दर्शन का अपना ट्रेनिंग वीडियो', timerPaused: 'टाइमर रुका है', setsTicked: '{n} सेट टिक',
 }
 
 export const gu: Dict = {
@@ -320,6 +322,7 @@ export const gu: Dict = {
   openPath: 'પાથ ખોલો', heroKicker: 'સાચું બાયોમિકેનિક્સ. કોઈ અંદાજ નહીં.', byDarshan: 'Darshan Chavda દ્વારા', athleteLbl: 'એથ્લીટ',
   sessionsLbl: 'સેશન', noSessionsYet: 'હજી કોઈ સેશન લૉગ થયું નથી.', targetLbl: 'ટાર્ગેટ', restLbl: 'આરામ',
   photoOf: 'Darshan Chavda — {x}', systemOnline: 'સિસ્ટમ ઓનલાઇન', gallery: 'D31 શૂટ', galleryTab: 'શૂટ', learnTab: 'શીખો', gallerySub: 'D31 ફોલ્ડરનો દરેક ફોટો — ફુલ સ્ક્રીન જોવા ટેપ કરો.', gcat_brand: 'પોર્ટ્રેટ', gcat_skills: 'સ્કિલ્સ', gcat_strength: 'સ્ટ્રેન્થ', gcat_physique: 'ફિઝિક', gcat_blueprint: 'બ્લૂપ્રિન્ટ', openExercise: 'એક્સરસાઇઝ ખોલો', photosN: '{n} ફોટા', closeLbl: 'બંધ કરો', prevLbl: 'પાછળ', nextLbl: 'આગળ', seeGallery: 'D31 શૂટ ખોલો', scanLabel: 'D31 // HUD',
+  pauseLbl: 'રોકો', resumeLbl: 'ફરી શરૂ', pausedLbl: 'રોકાયેલું', workoutMenu: 'વર્કઆઉટ', minimize: 'નાનું કરો · ચાલુ રાખો', endWorkout: 'વર્કઆઉટ પૂરું કરો', saveFinish: 'પૂરું કરો અને સેવ કરો · {n} સેટ', endDiscard: 'પૂરું કરો, સેવ નહીં', noSetsQ: 'હજી કોઈ સેટ ✓ ટિક નથી, તેથી સેવ કરવા જેવું કંઈ નથી. સેવ કર્યા વગર વર્કઆઉટ પૂરું કરીએ?', keepTraining: 'ટ્રેનિંગ ચાલુ રાખો', staleMsg: 'આ વર્કઆઉટ {x} થી ખુલ્લું છે. તેને પૂરું કરો અથવા બંધ કરો.', workoutSaved: '✓ વર્કઆઉટ સેવ · {n} સેટ', tickHint: 'દરેક પૂરો સેટ ✓ ટિક કરો. ફક્ત ટિક કરેલા સેટ જ સેવ થાય છે.', clipLbl: 'ક્લિપ', playClip: 'ક્લિપ ચલાવો', clipSource: 'દર્શનનો પોતાનો ટ્રેનિંગ વીડિયો', timerPaused: 'ટાઇમર રોકાયેલું', setsTicked: '{n} સેટ ટિક',
 }
 
 export const DICTS = { en, hi, gu } as const

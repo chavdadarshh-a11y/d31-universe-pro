@@ -6,7 +6,7 @@ import { Badge, Button, Card, Chip, CHIP_COLORS, Empty, Header, Label, Sheet, Ta
 import { BodyThumb, BACK_IDS, FRONT_IDS } from '../components/BodyMap'
 import { allExercises, exName, exOf } from '../data/exercises'
 import { LADDERS } from '../data/ladders'
-import { ClipPlayer, Photo } from '../components/hud'
+import { ClipThumb, Photo } from '../components/hud'
 import { ShootGallery } from '../components/Gallery'
 import { CustomExerciseSheet } from '../components/ExercisePicker'
 import { ladderStatus } from '../lib/training'
@@ -27,7 +27,7 @@ const rank = (e: Exercise) => (e.custom ? 0 : e.clip ? 1 : 2)
 const realLink = (u: string) => !!u && !u.includes('example.com')
 
 function Thumb({ e }: { e: Exercise }) {
-  if (e.clip) return <div className="relative h-[76px] w-[56px] shrink-0 overflow-hidden rounded-xl border border-gold/30"><ClipPlayer name={e.clip} alt="" /></div>
+  if (e.clip) return <ClipThumb name={e.clip} title={e.name} exId={e.id} className="h-[76px] w-[56px] shrink-0" />
   if (e.media) return <div className="relative h-[76px] w-[56px] shrink-0 overflow-hidden rounded-xl border border-gold/30"><Photo name={e.media} small alt="" /></div>
   const backOnly = (m: MuscleId) => BACK_IDS.has(m) && !FRONT_IDS.has(m)
   const frontOnly = (m: MuscleId) => FRONT_IDS.has(m) && !BACK_IDS.has(m)

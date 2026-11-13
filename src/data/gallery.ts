@@ -140,6 +140,9 @@ export const EX_MEDIA: Record<string, string> = {
 export const EX_CLIPS: Record<string, string> = {
   deadlift: 'deadlift', 'human-flag-progression': 'human-flag-progression',
   'monkey-bar-traverse': 'monkey-bar-traverse', 'inverted-hang': 'inverted-hang',
+  'back-squat': 'back-squat', 'bulgarian-split-squat': 'bulgarian-split-squat', 'hip-thrust': 'hip-thrust',
+  'lat-pulldown': 'lat-pulldown', 'preacher-curl': 'preacher-curl', 'overhead-press': 'overhead-press',
+  'triceps-pushdown': 'triceps-pushdown', headstand: 'headstand',
 }
 
 /** Today hero rotation (sharp, full-body, no overlays). */

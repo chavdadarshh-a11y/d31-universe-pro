@@ -1,5 +1,6 @@
 import { useEffect, useId, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { ChevronLeft, Lock, X } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { goBack } from '../lib/router'
 
 type BtnVariant = 'primary' | 'gold' | 'ghost' | 'outline' | 'danger'
@@ -139,7 +140,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
     }
   }, [open, onClose])
   if (!open) return null
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true">
       <button aria-label="Close" className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="sheet-in relative max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-cyan/20 bg-[linear-gradient(180deg,#0d1424,#070a12)] px-5 shadow-[0_-20px_60px_-30px_rgba(34,211,238,0.5)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-3">
@@ -154,7 +155,8 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
         )}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

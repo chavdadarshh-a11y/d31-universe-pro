@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect } from 'react'
-import { Home as HomeIcon, Dumbbell, ScanLine, BookOpen, LineChart, User, Play } from 'lucide-react'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { Home as HomeIcon, Dumbbell, ScanLine, BookOpen, LineChart, User, Play, Pause, Square } from 'lucide-react'
 import { useRoute, navigate } from './lib/router'
 import { useApp } from './store/app'
 import { useT } from './i18n'
@@ -20,9 +20,8 @@ import { Legal } from './screens/Legal'
 import { Auth } from './screens/Auth'
 import { PathDetail } from './screens/PathDetail'
 import { Cosmos } from './components/Cosmos'
-import { GradDefs } from './components/hud'
-import { fmtClock } from './lib/util'
-import { useNow } from './lib/hooks'
+import { ClipViewer, GradDefs } from './components/hud'
+import { EndWorkoutSheet, SessionClock } from './components/EndWorkout'
 
 const Analyze = lazy(() => import('./screens/Analyze'))
 
@@ -61,17 +60,25 @@ function BottomNav({ current }: { current: string }) {
 function ResumeBar() {
   const active = useApp((s) => s.active)
   const t = useT()
-  const now = useNow(1000)
+  const [end, setEnd] = useState(false)
   if (!active) return null
   return (
-    <button onClick={() => navigate('/player')} className="neon-border neon-shadow fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-[480px] items-center gap-3 rounded-2xl bg-[#0b1420]/95 px-4 py-3 text-left backdrop-blur-xl">
-      <span className="bg-neon-static grid h-9 w-9 place-items-center rounded-full text-[#060a14]"><Play size={16} fill="currentColor" /></span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-semibold">{active.name}</span>
-        <span className="text-xs text-muted">{t('resume')}</span>
-      </span>
-      <span className="font-mono text-sm tabular-nums text-cyan">{fmtClock((now - new Date(active.startedAt).getTime()) / 1000)}</span>
-    </button>
+    <>
+      <div data-testid="resume-bar" className={`neon-border neon-shadow fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-[480px] items-center gap-2 rounded-2xl bg-[#0b1420]/95 py-2 pl-3 pr-2 backdrop-blur-xl`}>
+        <button onClick={() => navigate('/player')} className="flex min-w-0 flex-1 items-center gap-3 py-1 text-left">
+          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${active.pausedAt ? 'border border-gold/50 bg-gold/10 text-gold' : 'bg-neon-static text-[#060a14]'}`}>{active.pausedAt ? <Pause size={15} /> : <Play size={16} fill="currentColor" />}</span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold">{active.name}</span>
+            <span className={`text-xs ${active.pausedAt ? 'text-gold' : 'text-muted'}`}>{active.pausedAt ? t('timerPaused') : t('resume')}</span>
+          </span>
+          <SessionClock a={active} className="font-mono text-sm tabular-nums text-cyan" />
+        </button>
+        <button aria-label={t('endWorkout')} data-testid="resume-end" onClick={() => setEnd(true)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-bad/30 bg-bad/10 text-bad"><Square size={14} fill="currentColor" /></button>
+      </div>
+      <EndWorkoutSheet open={end} onClose={() => setEnd(false)} onFinished={(r) => {
+        if (r) { useApp.getState().showToast(t('workoutSaved', { n: r.session.exercises.reduce((n, e) => n + e.sets.length, 0) })); navigate('/progress') }
+      }} />
+    </>
   )
 }
 
@@ -140,6 +147,7 @@ export default function App() {
       </main>
       {showNav && root !== 'player' && <ResumeBar />}
       {showNav && <BottomNav current={navId} />}
+      <ClipViewer />
       <Toast />
     </div>
   )

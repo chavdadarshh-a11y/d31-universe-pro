@@ -6,7 +6,7 @@ import { Badge, Button, Card, Header, Label, Sheet } from '../components/ui'
 import { BodyMap, MUSCLE_COLORS } from '../components/BodyMap'
 import { allExercises, exName } from '../data/exercises'
 import { LADDER_BY_ID } from '../data/ladders'
-import { ClipPlayer, Photo } from '../components/hud'
+import { ClipPlayer, Photo, openClip } from '../components/hud'
 import { computeRecords } from '../lib/workout'
 import { criterionText, summarizeSets } from '../lib/training'
 import { navigate } from '../lib/router'
@@ -41,8 +41,9 @@ export function ExerciseDetail({ id }: { id: string }) {
     <div>
       <Header title={exName(e, s.lang)} sub={s.lang !== 'en' ? e.name : undefined} back="#/library" />
       {e.clip ? (
-        <div className="card hud-full relative -mt-1 mb-3 h-[360px] overflow-hidden">
+        <div className="card clip-ring relative -mt-1 mb-3 h-[360px] cursor-pointer overflow-hidden" role="button" tabIndex={0} onClick={() => openClip({ name: e.clip!, title: exName(e, s.lang), exId: e.id })}>
           <ClipPlayer name={e.clip} alt={t('photoOf', { x: e.name })} />
+          <span className="clip-badge absolute right-3 top-3 z-[2] flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.18em]"><span className="clip-dot" />CLIP · ⛶</span>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(4,6,12,0.92))]" />
           <div className="absolute bottom-3 left-4 z-[2] font-mono text-[9.5px] uppercase tracking-[0.24em] text-gold/90">{t('byDarshan')}</div>
         </div>

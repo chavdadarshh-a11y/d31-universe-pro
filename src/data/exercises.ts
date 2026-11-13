@@ -791,6 +791,16 @@ export const EXERCISES: Exercise[] = [
     mistakes: ['Kicking up with momentum', 'Letting go with one hand', 'Dropping fast out of the inversion'],
     benefits: ['Core and lat strength', 'Comfort upside down', 'Lead-up to front lever and skin-the-cat'],
   },
+  {
+    id: 'headstand', name: 'Headstand', nameHi: 'शीर्षासन (हेडस्टैंड)', nameGu: 'શીર્ષાસન (હેડસ્ટેન્ડ)',
+    category: 'calisthenics', equipment: ['none'], level: 2, layer: 'CONTROL', tracking: 'time',
+    primary: ['shoulders', 'abs'], secondary: ['triceps', 'traps', 'lower_back'],
+    summary: 'Balance upside down on the head and hands with the body stacked in one line. Darshan’s clip shows an advanced version on a dumbbell — learn it on the floor, near a wall, first.',
+    steps: ['Kneel and place your hands and the crown of your head on a mat in a triangle.', 'Walk the feet in until the hips are over the shoulders.', 'Tuck the knees up, find balance, then slowly straighten the legs.', 'Hold, breathing steadily; come down the same way, knees first.'],
+    cues: ['Push the floor away — most weight in the hands, not the neck', 'Hips stacked over shoulders', 'Squeeze glutes and legs together'],
+    mistakes: ['Kicking up with momentum', 'Dumping all the weight on the neck', 'Arching the lower back'],
+    benefits: ['Shoulder and core control upside down', 'Balance and body awareness', 'Lead-up to handstand work'],
+  },
 ]
 
 export const EX_BY_ID: Record<string, Exercise> = Object.fromEntries(EXERCISES.map((e) => [e.id, e]))

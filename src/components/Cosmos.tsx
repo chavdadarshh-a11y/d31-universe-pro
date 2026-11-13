@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { mediaUrl } from './hud'
 
 /**
@@ -7,6 +7,39 @@ import { mediaUrl } from './hud'
  * Cheap on phones: DPR capped at 1.5, ~30 fps, paused when the tab is hidden,
  * and fully static when the user prefers reduced motion.
  */
+const BASE = import.meta.env.BASE_URL || '/'
+
+/** Live looping Shiva background (muted, 10 s seamless loop). Static artwork with reduced motion / Save-Data / video error. */
+function LiveShiva() {
+  const vref = useRef<HTMLVideoElement>(null)
+  const [still, setStill] = useState(() => {
+    if (typeof window === 'undefined') return true
+    const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || !!nav.connection?.saveData
+  })
+  useEffect(() => {
+    const v = vref.current
+    if (!v || still) return
+    const sync = () => { if (document.hidden) v.pause(); else v.play().catch(() => {}) }
+    sync()
+    document.addEventListener('visibilitychange', sync)
+    return () => document.removeEventListener('visibilitychange', sync)
+  }, [still])
+  if (still) return <img className="shiva" src={mediaUrl('shiva-720')} srcSet={`${mediaUrl('shiva-720')} 720w, ${mediaUrl('shiva')} 981w`} sizes="100vw" alt="" decoding="async" fetchPriority="low" />
+  return (
+    <video
+      ref={vref}
+      className="shiva shiva-video"
+      poster={`${BASE}media/bg/shiva-live-poster.webp`}
+      autoPlay muted loop playsInline preload="auto"
+      disablePictureInPicture
+      onError={() => setStill(true)}
+    >
+      <source src={`${BASE}media/bg/shiva-live.mp4`} type="video/mp4" onError={() => setStill(true)} />
+    </video>
+  )
+}
+
 export function Cosmos() {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
@@ -66,7 +99,7 @@ export function Cosmos() {
   }, [])
   return (
     <div className="cosmos" aria-hidden>
-      <img className="shiva" src={mediaUrl('shiva-720')} srcSet={`${mediaUrl('shiva-720')} 720w, ${mediaUrl('shiva')} 981w`} sizes="100vw" alt="" decoding="async" fetchPriority="low" />
+      <LiveShiva />
       <div className="shiva-veil" />
       <div className="aurora a1" />
       <div className="aurora a2" />

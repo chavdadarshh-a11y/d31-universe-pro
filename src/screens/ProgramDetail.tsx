@@ -4,7 +4,8 @@ import { useT } from '../i18n'
 import { Badge, Button, Card, Header, Label } from '../components/ui'
 import { PROGRAM_BY_ID } from '../data/programs'
 import { exOf, exName } from '../data/exercises'
-import { Photo } from '../components/hud'
+import { ClipThumb, Photo } from '../components/hud'
+import { BodyMap } from '../components/BodyMap'
 import { LADDER_BY_ID } from '../data/ladders'
 import { navigate } from '../lib/router'
 import { hasPlan } from '../lib/plans'
@@ -70,17 +71,20 @@ export function ProgramDetail({ id }: { id: string }) {
               <span className="text-xs text-dim">~{estimateMinutes(d.items)} {t('min')}</span>
             </div>
             <ul className="mt-3 divide-y divide-white/[0.05]">
-              {d.items.map((it, j) => (
-                <li key={j}>
-                  <button className="flex w-full items-center justify-between py-2.5 text-left" onClick={() => navigate(`/library/${it.exId}`)}>
+              {d.items.map((it, j) => { const ex = exOf(it.exId); return (
+                <li key={j} className="flex items-center gap-3 py-2">
+                  {ex.clip
+                    ? <ClipThumb name={ex.clip} title={exName(ex, s.lang)} exId={ex.id} className="h-[60px] w-[46px] shrink-0" />
+                    : <button aria-hidden tabIndex={-1} onClick={() => navigate(`/library/${it.exId}`)} className="h-[60px] w-[46px] shrink-0 overflow-hidden rounded-xl border border-white/[0.07] bg-[#070b14] p-0.5">{ex.media ? <Photo name={ex.media} small alt="" /> : <BodyMap primary={ex.primary} secondary={ex.secondary} compact />}</button>}
+                  <button className="flex min-w-0 flex-1 items-center justify-between text-left" onClick={() => navigate(`/library/${it.exId}`)}>
                     <span className="min-w-0 pr-2">
-                      <span className="block truncate text-[14px]">{exName(exOf(it.exId), s.lang)}</span>
+                      <span className="block truncate text-[14px]">{exName(ex, s.lang)}</span>{ex.clip && <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-gold/80">▶ {t('clipLbl')}</span>}
                       {it.note && <span className="block truncate text-[11.5px] text-dim">{it.note}</span>}
                     </span>
                     <span className="shrink-0 font-mono text-[12px] text-cyan/90">{it.sets} × {it.target ?? it.reps ?? `${it.secs}s`}<span className="text-dim"> · {it.rest}s</span></span>
                   </button>
                 </li>
-              ))}
+              ) })}
             </ul>
             <Button size="sm" className="mt-2 w-full" variant={locked ? 'ghost' : active && i === next ? 'primary' : 'ghost'} onClick={() => startDay(i)}>
               {locked ? <Lock size={14} /> : <Play size={14} fill="currentColor" />} {t('startDay')}

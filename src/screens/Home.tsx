@@ -6,7 +6,7 @@ import { useT } from '../i18n'
 import { Button, Card, Ring, Badge } from '../components/ui'
 import { LogoMark, Wordmark } from '../components/Brand'
 import { OfferBanner } from '../components/OfferBanner'
-import { CountUp, HudTitle, IconTile, Photo, mediaUrl } from '../components/hud'
+import { CountUp, HudTitle, IconTile, Photo, mediaUrl, openClip } from '../components/hud'
 import { navigate } from '../lib/router'
 import { PROGRAM_BY_ID } from '../data/programs'
 import { LADDERS } from '../data/ladders'
@@ -85,11 +85,15 @@ export function Home() {
                 </div>
                 <h2 className="mt-1 truncate text-[22px] font-bold leading-tight">{day.name}</h2>
                 <div className="no-scrollbar mt-2 flex gap-1.5 overflow-x-auto">
-                  {day.items.map((it, k) => (
+                  {day.items.map((it, k) => { const ex = exOf(it.exId); return ex.clip ? (
+                    <button key={k} onClick={() => openClip({ name: ex.clip!, title: exName(ex, s.lang), exId: ex.id })} className="shrink-0 rounded-lg border border-gold/50 bg-[#04060c]/75 px-2 py-1 text-[11.5px] text-frost backdrop-blur shadow-[0_0_12px_-4px_rgba(247,197,72,0.7)]">
+                      <span className="text-gold">▶</span> {exName(ex, s.lang)} <span className="text-cyan/80">{it.sets}×{it.target ?? it.reps ?? `${it.secs}s`}</span>
+                    </button>
+                  ) : (
                     <span key={k} className="shrink-0 rounded-lg border border-cyan/20 bg-[#04060c]/70 px-2 py-1 text-[11.5px] text-frost/90 backdrop-blur">
-                      {exName(exOf(it.exId), s.lang)} <span className="text-cyan/80">{it.sets}×{it.target ?? it.reps ?? `${it.secs}s`}</span>
+                      {exName(ex, s.lang)} <span className="text-cyan/80">{it.sets}×{it.target ?? it.reps ?? `${it.secs}s`}</span>
                     </span>
-                  ))}
+                  ) })}
                 </div>
               </>
             ) : (

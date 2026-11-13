@@ -1,16 +1,18 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
-import { Check, X, Plus, Timer, Trophy, MoreHorizontal, Copy, Trash2, ArrowUp, ArrowDown, Info, StickyNote, History, Save, Play } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { Check, X, Plus, Timer, Trophy, MoreHorizontal, Copy, Trash2, ArrowUp, ArrowDown, Info, StickyNote, History, Save, Play, Pause } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Button, Confirm, Ring, Sheet, Label } from '../components/ui'
 import { BodyMap } from '../components/BodyMap'
 import { ExercisePicker } from '../components/ExercisePicker'
-import { CountUp, Photo } from '../components/hud'
+import { ClipThumb, CountUp, Photo } from '../components/hud'
+import { EndWorkoutSheet, SessionClock } from '../components/EndWorkout'
 import { exOf, exName } from '../data/exercises'
 import { navigate } from '../lib/router'
 import { beep, fmtClock, speak } from '../lib/util'
 import { useNow } from '../lib/hooks'
-import { addExerciseToActive, computeRecords, finishWorkout, lastTime, patchActive, prevSetsOf, routineFromLog, startEmpty, type PRecord } from '../lib/workout'
+import { addExerciseToActive, computeRecords, finishWorkout, isStale, lastTime, patchActive, pauseActive, resumeActive, prevSetsOf, routineFromLog, startEmpty, type PRecord } from '../lib/workout'
 import { beatsRecord, summarizeSets, volumeOf, SET_TYPES } from '../lib/training'
 import type { ActiveWorkout, LoggedSet, SetType, WorkoutSession } from '../types'
 
@@ -57,10 +59,6 @@ function NumIn({ value, onChange, placeholder, step = 'decimal', label }: { valu
   )
 }
 
-function Clock({ startedAt }: { startedAt: string }) {
-  const now = useNow(1000)
-  return <span className="readout text-[22px] font-bold text-frost">{fmtClock((now - new Date(startedAt).getTime()) / 1000)}</span>
-}
 
 function RestSheet({ end, total, nextName, onAdd, onSkip, onDone }: { end: number; total: number; nextName: string; onAdd: () => void; onSkip: () => void; onDone: () => void }) {
   const t = useT()
@@ -70,7 +68,7 @@ function RestSheet({ end, total, nextName, onAdd, onSkip, onDone }: { end: numbe
   useEffect(() => {
     if (left <= 0 && !fired.current) { fired.current = true; onDone() }
   }, [left, onDone])
-  return (
+  return createPortal(
     <div className="sheet-in fixed inset-x-0 bottom-0 z-40 mx-auto max-w-lg rounded-t-[28px] border border-cyan/25 bg-[linear-gradient(180deg,#0d1526,#070a12)] px-5 pb-[calc(env(safe-area-inset-bottom)+18px)] pt-4 shadow-[0_-24px_60px_-28px_rgba(34,211,238,0.6)]">
       <div className="flex items-center gap-4">
         <Ring value={left / Math.max(1, total)} size={86} stroke={7} color="#f7c548">
@@ -85,7 +83,8 @@ function RestSheet({ end, total, nextName, onAdd, onSkip, onDone }: { end: numbe
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
@@ -108,7 +107,7 @@ export function Player() {
   const [rest, setRest] = useState<{ end: number; total: number; next: string } | null>(null)
   const [hold, setHold] = useState<(SetRef & { end: number }) | null>(null)
   const [confirmFinish, setConfirmFinish] = useState(false)
-  const [confirmDiscard, setConfirmDiscard] = useState(false)
+  const [menu, setMenu] = useState(false)
   const [picker, setPicker] = useState(false)
   const [setSheet, setSetSheet] = useState<SetRef | null>(null)
   const [exMenu, setExMenu] = useState<number | null>(null)
@@ -186,6 +185,8 @@ export function Player() {
   const doneSets = a.log.reduce((n, l) => n + l.sets.filter((x) => x.done).length, 0)
   const totalSets = a.log.reduce((n, l) => n + l.sets.length, 0)
   const vol = a.log.reduce((v, l) => v + volumeOf(l.sets), 0)
+  const onDone = () => (doneSets > 0 ? setConfirmFinish(true) : setMenu(true))
+  const stale = isStale(a)
   const finish = () => {
     const snapshot = useApp.getState().active
     const r = finishWorkout()
@@ -200,7 +201,7 @@ export function Player() {
       {/* HUD top bar */}
       <div className="sticky top-0 z-30 -mx-4 bg-[#04060c]/80 px-4 pb-2 pt-2 backdrop-blur-xl">
         <div className="flex items-center gap-2">
-          <button aria-label={t('discard')} onClick={() => setConfirmDiscard(true)} className="-ml-1 grid h-10 w-10 place-items-center rounded-xl border border-white/[0.07] text-muted hover:bg-white/5"><X size={20} /></button>
+          <button aria-label={t('endWorkout')} data-testid="player-x" onClick={() => setMenu(true)} className="-ml-1 grid h-10 w-10 place-items-center rounded-xl border border-white/[0.07] text-muted hover:bg-white/5"><X size={20} /></button>
           <div className="min-w-0 flex-1 text-center">
             <input
               aria-label={t('workoutName')}
@@ -208,9 +209,15 @@ export function Player() {
               onChange={(e) => update((cur) => ({ ...cur, name: e.target.value }))}
               className="w-full truncate bg-transparent text-center text-[12.5px] font-semibold text-muted outline-none focus:text-frost"
             />
-            <Clock startedAt={a.startedAt} />
+            <div className="flex items-center justify-center gap-2">
+              <SessionClock a={a} className="readout text-[22px] font-bold text-frost" />
+              <button aria-label={a.pausedAt ? t('resumeLbl') : t('pauseLbl')} data-testid="pause-toggle" onClick={() => (a.pausedAt ? resumeActive() : pauseActive())} className={`grid h-7 w-7 place-items-center rounded-lg border ${a.pausedAt ? 'border-gold/50 bg-gold/10 text-gold' : 'border-white/10 text-muted'}`}>
+                {a.pausedAt ? <Play size={12} fill="currentColor" /> : <Pause size={12} />}
+              </button>
+            </div>
+            {a.pausedAt && <div className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-gold">{t('timerPaused')}</div>}
           </div>
-          <Button size="sm" onClick={() => setConfirmFinish(true)} disabled={doneSets === 0}>{t('done')}</Button>
+          <Button size="sm" data-testid="player-done" onClick={onDone}>{t('done')}</Button>
         </div>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.07]"><div className="bg-neon-static h-full rounded-full transition-all" style={{ width: `${(doneSets / Math.max(1, totalSets)) * 100}%` }} /></div>
         <div className="mt-2 grid grid-cols-3 text-center">
@@ -220,6 +227,10 @@ export function Player() {
         </div>
       </div>
 
+      {stale && (
+        <button onClick={() => setMenu(true)} className="mt-3 w-full rounded-xl border border-gold/30 bg-gold/[0.07] px-3 py-2 text-left text-[12.5px] leading-snug text-gold">{t('staleMsg', { x: new Date(a.startedAt).toLocaleString(undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' }) })}</button>
+      )}
+      {doneSets === 0 && totalSets > 0 && <p className="mt-3 text-center text-[12px] text-muted">{t('tickHint')}</p>}
       {a.items.some((it) => it.target) && (
         <p className="mt-3 rounded-xl border border-gold/20 bg-gold/[0.05] px-3 py-2 text-[12px] leading-snug text-gold/90">{t('suggestedHint')}</p>
       )}
@@ -250,7 +261,8 @@ export function Player() {
       </div>
 
       <Button variant="outline" className="mt-4 w-full" onClick={() => setPicker(true)}><Plus size={16} /> {t('addExercise')}</Button>
-      <Button className="mt-2 w-full" onClick={() => setConfirmFinish(true)} disabled={doneSets === 0}><Check size={16} /> {t('finish')}</Button>
+      <Button className="mt-2 w-full" data-testid="player-finish" onClick={onDone}><Check size={16} /> {t('finish')}</Button>
+      <Button variant="ghost" className="mt-2 w-full !text-bad" onClick={() => setMenu(true)}><X size={15} /> {t('endWorkout')}</Button>
       <div className="h-44" />
 
       {rest && (
@@ -329,7 +341,7 @@ export function Player() {
           const ex = exOf(info)
           return (
             <>
-              {ex.media && <div className="relative -mx-1 mb-4 h-44 overflow-hidden rounded-2xl"><Photo name={ex.media} alt={t('photoOf', { x: ex.name })} /></div>}
+              {ex.clip ? <ClipThumb name={ex.clip} title={exName(ex, lang)} exId={ex.id} className="-mx-1 mb-4 h-64" /> : ex.media && <div className="relative -mx-1 mb-4 h-44 overflow-hidden rounded-2xl"><Photo name={ex.media} alt={t('photoOf', { x: ex.name })} /></div>}
               <BodyMap primary={ex.primary} secondary={ex.secondary} frontLabel={t('front')} backLabel={t('backView')} />
               {ex.steps.length > 0 && <><Label className="mt-4">{t('howTo')}</Label>
                 <ol className="mt-2 space-y-2">{ex.steps.map((x, i) => <li key={i} className="flex gap-3 text-[14px]"><span className="font-mono text-cyan">{i + 1}</span>{x}</li>)}</ol></>}
@@ -340,8 +352,8 @@ export function Player() {
         })()}
       </Sheet>
 
-      <Confirm open={confirmFinish} text={t('finishQ')} confirmLabel={t('finish')} cancelLabel={t('cancel')} onClose={() => setConfirmFinish(false)} onConfirm={finish} />
-      <Confirm open={confirmDiscard} text={t('discardQ')} confirmLabel={t('discard')} cancelLabel={t('cancel')} danger onClose={() => setConfirmDiscard(false)} onConfirm={() => { useApp.setState({ active: null }); navigate('/train') }} />
+      <Confirm open={confirmFinish} text={`${t('finishQ')} (${t('setsTicked', { n: doneSets })})`} confirmLabel={t('finish')} cancelLabel={t('cancel')} onClose={() => setConfirmFinish(false)} onConfirm={finish} />
+      <EndWorkoutSheet open={menu} minimize onClose={() => setMenu(false)} onFinished={(r) => { setRest(null); setHold(null); if (r) setSummary(r); else navigate('/home') }} />
     </div>
   )
 }
@@ -379,9 +391,13 @@ const ExerciseBlock = memo(function ExerciseBlock({ i, a, record, hold, onPatch,
   return (
     <div className={`card overflow-hidden ${complete ? 'hud-gold' : ''}`}>
       <div className="flex items-start gap-3 p-3 pb-2">
-        <button onClick={onInfo} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#070b14]">
-          {ex.media ? <Photo name={ex.media} small alt="" /> : <div className="p-1"><BodyMap primary={ex.primary} secondary={ex.secondary} compact /></div>}
-        </button>
+        {ex.clip ? (
+          <ClipThumb name={ex.clip} title={exName(ex, lang)} exId={ex.id} className="h-[74px] w-[56px] shrink-0" />
+        ) : (
+          <button onClick={onInfo} className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#070b14]">
+            {ex.media ? <Photo name={ex.media} small alt="" /> : <div className="p-1"><BodyMap primary={ex.primary} secondary={ex.secondary} compact /></div>}
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <button onClick={onInfo} className="block max-w-full truncate text-left text-[16px] font-bold leading-tight text-frost">{exName(ex, lang)}</button>
           {it && (it.target || it.sets) && (

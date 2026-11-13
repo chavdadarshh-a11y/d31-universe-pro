@@ -52,13 +52,15 @@ function seedSets(item: PlanItem): LoggedSet[] {
 
 export function startWorkout(name: string, items: PlanItem[], programId?: string, dayIndex?: number) {
   const log: LoggedExercise[] = items.map((it) => ({ exId: it.exId, sets: seedSets(it), note: it.note }))
-  const active: ActiveWorkout = { name, programId, dayIndex, startedAt: new Date().toISOString(), items, log, current: 0 }
+  const now = new Date().toISOString()
+  const active: ActiveWorkout = { name, programId, dayIndex, startedAt: now, lastActivityAt: now, items, log, current: 0 }
   useApp.setState({ active })
 }
 
 /** Free-form session: start empty, add whatever you actually train. */
 export function startEmpty(name: string) {
-  useApp.setState({ active: { name, startedAt: new Date().toISOString(), items: [], log: [], current: 0 } })
+  const now = new Date().toISOString()
+  useApp.setState({ active: { name, startedAt: now, lastActivityAt: now, items: [], log: [], current: 0 } })
 }
 
 export function itemFor(exId: string): PlanItem {
@@ -75,8 +77,53 @@ export function addExerciseToActive(exId: string) {
 
 export function patchActive(fn: (a: ActiveWorkout) => ActiveWorkout) {
   const a = useApp.getState().active
-  if (a) useApp.setState({ active: fn(a) })
+  if (a) useApp.setState({ active: { ...fn(a), lastActivityAt: new Date().toISOString() } })
 }
+
+const IDLE_CAP_MS = 30 * 60 * 1000
+
+/** When the session effectively ended: now, the pause moment, or — if it was left open idle — the last thing logged. */
+function endMs(a: ActiveWorkout, now = Date.now()): number {
+  let end = a.pausedAt ? new Date(a.pausedAt).getTime() : now
+  const lastAct = a.lastActivityAt ? new Date(a.lastActivityAt).getTime() : NaN
+  if (Number.isFinite(lastAct) && end - lastAct > IDLE_CAP_MS) end = lastAct + 60_000
+  // sessions saved by older versions have no activity stamp: never record more than 3 h for them
+  if (!Number.isFinite(lastAct)) end = Math.min(end, new Date(a.startedAt).getTime() + 3 * 3600 * 1000)
+  return end
+}
+
+/** Elapsed training time in seconds (pauses excluded). Safe for old persisted sessions. */
+export function elapsedSec(a: ActiveWorkout, now = Date.now()): number {
+  const start = new Date(a.startedAt).getTime()
+  if (!Number.isFinite(start)) return 0
+  const end = a.pausedAt ? new Date(a.pausedAt).getTime() : now
+  return Math.max(0, (end - start - (a.pausedMs ?? 0)) / 1000)
+}
+
+/** Open for hours without any logging — probably forgotten. */
+export function isStale(a: ActiveWorkout, now = Date.now()): boolean {
+  const last = new Date(a.lastActivityAt ?? a.startedAt).getTime()
+  return Number.isFinite(last) && now - last > 3 * 3600 * 1000
+}
+
+export function pauseActive() {
+  const a = useApp.getState().active
+  if (a && !a.pausedAt) useApp.setState({ active: { ...a, pausedAt: new Date().toISOString() } })
+}
+
+export function resumeActive() {
+  const a = useApp.getState().active
+  if (!a || !a.pausedAt) return
+  const paused = Date.now() - new Date(a.pausedAt).getTime()
+  useApp.setState({ active: { ...a, pausedAt: undefined, pausedMs: (a.pausedMs ?? 0) + Math.max(0, paused), lastActivityAt: new Date().toISOString() } })
+}
+
+/** End the session without saving anything. */
+export function discardWorkout() {
+  useApp.setState({ active: null })
+}
+
+export const doneSetCount = (a: ActiveWorkout | null) => (a ? a.log.reduce((n, l) => n + l.sets.filter((s) => s.done).length, 0) : 0)
 
 /** Turn what was actually logged into a reusable routine (targets = what you did). */
 export function routineFromLog(name: string, a: ActiveWorkout): CustomWorkout {
@@ -101,6 +148,11 @@ export function finishWorkout(): { session: WorkoutSession; newPRs: PRecord[] } 
   const st = useApp.getState()
   const a = st.active
   if (!a) return null
+  if (doneSetCount(a) === 0) {
+    // nothing ticked → nothing real to save; just close the session
+    useApp.setState({ active: null })
+    return null
+  }
   const before = new Map(computeRecords(st.sessions).map((r) => [r.exId, r]))
   const exercises = a.log
     .map((l) => ({ exId: l.exId, note: l.note, sets: l.sets.filter((s) => s.done).map((s) => ({ ...s, type: s.type ?? 'working' })) }))
@@ -112,7 +164,7 @@ export function finishWorkout(): { session: WorkoutSession; newPRs: PRecord[] } 
     programId: a.programId,
     dayIndex: a.dayIndex,
     startedAt: a.startedAt,
-    durationSec: Math.round((Date.now() - new Date(a.startedAt).getTime()) / 1000),
+    durationSec: Math.round(Math.max(0, endMs(a) - new Date(a.startedAt).getTime() - (a.pausedMs ?? 0)) / 1000),
     volumeKg: Math.round(volumeKg),
     exercises,
     source: 'player',

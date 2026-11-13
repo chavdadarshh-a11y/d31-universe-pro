@@ -132,4 +132,10 @@ export type ActiveWorkout = {
   items: PlanItem[]
   log: LoggedExercise[]
   current: number
+  /** set while the timer is paused (ISO) */
+  pausedAt?: string
+  /** total paused time so far, ms */
+  pausedMs?: number
+  /** last time anything was logged/edited (ISO) — caps the duration of a session left open by mistake */
+  lastActivityAt?: string
 }

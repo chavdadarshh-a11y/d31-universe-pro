@@ -7,6 +7,7 @@ import { BodyThumb, BACK_IDS, FRONT_IDS } from '../components/BodyMap'
 import { allExercises, exName, exOf } from '../data/exercises'
 import { LADDERS } from '../data/ladders'
 import { Photo } from '../components/hud'
+import { ShootGallery } from '../components/Gallery'
 import { CustomExerciseSheet } from '../components/ExercisePicker'
 import { ladderStatus } from '../lib/training'
 import { hashQuery } from '../lib/router'
@@ -39,7 +40,7 @@ export function Library() {
   const lang = useApp((s) => s.lang)
   const customs = useApp((s) => s.customExercises)
   const sessions = useApp((s) => s.sessions)
-  const [tab, setTab] = useState<'ex' | 'paths' | 'kn'>(() => (hashQuery().get('tab') as 'paths') || 'ex')
+  const [tab, setTab] = useState<'ex' | 'paths' | 'shoot' | 'kn'>(() => (hashQuery().get('tab') as 'paths') || 'ex')
   const [create, setCreate] = useState(false)
   const [q, setQ] = useState('')
   const [cat, setCat] = useState<Category | null>(null)
@@ -77,7 +78,8 @@ export function Library() {
   return (
     <div>
       <Header title={t('navLibrary')} sub={t('librarySub')} />
-      <Tabs value={tab} onChange={setTab} items={[{ id: 'ex', label: t('exercises') }, { id: 'paths', label: t('skillPaths') }, { id: 'kn', label: t('knowledge') }]} />
+      <Tabs value={tab} onChange={setTab} items={[{ id: 'ex', label: t('exercises') }, { id: 'paths', label: t('skillPaths') }, { id: 'shoot', label: t('galleryTab') }, { id: 'kn', label: t('learnTab') }]} />
+      {tab === 'shoot' && <ShootGallery />}
       {tab === 'paths' && (
         <div className="mt-3 space-y-3">
           <p className="text-[13px] leading-snug text-muted">{t('skillPathsSub')}</p>
@@ -99,7 +101,7 @@ export function Library() {
           })}
         </div>
       )}
-      {tab !== 'paths' && <div className="mt-3 flex gap-2">
+      {(tab === 'ex' || tab === 'kn') && <div className="mt-3 flex gap-2">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
           <input className="field pl-9" placeholder={t('searchPh')} value={q} onChange={(e) => setQ(e.target.value)} type="search" />

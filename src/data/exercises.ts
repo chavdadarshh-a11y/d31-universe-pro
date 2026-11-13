@@ -1,4 +1,5 @@
 import type { Exercise } from '../types'
+import { EX_MEDIA } from './gallery'
 import { useApp } from '../store/app'
 
 /**
@@ -773,6 +774,7 @@ export const EXERCISES: Exercise[] = [
 ]
 
 export const EX_BY_ID: Record<string, Exercise> = Object.fromEntries(EXERCISES.map((e) => [e.id, e]))
+for (const [id, m] of Object.entries(EX_MEDIA)) if (EX_BY_ID[id]) EX_BY_ID[id].media = m
 
 const UNKNOWN: Exercise = {
   id: 'unknown', name: 'Exercise', nameHi: 'एक्सरसाइज़', nameGu: 'એક્સરસાઇઝ', category: 'strength', equipment: ['none'], level: 1, layer: 'FORCE',

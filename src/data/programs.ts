@@ -55,7 +55,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'iron-aether', name: 'Iron & Aether', kind: 'split', level: 'advanced', weeks: 8, daysPerWeek: 4, plan: 'premium', media: 'sl-rdl',
+    id: 'iron-aether', name: 'Iron & Aether', kind: 'split', level: 'advanced', weeks: 8, daysPerWeek: 4, plan: 'premium', media: 'shoot/023',
     goal: ['strength', 'skills', 'muscle'], equipment: ['barbell', 'bar', 'bench', 'dumbbell'],
     description: 'The duality of movement: two “Iron” barbell days and two “Aether” bodyweight-skill days in one week.',
     days: [
@@ -66,7 +66,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'foundation', name: 'D31 Foundation', kind: 'split', level: 'beginner', weeks: 4, daysPerWeek: 3, plan: 'free',
+    id: 'foundation', name: 'D31 Foundation', kind: 'split', level: 'beginner', weeks: 4, daysPerWeek: 3, plan: 'free', media: 'shoot/059',
     goal: ['muscle', 'fatloss', 'strength'], equipment: ['none'],
     description: 'Three full-body sessions a week with zero equipment. Learn the patterns, build the habit. Start at the low end of each range.',
     days: [
@@ -76,7 +76,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'mobility-15', name: 'Daily Mobility 15', kind: 'mobility', level: 'beginner', weeks: 4, daysPerWeek: 7, plan: 'free',
+    id: 'mobility-15', name: 'Daily Mobility 15', kind: 'mobility', level: 'beginner', weeks: 4, daysPerWeek: 7, plan: 'free', media: 'shoot/072',
     goal: ['mobility'], equipment: ['none'],
     description: 'Fifteen minutes to undo sitting: hips, spine, hamstrings and quads.',
     days: [
@@ -84,7 +84,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'split-mobility', name: 'Split Mobility', kind: 'mobility', level: 'intermediate', weeks: 8, daysPerWeek: 3, plan: 'free',
+    id: 'split-mobility', name: 'Split Mobility', kind: 'mobility', level: 'intermediate', weeks: 8, daysPerWeek: 3, plan: 'free', media: 'shoot/034',
     goal: ['mobility', 'skills'], equipment: ['none'],
     description: 'Front and middle split range with blocks and patience. Stretch to strong tension, never sharp pain.',
     days: [
@@ -93,7 +93,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'home-burn', name: 'Home Burn 20', kind: 'split', level: 'beginner', weeks: 4, daysPerWeek: 4, plan: 'free',
+    id: 'home-burn', name: 'Home Burn 20', kind: 'split', level: 'beginner', weeks: 4, daysPerWeek: 4, plan: 'free', media: 'shoot/089',
     goal: ['fatloss'], equipment: ['none'],
     description: 'Short, sweaty conditioning circuits you can do in a small room.',
     days: [
@@ -102,7 +102,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'ppl', name: 'Push · Pull · Legs', kind: 'split', level: 'intermediate', weeks: 8, daysPerWeek: 6, plan: 'pro',
+    id: 'ppl', name: 'Push · Pull · Legs', kind: 'split', level: 'intermediate', weeks: 8, daysPerWeek: 6, plan: 'pro', media: 'shoot/019',
     goal: ['muscle'], equipment: ['barbell', 'dumbbell', 'bench', 'bar', 'cable'],
     description: 'Classic hypertrophy split, each muscle twice a week. Progress by adding reps inside the range, then load.',
     days: [
@@ -112,7 +112,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'upper-lower', name: 'Upper / Lower Strength', kind: 'strength', level: 'intermediate', weeks: 8, daysPerWeek: 4, plan: 'pro',
+    id: 'upper-lower', name: 'Upper / Lower Strength', kind: 'strength', level: 'intermediate', weeks: 8, daysPerWeek: 4, plan: 'pro', media: 'shoot/064',
     goal: ['strength', 'muscle'], equipment: ['barbell', 'bench', 'bar'],
     description: 'Four days, heavy compounds first. Built for people who want to get genuinely strong.',
     days: [
@@ -123,7 +123,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'strength-5x5', name: 'Barbell Strength Base', kind: 'strength', level: 'beginner', weeks: 12, daysPerWeek: 3, plan: 'pro',
+    id: 'strength-5x5', name: 'Barbell Strength Base', kind: 'strength', level: 'beginner', weeks: 12, daysPerWeek: 3, plan: 'pro', media: 'shoot/057',
     goal: ['strength'], equipment: ['barbell', 'bench'],
     description: 'Low reps, heavy compounds, small load jumps when every working set hits the top of the range.',
     days: [
@@ -132,7 +132,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'handstand-path', name: 'Handstand Path', kind: 'skill', level: 'intermediate', weeks: 8, daysPerWeek: 4, plan: 'pro', ladder: 'handstand',
+    id: 'handstand-path', name: 'Handstand Path', kind: 'skill', level: 'intermediate', weeks: 8, daysPerWeek: 4, plan: 'pro', media: 'shoot/068', ladder: 'handstand',
     goal: ['skills'], equipment: ['none'],
     description: 'Wrist prep, shoulder stack and line work — from wall to first freestanding seconds.',
     days: [
@@ -149,7 +149,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'human-flag-path', name: 'Human Flag Path', kind: 'skill', level: 'advanced', weeks: 12, daysPerWeek: 3, plan: 'premium', ladder: 'human-flag',
+    id: 'human-flag-path', name: 'Human Flag Path', kind: 'skill', level: 'advanced', weeks: 12, daysPerWeek: 3, plan: 'premium', media: 'shoot/067', ladder: 'human-flag',
     goal: ['skills'], equipment: ['bar'],
     description: 'Vertical flag → tucked → straddle → full layout. Push the bottom hand, pull the top hand.',
     days: [

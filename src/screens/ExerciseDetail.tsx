@@ -42,7 +42,7 @@ export function ExerciseDetail({ id }: { id: string }) {
       <Header title={exName(e, s.lang)} sub={s.lang !== 'en' ? e.name : undefined} back="#/library" />
       {e.media && (
         <div className="card hud-full scanlines holo-sweep relative -mt-1 mb-3 h-[230px] overflow-hidden">
-          <Photo name={e.media} alt={t('photoOf', { x: e.name })} eager />
+          <Photo smart name={e.media} alt={t('photoOf', { x: e.name })} eager />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(4,6,12,0.92))]" />
           <div className="absolute bottom-3 left-4 z-[2] font-mono text-[9.5px] uppercase tracking-[0.24em] text-gold/90">{t('byDarshan')}</div>
         </div>

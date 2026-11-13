@@ -33,7 +33,7 @@ export function ProgramDetail({ id }: { id: string }) {
       <Header title={p.name} back="#/train" />
       {p.media && (
         <div className="card hud-full scanlines relative -mt-1 mb-3 h-[190px] overflow-hidden">
-          <Photo name={p.media} alt={t('photoOf', { x: p.name })} eager />
+          <Photo smart name={p.media} alt={t('photoOf', { x: p.name })} eager />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(4,6,12,0.9))]" />
           <div className="title-hud absolute bottom-3 left-4 z-[2] text-[18px] text-frost">{p.name}</div>
         </div>

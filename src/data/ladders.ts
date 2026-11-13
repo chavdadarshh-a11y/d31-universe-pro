@@ -53,7 +53,7 @@ export const LADDERS: Ladder[] = [
     ],
   },
   {
-    id: 'human-flag', name: 'Human Flag', accent: '#a3e635',
+    id: 'human-flag', name: 'Human Flag', media: 'shoot/067', accent: '#a3e635',
     summary: 'Vertical flag → tucked → straddle → full layout. Push the bottom hand, pull the top hand. Consistency over months beats occasional max attempts.',
     steps: [
       { exId: 'side-plank', goal: { kind: 'hold', secs: 45, sets: 3 }, tip: 'Hips high, both sides.' },
@@ -64,7 +64,7 @@ export const LADDERS: Ladder[] = [
     ],
   },
   {
-    id: 'handstand', name: 'Handstand', accent: '#fb923c',
+    id: 'handstand', name: 'Handstand', media: 'shoot/068', accent: '#fb923c',
     summary: 'Wall → chest-to-wall line → freestanding → pressing strength.',
     steps: [
       { exId: 'wall-handstand', goal: { kind: 'hold', secs: 30, sets: 3 }, tip: 'Comfortable inverted time first.' },

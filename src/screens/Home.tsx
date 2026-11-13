@@ -1,10 +1,12 @@
 import { Flame, ScanLine, Camera, Utensils, HeartPulse, ChevronRight, Lock, Play, Droplets, Plus, Activity } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useApp, effectivePlan } from '../store/app'
+import { HERO_ROTATION } from '../data/gallery'
 import { useT } from '../i18n'
 import { Button, Card, Ring, Badge } from '../components/ui'
 import { LogoMark, Wordmark } from '../components/Brand'
 import { OfferBanner } from '../components/OfferBanner'
-import { CountUp, HudTitle, IconTile, Photo } from '../components/hud'
+import { CountUp, HudTitle, IconTile, Photo, mediaUrl } from '../components/hud'
 import { navigate } from '../lib/router'
 import { PROGRAM_BY_ID } from '../data/programs'
 import { LADDERS } from '../data/ladders'
@@ -37,7 +39,6 @@ export function Home() {
   const band = checkin ? readinessBand(checkin.score) : null
   const bandColor = band === 'hard' ? '#34d399' : band === 'moderate' ? '#fbbf24' : '#f87171'
   const name = s.profile.name || t('athleteLbl')
-  const heroPhoto = program?.media ?? 'sl-rdl'
 
   const start = () => {
     if (!program || !day) return
@@ -67,7 +68,7 @@ export function Home() {
       {/* HERO */}
       <section className="card hud-full neon-shadow relative mt-4 overflow-hidden !rounded-[24px]">
         <div className="scanlines holo-sweep relative h-[300px]">
-          <Photo name={heroPhoto} alt={t('photoOf', { x: program?.name ?? 'D31' })} eager />
+          <HeroRotator first={program?.media} alt={t('photoOf', { x: program?.name ?? 'D31' })} />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.55)_0%,rgba(4,6,12,0.05)_32%,rgba(4,6,12,0.35)_58%,rgba(4,6,12,0.97)_100%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,6,12,0.55),transparent_55%)]" />
           <div className="absolute left-4 top-4 z-[2]">
@@ -207,5 +208,29 @@ export function Bar({ label, value, max, unit, color }: { label: string; value: 
         <div className="h-full rounded-full" style={{ width: `${Math.min(100, (value / Math.max(1, max)) * 100)}%`, background: `linear-gradient(90deg, ${color}, ${BAR_END[color] ?? color})`, boxShadow: `0 0 10px ${color}88` }} />
       </div>
     </div>
+  )
+}
+
+/** Crossfading hero of Darshan's shoot. Only the current and next photo are mounted; static under reduced motion. */
+function HeroRotator({ first, alt }: { first?: string; alt: string }) {
+  const list = [...new Set([first, ...HERO_ROTATION].filter(Boolean) as string[])]
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => { if (!document.hidden) setI((x) => (x + 1) % list.length) }, 6000)
+    return () => clearInterval(id)
+  }, [list.length])
+  useEffect(() => { new Image().src = mediaUrl(list[(i + 1) % list.length]) }, [i, list])
+  return (
+    <>
+      {list.map((name, k) => (k === i || k === (i - 1 + list.length) % list.length) && (
+        <div key={name} className={`absolute inset-0 transition-opacity duration-[1400ms] ${k === i ? 'opacity-100' : 'opacity-0'}`}>
+          <Photo smart name={name} alt={k === i ? alt : ''} eager={k === 0} className={k === i ? 'hero-drift' : ''} />
+        </div>
+      ))}
+      <div className="absolute right-3 top-3 z-[3] flex gap-1">
+        {list.map((n, k) => <button key={n} aria-label={`${k + 1}`} onClick={() => setI(k)} className={`h-1.5 rounded-full transition-all ${k === i ? 'w-5 bg-gold' : 'w-1.5 bg-white/35'}`} />)}
+      </div>
+    </>
   )
 }

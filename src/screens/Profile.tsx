@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, Crown, Download, LogIn, LogOut, RotateCcw, Shield, FileText, AlertTriangle, Receipt, Mail, Volume2, Timer, UserCog, PlayCircle, Camera, Users, Ghost } from 'lucide-react'
+import { ChevronRight, Crown, Download, LogIn, LogOut, RotateCcw, Shield, FileText, AlertTriangle, Receipt, Mail, Volume2, Timer, UserCog, PlayCircle, Camera, Users, Ghost, Images } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT, LANGS } from '../i18n'
 import { Badge, Card, Confirm, Header, Label, Sheet, Stepper } from '../components/ui'
@@ -86,6 +86,7 @@ export function Profile() {
           <span className="flex-1 text-[14.5px]">{t('defaultRest')}</span>
           <div className="w-36"><Stepper value={s.restDefault} step={15} min={15} max={300} suffix="s" onChange={(v) => s.set({ restDefault: v })} /></div>
         </div>
+        <Row icon={<Images size={18} />} label={t('seeGallery')} onClick={() => navigate('/library?tab=shoot')} />
         <Row icon={<UserCog size={18} />} label={t('editProfile')} onClick={() => setEdit(true)} />
         <Row icon={<Download size={18} />} label={t('exportData')} onClick={exportData} />
         <Row icon={<RotateCcw size={18} />} label={t('resetData')} onClick={() => setReset(true)} danger />

@@ -1,5 +1,5 @@
 /* D31.UNIVERSE service worker — app-shell caching so the app opens offline. */
-const VERSION = 'd31-v3.0.0'
+const VERSION = 'd31-v3.1.0'
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png']
 
 self.addEventListener('install', (e) => {

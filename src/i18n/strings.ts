@@ -116,7 +116,7 @@ export const en = {
   noLogsYet: 'No logs yet — log this exercise and your progress appears here.', startHere: 'Start here', partOfPath: 'Part of a skill path',
   openPath: 'Open path', heroKicker: 'Real biomechanics. No guesswork.', byDarshan: 'by Darshan Chavda', athleteLbl: 'Athlete',
   sessionsLbl: 'Sessions', noSessionsYet: 'No sessions logged yet.', targetLbl: 'Target', restLbl: 'rest',
-  photoOf: 'Darshan Chavda — {x}', systemOnline: 'System online', scanLabel: 'D31 // HUD',
+  photoOf: 'Darshan Chavda — {x}', systemOnline: 'System online', gallery: 'D31 Shoot', galleryTab: 'Shoot', learnTab: 'Learn', gallerySub: 'Every photo from the D31 folder — tap to view full screen.', gcat_brand: 'Portraits', gcat_skills: 'Skills', gcat_strength: 'Strength', gcat_physique: 'Physique', gcat_blueprint: 'Blueprints', openExercise: 'Open exercise', photosN: '{n} photos', closeLbl: 'Close', prevLbl: 'Previous', nextLbl: 'Next', seeGallery: 'Open the D31 Shoot', scanLabel: 'D31 // HUD',
 }
 
 export type StringKey = keyof typeof en
@@ -219,7 +219,7 @@ export const hi: Dict = {
   noLogsYet: 'अभी कोई लॉग नहीं — यह एक्सरसाइज़ लॉग करें, प्रोग्रेस यहाँ दिखेगी।', startHere: 'यहाँ से शुरू करें', partOfPath: 'स्किल पाथ का हिस्सा',
   openPath: 'पाथ खोलें', heroKicker: 'असली बायोमैकेनिक्स। कोई अंदाज़ा नहीं।', byDarshan: 'Darshan Chavda द्वारा', athleteLbl: 'एथलीट',
   sessionsLbl: 'सेशन', noSessionsYet: 'अभी कोई सेशन लॉग नहीं हुआ।', targetLbl: 'टारगेट', restLbl: 'आराम',
-  photoOf: 'Darshan Chavda — {x}', systemOnline: 'सिस्टम ऑनलाइन', scanLabel: 'D31 // HUD',
+  photoOf: 'Darshan Chavda — {x}', systemOnline: 'सिस्टम ऑनलाइन', gallery: 'D31 शूट', galleryTab: 'शूट', learnTab: 'सीखें', gallerySub: 'D31 फ़ोल्डर की हर फ़ोटो — फुल स्क्रीन देखने के लिए टैप करें।', gcat_brand: 'पोर्ट्रेट', gcat_skills: 'स्किल्स', gcat_strength: 'स्ट्रेंथ', gcat_physique: 'फिज़ीक', gcat_blueprint: 'ब्लूप्रिंट', openExercise: 'एक्सरसाइज़ खोलें', photosN: '{n} फ़ोटो', closeLbl: 'बंद करें', prevLbl: 'पिछली', nextLbl: 'अगली', seeGallery: 'D31 शूट खोलें', scanLabel: 'D31 // HUD',
 }
 
 export const gu: Dict = {
@@ -319,7 +319,7 @@ export const gu: Dict = {
   noLogsYet: 'હજી કોઈ લૉગ નથી — આ એક્સરસાઇઝ લૉગ કરો, પ્રોગ્રેસ અહીં દેખાશે.', startHere: 'અહીંથી શરૂ કરો', partOfPath: 'સ્કિલ પાથનો ભાગ',
   openPath: 'પાથ ખોલો', heroKicker: 'સાચું બાયોમિકેનિક્સ. કોઈ અંદાજ નહીં.', byDarshan: 'Darshan Chavda દ્વારા', athleteLbl: 'એથ્લીટ',
   sessionsLbl: 'સેશન', noSessionsYet: 'હજી કોઈ સેશન લૉગ થયું નથી.', targetLbl: 'ટાર્ગેટ', restLbl: 'આરામ',
-  photoOf: 'Darshan Chavda — {x}', systemOnline: 'સિસ્ટમ ઓનલાઇન', scanLabel: 'D31 // HUD',
+  photoOf: 'Darshan Chavda — {x}', systemOnline: 'સિસ્ટમ ઓનલાઇન', gallery: 'D31 શૂટ', galleryTab: 'શૂટ', learnTab: 'શીખો', gallerySub: 'D31 ફોલ્ડરનો દરેક ફોટો — ફુલ સ્ક્રીન જોવા ટેપ કરો.', gcat_brand: 'પોર્ટ્રેટ', gcat_skills: 'સ્કિલ્સ', gcat_strength: 'સ્ટ્રેન્થ', gcat_physique: 'ફિઝિક', gcat_blueprint: 'બ્લૂપ્રિન્ટ', openExercise: 'એક્સરસાઇઝ ખોલો', photosN: '{n} ફોટા', closeLbl: 'બંધ કરો', prevLbl: 'પાછળ', nextLbl: 'આગળ', seeGallery: 'D31 શૂટ ખોલો', scanLabel: 'D31 // HUD',
 }
 
 export const DICTS = { en, hi, gu } as const

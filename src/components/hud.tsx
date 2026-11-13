@@ -1,25 +1,51 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { SHOOT } from '../data/gallery'
+
+const SHOOT_BY_ID = Object.fromEntries(SHOOT.map((p) => [p.id, p]))
 
 const BASE = import.meta.env.BASE_URL || '/'
 /** URL of one of Darshan's photos in public/media. */
 export const mediaUrl = (name: string, small = false) => `${BASE}media/${name}${small ? '-sm' : ''}.webp`
 
 /** Focal points so object-cover keeps the athlete in frame. */
-const FOCUS: Record<string, string> = { 'front-lever': '50% 56%', 'sl-rdl': '58% 45%', 'pull-up': '50% 35%', nordic: '35% 70%' }
+const FOCUS: Record<string, string> = {
+  'front-lever': '50% 56%', 'sl-rdl': '58% 45%', 'pull-up': '50% 35%', nordic: '35% 70%',
+  'shoot/023': '50% 66%', 'shoot/019': '55% 62%', 'shoot/079': '50% 45%', 'shoot/072': '50% 72%', 'shoot/057': '50% 42%',
+  'shoot/056': '50% 45%', 'shoot/064': '50% 38%', 'shoot/059': '50% 55%', 'shoot/090': '50% 40%', 'shoot/048': '45% 45%',
+  'shoot/089': '50% 55%', 'shoot/034': '50% 72%', 'shoot/030': '50% 50%', 'shoot/032': '50% 55%', 'shoot/080': '50% 40%', 'shoot/055': '50% 60%',
+}
+const LEGACY_ASPECT: Record<string, number> = { 'front-lever': 0.667 }
+const aspectOf = (name: string) => {
+  if (name.startsWith('shoot/')) { const p = SHOOT_BY_ID[name.slice(6)]; return p ? p.w / p.h : 1 }
+  return LEGACY_ASPECT[name] ?? 1.6
+}
 
-export function Photo({ name, alt, className = '', small = false, eager = false }: { name: string; alt: string; className?: string; small?: boolean; eager?: boolean }) {
-  return (
+/**
+ * One of Darshan's photos. `smart` (for wide headers): a tall portrait is shown whole (object-contain)
+ * over a blurred, darkened copy of itself instead of being cropped to the middle.
+ */
+export function Photo({ name, alt, className = '', small = false, eager = false, smart = false }: { name: string; alt: string; className?: string; small?: boolean; eager?: boolean; smart?: boolean }) {
+  const img = (cls: string, a: string, style?: React.CSSProperties) => (
     <img
       src={mediaUrl(name, small)}
       srcSet={`${mediaUrl(name, true)} 520w, ${mediaUrl(name)} 1200w`}
       sizes={small ? '200px' : '(max-width: 520px) 100vw, 520px'}
-      alt={alt}
+      alt={a}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
-      className={`h-full w-full object-cover ${className}`}
-      style={{ objectPosition: FOCUS[name] ?? '50% 50%' }}
+      className={cls}
+      style={style}
     />
   )
+  if (smart && aspectOf(name) < 0.8) {
+    return (
+      <span className={`relative block h-full w-full overflow-hidden ${className}`}>
+        {img('absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-xl', '')}
+        {img('relative h-full w-full object-contain', alt)}
+      </span>
+    )
+  }
+  return img(`h-full w-full object-cover ${className}`, alt, { objectPosition: FOCUS[name] ?? '50% 50%' })
 }
 
 /** Shared SVG gradients so lucide icons can be stroked with a gradient: <Icon color="url(#g-cyan)" /> */

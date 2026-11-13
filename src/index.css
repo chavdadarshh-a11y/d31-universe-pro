@@ -172,3 +172,8 @@
 @media (prefers-reduced-motion: reduce) {
   .rise, .sheet-in, .bg-neon, .pulse-dot, .aurora, .horizon > i, .holo-sweep::before, .pr-pop { animation: none !important; }
 }
+
+/* Today hero: slow drift on the active photo (off for reduced motion) */
+@keyframes hero-drift { from { transform: scale(1.04) translate3d(0,0,0) } to { transform: scale(1.12) translate3d(-1.5%,-1%,0) } }
+.hero-drift { animation: hero-drift 7s ease-out both; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .hero-drift { animation: none } }

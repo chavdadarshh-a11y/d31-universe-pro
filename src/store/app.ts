@@ -6,7 +6,7 @@ import type {
 } from '../types'
 import { dayKey, uid } from '../lib/util'
 import { dataKey } from '../lib/accountKeys'
-import { normalizePlan } from '../lib/plans'
+import { normalizePlan, passStatus } from '../lib/plans'
 
 export type Membership = { plan: PlanId; until?: string; source: 'none' | 'razorpay' | 'launch_offer' | 'trial' | 'demo' }
 
@@ -33,6 +33,8 @@ export type AppState = {
   membership: Membership
   launchClaimed: boolean
   trialUsed: boolean
+  /** When this account's one free Platinum trial started (ISO). */
+  trialStartedAt?: string
   /** Signed-in account (local on-device account in demo mode, Supabase user when live). */
   user: AccountUser | null
   toast: string | null
@@ -93,6 +95,7 @@ const initial = {
   membership: { plan: 'free' as PlanId, source: 'none' as const },
   launchClaimed: false,
   trialUsed: false,
+  trialStartedAt: undefined as string | undefined,
   user: null,
   toast: null,
 }
@@ -185,9 +188,7 @@ export const useApp = create<AppState>()(
 )
 
 /** Effective plan honouring expiry */
+/** Tier in force now (a pass in its grace period still counts — see config/plans.ts GRACE_RULES). */
 export function effectivePlan(m: Membership): PlanId {
-  const p = normalizePlan(m.plan)
-  if (p === 'free') return 'free'
-  if (m.until && new Date(m.until).getTime() < Date.now()) return 'free'
-  return p
+  return passStatus(m).plan
 }

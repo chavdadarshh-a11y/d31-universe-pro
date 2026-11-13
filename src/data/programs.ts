@@ -55,7 +55,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'iron-aether', name: 'Iron & Aether', kind: 'split', level: 'advanced', weeks: 8, daysPerWeek: 4, plan: 'platinum', media: 'shoot/023',
+    id: 'iron-aether', name: 'Iron & Aether', kind: 'split', level: 'advanced', weeks: 8, daysPerWeek: 4, plan: 'gold', media: 'shoot/023',
     goal: ['strength', 'skills', 'muscle'], equipment: ['barbell', 'bar', 'bench', 'dumbbell'],
     description: 'The duality of movement: two “Iron” barbell days and two “Aether” bodyweight-skill days in one week.',
     days: [
@@ -149,7 +149,7 @@ export const PROGRAMS: Program[] = [
     ],
   },
   {
-    id: 'human-flag-path', name: 'Human Flag Path', kind: 'skill', level: 'advanced', weeks: 12, daysPerWeek: 3, plan: 'platinum', media: 'shoot/067', ladder: 'human-flag',
+    id: 'human-flag-path', name: 'Human Flag Path', kind: 'skill', level: 'advanced', weeks: 12, daysPerWeek: 3, plan: 'gold', media: 'shoot/067', ladder: 'human-flag',
     goal: ['skills'], equipment: ['bar'],
     description: 'Vertical flag → tucked → straddle → full layout. Push the bottom hand, pull the top hand.',
     days: [

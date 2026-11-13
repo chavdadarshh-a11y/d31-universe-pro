@@ -15,6 +15,7 @@ export type Settings = {
   reduceData: boolean
   reminder: Reminder
   installDismissed: boolean
+  dlAutoWifi: boolean
   set: (p: Partial<Omit<Settings, 'set'>>) => void
 }
 
@@ -30,6 +31,7 @@ export const useSettings = create<Settings>()(
       reduceData: false,
       reminder: { enabled: false, time: '18:00', days: [1, 2, 3, 4, 5, 6] },
       installDismissed: false,
+      dlAutoWifi: false,
       set: (p) => set(p),
     }),
     { name: 'd31-settings', version: 1, storage: createJSONStorage(() => localStorage), partialize: ({ set: _s, ...rest }) => { void _s; return rest as Settings } },

@@ -28,7 +28,7 @@ export function Profile() {
   const s = useApp()
   const u = useUnits()
   const plan = effectivePlan(s.membership)
-  const canDl = useCan('download.history')
+  const canDl = useCan('downloads.inApp')
   const [edit, setEdit] = useState(hashQuery().get('edit') === '1')
   const [acct, setAcct] = useState(false)
   const [del, setDel] = useState(false)
@@ -77,7 +77,7 @@ export function Profile() {
             <div className="truncate text-[19px] font-extrabold" data-testid="profile-name">{name}</div>
             <div className="truncate text-[12.5px] text-muted">{s.user ? s.user.email : t('guestMode')}</div>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <Badge tone={plan === 'platinum' ? 'violet' : plan === 'pro' ? 'cyan' : 'muted'}><Crown size={10} /> {t(`plan_${plan}`)}</Badge>
+              <Badge tone={plan === 'platinum' ? 'violet' : plan === 'gold' ? 'gold' : plan === 'pro' ? 'cyan' : 'muted'}><Crown size={10} /> {t(`plan_${plan}`)}</Badge>
               <Badge tone="muted">{t(`goal_${s.profile.goal}`)}</Badge>
               <Badge tone="muted">{t(`level_${s.profile.level}`)}</Badge>
               {s.user?.provider === 'local' && <Badge tone="gold">{t('onDevice')}</Badge>}
@@ -113,7 +113,7 @@ export function Profile() {
       <Card className="divide-y divide-white/[0.05] overflow-hidden">
         {s.user && <Row testid="edit-account" icon={<UserCog size={18} />} label={t('editAccount')} onClick={() => { setNm(s.user?.name || s.profile.name); setEm(s.user?.email || ''); setErr(null); setAcct(true) }} />}
         <Row icon={<UserCog size={18} />} label={t('editProfile')} onClick={() => setEdit(true)} />
-        <Row testid="downloads" icon={<Download size={18} />} label={t('downloadsLbl')} value={canDl ? undefined : <span className="flex items-center gap-1 text-[12px] font-bold text-gold"><Lock size={13} /> {t('plan_platinum')}</span>} onClick={() => navigate(canDl ? '/progress?tab=history' : '/membership')} />
+        <Row testid="downloads" icon={<Download size={18} />} label={t('downloadsLbl')} value={canDl ? undefined : <span className="flex items-center gap-1 text-[12px] font-bold text-gold"><Lock size={13} /> {t('plan_platinum')}</span>} onClick={() => navigate('/downloads')} />
         <Row icon={<Cog size={18} />} label={t('settings')} onClick={() => navigate('/settings')} />
         <Row icon={<BookOpen size={18} />} label={t('knowledge')} onClick={() => navigate('/knowledge')} />
         <Row icon={<Images size={18} />} label={t('seeGallery')} onClick={() => navigate('/library?tab=shoot')} />

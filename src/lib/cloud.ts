@@ -4,6 +4,7 @@
  * (row-level security limits every row to its owner).
  */
 import { supabase } from './supabase'
+import { SESSION_ENDED } from './accountKeys'
 import { normalizePlan } from './plans'
 import { useApp, type Membership } from '../store/app'
 import type { CheckIn, CustomWorkout, FoodEntry, Measurement, PlanId, ProgressPhoto, WorkoutSession } from '../types'
@@ -148,7 +149,8 @@ export async function refreshMembership(): Promise<Membership | null> {
   const m: Membership = data && data.status === 'active'
     ? { plan: normalizePlan(data.plan) as PlanId, until: data.current_period_end ?? undefined, source: data.source }
     : { plan: 'free', source: 'none' }
-  useApp.setState({ membership: m, launchClaimed: data?.source === 'launch_offer' || st.launchClaimed })
+  const tr = await supabase.from('user_trials').select('started_at').eq('user_id', st.user.id).maybeSingle()
+  useApp.setState({ membership: m, launchClaimed: data?.source === 'launch_offer' || st.launchClaimed, ...(tr.data?.started_at ? { trialStartedAt: tr.data.started_at as string, trialUsed: true } : {}) })
   return m
 }
 
@@ -180,8 +182,16 @@ export async function initAuth() {
     if (user && prev?.id !== user.id) {
       await cloud.profile()
       await Promise.all([pullAll(), refreshMembership()])
+      const { startTrialIfNew } = await import('./trial')
+      await startTrialIfNew() // server allows it once per account
+      const { useUnlocks } = await import('./unlocks')
+      await useUnlocks.getState().refresh()
     }
   }
+  // "Remember me" was off and the app was closed → end the cloud session too
+  try {
+    if (localStorage.getItem('d31-remember') === '0' && SESSION_ENDED.local) await supabase.auth.signOut()
+  } catch { /* ignore */ }
   const { data } = await supabase.auth.getSession()
   await apply(data.session?.user ?? null)
   supabase.auth.onAuthStateChange((_e, session) => {

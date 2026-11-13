@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Beam } from '../components/Beam'
 import { Moon, Sun, MonitorSmartphone, Languages, Ruler, Timer, Volume2, Vibrate, Bell, Film, Shield, Download, Upload, Info, Mail, FileText, AlertTriangle, Receipt, Smartphone, Mic } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useSettings, resolvedTheme } from '../store/settings'
@@ -35,10 +36,11 @@ function Row({ icon, label, sub, right, onClick, danger }: { icon: React.ReactNo
 
 function Seg<T extends string>({ value, items, onChange, testid }: { value: T; items: { id: T; label: React.ReactNode }[]; onChange: (v: T) => void; testid?: string }) {
   return (
-    <div className="grid gap-1 rounded-xl border border-white/10 p-1" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0,1fr))` }}>
+    <div className="relative grid gap-1 rounded-xl border border-white/10 p-1" role="radiogroup" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0,1fr))` }}>
       {items.map((it) => (
-        <button key={it.id} data-testid={testid ? `${testid}-${it.id}` : undefined} onClick={() => onChange(it.id)} className={`flex h-9 items-center justify-center gap-1.5 rounded-lg text-[12.5px] font-bold ${value === it.id ? 'bg-neon-static text-[#05080f]' : 'text-muted'}`}>{it.label}</button>
+        <button key={it.id} role="radio" aria-checked={value === it.id} data-testid={testid ? `${testid}-${it.id}` : undefined} onClick={() => onChange(it.id)} className={`relative z-[1] flex h-9 items-center justify-center gap-1.5 rounded-lg text-[12.5px] font-bold transition-colors duration-300 ${value === it.id ? 'text-frost' : 'text-muted'}`}>{it.label}</button>
       ))}
+      <Beam dep={value} />
     </div>
   )
 }
@@ -85,7 +87,7 @@ export function Settings() {
             <div className="text-[14.5px]">{t('theme')}</div>
             <div className="mt-0.5 text-[12px] text-muted">{dark ? t('themeNight') : t('themeLight')}{st.theme === 'system' ? ` · ${t('themeSystem')}` : ''}</div>
           </div>
-          <Switch variant="sky" size="lg" testid="theme-switch" label={`${t('themeNight')} / ${t('themeLight')}`} on={!dark} onChange={(v) => st.set({ theme: v ? 'light' : 'night' })} />
+          <Switch variant="sky" testid="theme-switch" label={`${t('themeNight')} / ${t('themeLight')}`} on={!dark} onChange={(v) => st.set({ theme: v ? 'light' : 'night' })} />
         </div>
         <Row icon={<MonitorSmartphone size={18} />} label={t('themeSystem')} right={<Toggle testid="theme-system" label={t('themeSystem')} on={st.theme === 'system'} onChange={(v) => st.set({ theme: v ? 'system' : resolvedTheme('system') })} />} />
         <Row icon={<Film size={18} />} label={t('bgVideo')} sub={t('bgVideoSub')} right={<Toggle testid="bg-toggle" label={t('bgVideo')} on={st.bgVideo} onChange={(v) => st.set({ bgVideo: v })} />} />

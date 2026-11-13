@@ -2,6 +2,7 @@
  * Knowledge posts — auto-fed from Darshan's public Drive folder "D31 KNOWLEDGE".
  * scripts/sync-knowledge.mjs (GitHub Action, every 30 min) writes knowledge/posts.json; the app reads it.
  */
+import { env } from './env'
 import { useEffect, useState } from 'react'
 import type { Lang } from '../types'
 
@@ -49,6 +50,14 @@ export const visiblePosts = (m: KManifest | null) => (m?.posts ?? []).filter((p)
 // ---- media URLs (work for files shared "Anyone with the link") ----
 export const kImg = (id: string, w = 800) => `https://lh3.googleusercontent.com/d/${id}=w${w}`
 export const kPreview = (id: string) => `https://drive.google.com/file/d/${id}/preview`
+/** Direct, range-capable, CORS-enabled stream of a PUBLIC Drive file via the Drive API (plays in <video>, fetchable for in-app saves).
+ *  Needs VITE_GOOGLE_API_KEY. (drive.usercontent.google.com answers 403 to any cross-site browser request, so it can't be used.)
+ *  Without a key → null, and the player falls back to Drive's own preview inside our chrome. */
+export const kStream = (id: string): string | null =>
+  env.googleApiKey ? `https://www.googleapis.com/drive/v3/files/${id}?alt=media&key=${encodeURIComponent(env.googleApiKey)}` : null
+/** URL an in-app save fetches from. Photos come from lh3 (CORS-open, no key); videos/PDFs need the API key. */
+export const kFetchUrl = (type: 'video' | 'pdf' | 'photo', id: string): string | null => (type === 'photo' ? kImg(id, 2400) : kStream(id))
+export const canSaveType = (type: 'video' | 'pdf' | 'photo') => kFetchUrl(type, 'x') !== null
 export const kDownload = (id: string) => `https://drive.google.com/uc?export=download&id=${id}`
 export const kView = (id: string) => `https://drive.google.com/file/d/${id}/view`
 

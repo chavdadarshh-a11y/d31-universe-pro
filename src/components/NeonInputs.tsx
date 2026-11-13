@@ -3,12 +3,13 @@ import { createPortal } from 'react-dom'
 
 /**
  * App-wide neon focus effect for text inputs (ref: light beam from the caret).
- * One fixed overlay follows the focused <input>: a warm gold → cyan beam spreading right from the caret,
- * a glowing caret line and a few sparkles. Static (no sparkles / no animation) with reduced motion.
+ * One fixed overlay follows the focused <input>: a warm gold → cyan cone of light anchored at the START of the text,
+ * spreading right ACROSS what is written (empty → across the placeholder), fading just after the last character,
+ * plus a glowing caret line at the caret and a few sparkles inside the beam. Static (no sparkles / no animation) with reduced motion.
  * Opt out with data-no-neon on an input.
  */
 const TYPES = new Set(['text', 'search', 'email', 'password', 'tel', 'url'])
-type State = { top: number; left: number; w: number; h: number; x: number; ch: number; radius: string; sel: boolean }
+type State = { top: number; left: number; w: number; h: number; x: number; bx: number; bw: number | null; ch: number; radius: string; sel: boolean }
 const SPARKS = [
   { dx: 10, dy: -7, d: 0 }, { dx: 26, dy: 5, d: 0.5, c: true }, { dx: 44, dy: -3, d: 1.1 }, { dx: 62, dy: 8, d: 0.3 },
   { dx: 80, dy: -9, d: 1.5, c: true }, { dx: 18, dy: 10, d: 1.8 }, { dx: 98, dy: 2, d: 0.8 },
@@ -38,7 +39,16 @@ export function NeonInputs() {
       const spacing = parseFloat(cs.letterSpacing) || 0
       let x = pl + ctx.measureText(v.slice(0, pos)).width + spacing * pos - el.scrollLeft
       x = Math.max(pl, Math.min(r.width - pr, x))
-      setSt({ top: r.top, left: r.left, w: r.width, h: r.height, x, ch: Math.min(r.height - 12, parseFloat(cs.fontSize) * 1.3), radius: cs.borderRadius, sel: end !== pos })
+      // beam: origin = left edge of the text box; length follows the written text (placeholder when empty)
+      const FADE = 22
+      let bw: number | null = null
+      if (v.length) {
+        const textEnd = pl + ctx.measureText(v).width + spacing * v.length - el.scrollLeft
+        bw = Math.max(28, Math.min(r.width - pr + 6, textEnd) - pl + FADE)
+      } else if (el.placeholder) {
+        bw = Math.max(Math.min(250, r.width * 0.8), Math.min(r.width - pl - pr, ctx.measureText(el.placeholder).width + FADE * 2))
+      }
+      setSt({ top: r.top, left: r.left, w: r.width, h: r.height, x, bx: pl, bw, ch: Math.min(r.height - 12, parseFloat(cs.fontSize) * 1.3), radius: cs.borderRadius, sel: end !== pos })
     }
     const queue = () => { if (!raf) raf = requestAnimationFrame(measure) }
     // follow layout changes for a moment after focus (sheets slide in, keyboard opens)
@@ -83,10 +93,11 @@ export function NeonInputs() {
   if (!st) return null
   return createPortal(
     <div className="neon-ov" aria-hidden data-testid="neon-overlay" style={{ top: st.top, left: st.left, width: st.w, height: st.h, borderRadius: st.radius }}>
-      {!st.sel && <div className="neon-beam" style={{ left: st.x }} />}
-      {!st.sel && !reduce && SPARKS.map((p, i) => (
-        <span key={i} className={`neon-spark ${p.c ? 'c' : ''}`} style={{ left: st.x + p.dx, top: st.h / 2 + p.dy, animationDelay: `${p.d}s` }} />
-      ))}
+      {!st.sel && <div className="neon-beam" data-testid="neon-beam" style={{ left: st.bx, width: st.bw ?? undefined }} />}
+      {!st.sel && !reduce && SPARKS.map((p, i) => {
+        const len = (st.bw ?? 220) - 18
+        return <span key={i} className={`neon-spark ${p.c ? 'c' : ''}`} style={{ left: st.bx + (p.dx / 110) * len, top: st.h / 2 + p.dy * Math.min(1, 0.45 + (p.dx / 110)), animationDelay: `${p.d}s` }} />
+      })}
       {!st.sel && <div className="neon-caret" style={{ left: st.x, height: st.ch }} />}
     </div>,
     document.body,

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Mail, LogIn, UserPlus, Eye, EyeOff } from 'lucide-react'
+import type React from 'react'
 import { useT } from '../i18n'
 import { Button, Header } from '../components/ui'
 import { supabase } from '../lib/supabase'
@@ -8,6 +9,9 @@ import { goBack, hashQuery, navigate } from '../lib/router'
 import { useApp } from '../store/app'
 import { LogoMark } from '../components/Brand'
 import { logInLocal, logOut, signUpLocal, validEmail, type AuthError } from '../lib/accounts'
+import { REMEMBER_KEY, setRemember as setRememberPref } from '../lib/accountKeys'
+import { startOneTap } from '../lib/googleOneTap'
+import { useEffect } from 'react'
 
 export function Auth() {
   const t = useT()
@@ -20,9 +24,12 @@ export function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [show, setShow] = useState(false)
+  const [remember, setRemember] = useState(() => localStorage.getItem(REMEMBER_KEY) !== '0')
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const next = q.get('next') || '/profile'
+  // optional Google One Tap (only when Supabase + a Google client id are configured)
+  useEffect(() => { if (!user) void startOneTap((ok, err) => { if (ok) navigate(useApp.getState().onboarded ? next : '/'); else if (err) setMsg(err) }) }, [user, next])
   const done = () => navigate(useApp.getState().onboarded ? next : '/')
 
   if (user) {
@@ -38,8 +45,18 @@ export function Auth() {
 
   const errText = (e: AuthError) => t(e === 'name' ? 'errName' : e === 'email' ? 'errEmail' : e === 'password' ? 'errPassword' : e === 'exists' ? 'errExists' : 'errLogin')
 
-  const submit = async () => {
+  /** Let Chrome / Android's password manager offer "Save password" (Credential Management API). */
+  const storeCred = async () => {
+    try {
+      const PC = (window as unknown as { PasswordCredential?: new (d: { id: string; password: string; name?: string }) => Credential }).PasswordCredential
+      if (PC && navigator.credentials?.store) await navigator.credentials.store(new PC({ id: email.trim().toLowerCase(), password, name: name.trim() || undefined }))
+    } catch { /* not supported */ }
+  }
+
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault()
     setMsg(null)
+    setRememberPref(remember)
     if (mode === 'up' && !name.trim()) return setMsg(t('errName'))
     if (!validEmail(email)) return setMsg(t('errEmail'))
     if (password.length < 6) return setMsg(t('errPassword'))
@@ -49,17 +66,19 @@ export function Auth() {
         const r = mode === 'up' ? await signUpLocal(name, email, password) : await logInLocal(email, password)
         if (!r.ok) return setMsg(errText(r.error))
         showToast(mode === 'up' ? t('welcomeName', { n: name.trim() }) : t('signedInAs', { e: email.trim().toLowerCase() }))
+        await storeCred()
         return done()
       }
       if (mode === 'in') {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
         if (error) throw error
         showToast(t('signedInAs', { e: email }))
+        await storeCred()
         done()
       } else {
         const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { data: { full_name: name.trim() }, emailRedirectTo: window.location.origin + import.meta.env.BASE_URL } })
         if (error) throw error
-        if (data.session) done()
+        if (data.session) { await storeCred(); done() }
         else setMsg(t('checkEmail'))
       }
     } catch (e) {
@@ -70,7 +89,8 @@ export function Auth() {
   }
 
   const google = async () => {
-    if (!supabase) return
+    setRememberPref(remember)
+    if (!isLive || !supabase) return setMsg(t('googleLaunchNote'))
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}` } })
     if (error) setMsg(error.message)
   }
@@ -95,29 +115,41 @@ export function Auth() {
         <button data-testid="tab-signup" onClick={() => { setMode('up'); setMsg(null) }} className={`h-10 rounded-xl text-[13.5px] font-bold ${mode === 'up' ? 'bg-neon-static text-[#05080f]' : 'text-muted'}`}>{t('createAccount')}</button>
         <button data-testid="tab-login" onClick={() => { setMode('in'); setMsg(null) }} className={`h-10 rounded-xl text-[13.5px] font-bold ${mode === 'in' ? 'bg-neon-static text-[#05080f]' : 'text-muted'}`}>{t('signIn')}</button>
       </div>
-      <div className="mt-4 space-y-3">
-        <Button variant="outline" className="w-full" onClick={google} disabled={!isLive}>
-          <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
-          {t('google')}
-        </Button>
-        {!isLive && <p className="-mt-1 text-center text-[11.5px] text-dim">{t('googleAtLaunch')}</p>}
+      <form className="mt-4 space-y-3" method="post" action="#" autoComplete="on" onSubmit={submit} noValidate data-testid="auth-form">
+        <GoogleButton onClick={google} label={t('googleContinue')} />
         <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-dim"><span className="h-px flex-1 bg-white/10" />{t('orEmail')}<span className="h-px flex-1 bg-white/10" /></div>
-        {mode === 'up' && <label className="block"><span className="label">{t('obName')}</span><input data-testid="su-name" className="field mt-1.5" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></label>}
-        <label className="block"><span className="label">{t('email')}</span><input data-testid="su-email" className="field mt-1.5" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
-        <label className="block"><span className="label">{t('password')}</span>
+        {mode === 'up' && <label className="block" htmlFor="d31-name"><span className="label">{t('obName')}</span><input id="d31-name" name="name" data-testid="su-name" className="field mt-1.5" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></label>}
+        <label className="block" htmlFor="d31-email"><span className="label">{t('email')}</span><input id="d31-email" name="email" data-testid="su-email" className="field mt-1.5" type="email" inputMode="email" autoComplete="username" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
+        <label className="block" htmlFor="d31-password"><span className="label">{t('password')}</span>
           <span className="relative mt-1.5 block">
-            <input data-testid="su-password" className="field pr-11" type={show ? 'text' : 'password'} autoComplete={mode === 'in' ? 'current-password' : 'new-password'} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()} placeholder={t('min6')} />
-            <button type="button" aria-label={show ? 'Hide password' : 'Show password'} onClick={() => setShow(!show)} className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center text-muted">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+            <input id="d31-password" name="password" data-testid="su-password" className="field pr-11" type={show ? 'text' : 'password'} autoComplete={mode === 'in' ? 'current-password' : 'new-password'} minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('min6')} />
+            <button type="button" aria-label={show ? t('hidePw') : t('showPw')} aria-pressed={show} data-testid="pw-eye" onClick={() => setShow(!show)} className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center text-muted">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
           </span>
         </label>
+        <label className="flex cursor-pointer items-center gap-2.5 text-[13px]" htmlFor="d31-remember">
+          <input id="d31-remember" name="remember" type="checkbox" data-testid="remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-[18px] w-[18px] accent-[#22d3ee]" />
+          {t('rememberMe')}
+        </label>
         {msg && <p className="rounded-xl border border-gold/25 bg-gold/[0.06] px-3 py-2 text-[13px] text-gold" role="alert">{msg}</p>}
-        <Button className="w-full" size="lg" onClick={submit} disabled={busy} data-testid="auth-submit">
+        <Button type="submit" className="w-full" size="lg" disabled={busy} data-testid="auth-submit">
           {mode === 'in' ? <LogIn size={17} /> : <UserPlus size={17} />} {mode === 'in' ? t('signIn') : t('createAccount')}
         </Button>
-        {mode === 'in' && <button className="w-full py-1 text-[13px] text-cyan" onClick={forgot}>{t('forgotPw')}</button>}
+        {mode === 'in' && <button type="button" className="w-full py-1 text-[13px] text-cyan" onClick={forgot}>{t('forgotPw')}</button>}
         {!isLive && <p className="flex items-start gap-2 rounded-xl border border-white/[0.07] px-3 py-2 text-[11.5px] leading-snug text-muted"><Mail size={13} className="mt-0.5 shrink-0" /> {t('localAccountNote')}</p>}
-        <Button variant="ghost" className="w-full" onClick={() => (onboarded ? goBack('/home') : navigate('/?guest=1'))} data-testid="auth-guest">{t('guest')}</Button>
-      </div>
+        <Button type="button" variant="ghost" className="w-full" onClick={() => (onboarded ? goBack('/home') : navigate('/?guest=1'))} data-testid="auth-guest">{t('guest')}</Button>
+      </form>
     </div>
+  )
+}
+
+/** Google's own "Continue with Google" button (branding guidelines: official G logo, Roboto Medium, neutral fill, pill). */
+function GoogleButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button type="button" onClick={onClick} data-testid="google-btn" className="gsi-btn">
+      <span className="gsi-logo" aria-hidden>
+        <svg viewBox="0 0 48 48" width="20" height="20"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      </span>
+      <span className="gsi-text">{label}</span>
+    </button>
   )
 }

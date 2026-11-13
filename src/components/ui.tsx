@@ -1,4 +1,5 @@
 import { useEffect, useId, type ReactNode, type ButtonHTMLAttributes } from 'react'
+import { Beam } from './Beam'
 import { ChevronLeft, Lock, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { goBack } from '../lib/router'
@@ -25,14 +26,14 @@ export function Button({
   )
 }
 
-export function Card({ className = '', children, onClick }: { className?: string; children: ReactNode; onClick?: () => void }) {
+export function Card({ className = '', children, onClick, 'data-testid': testid }: { className?: string; children: ReactNode; onClick?: () => void; 'data-testid'?: string }) {
   if (onClick)
     return (
-      <button onClick={onClick} className={`card block w-full text-left transition-colors hover:border-cyan/25 active:bg-white/[0.02] ${className}`}>
+      <button onClick={onClick} data-testid={testid} className={`card block w-full text-left transition-colors hover:border-cyan/25 active:bg-white/[0.02] ${className}`}>
         {children}
       </button>
     )
-  return <div className={`card ${className}`}>{children}</div>
+  return <div data-testid={testid} className={`card ${className}`}>{children}</div>
 }
 
 export function Label({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -77,7 +78,7 @@ export function Chip({ active, children, onClick, className = '', color }: { act
       onClick={onClick}
       aria-pressed={active}
       style={active ? { borderColor: `${c}99`, background: `${c}24`, color: c, boxShadow: `0 0 14px -6px ${c}` } : color ? { borderColor: `${c}33` } : undefined}
-      className={`inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[13px] font-medium transition-colors ${
+      className={`beam-chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[13px] font-medium transition-colors ${
         active ? '' : 'border-white/10 bg-white/[0.03] text-muted hover:text-frost'
       } ${className}`}
     >
@@ -89,16 +90,19 @@ export function Chip({ active, children, onClick, className = '', color }: { act
 
 export function Tabs<T extends string>({ value, onChange, items }: { value: T; onChange: (v: T) => void; items: { id: T; label: string }[] }) {
   return (
-    <div className="no-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-white/[0.09] bg-[#060a14]/60 p-1 backdrop-blur-md">
+    <div role="tablist" className="tabs-bar no-scrollbar relative flex gap-1 overflow-x-auto rounded-2xl border border-white/[0.09] bg-[#060a14]/60 p-1 backdrop-blur-md">
       {items.map((it) => (
         <button
           key={it.id}
+          role="tab"
+          aria-selected={value === it.id}
           onClick={() => onChange(it.id)}
-          className={`h-9 flex-1 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition-colors ${value === it.id ? 'bg-[linear-gradient(110deg,rgba(247,197,72,0.22),rgba(34,211,238,0.2))] text-frost shadow-[inset_0_0_0_1px_rgba(247,197,72,0.45),0_0_18px_-8px_rgba(247,197,72,0.7)]' : 'text-muted hover:text-frost'}`}
+          className={`relative z-[1] h-9 flex-1 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition-colors duration-300 ${value === it.id ? 'text-frost' : 'text-muted hover:text-frost'}`}
         >
           {it.label}
         </button>
       ))}
+      <Beam dep={value} />
     </div>
   )
 }

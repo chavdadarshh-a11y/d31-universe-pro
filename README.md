@@ -95,6 +95,20 @@ Prices are set **on the server** (`razorpay-create-order`). Each purchase is a o
 
 ---
 
+## v4.1 launch checklist (accounts, Google, pricing)
+
+**Prices / passes / trial / languages / unlocks** all live in ONE file: `supabase/functions/_shared/pricing.json`
+(the app and the Razorpay functions both read it). Edit → rebuild the app → `supabase functions deploy razorpay-create-order razorpay-verify`.
+
+1. **Supabase migrations**: run `0005_gold_tier.sql`, `0006_user_downloads.sql`, `0007_trial_unlocks_passes.sql` (SQL editor or `supabase db push`).
+2. **Google Cloud → OAuth consent screen**: app name D31.UNIVERSE, support email, logo, privacy URL (`#/legal/privacy`), scopes `email profile openid`; publish.
+3. **Google Cloud → Credentials → OAuth client (Web application)**: Authorized JavaScript origins = your site (e.g. `https://chavdadarshh-a11y.github.io`); Authorized redirect URI = `https://<project-ref>.supabase.co/auth/v1/callback`. Copy client ID + secret.
+4. **Google Cloud → OAuth client (Android)** for the Play build (TWA/Capacitor): package name + **SHA-1 of the Play App Signing key** (Play Console → Setup → App integrity) — add the upload-key SHA-1 too for internal testing.
+5. **Supabase → Authentication → Providers → Google**: enable, paste Web client ID + secret (add the Android client ID to "Authorized client IDs" for One Tap / native). **Authentication → URL configuration**: Site URL = your site, Redirect URLs = your site URL(s) (+ `https://<site>/#/auth`).
+6. **Env**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_GOOGLE_CLIENT_ID` (One Tap), `VITE_GOOGLE_API_KEY` (Drive API key, HTTP-referrer restricted, Drive API only).
+7. **Razorpay**: `supabase secrets set RAZORPAY_KEY_ID=… RAZORPAY_KEY_SECRET=…`; in the Razorpay dashboard enable UPI, cards, netbanking and wallets (checkout shows UPI first). All passes are one-time payments (no subscriptions / auto-renew).
+8. **Downloads & reinstall**: in-app storage of a TWA/Capacitor app is wiped on uninstall — expected. The `user_downloads` list restores the list after login and re-downloads (on Wi-Fi if the user allows).
+
 ## Bring it into Google AI Studio
 AI Studio "Build" apps are a React + Vite project, so you can import this one:
 1. In AI Studio, open your app (d31-universe) and open the code editor.

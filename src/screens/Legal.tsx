@@ -1,6 +1,11 @@
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Header } from '../components/ui'
+import { PASSES, TRIAL, UNLOCKS, KNOWLEDGE_LANGS } from '../config/plans'
+
+const passTxt = PASSES.map((p) => `${p.plan[0].toUpperCase()}${p.plan.slice(1)} ₹${p.priceInr.toLocaleString('en-IN')} / ${p.days} days`).join(', ')
+const MEMBERSHIP_TERMS = `Tiers: Free, Pro, Gold and Platinum. Passes: ${passTxt}. All prices are in INR, paid once through Razorpay (UPI, cards, netbanking, wallets); passes never auto-renew. Every new account gets one free ${TRIAL.days}-day ${TRIAL.plan[0].toUpperCase()}${TRIAL.plan.slice(1)} trial (once per account). Free accounts open Knowledge videos and PDFs in ${KNOWLEDGE_LANGS.free.join(', ').toUpperCase()} only; Pro, Gold and Platinum open all languages. In-app downloads of Knowledge videos, PDFs and photos are part of Platinum. After a paid pass ends there is a short grace period with full access (see the app), then saved downloads stay on the phone but lock until you renew.`
+const UNLOCK_TERMS = `You can buy single Knowledge items without a pass: one video ₹${UNLOCKS.video}, one PDF ₹${UNLOCKS.pdf}, or a mini pack of up to ${UNLOCKS.pack.videos} videos + ${UNLOCKS.pack.pdfs} PDFs you pick for ₹${UNLOCKS.pack.priceInr}. A bought item is unlocked permanently for your account, in every language it exists in${UNLOCKS.allowDownload ? ', and can be saved inside the app' : ''}.`
 import { env } from '../lib/env'
 
 const UPDATED = '14 November 2026'
@@ -32,7 +37,8 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
       body: [
         ['Agreement', `By using D31.UNIVERSE you agree to these terms with ${biz}. If you do not agree, please do not use the app.`],
         ['Your account', 'Keep your login secure. You are responsible for activity on your account. One account per person.'],
-        ['Memberships', 'Free, Pro (₹149) and Platinum (₹499) are the tiers. Pro and Platinum are 30-day passes billed in INR through Razorpay and do not auto-renew. Downloads (program PDFs, history export, offline clips, Knowledge PDFs/videos) are part of Platinum. The launch offer (first 131 members get Pro free for 1 month) and the 7-day free trial can be used once per person.'],
+        ['Memberships', MEMBERSHIP_TERMS],
+        ['Single-item unlocks', UNLOCK_TERMS],
         ['Acceptable use', 'Do not upload content you do not have rights to, content of other people without their consent, or anything illegal or abusive. Do not attempt to reverse engineer, overload or misuse the AI analysis service.'],
         ['Content', 'Programs, exercise descriptions, videos and D31 Knowledge posts are © Darshan Chavda / D31. You may use them for personal training only.'],
         ['No medical advice', 'See the Health Disclaimer. You train at your own risk.'],
@@ -53,7 +59,7 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
     refunds: {
       title: 'Refund & Cancellation Policy',
       body: [
-        ['30-day passes', 'Memberships are 30-day passes; they do not auto-renew. Your access simply ends after 30 days unless you buy again.'],
+        ['One-time passes', 'Every pass (30, 90 or 365 days) is a one-time payment and never auto-renews. Your access simply ends when the pass ends unless you buy again. Single-item unlocks are permanent and are not time-limited.'],
         ['Refunds', `If you are charged by mistake or cannot access paid features because of a fault on our side, ${contact} within 7 days of payment with your Razorpay payment ID. Approved refunds are returned to the original payment method within 5–7 working days.`],
         ['Free offers', 'Launch-offer months and free trials are free and do not convert to paid automatically.'],
       ],

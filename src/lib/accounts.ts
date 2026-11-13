@@ -1,3 +1,4 @@
+import { wipeAccountDownloads } from './downloads'
 /**
  * Accounts.
  *  • LIVE (Supabase keys set): email+password and Google via Supabase Auth. Data syncs to the cloud.
@@ -66,6 +67,8 @@ export async function signUpLocal(name: string, email: string, password: string)
   const prof = useApp.getState().profile
   await switchTo(acc.id, { carryGuest })
   useApp.setState({ user: publicUser(acc), profile: { ...(carryGuest ? useApp.getState().profile : prof), name: name.trim() } })
+  const { startTrialIfNew } = await import('./trial')
+  await startTrialIfNew() // new account → 7-day Platinum trial, once
   return { ok: true }
 }
 
@@ -126,6 +129,7 @@ export async function deleteAccount(): Promise<{ ok: boolean; error?: string }> 
   if (!cur) {
     // guest: wipe the guest data
     localStorage.removeItem(GUEST_KEY)
+    await wipeAccountDownloads('guest')
     useApp.setState(blankPersisted({ lang: useApp.getState().lang }).state as never)
     return { ok: true }
   }
@@ -135,6 +139,7 @@ export async function deleteAccount(): Promise<{ ok: boolean; error?: string }> 
     await supabase.auth.signOut().catch(() => undefined)
   }
   localStorage.removeItem(dataKeyFor(cur.id))
+  await wipeAccountDownloads(cur.id)
   saveAccounts(listAccounts().filter((a) => a.id !== cur.id))
   localStorage.removeItem(SESSION_KEY)
   if (!localStorage.getItem(GUEST_KEY)) localStorage.setItem(GUEST_KEY, JSON.stringify(blankPersisted({ lang: useApp.getState().lang })))

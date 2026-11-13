@@ -7,3 +7,18 @@ export const currentAccountId = (): string | null => {
 }
 export const dataKeyFor = (id: string | null) => (id ? `d31-data:${id}` : GUEST_KEY)
 export const dataKey = () => dataKeyFor(currentAccountId())
+
+/* "Remember me" off → the session lasts only until the app/browser is closed.
+ * Runs when this module first loads (before the store rehydrates). */
+export const REMEMBER_KEY = 'd31-remember'
+export const SESSION_ENDED = { local: false }
+try {
+  if (localStorage.getItem(REMEMBER_KEY) === '0' && !sessionStorage.getItem('d31-alive')) {
+    if (localStorage.getItem(SESSION_KEY)) SESSION_ENDED.local = true
+    localStorage.removeItem(SESSION_KEY)
+  }
+  sessionStorage.setItem('d31-alive', '1')
+} catch { /* storage blocked */ }
+export function setRemember(on: boolean) {
+  try { localStorage.setItem(REMEMBER_KEY, on ? '1' : '0'); sessionStorage.setItem('d31-alive', '1') } catch { /* ignore */ }
+}

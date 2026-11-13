@@ -1,4 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
+import { Beam } from './components/Beam'
+import { useUnlocks } from './lib/unlocks'
 import { Home as HomeIcon, Dumbbell, ScanLine, BookOpen, LineChart, User, Play, Pause, Square } from 'lucide-react'
 import { useRoute, navigate } from './lib/router'
 import { useApp } from './store/app'
@@ -24,6 +26,10 @@ import { Settings } from './screens/Settings'
 import { Knowledge, KnowledgePost } from './screens/Knowledge'
 import { NotFound } from './screens/NotFound'
 import { NeonInputs } from './components/NeonInputs'
+import { Downloads } from './screens/Downloads'
+import { useDownloads, onWifi, persistStorage } from './lib/downloads'
+import { trustedNow } from './lib/plans'
+import { downloadAccess } from './lib/entitlements'
 import { InstallPrompt } from './components/InstallPrompt'
 import { useSettings, applyTheme } from './store/settings'
 import { useReminders } from './lib/reminders'
@@ -46,19 +52,19 @@ function BottomNav({ current }: { current: string }) {
   return (
     <nav className="nav-bar safe-bottom fixed inset-x-0 bottom-0 z-40 bg-[#04060c]/85 backdrop-blur-xl" aria-label="Main">
       <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,#f7c548,#22d3ee,transparent)] opacity-60" />
-      <div className="mx-auto grid max-w-lg grid-cols-6 px-1">
+      <div className="relative mx-auto grid max-w-lg grid-cols-6 px-1">
         {NAV.map(({ id, icon: Icon, key }) => {
           const active = current === id
           return (
             <button key={id} onClick={() => navigate('/' + id)} aria-current={active ? 'page' : undefined} className="relative flex h-[62px] flex-col items-center justify-center gap-1">
-              {active && <span aria-hidden className="absolute top-0 h-[3px] w-8 rounded-b-full bg-[linear-gradient(90deg,#f7c548,#22d3ee)] shadow-[0_0_12px_2px_rgba(247,197,72,0.5)]" />}
-              <span className={`grid h-7 w-12 place-items-center rounded-full transition-all ${active ? 'border border-gold/40 bg-[linear-gradient(135deg,rgba(247,197,72,0.18),rgba(34,211,238,0.18))] text-gold shadow-[0_0_18px_-4px_rgba(247,197,72,0.7)]' : 'text-dim'}`}>
+              <span className={`relative z-[1] grid h-7 w-12 place-items-center rounded-full transition-all duration-300 ${active ? 'text-gold drop-shadow-[0_0_6px_rgba(247,197,72,0.55)]' : 'text-dim'}`}>
                 <Icon size={19} strokeWidth={active ? 2.4 : 2} />
               </span>
-              <span className={`font-ui text-[10px] font-semibold uppercase leading-none tracking-[0.06em] ${active ? 'text-gold' : 'text-dim'}`}>{t(key)}</span>
+              <span className={`relative z-[1] font-ui text-[10px] font-semibold uppercase leading-none tracking-[0.06em] transition-colors duration-300 ${active ? 'text-gold' : 'text-dim'}`}>{t(key)}</span>
             </button>
           )
         })}
+        <Beam dep={current} variant="nav" />
       </div>
     </nav>
   )
@@ -114,6 +120,23 @@ export default function App() {
   const theme = useSettings((s) => s.theme)
   const units = useSettings((s) => `${s.weightUnit}${s.lengthUnit}`)
   const accountKey = useApp((s) => s.user?.id ?? 'guest')
+  // clock tick: passes + grace periods end on time (and the trusted clock keeps moving forward)
+  const [, setTick] = useState(0)
+  useEffect(() => {
+    trustedNow()
+    const id = setInterval(() => { trustedNow(); setTick((x) => x + 1) }, 60_000)
+    return () => clearInterval(id)
+  }, [])
+  // in-app downloads: load this account's list; after a reinstall, re-download on Wi-Fi if allowed
+  useEffect(() => {
+    void useUnlocks.getState().refresh()
+    void useDownloads.getState().refresh().then(() => {
+      const { list, present, restoreMissing } = useDownloads.getState()
+      const missing = list.some((x) => !present[x.item_id])
+      if (missing && useSettings.getState().dlAutoWifi && onWifi() && downloadAccess(useApp.getState().membership).state !== 'locked') void restoreMissing()
+      if (list.length) void persistStorage()
+    })
+  }, [accountKey])
   useEffect(() => {
     applyTheme(theme)
     if (theme !== 'system') return
@@ -149,6 +172,7 @@ export default function App() {
     case 'path': screen = <PathDetail id={a ?? ''} />; break
     case 'auth': screen = <Auth />; showNav = false; break
     case 'settings': screen = <Settings />; break
+    case 'downloads': screen = <Downloads />; break
     case 'knowledge': screen = a ? <KnowledgePost id={decodeURIComponent(a)} /> : <Knowledge />; break
     case 'home': case undefined: case '': screen = <Home />; break
     default: screen = <NotFound />

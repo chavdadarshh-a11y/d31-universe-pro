@@ -1,4 +1,6 @@
 import { en4, hi4, gu4 } from './strings4'
+import { en41, hi41, gu41 } from './strings41'
+import { en42, hi42, gu42 } from './strings42'
 /* eslint-disable */
 // D31.UNIVERSE UI strings — English is the source of truth. TypeScript forces
 // Hindi and Gujarati to define every key, so no screen is ever half-translated.
@@ -92,7 +94,7 @@ const en0 = {
   version: 'Version',
   // membership
   plansTitle: 'Choose your plan', plansSub: '30-day passes · no auto-renew · prices in INR', perMonth: '/month', current: 'Current', choosePlan: 'Choose {p}',
-  plan_free: 'Free', plan_pro: 'Pro', plan_platinum: 'Platinum',
+  plan_free: 'Free', plan_pro: 'Pro', plan_gold: 'Gold', plan_platinum: 'Platinum',
   f_library: 'Full exercise library', f_free_programs: '3 starter programs', f_camera: 'Live rep counter', f_tracking: 'Workout, nutrition & recovery tracking',
   f_analysis3: '3 AI form checks / month', f_analysis30: '30 AI form checks / month', f_analysis100: '100 AI form checks / month', f_analysisU: 'Unlimited AI form checks (fair use)',
   f_all_programs: 'All Pro programs & skill paths', f_photos: 'Progress photos with side-by-side compare', f_premium_programs: 'Platinum skill paths (Human Flag) & Iron & Aether', f_priority: 'Priority analysis queue',
@@ -121,7 +123,7 @@ const en0 = {
   pauseLbl: 'Pause', resumeLbl: 'Resume', pausedLbl: 'Paused', workoutMenu: 'Workout', minimize: 'Minimise · keep it running', endWorkout: 'End workout', saveFinish: 'Finish & save · {n} sets', endDiscard: 'End & discard', noSetsQ: 'No set is ticked ✓ yet, so there is nothing to save. End this workout without saving?', keepTraining: 'Keep training', staleMsg: 'This workout has been open since {x}. Finish it or end it.', workoutSaved: '✓ Workout saved · {n} sets', tickHint: 'Tick ✓ each set you finish. Only ticked sets are saved.', clipLbl: 'Clip', playClip: 'Play clip', clipSource: 'Darshan’s own training video', timerPaused: 'Timer paused', setsTicked: '{n} sets ticked',
 }
 
-export const en = { ...en0, ...en4 }
+export const en = { ...en0, ...en4, ...en41, ...en42 }
 export type StringKey = keyof typeof en
 type Dict = Record<StringKey, string>
 type Dict0 = Record<keyof typeof en0, string>
@@ -200,7 +202,7 @@ const hi0: Dict0 = {
   legal: 'कानूनी', privacy: 'प्राइवेसी पॉलिसी', terms: 'उपयोग की शर्तें', disclaimer: 'स्वास्थ्य डिस्क्लेमर', refunds: 'रिफ़ंड और कैंसिलेशन', contact: 'संपर्क', follow: 'Darshan को फ़ॉलो करें',
   version: 'वर्ज़न',
   plansTitle: 'अपना प्लान चुनें', plansSub: '30-दिन के पास · अपने-आप रिन्यू नहीं · कीमतें INR में', perMonth: '/महीना', current: 'मौजूदा', choosePlan: '{p} चुनें',
-  plan_free: 'फ़्री', plan_pro: 'Pro', plan_platinum: 'Platinum',
+  plan_free: 'फ़्री', plan_pro: 'Pro', plan_gold: 'Gold', plan_platinum: 'Platinum',
   f_library: 'पूरी एक्सरसाइज़ लाइब्रेरी', f_free_programs: '3 स्टार्टर प्रोग्राम', f_camera: 'लाइव रेप काउंटर', f_tracking: 'वर्कआउट, न्यूट्रिशन और रिकवरी ट्रैकिंग',
   f_analysis3: 'हर महीने 3 AI फ़ॉर्म चेक', f_analysis30: 'हर महीने 30 AI फ़ॉर्म चेक', f_analysis100: 'हर महीने 100 AI फ़ॉर्म चेक', f_analysisU: 'अनलिमिटेड AI फ़ॉर्म चेक (उचित उपयोग)',
   f_all_programs: 'सभी Pro प्रोग्राम और स्किल पाथ', f_photos: 'प्रोग्रेस फ़ोटो और साइड-बाय-साइड तुलना', f_premium_programs: 'Platinum स्किल पाथ (ह्यूमन फ्लैग)', f_priority: 'प्राथमिकता वाली एनालिसिस',
@@ -301,7 +303,7 @@ const gu0: Dict0 = {
   legal: 'કાનૂની', privacy: 'પ્રાઇવસી પોલિસી', terms: 'ઉપયોગની શરતો', disclaimer: 'સ્વાસ્થ્ય ડિસ્ક્લેમર', refunds: 'રિફંડ અને કેન્સલેશન', contact: 'સંપર્ક', follow: 'Darshan ને ફોલો કરો',
   version: 'વર્ઝન',
   plansTitle: 'તમારો પ્લાન પસંદ કરો', plansSub: '30-દિવસના પાસ · આપોઆપ રિન્યૂ નહીં · કિંમતો INR માં', perMonth: '/મહિનો', current: 'હાલનો', choosePlan: '{p} પસંદ કરો',
-  plan_free: 'ફ્રી', plan_pro: 'Pro', plan_platinum: 'Platinum',
+  plan_free: 'ફ્રી', plan_pro: 'Pro', plan_gold: 'Gold', plan_platinum: 'Platinum',
   f_library: 'આખી એક્સરસાઇઝ લાઇબ્રેરી', f_free_programs: '3 સ્ટાર્ટર પ્રોગ્રામ', f_camera: 'લાઇવ રેપ કાઉન્ટર', f_tracking: 'વર્કઆઉટ, ન્યુટ્રિશન અને રિકવરી ટ્રેકિંગ',
   f_analysis3: 'દર મહિને 3 AI ફોર્મ ચેક', f_analysis30: 'દર મહિને 30 AI ફોર્મ ચેક', f_analysis100: 'દર મહિને 100 AI ફોર્મ ચેક', f_analysisU: 'અનલિમિટેડ AI ફોર્મ ચેક (યોગ્ય ઉપયોગ)',
   f_all_programs: 'બધા Pro પ્રોગ્રામ અને સ્કિલ પાથ', f_photos: 'પ્રોગ્રેસ ફોટો અને સાઇડ-બાય-સાઇડ સરખામણી', f_premium_programs: 'Platinum સ્કિલ પાથ (હ્યુમન ફ્લેગ)', f_priority: 'પ્રાથમિકતાવાળું એનાલિસિસ',
@@ -328,6 +330,6 @@ const gu0: Dict0 = {
   pauseLbl: 'રોકો', resumeLbl: 'ફરી શરૂ', pausedLbl: 'રોકાયેલું', workoutMenu: 'વર્કઆઉટ', minimize: 'નાનું કરો · ચાલુ રાખો', endWorkout: 'વર્કઆઉટ પૂરું કરો', saveFinish: 'પૂરું કરો અને સેવ કરો · {n} સેટ', endDiscard: 'પૂરું કરો, સેવ નહીં', noSetsQ: 'હજી કોઈ સેટ ✓ ટિક નથી, તેથી સેવ કરવા જેવું કંઈ નથી. સેવ કર્યા વગર વર્કઆઉટ પૂરું કરીએ?', keepTraining: 'ટ્રેનિંગ ચાલુ રાખો', staleMsg: 'આ વર્કઆઉટ {x} થી ખુલ્લું છે. તેને પૂરું કરો અથવા બંધ કરો.', workoutSaved: '✓ વર્કઆઉટ સેવ · {n} સેટ', tickHint: 'દરેક પૂરો સેટ ✓ ટિક કરો. ફક્ત ટિક કરેલા સેટ જ સેવ થાય છે.', clipLbl: 'ક્લિપ', playClip: 'ક્લિપ ચલાવો', clipSource: 'દર્શનનો પોતાનો ટ્રેનિંગ વીડિયો', timerPaused: 'ટાઇમર રોકાયેલું', setsTicked: '{n} સેટ ટિક',
 }
 
-export const hi: Dict = { ...hi0, ...hi4 }
-export const gu: Dict = { ...gu0, ...gu4 }
+export const hi: Dict = { ...hi0, ...hi4, ...hi41, ...hi42 }
+export const gu: Dict = { ...gu0, ...gu4, ...gu41, ...gu42 }
 export const DICTS = { en, hi, gu } as const

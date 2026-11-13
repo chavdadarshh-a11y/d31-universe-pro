@@ -10,7 +10,8 @@ import { useSettings } from '../store/settings'
  */
 const BASE = import.meta.env.BASE_URL || '/'
 
-/** Live looping Shiva background (muted, 10 s seamless loop). Static artwork with reduced motion / Save-Data / video error. */
+/** Live Shiva background: Darshan's cosmic Shiva artwork only (darkened), a 22 s seamless sine-eased pan
+ *  head → heart chakra → head with a gentle 1.15→1.35→1.15 zoom (muted, WebM VP9 + H.264 MP4). Static artwork with reduced motion / Save-Data / video error. */
 function LiveShiva() {
   const allow = useSettings((s) => s.bgVideo && !s.reduceData)
   return allow ? <LiveShivaVideo /> : <img className="shiva" src={mediaUrl('shiva-720')} srcSet={`${mediaUrl('shiva-720')} 720w, ${mediaUrl('shiva')} 981w`} sizes="100vw" alt="" decoding="async" fetchPriority="low" />
@@ -36,12 +37,13 @@ function LiveShivaVideo() {
     <video
       ref={vref}
       className="shiva shiva-video"
-      poster={`${BASE}media/bg/shiva-live-poster.webp`}
+      poster={`${BASE}media/bg/shiva-loop-poster.jpg`}
       autoPlay muted loop playsInline preload="auto"
       disablePictureInPicture
       onError={() => setStill(true)}
     >
-      <source src={`${BASE}media/bg/shiva-live.mp4`} type="video/mp4" onError={() => setStill(true)} />
+      <source src={`${BASE}media/bg/shiva-loop.webm`} type="video/webm" />
+      <source src={`${BASE}media/bg/shiva-loop.mp4`} type="video/mp4" onError={() => setStill(true)} />
     </video>
   )
 }

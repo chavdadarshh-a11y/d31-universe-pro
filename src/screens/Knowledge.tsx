@@ -1,13 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Beam } from '../components/Beam'
 import { createPortal } from 'react-dom'
-import { ArrowUpRight, Play, BookOpen, ChevronLeft, ChevronRight, Download, ExternalLink, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
-import { useApp } from '../store/app'
+import { ArrowUpRight, Play, CheckCircle2, HardDriveDownload, BookOpen, ChevronLeft, ChevronRight, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
+import { useApp, effectivePlan } from '../store/app'
+import { KNOWLEDGE_LANGS, UNLOCKS, passesFor, unlockPrice } from '../config/plans'
+import { buyUnlock, isUnlocked, kindOf, unlockKey, useUnlocked, useUnlocks, type UnlockKind } from '../lib/unlocks'
+import { isLive } from '../lib/env'
 import { useT, type T } from '../i18n'
 import type { StringKey } from '../i18n/strings'
 import { Badge, Button, Card, Empty, Header, Sheet, Tabs } from '../components/ui'
 import { navigate } from '../lib/router'
-import { useCan } from '../lib/entitlements'
-import { fileTitle, kDownload, kImg, kPreview, kView, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
+import { useCan, useDownloadAccess } from '../lib/entitlements'
+import { getBlob, itemId, savedUrl, useDownloads, type DlType } from '../lib/downloads'
+import { openPlayer } from '../components/VideoPlayer'
+import { PdfViewer } from '../components/PdfViewer'
+import { canSaveType, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
 
 const LANG_LABEL: Record<KLang, string> = { en: 'English', hi: 'हिंदी', gu: 'ગુજરાતી' }
 const plural = (t: T, n: number, one: StringKey, many: StringKey) => t(n === 1 ? one : many, { n })
@@ -143,34 +150,139 @@ export function Knowledge() {
   )
 }
 
-function DownloadBtn({ f }: { f: KFile }) {
+/** Platinum: save a file INSIDE the app (IndexedDB) — never to the gallery / file system. */
+function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: number; ukey?: string }) {
   const t = useT()
-  const ok = useCan('download.knowledge')
+  const bought = useUnlocked(ukey)
+  const ok = useCan('downloads.inApp') || (UNLOCKS.allowDownload && bought)
+  const id = itemId(type, f.id)
+  const prog = useDownloads((s) => s.progress[id])
+  const present = useDownloads((s) => s.present[id])
+  const err = useDownloads((s) => s.errors[id])
+  const save = useDownloads((s) => s.save)
+  const toast = useApp((s) => s.showToast)
   if (!ok)
     return (
       <button data-testid="k-dl-locked" onClick={() => navigate('/membership')} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/40 px-3 text-[12px] font-bold text-gold" title={t('kPlatinumOnly')}>
         <Lock size={13} /> {t('plan_platinum')}
       </button>
     )
+  if (prog !== undefined)
+    return (
+      <span data-testid="k-dl-progress" className="relative flex h-9 w-[92px] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-cyan/40 text-[11.5px] font-bold text-cyan">
+        <span className="absolute inset-y-0 left-0 bg-cyan/20" style={{ width: `${Math.round(prog * 100)}%` }} />
+        <span className="relative">{Math.round(prog * 100)}%</span>
+      </span>
+    )
+  if (present)
+    return (
+      <button data-testid="k-saved" onClick={() => navigate('/downloads')} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-ok/40 bg-ok/10 px-3 text-[12px] font-bold text-ok">
+        <CheckCircle2 size={14} /> {t('dlSaved')}
+      </button>
+    )
+  if (!canSaveType(type))
+    return (
+      <button data-testid="k-dl-setup" onClick={() => toast(t('dlNeedsKey'))} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-cyan/30 bg-cyan/[0.06] px-3 text-[12px] font-bold text-cyan/70">
+        <HardDriveDownload size={14} /> {t('dlAtLaunch')}
+      </button>
+    )
   return (
-    <a data-testid="k-dl" href={kDownload(f.id)} target="_blank" rel="noreferrer" className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-neon-static px-3 text-[12px] font-bold text-[#05080f]">
-      <Download size={14} /> {t('kDownload')}
-    </a>
+    <button data-testid="k-dl" title={err ? t('dlFailed') : undefined} onClick={async () => { if (!(await save({ type, title: fileTitle(f.name), source_id: f.id, mime: f.mime, size: f.size, post, unlock: ukey }))) toast(t('dlFailed')); else toast(t('dlSaved')) }} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-neon-static px-3 text-[12px] font-bold text-[#05080f]">
+      <HardDriveDownload size={14} /> {t('dlSave')}
+    </button>
   )
 }
 
-function FileRow({ f, icon, onOpen }: { f: KFile; icon: React.ReactNode; onOpen: () => void }) {
+function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked }: { f: KFile; icon: React.ReactNode; onOpen: () => void; type: DlType; post: number; ukey?: string; locked?: boolean; onLocked?: () => void }) {
+  const t = useT()
+  const bought = useUnlocked(ukey)
   return (
-    <Card className="flex items-center gap-3 p-3">
-      <button onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cyan/25 bg-cyan/[0.07] text-cyan">{icon}</span>
+    <Card className="flex items-center gap-3 p-3" data-testid={locked ? 'k-file-locked' : 'k-file'}>
+      <button onClick={locked ? onLocked : onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+        <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border ${locked ? 'border-gold/35 bg-gold/[0.08] text-gold' : 'border-cyan/25 bg-cyan/[0.07] text-cyan'}`}>{locked ? <Lock size={18} /> : icon}</span>
         <span className="min-w-0">
           <span className="block truncate text-[14px] font-semibold">{fileTitle(f.name)}</span>
-          {f.lang && <span className="font-mono text-[10.5px] uppercase tracking-wider text-dim">{LANG_LABEL[f.lang]}</span>}
+          <span className="font-mono text-[10.5px] uppercase tracking-wider text-dim">{f.lang ? LANG_LABEL[f.lang] : ''}{bought ? `${f.lang ? ' · ' : ''}${t('ulOwned')}` : ''}</span>
         </span>
       </button>
-      <DownloadBtn f={f} />
+      {locked
+        ? <button data-testid="k-unlock" onClick={onLocked} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/45 px-3 text-[12px] font-bold text-gold"><Lock size={13} /> ₹{unlockPrice(type === 'pdf' ? 'pdf' : 'video')}</button>
+        : <SaveBtn f={f} type={type} post={post} ukey={ukey} />}
     </Card>
+  )
+}
+
+/** Sheet for a locked item: buy just this item, add it to a mini pack, or upgrade. */
+function UnlockSheet({ item, onClose }: { item: { key: string; title: string } | null; onClose: () => void }) {
+  const t = useT()
+  const toast = useApp((s) => s.showToast)
+  const pack = useUnlocks((s) => s.pack)
+  const togglePick = useUnlocks((s) => s.togglePick)
+  const grant = useUnlocks((s) => s.grant)
+  const [busy, setBusy] = useState(false)
+  if (!item) return <Sheet open={false} onClose={onClose} title="">{null}</Sheet>
+  const kind = kindOf(item.key)
+  const inPack = pack.includes(item.key)
+  const pro = passesFor('pro')[0]
+  const buy = async () => {
+    setBusy(true)
+    try {
+      const r = await buyUnlock(kind, [item.key])
+      if (r === 'demo') { grant([item.key]); toast(`${t('demo')} · ${t('ulDone')}`) }
+      else if (r === 'paid') toast(t('ulDone'))
+      if (r !== 'dismissed') onClose()
+    } catch { toast(t('payFailed')) } finally { setBusy(false) }
+  }
+  return (
+    <Sheet open onClose={onClose} title={item.title}>
+      <div className="space-y-2.5" data-testid="unlock-sheet">
+        <p className="text-[13px] leading-snug text-muted">{t('ulWhy')}</p>
+        <Button className="w-full" disabled={busy} onClick={() => void buy()} data-testid="unlock-single">
+          <Lock size={15} /> {t(kind === 'video' ? 'ulVideo' : 'ulPdf', { p: unlockPrice(kind) })}{!isLive ? ` · ${t('demo')}` : ''}
+        </Button>
+        <Button variant="outline" className="w-full" data-testid="unlock-pack-add" onClick={() => {
+          const r = togglePick(item.key)
+          toast(r === 'full' ? t('ulPackFull', { n: kind === 'video' ? UNLOCKS.pack.videos : UNLOCKS.pack.pdfs }) : r === 'added' ? t('ulPackAdded') : t('ulPackRemoved'))
+          if (r !== 'full') onClose()
+        }}>
+          {inPack ? t('ulPackRemove') : t('ulPackAdd', { v: UNLOCKS.pack.videos, d: UNLOCKS.pack.pdfs, p: UNLOCKS.pack.priceInr })}
+        </Button>
+        <Button variant="gold" className="w-full" data-testid="unlock-upgrade" onClick={() => { onClose(); navigate('/membership') }}>
+          {t('ulUpgrade', { p: pro?.priceInr ?? 0, d: pro?.days ?? 30 })}
+        </Button>
+        <p className="text-center text-[11.5px] text-dim">{isLive ? t('ulForever') : t('ulDemoNote')}</p>
+      </div>
+    </Sheet>
+  )
+}
+
+/** Floating mini-pack bar: shows picked items and buys them together. */
+export function PackBar() {
+  const t = useT()
+  const pack = useUnlocks((s) => s.pack)
+  const grant = useUnlocks((s) => s.grant)
+  const clear = useUnlocks((s) => s.clearPack)
+  const toast = useApp((s) => s.showToast)
+  const [busy, setBusy] = useState(false)
+  if (!pack.length) return null
+  const v = pack.filter((k) => kindOf(k) === 'video').length, d = pack.length - v
+  return (
+    <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+76px)] z-40 mx-auto max-w-[460px]">
+    <div data-testid="pack-bar" className="glass-panel pack-bar flex items-center gap-2 p-2.5 pl-3.5 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.7)]">
+      <div className="min-w-0 flex-1">
+        <div className="text-[13px] font-bold">{t('ulPack')} · ₹{UNLOCKS.pack.priceInr}</div>
+        <div className="font-mono text-[11px] text-muted">{t('ulPackCount', { v, vm: UNLOCKS.pack.videos, d, dm: UNLOCKS.pack.pdfs })}</div>
+      </div>
+      <button aria-label="Clear" onClick={clear} className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-muted"><X size={15} /></button>
+      <Button size="sm" disabled={busy} data-testid="pack-buy" onClick={async () => {
+        setBusy(true)
+        try {
+          const r = await buyUnlock('pack', pack)
+          if (r === 'demo') { grant(pack); toast(`${t('demo')} · ${t('ulDone')}`) } else if (r === 'paid') { clear(); toast(t('ulDone')) }
+        } catch { toast(t('payFailed')) } finally { setBusy(false) }
+      }}>{t('ulBuyPack')}{!isLive ? ` · ${t('demo')}` : ''}</Button>
+    </div>
+    </div>
   )
 }
 
@@ -197,7 +309,7 @@ function Lightbox({ photos, index, onClose }: { photos: KFile[]; index: number; 
       </div>
       <div className="flex items-center justify-between gap-2 p-3 pb-[calc(env(safe-area-inset-bottom)+14px)]">
         <span className="min-w-0 truncate text-[12.5px] text-white/70">{fileTitle(photos[i].name)}</span>
-        <DownloadBtn f={photos[i]} />
+        <SaveBtn f={photos[i]} type="photo" />
       </div>
     </div>,
     document.body,
@@ -214,6 +326,14 @@ export function KnowledgePost({ id }: { id: string }) {
   const { data, loading } = useKnowledge()
   const [tab, setTab] = useState<Tab>('overview')
   const [view, setView] = useState<{ f: KFile; kind: 'video' | 'pdf' } | null>(null)
+  const [pdf, setPdf] = useState<{ blob: Blob; title: string } | null>(null)
+  const access = useDownloadAccess()
+  const dl = useDownloads()
+  const plan = useApp((s) => effectivePlan(s.membership))
+  const okLangs = KNOWLEDGE_LANGS[plan]
+  useUnlocks((s) => s.keys) // re-render when something is unlocked
+  const [unlock, setUnlock] = useState<{ key: string; title: string } | null>(null)
+  useEffect(() => { void useDownloads.getState().refresh() }, [])
   const [photo, setPhoto] = useState<number | null>(null)
   const p = data?.posts.find((x) => String(x.number) === id || x.id === id)
 
@@ -224,6 +344,16 @@ export function KnowledgePost({ id }: { id: string }) {
   const pdfs = pick(p.pdfs, lang)
   const fallbackNote = (used: KLang) => <p className="mb-2 flex items-center gap-1.5 rounded-xl border border-gold/25 bg-gold/[0.06] px-3 py-2 text-[12px] text-gold"><Languages size={13} /> {t('kFallback', { a: LANG_LABEL[lang], b: LANG_LABEL[used] })}</p>
   const available = Array.from(new Set([...langsWith(p.videos), ...langsWith(p.pdfs)]))
+  /** unlock key + open rule for one file (language-neutral files are open to everyone) */
+  const gate = (kind: UnlockKind, f: KFile, used: KLang) => {
+    const list = (kind === 'video' ? p.videos : p.pdfs)[used] ?? []
+    const n = list.findIndex((x) => x.id === f.id)
+    if (n < 0) return { key: undefined, locked: false }
+    const key = unlockKey(p.number, kind, n)
+    return { key, locked: !okLangs.includes(f.lang ?? used) && !isUnlocked(key) }
+  }
+  const canOpenSaved = (key?: string) => access.state !== 'locked' || (UNLOCKS.allowDownload && isUnlocked(key))
+  const langLocked = (tab === 'videos' || tab === 'pdfs') && !okLangs.includes(tab === 'videos' ? vids.used : pdfs.used)
 
   return (
     <div data-testid="kpost">
@@ -238,11 +368,12 @@ export function KnowledgePost({ id }: { id: string }) {
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-2" data-testid="k-langs">
+      <div className="relative mt-3 flex items-center gap-2" data-testid="k-langs">
         <Languages size={15} className="shrink-0 text-muted" />
         {(['en', 'hi', 'gu'] as KLang[]).map((l) => (
-          <button key={l} data-testid={`k-lang-${l}`} onClick={() => setLang(l)} className={`h-8 flex-1 rounded-lg border text-[12.5px] font-bold ${lang === l ? 'border-cyan/60 bg-cyan/15 text-cyan' : 'border-white/10 text-muted'} ${available.includes(l) || !available.length ? '' : 'opacity-50'}`}>{LANG_LABEL[l]}</button>
+          <button key={l} data-testid={`k-lang-${l}`} data-on={lang === l || undefined} onClick={() => setLang(l)} className={`relative z-[1] flex h-8 flex-1 items-center justify-center gap-1 rounded-lg border text-[12.5px] font-bold transition-colors duration-300 ${lang === l ? 'border-cyan/40 text-cyan' : 'border-white/10 text-muted'} ${available.includes(l) || !available.length ? '' : 'opacity-50'}`}>{!okLangs.includes(l) && <Lock size={11} className="text-gold" />}{LANG_LABEL[l]}</button>
         ))}
+        <Beam dep={lang} />
       </div>
 
       <div className="mt-3">
@@ -255,6 +386,13 @@ export function KnowledgePost({ id }: { id: string }) {
       </div>
 
       <div className="mt-3 space-y-2.5">
+        {langLocked && (
+          <div data-testid="k-lang-locked" className="flex items-center gap-3 rounded-2xl border border-gold/35 bg-gold/[0.07] p-3">
+            <Lock size={17} className="shrink-0 text-gold" />
+            <p className="flex-1 text-[12.5px] leading-snug text-gold">{t('kLangLocked', { p: unlockPrice('video'), d: unlockPrice('pdf') })}</p>
+            <Button size="sm" variant="gold" onClick={() => navigate('/membership')}>{t('upgrade')}</Button>
+          </div>
+        )}
         {tab === 'overview' && (
           <>
             {postDesc(p, lang) && <Card className="p-4 text-[14px] leading-relaxed text-frost/90">{postDesc(p, lang)}</Card>}
@@ -289,14 +427,25 @@ export function KnowledgePost({ id }: { id: string }) {
         {tab === 'videos' && (vids.files.length ? (
           <>
             {vids.fallback && fallbackNote(vids.used)}
-            {vids.files.map((f) => <FileRow key={f.id} f={f} icon={<PlayCircle size={20} />} onOpen={() => setView({ f, kind: 'video' })} />)}
+            {vids.files.map((f) => { const g = gate('video', f, vids.used); return <FileRow key={f.id} f={f} type="video" post={p.number} ukey={g.key} locked={g.locked} onLocked={() => g.key && setUnlock({ key: g.key, title: fileTitle(f.name) })} icon={<PlayCircle size={20} />} onOpen={async () => {
+              const open = vids.files.filter((x) => !gate('video', x, vids.used).locked)
+              const items = await Promise.all(open.map(async (x) => {
+                const xk = gate('video', x, vids.used).key
+                const local = canOpenSaved(xk) && dl.present[itemId('video', x.id)] ? await savedUrl(itemId('video', x.id)) : null
+                return { title: fileTitle(x.name), sub: `#${p.number} · ${LANG_LABEL[x.lang ?? vids.used]}${local ? ` · ${t('dlOffline')}` : ''}`, sources: (() => { const src = local ?? kStream(x.id); return src ? [{ src, type: 'video/mp4' }] : [] })(), embed: kPreview(x.id) }
+              }))
+              openPlayer({ items, index: Math.max(0, open.findIndex((x) => x.id === f.id)) })
+            }} /> })}
           </>
         ) : <Empty icon={<Film size={26} />} text={t('kNoVideos')} />)}
 
         {tab === 'pdfs' && (pdfs.files.length ? (
           <>
             {pdfs.fallback && fallbackNote(pdfs.used)}
-            {pdfs.files.map((f) => <FileRow key={f.id} f={f} icon={<FileText size={20} />} onOpen={() => setView({ f, kind: 'pdf' })} />)}
+            {pdfs.files.map((f) => { const g = gate('pdf', f, pdfs.used); return <FileRow key={f.id} f={f} type="pdf" post={p.number} ukey={g.key} locked={g.locked} onLocked={() => g.key && setUnlock({ key: g.key, title: fileTitle(f.name) })} icon={<FileText size={20} />} onOpen={async () => {
+              const b = canOpenSaved(g.key) && dl.present[itemId('pdf', f.id)] ? await getBlob(itemId('pdf', f.id)).catch(() => undefined) : undefined
+              if (b) setPdf({ blob: b, title: fileTitle(f.name) }); else setView({ f, kind: 'pdf' })
+            }} /> })}
           </>
         ) : <Empty icon={<FileText size={26} />} text={t('kNoPdfs')} />)}
 
@@ -317,13 +466,15 @@ export function KnowledgePost({ id }: { id: string }) {
             <div className={`dark-zone overflow-hidden rounded-xl border border-white/10 bg-black ${view.kind === 'video' ? 'aspect-video' : 'h-[60vh]'}`}>
               <iframe src={kPreview(view.f.id)} title={view.f.name} allow="autoplay; fullscreen" allowFullScreen className="h-full w-full" />
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <a href={kView(view.f.id)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[12.5px] text-cyan"><ExternalLink size={14} /> {t('kOpenDrive')}</a>
-              <DownloadBtn f={view.f} />
+            <div className="flex items-center justify-end gap-2">
+              <SaveBtn f={view.f} type={view.kind} post={p.number} ukey={gate(view.kind, view.f, view.kind === 'video' ? vids.used : pdfs.used).key} />
             </div>
           </div>
         )}
       </Sheet>
+      <UnlockSheet item={unlock} onClose={() => setUnlock(null)} />
+      <PackBar />
+      {pdf && <PdfViewer blob={pdf.blob} title={pdf.title} onClose={() => setPdf(null)} />}
       {photo !== null && <Lightbox photos={p.photos} index={photo} onClose={() => setPhoto(null)} />}
       <div className="mt-6"><Button variant="ghost" className="w-full" onClick={() => navigate('/knowledge')}>{t('kAll')}</Button></div>
     </div>

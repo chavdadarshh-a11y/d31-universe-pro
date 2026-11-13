@@ -1,7 +1,8 @@
 /**
  * Supabase Edge Function: razorpay-verify
  * Verifies the Razorpay signature (HMAC-SHA256 of "order_id|payment_id" with the key secret),
- * marks the payment paid and activates/extends the membership by 30 days.
+ * marks the payment paid, then either extends the membership by the pass length (30/90/365 days, one-time)
+ * or writes the bought items to user_unlocks (forever, every language).
  */
 import { admin, corsHeaders, json, requireUser } from "../_shared/http.ts";
 
@@ -18,7 +19,7 @@ function safeEqual(a: string, b: string) {
   return diff === 0;
 }
 
-const RANK: Record<string, number> = { free: 0, pro: 1, platinum: 2, premium: 2, coaching: 2 };
+const RANK: Record<string, number> = { free: 0, pro: 1, gold: 2, platinum: 3, premium: 3, coaching: 3 };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -40,13 +41,22 @@ Deno.serve(async (req) => {
 
     await db.from("payments").update({ status: "paid", razorpay_payment_id, paid_at: new Date().toISOString() }).eq("id", pay.id);
 
+    // à-la-carte unlock → permanent rows in user_unlocks
+    if (typeof pay.plan === "string" && pay.plan.startsWith("unlock_")) {
+      const rows = ((pay.items ?? []) as string[]).map((k) => ({ user_id: user.id, item_key: k, kind: k.split(":")[1], order_id: razorpay_order_id }));
+      const { error: ue } = await db.from("user_unlocks").upsert(rows, { onConflict: "user_id,item_key" });
+      if (ue) return json({ error: ue.message }, 500);
+      return json({ ok: true, unlocked: rows.map((r) => r.item_key) });
+    }
+
     // extend if renewing the same plan while still active; otherwise start fresh from now
     const { data: sub } = await db.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
     const now = Date.now();
     const activeEnd = sub && sub.status === "active" && sub.current_period_end ? new Date(sub.current_period_end).getTime() : 0;
     const base = sub && sub.plan === pay.plan && activeEnd > now ? activeEnd : now;
     const plan = sub && activeEnd > now && RANK[sub.plan] > RANK[pay.plan] && sub.source === "razorpay" ? sub.plan : pay.plan;
-    const until = new Date(base + 30 * 86400000).toISOString();
+    const days = Number(pay.days) > 0 ? Number(pay.days) : 30;
+    const until = new Date(base + days * 86400000).toISOString();
     const { error } = await db.from("subscriptions").upsert({ user_id: user.id, plan, status: "active", source: "razorpay", current_period_end: until, updated_at: new Date().toISOString() });
     if (error) return json({ error: error.message }, 500);
 

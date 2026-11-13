@@ -1,3 +1,4 @@
+import { VideoPlayer } from './VideoPlayer'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { SHOOT } from '../data/gallery'
 
@@ -56,55 +57,9 @@ export function ClipThumb({ name, title, exId, className = '', badge = true }: {
   )
 }
 
-/** Fullscreen looping viewer for Darshan's clips. Mounted once in App. */
+/** Fullscreen viewer for Darshan's clips — now the shared in-app VideoPlayer. Mounted once in App. */
 export function ClipViewer() {
-  const [c, setC] = useState<ClipReq | null>(null)
-  const [paused, setPaused] = useState(false)
-  const ref = useRef<HTMLVideoElement>(null)
-  useEffect(() => {
-    const on = (e: Event) => { setPaused(false); setC((e as CustomEvent<ClipReq>).detail) }
-    window.addEventListener('d31-clip', on)
-    return () => window.removeEventListener('d31-clip', on)
-  }, [])
-  useEffect(() => {
-    if (!c) return
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && setC(null)
-    window.addEventListener('keydown', k)
-    document.body.style.overflow = 'hidden'
-    return () => { window.removeEventListener('keydown', k); document.body.style.overflow = '' }
-  }, [c])
-  if (!c) return null
-  const toggle = () => {
-    const v = ref.current
-    if (!v) return
-    if (v.paused) { v.play().catch(() => {}); setPaused(false) } else { v.pause(); setPaused(true) }
-  }
-  return (
-    <div role="dialog" aria-modal="true" aria-label={c.title} data-testid="clip-viewer" className="dark-zone fixed inset-0 z-[70] flex flex-col bg-black/95 backdrop-blur-md">
-      <div className="flex items-center gap-3 px-4 pb-2 pt-[calc(env(safe-area-inset-top)+12px)]">
-        <div className="min-w-0 flex-1">
-          <div className="clip-badge inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.18em]"><span className="clip-dot" />CLIP</div>
-          <div className="mt-1 truncate text-[17px] font-bold text-frost">{c.title}</div>
-        </div>
-        <button aria-label="Close" onClick={() => setC(null)} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-frost">✕</button>
-      </div>
-      <button className="relative mx-auto flex min-h-0 w-full max-w-lg flex-1 items-center justify-center px-3" onClick={toggle} aria-label={paused ? 'Play' : 'Pause'}>
-        <div className="clip-ring relative h-full max-h-full overflow-hidden rounded-3xl" style={{ aspectRatio: '480 / 854' }}>
-          <video ref={ref} key={c.name} className="h-full w-full object-cover" poster={`${BASE}media/clips/${c.name}-poster.webp`} autoPlay muted loop playsInline>
-            <source src={`${BASE}media/clips/${c.name}.webm`} type="video/webm" />
-            <source src={`${BASE}media/clips/${c.name}.mp4`} type="video/mp4" />
-          </video>
-          {paused && <span className="absolute inset-0 grid place-items-center bg-black/40 text-5xl text-frost">▶</span>}
-        </div>
-      </button>
-      <div className="flex items-center justify-between gap-3 px-5 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold/90">Darshan Chavda · D31</span>
-        {c.exId && !window.location.hash.startsWith(`#/library/${c.exId}`) && (
-          <a href={`#/library/${c.exId}`} onClick={() => setC(null)} className="rounded-xl border border-cyan/40 bg-cyan/10 px-3 py-2 text-[13px] font-semibold text-cyan">How to →</a>
-        )}
-      </div>
-    </div>
-  )
+  return <VideoPlayer />
 }
 
 /** Focal points so object-cover keeps the athlete in frame. */

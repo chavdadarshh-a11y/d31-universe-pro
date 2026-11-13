@@ -1,0 +1,35 @@
+{
+  "_readme": "THE ONE PLACE for prices, passes, trial, language access and à-la-carte unlocks. The app (src/config/plans.ts) and the payment server (razorpay-create-order / razorpay-verify) both read this file, so the price shown is always the price charged. Amounts are whole rupees (INR); the server converts to paise. After editing: rebuild the app and redeploy the two razorpay functions.",
+  "currency": "INR",
+  "trial": { "plan": "platinum", "days": 7, "_note": "every new account, once" },
+  "passes": [
+    { "id": "pro_30", "plan": "pro", "days": 30, "inr": 149 },
+    { "id": "gold_30", "plan": "gold", "days": 30, "inr": 299 },
+    { "id": "platinum_30", "plan": "platinum", "days": 30, "inr": 499 },
+    { "id": "platinum_90", "plan": "platinum", "days": 90, "inr": 1199 },
+    { "id": "platinum_365", "plan": "platinum", "days": 365, "inr": 3999 }
+  ],
+  "popular": "platinum_90",
+  "_popular_note": "design label only — never a count or a claim",
+  "analyses": { "free": 3, "pro": 30, "gold": 60, "platinum": 100 },
+  "knowledgeLangs": {
+    "free": ["en"],
+    "pro": ["en", "hi", "gu"],
+    "gold": ["en", "hi", "gu"],
+    "platinum": ["en", "hi", "gu"]
+  },
+  "unlocks": {
+    "video": { "inr": 19 },
+    "pdf": { "inr": 9 },
+    "pack": { "inr": 49, "videos": 3, "pdfs": 3 },
+    "allowDownload": true,
+    "_note": "an unlocked item = every language version of that video/PDF, forever, for that account"
+  },
+  "payMethods": ["upi", "card", "netbanking", "wallet"],
+  "grace": [
+    { "fromHour": 0, "toHour": 6, "hours": 10 },
+    { "fromHour": 6, "toHour": 12, "hours": 3 },
+    { "fromHour": 12, "toHour": 24, "hours": 1 }
+  ],
+  "_grace_note": "paid passes only (not the trial): full access of that tier for N hours, chosen by the LOCAL hour the pass expired"
+}

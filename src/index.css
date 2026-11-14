@@ -228,7 +228,7 @@ html.light .platinum-card::after { --c: rgba(100, 116, 139, 0.9); }
 html.light .scanlines::before { mix-blend-mode: multiply; background: repeating-linear-gradient(180deg, rgba(8, 60, 100, 0.04) 0 1px, transparent 1px 3px); }
 html.light .label { color: #4a5670; }
 html.light .toggle-knob { background: #fff; }
-html.light header[class*="bg-[#04060c]"] { background-color: rgba(238, 242, 248, 0.8); }
+html.light header[class*="bg-[#04060c]"] { background-color: rgba(238, 242, 248, 0.94); }
 html.light .nav-bar { background-color: rgba(246, 249, 253, 0.9); box-shadow: 0 -10px 30px -20px rgba(15, 40, 80, 0.35); }
 html.light .sheet-in { background: linear-gradient(180deg, #fbfdff, #eef3fa); border-color: rgba(8, 145, 178, 0.25); }
 html.light [class*="bg-[#0"]:not(.dark-zone):not(.dark-zone *):not(header):not(.sheet-in) { background-color: rgba(255, 255, 255, 0.92); }

@@ -43,8 +43,8 @@ export function Referral() {
         <div className="card mt-4 flex items-center gap-3 p-4" data-testid="wallet-balance">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/12 text-gold"><Ticket size={18} /></span>
           <div>
-            <div className="label">{t('walletBal', { n: bal })}</div>
-            <p className="text-[12px] text-muted">{t('creditPolicy')}</p>
+            <div className="text-[15px] font-bold tabular-nums">{t('walletBal', { n: bal })}</div>
+            <p className="text-[12px] leading-snug text-muted">{t('walletSub')}</p>
           </div>
         </div>
       )}
@@ -52,7 +52,9 @@ export function Referral() {
       {stats.code && (
         <div className="card mt-3 p-4" data-testid="ref-link">
           <div className="label">{t('refShare')}</div>
-          <div className="mt-2 break-all rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 font-mono text-[12.5px]">{link}</div>
+          <div className="mt-2 break-all rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 font-mono text-[12px] leading-snug">
+            {link.includes('?') ? <>{link.slice(0, link.indexOf('?'))}<wbr />{link.slice(link.indexOf('?'))}</> : link}
+          </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <Button size="sm" variant="outline" onClick={() => void copy()} data-testid="ref-copy"><Copy size={14} /> {copied ? t('refCopied') : t('refCopy')}</Button>
             <Button size="sm" onClick={() => void share()} data-testid="ref-share"><Share2 size={14} /> {t('refShare')}</Button>

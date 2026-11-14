@@ -19,14 +19,14 @@ export function FoundingCard({ compact = false }: { compact?: boolean }) {
   if (isMember && compact) return null
   return (
     <div
-      className={`relative overflow-hidden rounded-[20px] border border-gold/30 bg-gold/[0.06] p-4 ${compact ? 'mt-4' : 'mt-3'}`}
+      className={`relative scroll-mt-[5.5rem] rounded-[20px] border border-gold/30 bg-gold/[0.06] p-4 ${compact ? 'mt-4' : 'mt-3'}`}
       data-testid="first131-card"
     >
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold"><Gift size={20} /></span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="label !text-gold">{t('first131')}</span>
+          <div className="flex items-start justify-between gap-2">
+            <span className="pt-0.5 font-mono text-[11px] font-bold uppercase leading-5 tracking-[0.12em] text-gold">{t('first131')}</span>
             {claimed !== null && (
               <span data-testid="first131-count" className="font-mono text-[11px] font-bold text-gold">
                 {t('first131Count', { n: claimed, c: FOUNDING.cap })}

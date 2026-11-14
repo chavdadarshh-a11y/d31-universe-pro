@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Clock, Lock, Ticket } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
-import { Button, Sheet } from './ui'
+import { Badge, Button, Sheet } from './ui'
 import { IN_APP } from '../lib/appMode'
 import { isLive } from '../lib/env'
 import { POST_PASSES, POST_PASS_BY_ID, postPassDuration, type PostPassId, type PostPassConfig } from '../config/plans'
@@ -60,13 +60,13 @@ export function CreditBalance() {
     <div className="rounded-xl border border-cyan/25 bg-cyan/[0.05] px-3 py-2.5" data-testid="pp-credits">
       <div className="flex items-center gap-1.5 font-semibold text-cyan">
         <Ticket size={14} />
-        <span>{t('ppCreditBal', { n: total })}</span>
+        <span>{t(total === 0 ? 'ppCreditBal0' : total === 1 ? 'ppCreditBal1' : 'ppCreditBalN', { n: total })}</span>
       </div>
       {by.some((x) => x.left > 0) && (
         <ul className="mt-1.5 space-y-0.5 text-[12px] text-muted">
           {by.filter((x) => x.left > 0).map((x) => {
             const cfg = POST_PASS_BY_ID[x.type]
-            return <li key={x.type} data-testid={`pp-credit-${x.type}`}>{t('ppCreditLine', { name: cfg.name, n: x.left, d: durLabel(cfg, t) })}</li>
+            return <li key={x.type} data-testid={`pp-credit-${x.type}`}>{t(x.left === 1 ? 'ppCreditLine1' : 'ppCreditLineN', { name: cfg.name, n: x.left, d: durLabel(cfg, t) })}</li>
           })}
         </ul>
       )}
@@ -137,10 +137,15 @@ export function PostPassButtons({ post, onDone }: { post?: number; onDone?: () =
           onClick={() => void buy(p.id, post ? [post] : [])}
           data-testid={`buy-${p.id}`}
         >
-          <Lock size={14} />
+          <Lock size={14} className="shrink-0" />
           <span className="flex min-w-0 flex-1 flex-col items-start text-left">
-            <span className="font-bold">{t(p.posts === 1 ? 'ppBuy1' : 'ppBuyN', { n: p.posts, p: p.priceInr, d: durLabel(p, t) })}{!isLive ? ` · ${t('demo')}` : ''}</span>
+            <span className="flex flex-wrap items-center gap-1.5 font-bold">
+              <span>{p.name} · ₹{p.priceInr}</span>
+              {!isLive && <Badge tone="gold">{t('demo')}</Badge>}
+            </span>
             <span className="text-[11px] font-medium opacity-80">
+              {t(p.posts === 1 ? 'ppOffer1' : 'ppOfferN', { n: p.posts, d: durLabel(p, t) })}
+              {' · '}
               {post
                 ? (p.posts === 1 ? t('ppThisPost', { n: post }) : t('ppThisPlus', { n: post, k: p.posts - 1 }))
                 : (p.posts === 1 ? t('ppPickOne') : t('ppPickLater', { n: p.posts }))}
@@ -154,7 +159,6 @@ export function PostPassButtons({ post, onDone }: { post?: number; onDone?: () =
       <PostPicker
         open={pick}
         max={Math.max(1, left)}
-        duration={left > 0 ? '—' : ''}
         onClose={() => setPick(false)}
         onPick={(nums) => { setPick(false); void spend(nums) }}
       />
@@ -162,7 +166,7 @@ export function PostPassButtons({ post, onDone }: { post?: number; onDone?: () =
   )
 }
 
-function PostPicker({ open, max, duration, onClose, onPick }: { open: boolean; max: number; duration: string; onClose: () => void; onPick: (n: number[]) => void }) {
+function PostPicker({ open, max, onClose, onPick }: { open: boolean; max: number; onClose: () => void; onPick: (n: number[]) => void }) {
   const t = useT()
   const lang = useApp((s) => s.lang)
   const { data, loading } = useKnowledge()
@@ -170,9 +174,13 @@ function PostPicker({ open, max, duration, onClose, onPick }: { open: boolean; m
   const [sel, setSel] = useState<number[]>([])
   useEffect(() => { if (open) setSel([]) }, [open])
   const toggle = (n: number) => setSel((cur) => cur.includes(n) ? cur.filter((x) => x !== n) : cur.length < max ? [...cur, n] : cur)
+  const n = sel.length
   return (
     <Sheet open={open} onClose={onClose} title={t('ppPickCredits')}>
-      <p className="mb-3 text-[12.5px] leading-snug text-muted">{t('ppPickSub', { d: duration || t('ppCredits') })} · {sel.length}/{max}</p>
+      <p className="mb-3 text-[12.5px] leading-snug text-muted">
+        {t('ppPickSub')}
+        <span className="mt-1 block font-medium text-frost">{t('ppPickCount', { n, m: max })}</span>
+      </p>
       {loading && <p className="text-[13px] text-muted">…</p>}
       {!loading && !posts.length && <p className="text-[13px] text-muted">{t('kNoPosts')}</p>}
       <div className="max-h-[50vh] space-y-1.5 overflow-y-auto" data-testid="pp-picker">
@@ -194,7 +202,7 @@ function PostPicker({ open, max, duration, onClose, onPick }: { open: boolean; m
           )
         })}
       </div>
-      <Button className="mt-3 w-full" disabled={!sel.length} data-testid="pp-pick-confirm" onClick={() => onPick(sel)}>{t('ppUnlockWith')}</Button>
+      <Button className="mt-3 w-full" disabled={!sel.length} data-testid="pp-pick-confirm" onClick={() => onPick(sel)}>{t(n === 1 ? 'ppUnlockWith1' : 'ppUnlockWithN', { n })}</Button>
     </Sheet>
   )
 }
@@ -216,7 +224,6 @@ export function ActivePassList() {
 }
 
 function UnlockRow({ u }: { u: PortalUnlock }) {
-  const t = useT()
   const lang = useApp((s) => s.lang)
   const { data } = useKnowledge()
   const post = visiblePosts(data).find((p) => p.number === u.postNumber)
@@ -227,7 +234,6 @@ function UnlockRow({ u }: { u: PortalUnlock }) {
         <span className="min-w-0 truncate">#{u.postNumber}{post ? ` · ${postTitle(post, lang)}` : ''}</span>
         <span className="ml-auto shrink-0 font-mono text-[11.5px]"><Remain until={u.expiresAt} testid={`pp-timer-${u.postNumber}`} /></span>
       </div>
-      <div className="mt-1 text-muted">{t('ppViewOnly')}</div>
     </div>
   )
 }

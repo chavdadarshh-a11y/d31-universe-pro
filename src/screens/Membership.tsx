@@ -32,7 +32,6 @@ function rows(t: (k: StringKey, v?: Record<string, string | number>) => string):
   const nFree = progCount('free'), nPro = progCount('pro'), nAll = PROGRAMS.length
   const a = (id: PlanId) => String(PLAN_BY_ID[id].analyses)
   const by = (f: Feature): [Cell, Cell, Cell, Cell] => PLAN_IDS.map((p) => can(f, p)) as [Cell, Cell, Cell, Cell]
-  const va = t('cmp_validAccess')
   return [
     { label: t('cmp_library'), cells: [true, true, true, true] },
     { label: t('cmp_logging'), cells: [true, true, true, true] },
@@ -45,11 +44,11 @@ function rows(t: (k: StringKey, v?: Record<string, string | number>) => string):
     { label: t('cmp_platinumPaths'), cells: by('programs.platinum') },
     { label: t('cmp_pdfs'), cells: [t('cmp_pdfs_free'), t('cmp_pdfs_pro'), t('cmp_pdfs_gold'), t('cmp_pdfs_gold')] },
     { label: t('cmp_langs'), cells: PLAN_IDS.map((p) => (KNOWLEDGE_LANGS[p].length >= 3 ? '3' : KNOWLEDGE_LANGS[p].join('+').toUpperCase())) as [Cell, Cell, Cell, Cell] },
-    { label: t('cmp_knowledgeDl'), cells: [t('cmp_limited'), va, va, va] },
-    { label: t('cmp_offline'), cells: [t('cmp_limited'), va, va, va] },
+    { label: t('cmp_knowledgeDl'), cells: [t('cmp_limited'), true, true, true] },
+    { label: t('cmp_offline'), cells: [t('cmp_limited'), true, true, true] },
     { label: t('cmp_portal'), cells: [true, true, true, false] },
-    { label: t('cmp_support'), cells: [false, false, t('cmp_limited') === t('cmp_limited') ? 'Std' : 'Std', 'VIP'] },
-    { label: t('cmp_early'), cells: [false, false, 'Sel', true] },
+    { label: t('cmp_support'), cells: [false, false, t('cmp_support_std'), t('cmp_support_vip')] },
+    { label: t('cmp_early'), cells: [false, false, t('cmp_early_sel'), true] },
     { label: t('cmp_backup'), cells: by('download.backup') },
   ]
 }
@@ -69,7 +68,7 @@ export function Membership() {
   const [period, setPeriod] = useState<'30' | '365'>('30')
   const [wallet, setWallet] = useState(true)
   const locale = s.lang === 'en' ? 'en-IN' : `${s.lang}-IN`
-  const inr = (x: number, d = 0) => x.toLocaleString('en-IN', { maximumFractionDigits: d, minimumFractionDigits: d })
+  const inr = (x: number, d = 0) => d > 0 ? Number(x).toFixed(d) : Math.round(x).toLocaleString('en-IN')
   const priceOf = (list: number) => (showFoundingPrice ? foundingPrice(list) : list)
 
   const requireUser = () => {
@@ -139,7 +138,7 @@ export function Membership() {
         <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gold/12 text-gold"><Crown size={26} /></span>
         <h1 className="mt-3 text-[24px] font-extrabold tracking-tight">{IN_APP ? t('memTitle') : t('plansTitle')}</h1>
         <p className="mt-1 text-[13px] text-muted">{IN_APP ? t('memSub') : t('plansSub')}</p>
-        {!IN_APP && <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.18em] text-cyan/80">{t('taglinePosts')} {t('taglineLinks')} {t('taglineDrive')}</p>}
+        {!IN_APP && <p className="mt-1 px-1 font-mono text-[10px] uppercase leading-5 tracking-[0.12em] text-cyan/80">{t('taglinePosts')}<br />{t('taglineLinks')}<br />{t('taglineDrive')}</p>}
       </div>
 
       {IN_APP && (
@@ -279,22 +278,24 @@ export function Membership() {
       </>}
 
       {/* comparison */}
-      <h2 className="label mt-5">{t('features')}</h2>
-      <div className="card mt-2 overflow-hidden p-0" data-testid="compare-table">
-        <div className="grid grid-cols-[1fr_40px_40px_42px_54px] items-center gap-1 border-b border-white/[0.07] px-3 py-2 font-mono text-[10.5px] font-bold uppercase tracking-wider text-muted">
+      <h2 className="label mt-5 scroll-mt-[5.5rem]">{t('features')}</h2>
+      <div className="card mt-2 overflow-x-auto p-0" data-testid="compare-table">
+        <div className="min-w-[312px]">
+        <div className="grid grid-cols-[minmax(84px,1.2fr)_46px_46px_54px_72px] items-center gap-1 border-b border-white/[0.07] px-2.5 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.04em] text-muted">
           <span />
-          {PLANS.map((p) => <span key={p.id} className={`text-center ${p.id === 'platinum' ? 'text-platinum' : ''}`} style={p.id === 'platinum' ? undefined : { color: p.accent }}>{t(`plan_${p.id}`)}</span>)}
+          {PLANS.map((p) => <span key={p.id} className={`text-center leading-tight whitespace-nowrap ${p.id === 'platinum' ? 'text-platinum' : ''}`} style={p.id === 'platinum' ? undefined : { color: p.accent }}>{t(`plan_${p.id}`)}</span>)}
         </div>
         {table.map((r) => (
-          <div key={r.label} className="grid grid-cols-[1fr_40px_40px_42px_54px] items-center gap-1 border-b border-white/[0.04] px-3 py-2.5 last:border-0">
+          <div key={r.label} className="grid grid-cols-[minmax(84px,1.2fr)_46px_46px_54px_72px] items-center gap-1 border-b border-white/[0.04] px-2.5 py-2.5 last:border-0">
             <span className="text-[12.5px] leading-snug">{r.label}</span>
             {r.cells.map((c, i) => (
-              <span key={i} className="grid place-items-center">
-                {c === true ? <Check size={16} className={i === 3 ? 'text-violet' : i === 2 ? 'text-gold' : 'text-cyan'} /> : c === false ? <Minus size={14} className="text-dim" /> : <span className="font-mono text-[11px] font-bold">{c}</span>}
+              <span key={i} className="grid place-items-center px-0.5 text-center">
+                {c === true ? <Check size={16} className={i === 3 ? 'text-violet' : i === 2 ? 'text-gold' : 'text-cyan'} /> : c === false ? <Minus size={14} className="text-dim" /> : <span className="font-mono text-[10px] font-bold leading-tight">{c}</span>}
               </span>
             ))}
           </div>
         ))}
+        </div>
       </div>
       <p className="mt-2 text-[11px] leading-snug text-dim">{t('aiNoteLimits', { f: PLAN_BY_ID.free.analyses, p: PLAN_BY_ID.pro.analyses, g: PLAN_BY_ID.gold.analyses, x: PLAN_BY_ID.platinum.analyses })}</p>
 

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-13T21:44:35.711Z",
+ "generatedAt": "2026-11-14T09:42:56.148Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1194,7 +1194,11 @@
    "number": 507,
    "title": "HUMAN FLAG",
    "rawName": "507. HUMAN FLAG",
-   "cover": null,
+   "cover": {
+    "id": "1pX8zvWxMaWYaXfQ1Lvnrguh1GKLf1hfr",
+    "name": "Screenshot_2026-09-19-21-04-54-56_92460851df6f172a4592fca41cc2d2e6.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [
@@ -1311,7 +1315,6 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
     "Looks like a copy: \"Human_Flag_Biomechanics (5).pdf\" vs \"Human_Flag_Biomechanics (2).pdf\"",
     "Looks like a copy: \"Human_Flag_Biomechanics (8).pdf\" vs \"Human_Flag_Biomechanics (2).pdf\"",
     "Looks like a copy: \"Human_Flag_Blueprint (2).pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",

@@ -1,35 +1,38 @@
 import { useState } from 'react'
 import { Beam } from '../components/Beam'
-import { Check, Gift, ShieldCheck, Crown, Minus, FlaskConical, Lock } from 'lucide-react'
+import { Check, Gift, ShieldCheck, Crown, Minus, FlaskConical, Lock, Users } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Header } from '../components/ui'
-import { PLANS, PLAN_RANK, LAUNCH_SPOTS, PLAN_BY_ID, passStatus, trustedNow } from '../lib/plans'
-import { PLAN_IDS, KNOWLEDGE_LANGS, POPULAR_PASS, TRIAL, UNLOCKS, passesFor, perDay, perMonth, type PassId } from '../config/plans'
+import { PLANS, PLAN_RANK, PLAN_BY_ID, passStatus, trustedNow } from '../lib/plans'
+import { PLAN_IDS, KNOWLEDGE_LANGS, POPULAR_PASS, TRIAL, passesFor, foundingPrice, type PassId } from '../config/plans'
 import { demoTrialDay, startTrialIfNew, trialDay, trialStartedAt } from '../lib/trial'
 import { can, type Feature } from '../lib/entitlements'
-import { useLaunchSpots } from '../components/OfferBanner'
+import { FoundingCard } from '../components/OfferBanner'
 import { isLive } from '../lib/env'
 import { navigate } from '../lib/router'
-import { claimOffer } from '../lib/cloud'
 import { payWithRazorpay } from '../lib/payments'
 import { fmtDate } from '../lib/util'
 import { PROGRAMS } from '../data/programs'
 import type { PlanId } from '../types'
 import type { StringKey } from '../i18n/strings'
 import { IN_APP } from '../lib/appMode'
-import { ActivePassList, PostPassButtons, showsPostPasses } from '../components/PostPasses'
+import { ActiveUnlockList, PostPassButtons, UpgradeNudge, WalletPayToggle, showsPostPasses } from '../components/PostPasses'
+import { foundingDiscountActive, spotsLeft, useFoundingCount, useIsFounding } from '../lib/founding'
+import { useWallet } from '../lib/wallet'
+import { REFERRAL } from '../config/plans'
 
 const plusDays = (d: number) => new Date(Date.now() + d * 86400000).toISOString()
 const progCount = (p: PlanId) => PROGRAMS.filter((x) => x.plan === p).length
 
 type Cell = boolean | string
 type Row4 = { label: string; cells: [Cell, Cell, Cell, Cell] }
-/** Feature comparison — every row is something the app actually does and gates (see lib/entitlements.ts). */
+/** Feature comparison — every row is something the app actually does and gates, or a published service promise (support / early access). */
 function rows(t: (k: StringKey, v?: Record<string, string | number>) => string): Row4[] {
   const nFree = progCount('free'), nPro = progCount('pro'), nAll = PROGRAMS.length
   const a = (id: PlanId) => String(PLAN_BY_ID[id].analyses)
   const by = (f: Feature): [Cell, Cell, Cell, Cell] => PLAN_IDS.map((p) => can(f, p)) as [Cell, Cell, Cell, Cell]
+  const va = t('cmp_validAccess')
   return [
     { label: t('cmp_library'), cells: [true, true, true, true] },
     { label: t('cmp_logging'), cells: [true, true, true, true] },
@@ -40,12 +43,13 @@ function rows(t: (k: StringKey, v?: Record<string, string | number>) => string):
     { label: t('cmp_ai'), cells: [a('free'), a('pro'), a('gold'), a('platinum')] },
     { label: t('cmp_photos'), cells: by('photos.compare') },
     { label: t('cmp_platinumPaths'), cells: by('programs.platinum') },
-    { label: t('cmp_pdf'), cells: by('download.programPdf') },
-    { label: t('cmp_history'), cells: by('download.history') },
-    { label: t('cmp_offline'), cells: by('download.clips') },
-    { label: t('cmp_knowledgeDl'), cells: by('downloads.inApp') },
+    { label: t('cmp_pdfs'), cells: [t('cmp_pdfs_free'), t('cmp_pdfs_pro'), t('cmp_pdfs_gold'), t('cmp_pdfs_gold')] },
     { label: t('cmp_langs'), cells: PLAN_IDS.map((p) => (KNOWLEDGE_LANGS[p].length >= 3 ? '3' : KNOWLEDGE_LANGS[p].join('+').toUpperCase())) as [Cell, Cell, Cell, Cell] },
-    { label: t('cmp_alacarte'), cells: [true, true, true, true] },
+    { label: t('cmp_knowledgeDl'), cells: [t('cmp_limited'), va, va, va] },
+    { label: t('cmp_offline'), cells: [t('cmp_limited'), va, va, va] },
+    { label: t('cmp_portal'), cells: [true, true, true, false] },
+    { label: t('cmp_support'), cells: [false, false, t('cmp_limited') === t('cmp_limited') ? 'Std' : 'Std', 'VIP'] },
+    { label: t('cmp_early'), cells: [false, false, 'Sel', true] },
     { label: t('cmp_backup'), cells: by('download.backup') },
   ]
 }
@@ -55,12 +59,18 @@ export function Membership() {
   const s = useApp()
   const plan = effectivePlan(s.membership)
   const status = passStatus(s.membership)
-  const spots = useLaunchSpots()
+  const claimed = useFoundingCount()
+  const isFounder = useIsFounding()
+  /* Founding prices only when the member already has the discount, or a real backend count says spots remain.
+     If there is no backend, show list prices and describe the offer without a fake counter. */
+  const showFoundingPrice = foundingDiscountActive(isFounder, s.membership) || (spotsLeft(claimed) !== null && (spotsLeft(claimed) as number) > 0)
   const [busy, setBusy] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
-  const [platPass, setPlatPass] = useState<PassId>(POPULAR_PASS && POPULAR_PASS.startsWith('platinum') ? POPULAR_PASS : 'platinum_30')
+  const [period, setPeriod] = useState<'30' | '365'>('30')
+  const [wallet, setWallet] = useState(true)
   const locale = s.lang === 'en' ? 'en-IN' : `${s.lang}-IN`
   const inr = (x: number, d = 0) => x.toLocaleString('en-IN', { maximumFractionDigits: d, minimumFractionDigits: d })
+  const priceOf = (list: number) => (showFoundingPrice ? foundingPrice(list) : list)
 
   const requireUser = () => {
     if (isLive && !s.user) {
@@ -69,16 +79,6 @@ export function Membership() {
       return false
     }
     return true
-  }
-
-  const claimLaunch = async () => {
-    setErr(null)
-    if (!requireUser()) return
-    setBusy('launch')
-    const r = await claimOffer('launch')
-    setBusy(null)
-    if (r.ok) s.showToast(t('offerClaimed'))
-    else setErr(r.reason === 'sold_out' ? t('offerGone') : r.reason ?? 'Error')
   }
 
   const startTrial = async () => {
@@ -96,7 +96,7 @@ export function Membership() {
     if (!requireUser()) return
     setBusy(id)
     try {
-      const r = await payWithRazorpay({ sku: id }, { email: s.user?.email, name: s.profile.name })
+      const r = await payWithRazorpay({ sku: id, wallet }, { email: s.user?.email, name: s.profile.name })
       if (r === 'paid') s.showToast(t('paySuccess', { p: t(`plan_${id.split('_')[0] as PlanId}`) }))
     } catch (e) {
       setErr(e instanceof Error ? e.message : t('payFailed'))
@@ -114,16 +114,20 @@ export function Membership() {
   const onTrial = s.membership.source === 'trial' && status.state === 'active'
   const day = trialDay()
   const trialDone = !!trialStartedAt() && !onTrial
-  const launchOpen = spots !== null && spots > 0
-  const table = IN_APP ? rows(t).filter((r) => r.label !== t('cmp_alacarte')) : rows(t)
+  const table = rows(t)
+  const walletBal = useWallet((s) => s.balance)
 
   const PassPrice = ({ id }: { id: PassId }) => {
     const p = passesFor(id.split('_')[0] as PlanId).find((x) => x.id === id)!
+    const shown = priceOf(p.priceInr)
     return (
       <div className="mt-2" data-testid={`price-${id}`}>
-        <span className="text-[28px] font-extrabold tabular-nums">₹{inr(p.priceInr)}</span>
-        <span className="ml-1 text-[12px] text-muted">/ {t('passDays', { d: p.days })}</span>
-        <div className="mt-0.5 font-mono text-[11px] text-muted">{t('perDayEq', { x: inr(perDay(p), 1) })}{p.days > 30 ? ` · ${t('perMonthEq', { x: inr(perMonth(p)) })}` : ''}</div>
+        {showFoundingPrice && shown !== p.priceInr && (
+          <div className="mb-0.5 font-mono text-[11px] text-gold">{t('first131Price')} · <s className="text-muted">₹{inr(p.priceInr)}</s></div>
+        )}
+        <span className="text-[28px] font-extrabold tabular-nums">₹{inr(shown)}</span>
+        <span className="ml-1 text-[12px] text-muted">/ {p.days === 365 ? t('passYearly') : t('passMonthly')}</span>
+        <div className="mt-0.5 font-mono text-[11px] text-muted">{t('perDayEq', { x: inr(shown / p.days, 1) })}{p.days > 30 ? ` · ${t('perMonthEq', { x: inr((shown / p.days) * 30) })}` : ''}</div>
       </div>
     )
   }
@@ -135,6 +139,7 @@ export function Membership() {
         <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gold/12 text-gold"><Crown size={26} /></span>
         <h1 className="mt-3 text-[24px] font-extrabold tracking-tight">{IN_APP ? t('memTitle') : t('plansTitle')}</h1>
         <p className="mt-1 text-[13px] text-muted">{IN_APP ? t('memSub') : t('plansSub')}</p>
+        {!IN_APP && <p className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.18em] text-cyan/80">{t('taglinePosts')} {t('taglineLinks')} {t('taglineDrive')}</p>}
       </div>
 
       {IN_APP && (
@@ -144,6 +149,7 @@ export function Membership() {
             {t(`plan_${plan}`)}
             {onTrial && <Badge tone="gold">{t('trialTitle').split(' ')[0]}</Badge>}
             {s.membership.source === 'demo' && <Badge tone="gold">{t('demo')}</Badge>}
+            {isFounder && <Badge tone="gold">{t('first131Badge')}</Badge>}
           </div>
           {plan !== 'free' && s.membership.until && <div className="mt-0.5 text-[12.5px] text-muted" data-testid="mem-until">{t('validUntil', { d: fmtDate(s.membership.until, s.lang) })}</div>}
           <div className="mt-1 text-[12px] text-muted">{t('aiChecksN', { n: PLAN_BY_ID[plan].analyses })} · {KNOWLEDGE_LANGS[plan].length >= 3 ? 'EN · HI · GU' : KNOWLEDGE_LANGS[plan].join(' · ').toUpperCase()}</div>
@@ -198,26 +204,31 @@ export function Membership() {
         )}
       </div>
 
-      {/* launch offer — only when the server reports real spots */}
-      {launchOpen && plan === 'free' && (
-        <div className="mt-3 rounded-[20px] border border-cyan/25 bg-cyan/[0.04] p-4">
-          <div className="flex items-center gap-2"><Gift size={17} className="text-cyan" /><span className="label !text-cyan">{t('offerTitle')}</span><span data-testid="offer-spots" className="ml-auto font-mono text-[11px] font-bold text-cyan">{t('offerSpots', { n: spots })}</span></div>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-cyan" style={{ width: `${Math.min(100, Math.max(0, (1 - spots / LAUNCH_SPOTS) * 100))}%` }} /></div>
-          {!s.launchClaimed && <Button className="mt-3 w-full" disabled={!!busy} onClick={() => void claimLaunch()}>{t('offerClaim')}</Button>}
-        </div>
-      )}
+      <FoundingCard />
+      <UpgradeNudge />
 
       {err && <p className="mt-3 rounded-xl border border-bad/30 bg-bad/[0.08] px-3 py-2 text-[13px] text-bad">{err}</p>}
 
       {/* tier cards (website only) */}
       {!IN_APP && <>
+      <div className="relative mt-4 grid grid-cols-2 gap-1 rounded-xl border border-white/10 p-1" role="radiogroup" data-testid="period-toggle">
+        {(['30', '365'] as const).map((d) => (
+          <button key={d} role="radio" aria-checked={period === d} data-on={period === d || undefined} data-testid={`period-${d}`} onClick={() => setPeriod(d)} className={`relative z-[1] h-9 rounded-lg text-[12px] font-bold ${period === d ? 'text-frost' : 'text-muted'}`}>
+            {d === '30' ? t('passMonthly') : t('passYearly')}
+          </button>
+        ))}
+        <Beam dep={period} />
+      </div>
+      <div className="mt-3"><WalletPayToggle on={wallet} setOn={setWallet} /></div>
+
       <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
         {PLANS.map((p) => {
           const current = plan === p.id
           const passes = passesFor(p.id)
-          const chosen = p.id === 'platinum' ? passes.find((x) => x.id === platPass) ?? passes[0] : passes[0]
+          const chosen = passes.find((x) => String(x.days) === period) ?? passes[0]
           const popular = !!POPULAR_PASS && passes.some((x) => x.id === POPULAR_PASS)
           const lower = PLAN_RANK[p.id] < PLAN_RANK[plan] && status.state !== 'grace'
+          const shown = chosen ? priceOf(chosen.priceInr) : 0
           return (
             <div key={p.id} data-testid={`tier-${p.id}`} className={`card relative flex w-[78%] shrink-0 snap-center flex-col overflow-hidden p-4 ${p.id === 'platinum' ? 'platinum-card' : p.id === 'gold' ? 'gold-card' : ''} ${popular ? 'border-cyan/40' : ''}`}>
               <span className="absolute inset-x-0 top-0 h-[3px]" style={{ background: p.accent }} />
@@ -226,26 +237,17 @@ export function Membership() {
                 {popular && <Badge tone="cyan">{t('mostPopular')}</Badge>}
                 {current && <Badge tone="ok">{onTrial ? t('trialTitle').split(' ')[0] + ' ' + t('current') : t('current')}</Badge>}
               </div>
+              <div className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.16em] text-muted">{t(`posRole_${p.id}` as StringKey)}</div>
+              <p className="mt-0.5 text-[12.5px] leading-snug text-muted">{t(`posLine_${p.id}` as StringKey)}</p>
               {p.id === 'free' ? (
                 <div className="mt-2"><span className="text-[28px] font-extrabold tabular-nums">₹0</span><span className="ml-1 text-[12px] text-muted">{t('forever')}</span></div>
-              ) : <PassPrice id={chosen.id} />}
-              {p.id === 'platinum' && (
-                <div className="relative mt-2 grid grid-cols-3 gap-1 rounded-xl border border-white/10 p-1" role="radiogroup">
-                  {passes.map((x) => (
-                    <button key={x.id} role="radio" aria-checked={platPass === x.id} data-on={platPass === x.id || undefined} data-testid={`pass-${x.id}`} onClick={() => setPlatPass(x.id)} className={`relative z-[1] h-9 rounded-lg text-[12px] font-bold transition-colors duration-300 ${platPass === x.id ? 'text-platinum' : 'text-muted'}`}>
-                      {t('passDays', { d: x.days })}
-                      {x.id === POPULAR_PASS && <span className="absolute -top-1.5 right-1 h-2 w-2 rounded-full bg-cyan shadow-[0_0_6px_#22d3ee]" />}
-                    </button>
-                  ))}
-                  <Beam dep={platPass} />
-                </div>
-              )}
+              ) : chosen ? <PassPrice id={chosen.id} /> : null}
               <div className="mt-2 text-[12px] text-muted">{t('aiChecksN', { n: p.analyses })} · {KNOWLEDGE_LANGS[p.id].length >= 3 ? 'EN · HI · GU' : KNOWLEDGE_LANGS[p.id].join(' · ').toUpperCase()}</div>
               {current && p.id !== 'free' && s.membership.until && <div className="mt-1 text-[11.5px] text-muted">{t('validUntil', { d: fmtDate(s.membership.until, s.lang) })}</div>}
-              {p.id !== 'free' && !lower && (
+              {p.id !== 'free' && !lower && chosen && (
                 <Button className="mt-auto w-full !mt-3" size="sm" variant={p.id === 'platinum' ? 'outline' : 'primary'} disabled={!!busy || !isLive} onClick={() => void choose(chosen.id)} data-testid={`buy-${chosen.id}`}>
                   {!isLive ? <Lock size={14} /> : <Crown size={14} />}
-                  {busy === chosen.id ? t('paying') : `${current && !onTrial ? t('renew') : t('choosePlan', { p: t(`plan_${p.id}`) })} · ₹${inr(chosen.priceInr)}`}
+                  {busy === chosen.id ? t('paying') : `${current && !onTrial ? t('renew') : t('choosePlan', { p: t(`plan_${p.id}`) })} · ₹${inr(shown)}`}
                 </Button>
               )}
             </div>
@@ -254,21 +256,26 @@ export function Membership() {
       </div>
       {!isLive && <p className="mt-2 text-center text-[12px] text-gold">{t('paymentsAtLaunch')}</p>}
 
-      {/* à-la-carte */}
-      <div className="card mt-4 p-4" data-testid="ala-card">
-        <div className="text-[15px] font-bold">{t('alaTitle')}</div>
-        <p className="mt-1 text-[12.5px] leading-snug text-muted">{t('alaBody', { v: UNLOCKS.video, p: UNLOCKS.pdf, nv: UNLOCKS.pack.videos, np: UNLOCKS.pack.pdfs, k: UNLOCKS.pack.priceInr })}</p>
-        <Button variant="ghost" size="sm" className="mt-3 w-full" onClick={() => navigate('/knowledge')}>{t('knowledge')} →</Button>
-      </div>
-
       {showsPostPasses(plan) && (
         <div className="card mt-4 p-4" data-testid="pp-section">
           <div className="text-[15px] font-bold">{t('ppTitle')}</div>
           <p className="mt-1 text-[12.5px] leading-snug text-muted">{t('ppSub')}</p>
           <div className="mt-3"><PostPassButtons /></div>
-          <ActivePassList />
+          <ActiveUnlockList />
         </div>
       )}
+      {plan === 'platinum' && !IN_APP && (
+        <p className="mt-3 text-center text-[12px] text-muted" data-testid="pp-hidden-platinum">{t('posLine_platinum')}</p>
+      )}
+
+      <button type="button" onClick={() => navigate('/referral')} className="card mt-4 flex w-full items-center gap-3 p-4 text-left" data-testid="ref-teaser">
+        <span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan/12 text-cyan"><Users size={18} /></span>
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px] font-bold">{t('refTitle')}</div>
+          <p className="mt-0.5 text-[12.5px] leading-snug text-muted">{t('refSub', { n: REFERRAL.rewardInr, m: REFERRAL.maxPerMember })}</p>
+        </div>
+        {!IN_APP && walletBal > 0 && <span className="font-mono text-[12px] font-bold text-gold">{t('walletBal', { n: walletBal })}</span>}
+      </button>
       </>}
 
       {/* comparison */}
@@ -283,18 +290,19 @@ export function Membership() {
             <span className="text-[12.5px] leading-snug">{r.label}</span>
             {r.cells.map((c, i) => (
               <span key={i} className="grid place-items-center">
-                {c === true ? <Check size={16} className={i === 3 ? 'text-violet' : i === 2 ? 'text-gold' : 'text-cyan'} /> : c === false ? <Minus size={14} className="text-dim" /> : <span className="font-mono text-[12px] font-bold">{c}</span>}
+                {c === true ? <Check size={16} className={i === 3 ? 'text-violet' : i === 2 ? 'text-gold' : 'text-cyan'} /> : c === false ? <Minus size={14} className="text-dim" /> : <span className="font-mono text-[11px] font-bold">{c}</span>}
               </span>
             ))}
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[11px] leading-snug text-dim">{t('aiNote')}</p>
+      <p className="mt-2 text-[11px] leading-snug text-dim">{t('aiNoteLimits', { f: PLAN_BY_ID.free.analyses, p: PLAN_BY_ID.pro.analyses, g: PLAN_BY_ID.gold.analyses, x: PLAN_BY_ID.platinum.analyses })}</p>
 
       {plan !== 'free' && s.membership.until && <p className="mt-3 text-center text-[12px] text-muted">{t('validUntil', { d: fmtDate(s.membership.until, s.lang) })}{s.membership.source === 'demo' ? ` · ${t('demo')}` : ''}</p>}
       {!IN_APP && <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[12px] text-dim"><ShieldCheck size={14} /> {t('payWith')}</p>}
       <p className="mt-2 text-center text-[11px] text-dim">
-        <a className="underline" href="#/legal/terms">{t('terms')}</a>{!IN_APP && <> · <a className="underline" href="#/legal/refunds">{t('refunds')}</a></>}
+        <a className="underline" href="#/legal/terms">{t('terms')}</a>
+        {!IN_APP && <> · <a className="underline" href="#/legal/refunds">{t('refunds')}</a> · <a className="underline" href="#/legal/credits">{t('creditPolicy')}</a> · <a className="underline" href="#/legal/founding">{t('foundingLegal')}</a></>}
       </p>
     </div>
   )

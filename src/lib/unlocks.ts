@@ -81,6 +81,7 @@ export function validItems(sku: UnlockSku, items: string[]): boolean {
 /** Buy an unlock. Live → Razorpay (server decides the amount, verifies, writes user_unlocks). Demo → payments are off. */
 export async function buyUnlock(sku: UnlockSku, items: string[]): Promise<'paid' | 'dismissed' | 'demo'> {
   if (IN_APP) throw new Error('Not available in the app')
+  if (!UNLOCKS.offered) throw new Error('This offer is no longer available')
   if (!validItems(sku, items)) throw new Error('invalid')
   if (!isLive) return 'demo'
   const { payWithRazorpay } = await import('./payments')

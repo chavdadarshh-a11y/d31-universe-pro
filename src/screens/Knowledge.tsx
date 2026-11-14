@@ -11,7 +11,7 @@ import { useT, type T } from '../i18n'
 import type { StringKey } from '../i18n/strings'
 import { Badge, Button, Card, Empty, Header, Sheet, Tabs } from '../components/ui'
 import { navigate } from '../lib/router'
-import { useCan, useDownloadAccess } from '../lib/entitlements'
+import { knowledgeDownloadOk, useDownloadAccess } from '../lib/entitlements'
 import { getBlob, itemId, savedUrl, useDownloads, type DlType } from '../lib/downloads'
 import { openPlayer } from '../components/VideoPlayer'
 import { PdfViewer } from '../components/PdfViewer'
@@ -157,7 +157,8 @@ export function Knowledge() {
 function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: number; ukey?: string }) {
   const t = useT()
   const bought = useUnlocked(ukey)
-  const ok = useCan('downloads.inApp') || (UNLOCKS.allowDownload && bought)
+  const plan = effectivePlan(useApp((s) => s.membership))
+  const ok = knowledgeDownloadOk(post, plan) || (UNLOCKS.allowDownload && bought)
   const id = itemId(type, f.id)
   const prog = useDownloads((s) => s.progress[id])
   const present = useDownloads((s) => s.present[id])
@@ -167,7 +168,7 @@ function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: numbe
   if (!ok)
     return (
       <button data-testid="k-dl-locked" onClick={() => (IN_APP ? toast(t('memberOnly')) : navigate('/membership'))} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/40 px-3 text-[12px] font-bold text-gold" title={t('kPlatinumOnly')}>
-        <Lock size={13} /> {t('plan_platinum')}
+        <Lock size={13} /> {t('plan_pro')}
       </button>
     )
   if (prog !== undefined)
@@ -209,7 +210,7 @@ function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked }: { f: K
         </span>
       </button>
       {locked
-        ? <button data-testid="k-unlock" onClick={onLocked} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/45 px-3 text-[12px] font-bold text-gold"><Lock size={13} /> {IN_APP ? t('locked') : `₹${unlockPrice(type === 'pdf' ? 'pdf' : 'video')}`}</button>
+        ? <button data-testid="k-unlock" onClick={onLocked} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/45 px-3 text-[12px] font-bold text-gold"><Lock size={13} /> {IN_APP ? t('locked') : t('ppOpenThis')}</button>
         : <SaveBtn f={f} type={type} post={post} ukey={ukey} />}
     </Card>
   )
@@ -266,7 +267,7 @@ function UnlockSheet({ item, onClose }: { item: UnlockItem | null; onClose: () =
             {showsPostPasses(plan) && <PostPassButtons post={item.post} onDone={onClose} />}
           </>
         )}
-        {item.key && kind && (
+        {UNLOCKS.offered && item.key && kind && (
           <>
             <p className="pt-1 text-[13px] leading-snug text-muted">{showsPostPasses(plan) ? t('ppOrFile') : t('ulWhy')}</p>
             <Button className="w-full" disabled={busy} onClick={() => void buy()} data-testid="unlock-single">
@@ -279,12 +280,11 @@ function UnlockSheet({ item, onClose }: { item: UnlockItem | null; onClose: () =
             }}>
               {inPack ? t('ulPackRemove') : t('ulPackAdd', { v: UNLOCKS.pack.videos, d: UNLOCKS.pack.pdfs, p: UNLOCKS.pack.priceInr })}
             </Button>
-            <Button variant="gold" className="w-full" data-testid="unlock-upgrade" onClick={() => { onClose(); navigate('/membership') }}>
-              {t('ulUpgrade', { p: pro?.priceInr ?? 0, d: pro?.days ?? 30 })}
-            </Button>
-            <p className="text-center text-[11.5px] text-dim">{isLive ? t('ulForever') : t('ulDemoNote')}</p>
           </>
         )}
+        <Button variant="gold" className="w-full" data-testid="unlock-upgrade" onClick={() => { onClose(); navigate('/membership') }}>
+          {t('ulUpgrade', { p: pro?.priceInr ?? 0, d: pro?.days ?? 30 })}
+        </Button>
       </div>
     </Sheet>
   )
@@ -298,7 +298,7 @@ export function PackBar() {
   const clear = useUnlocks((s) => s.clearPack)
   const toast = useApp((s) => s.showToast)
   const [busy, setBusy] = useState(false)
-  if (IN_APP || !pack.length) return null
+  if (IN_APP || !UNLOCKS.offered || !pack.length) return null
   const v = pack.filter((k) => kindOf(k) === 'video').length, d = pack.length - v
   return (
     <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+76px)] z-40 mx-auto max-w-[460px]">
@@ -367,7 +367,7 @@ export function KnowledgePost({ id }: { id: string }) {
   const okLangs = KNOWLEDGE_LANGS[plan]
   useUnlocks((s) => s.keys) // re-render when something is unlocked
   const [unlock, setUnlock] = useState<UnlockItem | null>(null)
-  usePostPasses((s) => s.passes)
+  usePostPasses((s) => s.unlocks)
   useEffect(() => { void useDownloads.getState().refresh() }, [])
   const [photo, setPhoto] = useState<number | null>(null)
   const p = data?.posts.find((x) => String(x.number) === id || x.id === id)

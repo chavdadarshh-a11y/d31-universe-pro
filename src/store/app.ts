@@ -113,7 +113,7 @@ export const useApp = create<AppState>()(
       },
       setProfile: (p) => set({ profile: { ...get().profile, ...p } }),
       completeOnboarding: () => set({ onboarded: true }),
-      addSession: (s) => set({ sessions: [s, ...get().sessions] }),
+      addSession: (s) => { set({ sessions: [s, ...get().sessions] }); void import('../lib/analytics').then((m) => m.track('first_workout', {}, { once: true })) },
       deleteSession: (id) => set({ sessions: get().sessions.filter((s) => s.id !== id) }),
       addMeasurement: (m) => {
         const row = { ...m, id: uid() }

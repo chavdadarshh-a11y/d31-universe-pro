@@ -15,6 +15,8 @@ import { canProgram } from '../lib/entitlements'
 import { useKnowledge, visiblePosts } from '../lib/knowledge'
 import { PostPanels } from './Knowledge'
 import { IN_APP } from '../lib/appMode'
+import { OfferBanner } from '../components/OfferBanner'
+import { UpgradeNudge } from '../components/PostPasses'
 
 /** Darshan's Knowledge posts (auto-fed from Drive) as expanding panels. */
 function HomeKnowledge() {
@@ -66,6 +68,9 @@ export function Home() {
         </div>
         <button onClick={() => navigate('/membership')}><Badge tone={plan === 'free' ? 'muted' : 'gold'}>{t(`plan_${plan}`)}</Badge></button>
       </div>
+      {!IN_APP && <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-cyan/75">{t('taglinePosts')} {t('taglineLinks')} {t('taglineDrive')}</p>}
+      <OfferBanner />
+      <UpgradeNudge />
 
       {/* HERO */}
       <section className="card hud-full neon-shadow relative mt-4 overflow-hidden !rounded-[24px]">

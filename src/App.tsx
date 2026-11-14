@@ -2,6 +2,9 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { Beam } from './components/Beam'
 import { useUnlocks } from './lib/unlocks'
 import { usePostPasses } from './lib/postPasses'
+import { useWallet } from './lib/wallet'
+import { useReferral } from './lib/referral'
+import { Referral } from './screens/Referral'
 import { Home as HomeIcon, Dumbbell, ScanLine, BookOpen, LineChart, User, Play, Pause, Square } from 'lucide-react'
 import { useRoute, navigate } from './lib/router'
 import { useApp } from './store/app'
@@ -132,6 +135,9 @@ export default function App() {
   useEffect(() => {
     void useUnlocks.getState().refresh()
     void usePostPasses.getState().refresh()
+    void useWallet.getState().refresh()
+    void useReferral.getState().refresh()
+    void useReferral.getState().attachPending()
     void useDownloads.getState().refresh().then(() => {
       const { list, present, restoreMissing } = useDownloads.getState()
       const missing = list.some((x) => !present[x.item_id])
@@ -170,6 +176,7 @@ export default function App() {
     case 'fuel': screen = <Fuel />; break
     case 'profile': screen = <Profile />; break
     case 'membership': screen = <Membership />; break
+    case 'referral': screen = <Referral />; break
     case 'legal': screen = <Legal doc={a ?? 'privacy'} />; showNav = onboarded; break
     case 'path': screen = <PathDetail id={a ?? ''} />; break
     case 'auth': screen = <Auth />; showNav = false; break

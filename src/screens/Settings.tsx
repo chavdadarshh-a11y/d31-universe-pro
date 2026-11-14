@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Beam } from '../components/Beam'
-import { Moon, Sun, MonitorSmartphone, Languages, Ruler, Timer, Volume2, Vibrate, Bell, Film, Shield, Download, Upload, Info, Mail, FileText, AlertTriangle, Receipt, Smartphone, Mic } from 'lucide-react'
+import { Moon, Sun, MonitorSmartphone, Languages, Ruler, Timer, Volume2, Vibrate, Bell, Film, Shield, Download, Upload, Info, Mail, FileText, AlertTriangle, Receipt, Smartphone, Mic, Users, Ticket } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useSettings, resolvedTheme } from '../store/settings'
 import { useT, LANGS } from '../i18n'
@@ -11,6 +11,7 @@ import { exportBackup, importBackup } from '../lib/backup'
 import { askNotificationPermission, notify } from '../lib/reminders'
 import { useInstallable, promptInstall } from '../components/InstallPrompt'
 import { cloud } from '../lib/cloud'
+import { IN_APP } from '../lib/appMode'
 import { Switch } from '../components/Switch'
 
 /** All on/off switches use the v4.1 pill switch. */
@@ -156,6 +157,9 @@ export function Settings() {
         <Row icon={<FileText size={18} />} label={t('terms')} onClick={() => navigate('/legal/terms')} />
         <Row icon={<AlertTriangle size={18} />} label={t('disclaimer')} onClick={() => navigate('/legal/disclaimer')} />
         <Row icon={<Receipt size={18} />} label={t('refunds')} onClick={() => navigate('/legal/refunds')} />
+        {!IN_APP && <Row icon={<Ticket size={18} />} label={t('creditPolicy')} onClick={() => navigate('/legal/credits')} />}
+        {!IN_APP && <Row icon={<FileText size={18} />} label={t('foundingLegal')} onClick={() => navigate('/legal/founding')} />}
+        {!IN_APP && <Row icon={<Users size={18} />} label={t('refTitle')} onClick={() => navigate('/referral')} />}
         <Row icon={<Mail size={18} />} label={t('contactSupport')} sub={env.supportEmail || t('supportPending')} onClick={env.supportEmail ? () => { window.location.href = `mailto:${env.supportEmail}?subject=D31.UNIVERSE%20support` } : () => navigate('/legal/contact')} />
       </Section>
       <p className="mt-8 text-center font-mono text-[11px] text-dim">D31.UNIVERSE · v{APP_VERSION}</p>

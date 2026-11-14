@@ -40,6 +40,7 @@ export const PASSES: Record<string, Pass> = Object.fromEntries(
 );
 /** Legacy clients send { plan } → that plan's 30-day pass. */
 export const LEGACY_PLAN_PASS: Record<string, string> = { pro: "pro_30", gold: "gold_30", platinum: "platinum_30", premium: "platinum_30" };
+export const UNLOCKS_OFFERED = Boolean((pricing as { unlocks: { offered?: boolean } }).unlocks.offered);
 export const UNLOCK_PAISE: Record<string, number> = { video: pricing.unlocks.video.inr * 100, pdf: pricing.unlocks.pdf.inr * 100, pack: pricing.unlocks.pack.inr * 100 };
 export const PACK_LIMITS = { videos: pricing.unlocks.pack.videos, pdfs: pricing.unlocks.pack.pdfs };
 export const UNLOCK_KEY_RE = /^\d{1,6}:(video|pdf):\d{1,3}$/;
@@ -74,6 +75,16 @@ export function validPostPassItems(sku: string, items: unknown): number[] | null
   const ids = raw.map((x) => Number(x));
   if (ids.some((n) => !Number.isInteger(n) || n < 1 || n > 999999) || new Set(ids).size !== ids.length) return null;
   if (ids.length > cfg.posts) return null;
-  if (sku === "post_1" && ids.length !== 1) return null;
+  // Credit model: posts are chosen later; a purchase may start empty.
   return ids;
 }
+
+
+const founding = (pricing as { founding?: { cap: number; discountPct: number } }).founding;
+export const FOUNDING_CAP = founding?.cap ?? 131;
+export const FOUNDING_PCT = founding?.discountPct ?? 25;
+export const foundingPriceInr = (inr: number) => Math.round(inr * (100 - FOUNDING_PCT) / 100);
+
+const referral = (pricing as { referral?: { rewardInr: number; maxPerMember: number } }).referral;
+export const REFERRAL_REWARD = referral?.rewardInr ?? 25;
+export const REFERRAL_MAX = referral?.maxPerMember ?? 5;

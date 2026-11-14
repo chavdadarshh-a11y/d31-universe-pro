@@ -105,5 +105,65 @@ ok(expired.rows[0].r.ok === false && expired.rows[0].r.reason === 'no_slot', 'ex
 const own = await as(A, () => db.query('select count(*)::int c from public.user_post_passes'))
 ok(own.rows[0].c === 1, 'user A can read their own post pass')
 
+
+// v4.4.0 Portal credits, founding, referral, wallet
+blocked = false
+try { await as(A, () => db.exec(`insert into public.portal_credit_lots (user_id, pass_type, hours, credits, remaining) values ('${A}', 'post_3', 24, 3, 3)`)) } catch { blocked = true }
+ok(blocked, 'RLS: user cannot insert portal credit lots')
+
+await db.exec(`insert into public.portal_credit_lots (user_id, pass_type, hours, credits, remaining) values ('${A}', 'post_3', 24, 3, 3)`)
+const u1 = await as(A, () => db.query(`select public.unlock_portal_post(601) r`))
+ok(u1.rows[0].r.ok === true && !u1.rows[0].r.reason, `unlock #601 spends 1 credit (got ${JSON.stringify(u1.rows[0].r)})`)
+const rem = (await db.query(`select remaining from public.portal_credit_lots where user_id = '${A}' and pass_type = 'post_3'`)).rows[0].remaining
+ok(rem === 2, `lot remaining is 2 after first unlock (got ${rem})`)
+const u1b = await as(A, () => db.query(`select public.unlock_portal_post(601) r`))
+ok(u1b.rows[0].r.ok === true && u1b.rows[0].r.reason === 'already' && rem === 2, 'same active post returns already and does not spend again')
+await as(A, () => db.query(`select public.unlock_portal_post(602) r`))
+await as(A, () => db.query(`select public.unlock_portal_post(603) r`))
+const uFull = await as(A, () => db.query(`select public.unlock_portal_post(604) r`))
+ok(uFull.rows[0].r.ok === false && uFull.rows[0].r.reason === 'no_credit', 'fourth unlock is rejected when credits are gone')
+
+const seenLotsB = await as(B, () => db.query('select count(*)::int c from public.portal_credit_lots'))
+ok(seenLotsB.rows[0].c === 0, 'RLS: user B cannot see user A credit lots')
+const seenUnlB = await as(B, () => db.query('select count(*)::int c from public.portal_unlocks'))
+ok(seenUnlB.rows[0].c === 0, 'RLS: user B cannot see user A unlocks')
+
+await db.exec(`insert into public.portal_credit_lots (user_id, pass_type, hours, credits, remaining) values ('${B}', 'post_1', 24, 1, 1)`)
+await db.exec(`insert into public.portal_unlocks (user_id, post_number, expires_at) values ('${B}', 701, now() - interval '1 hour')`)
+const reUnlock = await as(B, () => db.query(`select public.unlock_portal_post(701) r`))
+ok(reUnlock.rows[0].r.ok === true && !reUnlock.rows[0].r.reason, 'expired unlock can be opened again by spending a new credit')
+
+ok((await db.query('select public.founding_claimed_count() n')).rows[0].n === 0, 'founding count starts at 0')
+blocked = false
+try { await as(A, () => db.exec(`insert into public.founding_members (user_id) values ('${A}')`)) } catch { blocked = true }
+ok(blocked, 'RLS: user cannot insert a founding membership')
+blocked = false
+try { await as(A, () => db.query(`select public.try_claim_founding('${A}', 'ord_x') r`)) } catch { blocked = true }
+ok(blocked, 'authenticated cannot call try_claim_founding')
+const f1 = (await db.query(`select public.try_claim_founding('${A}', 'ord_1') r`)).rows[0].r
+ok(f1.ok === true && f1.index === 1, 'service role claims founding #1 for A')
+ok((await db.query('select public.founding_claimed_count() n')).rows[0].n === 1, 'founding count is the real claimed total (1)')
+const f1b = (await db.query(`select public.try_claim_founding('${A}', 'ord_1b') r`)).rows[0].r
+ok(f1b.ok === true && f1b.reason === 'already', 'second founding claim for the same user is already')
+
+const codeA = await as(A, () => db.query('select public.my_referral_code() c'))
+ok(typeof codeA.rows[0].c === 'string' && codeA.rows[0].c.length >= 6, `A gets a referral code (${codeA.rows[0].c})`)
+const selfRef = await as(A, () => db.query(`select public.attach_referral('${codeA.rows[0].c}', 'device-aaaa-aaaa') r`))
+ok(selfRef.rows[0].r.ok === false && selfRef.rows[0].r.reason === 'self', 'self-referral is blocked')
+await as(A, () => db.query(`select public.register_device('device-shared-999') r`))
+const dupDev = await as(B, () => db.query(`select public.attach_referral('${codeA.rows[0].c}', 'device-shared-999') r`))
+ok(dupDev.rows[0].r.ok === false && dupDev.rows[0].r.reason === 'duplicate_device', 'same device as the referrer is blocked')
+const okRef = await as(B, () => db.query(`select public.attach_referral('${codeA.rows[0].c}', 'device-bbbb-bbbb') r`))
+ok(okRef.rows[0].r.ok === true, `B can attach A’s code (got ${JSON.stringify(okRef.rows[0].r)})`)
+
+blocked = false
+try { await as(A, () => db.query(`select public.wallet_apply('${A}', 25, 'cheat', 'x') r`)) } catch { blocked = true }
+ok(blocked, 'authenticated cannot call wallet_apply')
+ok((await as(A, () => db.query('select public.wallet_balance() n'))).rows[0].n === 0, 'A wallet starts at 0')
+const rew = (await db.query(`select public.reward_referral_if_first('${B}', 'ord_first') r`)).rows[0].r
+ok(rew.ok === true, `first paid purchase rewards both wallets (got ${JSON.stringify(rew)})`)
+ok((await as(A, () => db.query('select public.wallet_balance() n'))).rows[0].n === 25, 'referrer A received ₹25')
+ok((await as(B, () => db.query('select public.wallet_balance() n'))).rows[0].n === 25, 'friend B received ₹25')
+
 console.log(failures ? `\n${failures} check(s) failed` : '\nAll database checks passed')
 process.exit(failures ? 1 : 0)

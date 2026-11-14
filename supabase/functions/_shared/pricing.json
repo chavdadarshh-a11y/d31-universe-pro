@@ -1,29 +1,32 @@
 {
-  "_readme": "THE ONE PLACE for prices, passes, trial, language access and à-la-carte unlocks. The app (src/config/plans.ts) and the payment server (razorpay-create-order / razorpay-verify) both read this file, so the price shown is always the price charged. Amounts are whole rupees (INR); the server converts to paise. After editing: rebuild the app and redeploy the two razorpay functions.",
+  "_readme": "THE ONE PLACE for prices, passes, trial, language access and Portal Pass credits. The app (src/config/plans.ts) and the payment server (razorpay-create-order / razorpay-verify) both read this file, so the price shown is always the price charged. Amounts are whole rupees (INR); the server converts to paise. After editing: rebuild the app and redeploy the two razorpay functions.",
   "currency": "INR",
   "trial": { "plan": "platinum", "days": 7, "_note": "every new account, once" },
   "passes": [
     { "id": "pro_30", "plan": "pro", "days": 30, "inr": 149 },
+    { "id": "pro_365", "plan": "pro", "days": 365, "inr": 1199 },
     { "id": "gold_30", "plan": "gold", "days": 30, "inr": 299 },
-    { "id": "platinum_30", "plan": "platinum", "days": 30, "inr": 499 },
-    { "id": "platinum_90", "plan": "platinum", "days": 90, "inr": 1199 },
-    { "id": "platinum_365", "plan": "platinum", "days": 365, "inr": 3999 }
+    { "id": "gold_365", "plan": "gold", "days": 365, "inr": 2399 },
+    { "id": "platinum_30", "plan": "platinum", "days": 30, "inr": 599 },
+    { "id": "platinum_365", "plan": "platinum", "days": 365, "inr": 4799 }
   ],
-  "popular": "platinum_90",
-  "_popular_note": "design label only — never a count or a claim",
+  "popular": "gold_30",
+  "_popular_note": "design label only — never a count or a claim. Golden is the recommended main subscription.",
   "analyses": { "free": 3, "pro": 30, "gold": 60, "platinum": 100 },
   "knowledgeLangs": {
     "free": ["en"],
-    "pro": ["en", "hi", "gu"],
+    "pro": ["en"],
     "gold": ["en", "hi", "gu"],
     "platinum": ["en", "hi", "gu"]
   },
+  "_knowledgeLangs_note": "PDFs: samples (Free), standard EN (Pro), trilingual (Golden and Platinum). Portal Pass access always includes EN/HI/GU for the unlocked post.",
   "unlocks": {
+    "offered": false,
     "video": { "inr": 19 },
     "pdf": { "inr": 9 },
     "pack": { "inr": 49, "videos": 3, "pdfs": 3 },
     "allowDownload": true,
-    "_note": "an unlocked item = every language version of that video/PDF, forever, for that account"
+    "_note": "À-la-carte ₹19/₹9/₹49 is withdrawn — Portal Pass credits replace single-item purchases. Kept in the file only so old receipts still verify. The app hides every buy UI for these SKUs; the server rejects new unlock orders."
   },
   "payMethods": ["upi", "card", "netbanking", "wallet"],
   "grace": [
@@ -33,9 +36,20 @@
   ],
   "_grace_note": "paid passes only (not the trial): full access of that tier for N hours, chosen by the LOCAL hour the pass expired",
   "postPasses": [
-    { "id": "post_1", "posts": 1, "hours": 24, "inr": 21 },
-    { "id": "post_3", "posts": 3, "hours": 24, "inr": 31 },
-    { "id": "post_30", "posts": 30, "hours": 168, "inr": 331 }
+    { "id": "post_1", "name": "Single Portal", "posts": 1, "hours": 24, "inr": 21 },
+    { "id": "post_3", "name": "Triple Portal", "posts": 3, "hours": 24, "inr": 31 },
+    { "id": "post_30", "name": "Universe Pass", "posts": 30, "hours": 168, "inr": 331 }
   ],
-  "_postPasses_note": "Time-limited Knowledge post access for Free, Pro and Gold (Platinum already has every post). A pass opens the chosen posts in every language (videos + PDFs). View/stream only — downloads stay Platinum-only. Website only; hidden in the Android app."
+  "_postPasses_note": "Portal Pass CREDIT model. A purchase adds that many credits (unused credits never expire). The member then chooses posts; each unlock spends 1 credit and starts its OWN timer (24h for Single/Triple, 7 days for Universe). Access includes EN/HI/GU, videos, PDFs, photos, HD, download and offline play until that post expires, then it auto-locks. Shown to Free, Pro and Golden. Hidden from Platinum. Website only; hidden in the Android app.",
+  "founding": {
+    "name": "THE FIRST 131",
+    "cap": 131,
+    "discountPct": 25,
+    "_note": "First 131 verified paid membership purchases get 25% off that membership and later renewals while the eligible subscription stays active (no lapse past grace). Founding Member badge + early-access flag. Counter is the real claimed count from Supabase only — hide or show 0 if there is no backend. Rejoining after a lapse is subject to published terms (discount is not automatic)."
+  },
+  "referral": {
+    "rewardInr": 25,
+    "maxPerMember": 5,
+    "_note": "Personal ?ref=CODE link. Both people get ₹25 wallet credit on the friend's first paid purchase (membership or Portal Pass). Max 5 successful referrals per member. Block self-referral and duplicate accounts (same device hash or email) plus server checks. Wallet can be used at website checkout only."
+  }
 }

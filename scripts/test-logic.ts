@@ -53,5 +53,18 @@ ok(pp.find((x) => x.id === 'post_1')?.inr === 21 && pp.find((x) => x.id === 'pos
 ok(pp.find((x) => x.id === 'post_3')?.inr === 31 && pp.find((x) => x.id === 'post_3')?.hours === 24 && pp.find((x) => x.id === 'post_3')?.posts === 3, 'post pass: 3 posts ₹31 / 24 hours')
 ok(pp.find((x) => x.id === 'post_30')?.inr === 331 && pp.find((x) => x.id === 'post_30')?.hours === 168 && pp.find((x) => x.id === 'post_30')?.posts === 30, 'post pass: 30 posts ₹331 / 7 days')
 
+const passes = pricing.passes as { id: string; plan: string; days: number; inr: number }[]
+ok(!passes.some((x) => x.id === 'platinum_90'), 'old Platinum 90-day pass is gone')
+ok(passes.find((x) => x.id === 'pro_30')?.inr === 149 && passes.find((x) => x.id === 'pro_365')?.inr === 1199, 'Pro ₹149 / mo and ₹1,199 / yr')
+ok(passes.find((x) => x.id === 'gold_30')?.inr === 299 && passes.find((x) => x.id === 'gold_365')?.inr === 2399, 'Golden ₹299 / mo and ₹2,399 / yr')
+ok(passes.find((x) => x.id === 'platinum_30')?.inr === 599 && passes.find((x) => x.id === 'platinum_365')?.inr === 4799, 'Platinum ₹599 / mo and ₹4,799 / yr')
+ok((pricing as { unlocks: { offered?: boolean } }).unlocks.offered === false, 'à-la-carte unlocks are withdrawn')
+const founding = (pricing as { founding: { cap: number; discountPct: number } }).founding
+ok(founding.cap === 131 && founding.discountPct === 25, 'THE FIRST 131 is 25% off for 131 members')
+const fp = (n: number) => Math.round(n * 75 / 100)
+ok(fp(149) === 112 && fp(1199) === 899 && fp(299) === 224 && fp(2399) === 1799 && fp(599) === 449 && fp(4799) === 3599, 'founding prices round to whole rupees')
+ok((pricing as { referral: { rewardInr: number; maxPerMember: number } }).referral.rewardInr === 25, 'referral reward is ₹25, max 5')
+ok((pricing as { referral: { maxPerMember: number } }).referral.maxPerMember === 5, 'referral cap is 5 per member')
+
 console.log(failed ? `\n${failed} failed` : '\nAll logic checks passed')
 process.exit(failed ? 1 : 0)

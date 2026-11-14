@@ -3,6 +3,7 @@
  */
 import { useApp, effectivePlan, type Membership } from '../store/app'
 import { hasPlan, passStatus, PLAN_BY_ID } from './plans'
+import { isPostOpen as postIsOpen } from './postPasses'
 import type { PlanId } from '../types'
 
 export type Feature =
@@ -22,9 +23,9 @@ export const FEATURE_PLAN: Record<Feature, PlanId> = {
   'photos.compare': 'pro',
   'download.programPdf': 'gold', // your own program as a PDF
   'download.history': 'gold', // your own history as PDF / CSV
-  'download.clips': 'platinum', // offline exercise clips (in-app cache)
-  'download.knowledge': 'platinum', // Knowledge videos / PDFs saved in-app
-  'downloads.inApp': 'platinum',
+  'download.clips': 'pro', // offline clips during valid Pro+ access
+  'download.knowledge': 'pro', // Knowledge videos / PDFs saved in-app during valid Pro+ access
+  'downloads.inApp': 'pro',
   'download.backup': 'free',
 }
 
@@ -62,13 +63,21 @@ export function useDownloadAccess(): DownloadAccess {
   return downloadAccess(m)
 }
 
-/* ───────────── Knowledge post passes ─────────────
- * A post pass opens the chosen Knowledge posts (all EN/HI/GU videos + PDFs) for a
- * limited time. It is view/stream only — downloads stay Platinum-only (see FEATURE_PLAN).
- * Offered to Free, Pro and Gold; Platinum already has every post.
+/* ───────────── Portal Pass credits ─────────────
+ * A Portal Pass adds unused credits (they never expire). Each unlock starts its own
+ * timer and includes all 3 languages plus download / offline play until that post expires.
+ * Offered to Free, Pro and Golden; hidden from Platinum (all included vaults).
  */
 export {
   POST_PASSES, POST_PASS_BY_ID, isPostOpen, postAccess, openSlots, totalOpenSlots,
-  formatRemain, activePasses, buyPostPass, usePostPasses, type PostPassId, type UserPostPass,
+  formatRemain, activePasses, buyPostPass, usePostPasses, creditsLeft, creditsByType,
+  activeUnlocks, type PostPassId, type UserPostPass, type CreditLot, type PortalUnlock,
 } from './postPasses'
 export { postPassDuration, type PostPassConfig } from '../config/plans'
+
+/** Knowledge download / offline play is allowed during a valid Pro+ membership, or while a Portal unlock for that post is active. */
+export function knowledgeDownloadOk(postNumber: number | undefined, plan: PlanId): boolean {
+  if (hasPlan(plan, FEATURE_PLAN['downloads.inApp'])) return true
+  if (postNumber && postIsOpen(postNumber)) return true
+  return false
+}

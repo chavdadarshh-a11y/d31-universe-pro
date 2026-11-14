@@ -10,6 +10,8 @@ import { fmtDate } from '../lib/util'
 import { Avatar, AvatarPicker } from '../components/Avatar'
 import { deleteAccount, logOut, updateAccount, validEmail } from '../lib/accounts'
 import { useCan } from '../lib/entitlements'
+import { useIsFounding } from '../lib/founding'
+import { useWallet } from '../lib/wallet'
 import { useUnits } from '../lib/units'
 import { IN_APP } from '../lib/appMode'
 
@@ -27,6 +29,8 @@ function Row({ icon, label, value, onClick, danger, testid }: { icon: React.Reac
 export function Profile() {
   const t = useT()
   const s = useApp()
+  const isFounder = useIsFounding()
+  const walletBal = useWallet((s) => s.balance)
   const u = useUnits()
   const plan = effectivePlan(s.membership)
   const canDl = useCan('downloads.inApp')
@@ -103,7 +107,7 @@ export function Profile() {
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/12 text-gold"><Crown size={19} /></span>
           <div className="flex-1">
             <Label>{t('currentPlan')}</Label>
-            <div className={`mt-0.5 flex items-center gap-2 text-[16px] font-bold ${plan === 'platinum' ? 'text-platinum' : ''}`}>{t(`plan_${plan}`)} {s.membership.source === 'demo' && <Badge tone="gold">{t('demo')}</Badge>}</div>
+            <div className={`mt-0.5 flex items-center gap-2 text-[16px] font-bold ${plan === 'platinum' ? 'text-platinum' : ''}`}>{t(`plan_${plan}`)} {s.membership.source === 'demo' && <Badge tone="gold">{t('demo')}</Badge>}{isFounder && <Badge tone="gold">{t('first131Badge')}</Badge>}</div>
             {plan !== 'free' && s.membership.until && <div className="text-[12px] text-muted">{t('validUntil', { d: fmtDate(s.membership.until, s.lang) })}</div>}
           </div>
           <span className="text-[13px] font-semibold text-cyan">{IN_APP ? t('memDetails') : plan === 'free' ? t('upgrade') : t('manage')}</span>
@@ -114,7 +118,8 @@ export function Profile() {
       <Card className="divide-y divide-white/[0.05] overflow-hidden">
         {s.user && <Row testid="edit-account" icon={<UserCog size={18} />} label={t('editAccount')} onClick={() => { setNm(s.user?.name || s.profile.name); setEm(s.user?.email || ''); setErr(null); setAcct(true) }} />}
         <Row icon={<UserCog size={18} />} label={t('editProfile')} onClick={() => setEdit(true)} />
-        <Row testid="downloads" icon={<Download size={18} />} label={t('downloadsLbl')} value={canDl ? undefined : <span className="flex items-center gap-1 text-[12px] font-bold text-gold"><Lock size={13} /> {t('plan_platinum')}</span>} onClick={() => navigate('/downloads')} />
+        <Row testid="downloads" icon={<Download size={18} />} label={t('downloadsLbl')} value={canDl ? undefined : <span className="flex items-center gap-1 text-[12px] font-bold text-gold"><Lock size={13} /> {t('plan_pro')}</span>} onClick={() => navigate('/downloads')} />
+        {!IN_APP && <Row testid="referral" icon={<Users size={18} />} label={t('refTitle')} value={walletBal > 0 ? <span className="font-mono text-[12px] font-bold text-gold">{t('walletBal', { n: walletBal })}</span> : undefined} onClick={() => navigate('/referral')} />}
         <Row icon={<Cog size={18} />} label={t('settings')} onClick={() => navigate('/settings')} />
         <Row icon={<BookOpen size={18} />} label={t('knowledge')} onClick={() => navigate('/knowledge')} />
         <Row icon={<Images size={18} />} label={t('seeGallery')} onClick={() => navigate('/library?tab=shoot')} />

@@ -4,7 +4,11 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { initAuth } from './lib/cloud'
+import { captureReferralFromUrl } from './lib/referral'
+import { trackInstall } from './lib/analytics'
 
+captureReferralFromUrl()
+trackInstall()
 void initAuth()
 
 createRoot(document.getElementById('root')!).render(

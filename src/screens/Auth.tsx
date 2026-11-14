@@ -11,6 +11,8 @@ import { LogoMark } from '../components/Brand'
 import { logInLocal, logOut, signUpLocal, validEmail, type AuthError } from '../lib/accounts'
 import { REMEMBER_KEY, setRemember as setRememberPref } from '../lib/accountKeys'
 import { startOneTap } from '../lib/googleOneTap'
+import { trackSignup } from '../lib/analytics'
+import { useReferral } from '../lib/referral'
 import { useEffect } from 'react'
 
 export function Auth() {
@@ -65,6 +67,7 @@ export function Auth() {
       if (!isLive || !supabase) {
         const r = mode === 'up' ? await signUpLocal(name, email, password) : await logInLocal(email, password)
         if (!r.ok) return setMsg(errText(r.error))
+        if (mode === 'up') { trackSignup(); void useReferral.getState().attachPending() }
         showToast(mode === 'up' ? t('welcomeName', { n: name.trim() }) : t('signedInAs', { e: email.trim().toLowerCase() }))
         await storeCred()
         return done()
@@ -78,7 +81,7 @@ export function Auth() {
       } else {
         const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { data: { full_name: name.trim() }, emailRedirectTo: window.location.origin + import.meta.env.BASE_URL } })
         if (error) throw error
-        if (data.session) { await storeCred(); done() }
+        if (data.session) { trackSignup(); void useReferral.getState().attachPending(); await storeCred(); done() }
         else setMsg(t('checkEmail'))
       }
     } catch (e) {

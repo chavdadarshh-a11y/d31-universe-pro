@@ -43,7 +43,7 @@ async function openLockedSheet(p) {
   const tx = await text(p)
   ok('free: prices ₹21 / ₹31 / ₹331', /₹\s*21\b/.test(tx) && /₹\s*31\b/.test(tx) && /₹\s*331\b/.test(tx), tx.includes('Post passes') ? '' : 'section text missing')
   ok('free: all 3 buy buttons', await p.locator('[data-testid="buy-post_1"]').count() === 1 && await p.locator('[data-testid="buy-post_3"]').count() === 1 && await p.locator('[data-testid="buy-post_30"]').count() === 1)
-  ok('free: view-only / no-download note', /view and stream only|downloads stay with platinum/i.test(tx))
+  ok('free: credits / download-during-access note', /never expire|download and offline|valid access|timer/i.test(tx))
   await p.locator('[data-testid="pp-section"]').scrollIntoViewIfNeeded()
   await p.screenshot({ path: `${OUT}/01-free-plans-post-passes.png` })
 
@@ -103,9 +103,8 @@ async function openLockedSheet(p) {
   const bt = await banner.innerText()
   ok('demo buy: banner has remaining time', /\d+\s*h|\d+\s*m/.test(bt) && /left|बाकी|બાકી/i.test(bt), bt.replace(/\n/g, ' '))
   ok('demo buy: Hindi videos unlocked (not locked rows)', await p.locator('[data-testid="k-file-locked"]').count() === 0 && await p.locator('[data-testid="k-file"]').count() >= 1)
-  ok('demo buy: view-only note visible', /view and stream only|downloads stay with platinum/i.test(await text(p)))
-  // downloads still locked (not Platinum)
-  ok('demo buy: download still Platinum-only', await p.locator('[data-testid="k-dl-locked"]').count() >= 1)
+  ok('demo buy: access-until-timer note visible', /download and offline|timer ends|locks again|valid access/i.test(await text(p)))
+  ok('demo buy: download allowed during valid unlock', await p.locator('[data-testid="k-dl-locked"]').count() === 0 && (await p.locator('[data-testid="k-dl"], [data-testid="k-dl-setup"], [data-testid="k-saved"]').count()) >= 1)
   await p.screenshot({ path: `${OUT}/06-demo-buy-1post-unlocked.png` })
   // plans page shows the active pass + countdown
   await goH(p, '/membership')

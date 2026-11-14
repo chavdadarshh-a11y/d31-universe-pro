@@ -1,5 +1,5 @@
 {
-  "name": "D31.UNIVERSE — Darshan Chavda",
+  "name": "D31.UNIVERSE",
   "short_name": "D31",
   "description": "Train with Darshan Chavda: workout logging, skill paths, D31 Knowledge, AI form check and live rep counter. English, Hindi, Gujarati.",
   "id": "./",
@@ -33,6 +33,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "./icons/monochrome-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "monochrome"
     },
     {
       "src": "./icons/icon.svg",

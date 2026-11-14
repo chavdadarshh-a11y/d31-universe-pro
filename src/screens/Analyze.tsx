@@ -120,8 +120,9 @@ function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; sr
     if (rec.photo) loadImg(rec.photo).then(setImg).catch(() => setImg(null))
   }, [src, rec.photo])
   const { pose, setup, muscles, checks, skipped } = useResult(rec, lang, img)
-  const [mode, setMode] = useState<Mode>(rec.mode ?? setup.mode)
-  useEffect(() => setMode(rec.mode ?? exerciseSetup(rec.exId).mode), [rec.exId, rec.mode])
+  const noMus = (m: Mode): Mode => (m === 'muscles' ? 'angles' : m)
+  const [mode, setMode] = useState<Mode>(noMus(rec.mode ?? setup.mode))
+  useEffect(() => setMode(noMus(rec.mode ?? exerciseSetup(rec.exId).mode)), [rec.exId, rec.mode])
   const canvas = useRef<HTMLCanvasElement>(null)
   const ex = analysisEx(rec.exId)
   const name = ex ? exLabel(ex, lang) : ''
@@ -148,7 +149,7 @@ function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; sr
         <canvas ref={canvas} className="block w-full" data-testid="od-canvas" />
       </div>
       <div className="flex gap-1.5" role="tablist" data-testid="mode-tabs">
-        {(['angles', 'muscles', 'technique'] as Mode[]).map((m) => (
+        {(['angles', 'technique'] as Mode[]).map((m) => (
           <button key={m} role="tab" data-testid={`mode-${m}`} aria-selected={mode === m} onClick={() => setMode(m)}
             className={`flex-1 rounded-xl border px-2 py-2 font-mono text-[11.5px] font-bold uppercase tracking-wider transition ${mode === m ? 'border-[#ff3b30]/60 bg-[#ff3b30]/12 text-white' : 'border-white/10 bg-white/[0.03] text-muted'}`}>
             {t(m === 'angles' ? 'modeAngles' : m === 'muscles' ? 'modeMuscles' : 'modeTechnique')}

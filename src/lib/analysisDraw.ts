@@ -47,9 +47,9 @@ export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource
   ctx.fillRect(0, 0, W, H)
   const drawn: string[] = []
   if (pose.ok) {
-    if (o.mode === 'angles') drawAngles(ctx, pose, o)
-    else if (o.mode === 'muscles') drawn.push(...drawMuscles(ctx, pose, o))
-    else drawTechnique(ctx, pose, o)
+    // HOTFIX v4.2.1: the muscle photo overlay is disabled until the anatomical renderer ships (body map still shows muscles)
+    if (o.mode === 'technique') drawTechnique(ctx, pose, o)
+    else drawAngles(ctx, pose, o)
   }
   if (o.chrome !== false) {
     drawTitle(ctx, W, H, o.title, o.subtitle)
@@ -425,7 +425,7 @@ function smoothPath(ctx: CanvasRenderingContext2D, poly: P[]) {
   ctx.closePath()
 }
 
-function drawMuscles(ctx: CanvasRenderingContext2D, p: Pose, o: RenderOpts): string[] {
+export function drawMuscles(ctx: CanvasRenderingContext2D, p: Pose, o: RenderOpts): string[] {
   const prim = new Set(o.muscles.primary), sec = new Set(o.muscles.secondary.filter((m) => !prim.has(m)))
   const shapes = buildShapes(p, new Set([...prim, ...sec]))
   const lw = Math.max(1.2, Math.min(p.W, p.H) / 420)

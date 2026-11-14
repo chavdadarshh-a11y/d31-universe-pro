@@ -11,14 +11,15 @@
  * If a segment's contour cannot be fitted confidently, the muscle is NOT drawn (never a primitive fallback).
  */
 import type { P, Pose, View } from './formCheck'
+import { ART, artCovers, artView, fitArt, triangleIoU } from './muscleArt.ts'
 
 export type Fine =
   | 'pec_major' | 'delt_ant' | 'delt_lat' | 'delt_post' | 'biceps' | 'brachialis' | 'triceps' | 'forearm_flexors' | 'forearm_extensors'
-  | 'lats' | 'traps_upper' | 'traps_mid' | 'rhomboids' | 'teres_major' | 'serratus' | 'rectus_abdominis' | 'obliques' | 'erectors'
+  | 'lats' | 'traps_upper' | 'traps_mid' | 'rhomboids' | 'teres_major' | 'serratus' | 'rectus_abdominis' | 'obliques' | 'erectors' | 'infraspinatus'
   | 'glute_max' | 'glute_med' | 'rectus_femoris' | 'vastus_lateralis' | 'vastus_medialis' | 'hamstrings' | 'adductors'
   | 'gastrocnemius' | 'soleus' | 'tibialis'
 export type Role = 'primary' | 'secondary' | 'stabilizer'
-type Seg = 'upperArm' | 'forearm' | 'thigh' | 'shin' | 'torso'
+export type Seg = 'upperArm' | 'forearm' | 'thigh' | 'shin' | 'torso'
 type TS = [number, number]
 type Fiber = { kind: 'along' } | { kind: 'fan'; o: TS } | { kind: 'dir'; d: TS } | { kind: 'bands'; at: number[] }
 type Tpl = { id: Fine; seg: Seg; view: View | 'all'; poly: TS[]; fiber: Fiber; bilateral?: boolean }
@@ -124,7 +125,7 @@ export const COARSE_TO_FINE: Record<string, Fine[]> = {
 }
 export const FINE_TO_COARSE: Record<Fine, string> = {
   pec_major: 'chest', delt_ant: 'shoulders', delt_lat: 'shoulders', delt_post: 'rear_delts', biceps: 'biceps', brachialis: 'biceps', triceps: 'triceps',
-  forearm_flexors: 'forearms', forearm_extensors: 'forearms', lats: 'lats', traps_upper: 'traps', traps_mid: 'traps', rhomboids: 'upper_back', teres_major: 'lats',
+  forearm_flexors: 'forearms', forearm_extensors: 'forearms', lats: 'lats', traps_upper: 'traps', traps_mid: 'traps', rhomboids: 'upper_back', teres_major: 'lats', infraspinatus: 'rear_delts',
   serratus: 'obliques', rectus_abdominis: 'abs', obliques: 'obliques', erectors: 'lower_back', glute_max: 'glutes', glute_med: 'glutes',
   rectus_femoris: 'quads', vastus_lateralis: 'quads', vastus_medialis: 'quads', hamstrings: 'hamstrings', adductors: 'adductors',
   gastrocnemius: 'calves', soleus: 'calves', tibialis: 'calves',
@@ -246,7 +247,11 @@ function toFrame(m: Meas, personRatio: number): Frame | null {
 /** diagnostics of the last fits (tests only) */
 export const fitDebug: { A: P; B: P; inside: number; fracP: number; fracN: number }[] = []
 
-export type DrawnMuscle = { id: Fine; role: Role; seg: Seg; polys: P[][]; fibers: P[][]; anchor: P }
+export type DrawnMuscle = {
+  id: Fine; role: Role; seg: Seg; polys: P[][]; fibers: P[][]; anchor: P
+  /** artwork v2: fibres / tendinous bands per part (index = polys index), tendon-sheet flags, paint layer */
+  partFibers?: P[][][]; partBands?: P[][][]; apo?: boolean[]; layer?: number
+}
 export type NotDrawn = { id: Fine; role: Role; reason: 'view' | 'fit' | 'noArt' }
 /**
  * Muscles with NO drawing on purpose: their old outlines were triangles / slivers / zig-zags, which is not
@@ -276,8 +281,46 @@ function fiberLines(tpl: Tpl, poly: TS[]): TS[][] {
  * Fit every wanted muscle onto the photo. Only segments whose joints are clearly visible, that are not badly
  * foreshortened, and whose contour is fitted from the segmentation mask are drawn.
  */
-export type FitResult = { drawn: DrawnMuscle[]; notDrawn: NotDrawn[]; occluders: P[][] }
-export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>): FitResult {
+export type FitResult = { drawn: DrawnMuscle[]; notDrawn: NotDrawn[]; occluders: P[][]; hairZone?: { top: number; bottom: number } }
+const LOWER_TEMPLATE = new Set<Fine>(['glute_max', 'glute_med', 'hamstrings', 'gastrocnemius', 'soleus', 'tibialis'])
+export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark'): FitResult {
+  // front / back views: the anatomical artwork (muscleArt) draws every muscle it covers; NO fallback to the
+  // old outlines for those — if the artwork can't be fitted the muscle is simply not drawn.
+  const av = pose.ok ? artView(pose, face) : null
+  if (pose.ok && (pose.view === 'front' || pose.view === 'back') && !av) {
+    // the view is uncertain: never put front artwork on a back (or vice versa) — those muscles are not drawn
+    const cov = artCovers(pose.view), rest: Partial<Record<Fine, Role>> = {}, nd: NotDrawn[] = []
+    for (const id of Object.keys(roles) as Fine[]) if (cov.has(id) || !LOWER_TEMPLATE.has(id)) nd.push({ id, role: roles[id]!, reason: 'view' }); else rest[id] = roles[id]
+    const tpl = fitTemplates(pose, mask, rest)
+    return { ...tpl, notDrawn: [...nd, ...tpl.notDrawn] }
+  }
+  if (pose.ok && mask && av) {
+    const art = fitArt(pose, mask, roles, (p) => primitiveScore(p) > PRIMITIVE_MAX || triangleLikeness(p) >= TRIANGLE_MAX, av)
+    {
+      // muscles the artwork doesn't cover in this view: only the lower-body outlines (glutes, hamstrings,
+      // calves, shin) are still taken from the segment templates; the rest are listed as not visible
+      const rest: Partial<Record<Fine, Role>> = {}, hidden: NotDrawn[] = []
+      for (const id of Object.keys(roles) as Fine[]) {
+        if (art.covered.has(id)) continue
+        if (LOWER_TEMPLATE.has(id)) rest[id] = roles[id]
+        else hidden.push({ id, role: roles[id]!, reason: 'view' })
+      }
+      // a square-on photo that formCheck called 'side' but the face cue says back/front: the remaining muscles use that view too
+      const tpl = fitTemplates(pose.view === av ? pose : { ...pose, view: av }, mask, rest)
+      const order = (m: DrawnMuscle) => m.layer ?? -1
+      return {
+        drawn: [...tpl.drawn, ...art.drawn].sort((a, b) => order(a) - order(b)),
+        notDrawn: [...art.notDrawn, ...tpl.notDrawn, ...hidden],
+        occluders: [...(av === 'front' ? art.occluders : []), ...tpl.occluders],
+        hairZone: art.anchors ? { top: art.anchors.C7.y + 0.08 * art.anchors._T.x, bottom: 1e9 } : undefined,
+      }
+    }
+  }
+  return fitTemplates(pose, mask, roles)
+}
+export { ART, artCovers, artView }
+
+function fitTemplates(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>): FitResult {
   const wanted = Object.keys(roles) as Fine[]
   fitDebug.length = 0
   const drawn = new Map<Fine, DrawnMuscle>()
@@ -461,28 +504,11 @@ export function primitiveScore(poly: P[]): number {
 
 /** shapes scoring above these are primitives (oval / lens / rectangle / triangle) and are never drawn */
 export const PRIMITIVE_MAX = 0.93
-export const TRIANGLE_MAX = 0.8
+export const TRIANGLE_MAX = 0.85
 
 /**
- * Triangle-likeness: area of the largest triangle that fits on the outline's convex hull ÷ outline area.
- * 1.0 = a triangle; a smooth ellipse is 0.41; real muscle outlines here are ≤ 0.78. Affine-invariant, so the
- * value in template space equals the value on the photo.
+ * Triangle-likeness = best IoU between the outline and a triangle on its convex hull (1 = triangle,
+ * smooth ellipse ≈ 0.55, curved/concave muscles such as the lats ≈ 0.7). v4.3.1 used "hull-triangle area ÷
+ * outline area", which wrongly failed curved concave shapes; this IoU version does not.
  */
-export function triangleLikeness(poly: P[]): number {
-  const area = (p: P[]) => Math.abs(p.reduce((a, q, i) => { const r = p[(i + 1) % p.length]; return a + q.x * r.y - r.x * q.y }, 0) / 2)
-  const cr = (o: P, a: P, b: P) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
-  const srt = [...poly].sort((a, b) => a.x - b.x || a.y - b.y)
-  const lo: P[] = [], up: P[] = []
-  for (const q of srt) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q) }
-  for (const q of srt.reverse()) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q) }
-  let h = lo.slice(0, -1).concat(up.slice(0, -1))
-  if (h.length > 40) h = h.filter((_, i) => i % Math.ceil(h.length / 40) === 0)
-  const A = area(poly)
-  if (!(A > 0)) return 1
-  let best = 0
-  for (let i = 0; i < h.length; i++) for (let j = i + 1; j < h.length; j++) for (let k = j + 1; k < h.length; k++) {
-    const t = Math.abs(cr(h[i], h[j], h[k])) / 2
-    if (t > best) best = t
-  }
-  return Math.min(1, best / A)
-}
+export function triangleLikeness(poly: P[]): number { return triangleIoU(poly) }

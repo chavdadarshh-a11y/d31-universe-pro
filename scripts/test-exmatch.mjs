@@ -2,7 +2,7 @@
 import { rolldown } from 'rolldown'
 import fs from 'node:fs'
 const bundle = await rolldown({ input: new URL('./exmatch-entry.ts', import.meta.url).pathname, platform: 'node', logLevel: 'silent' })
-const { output } = await bundle.generate({ format: 'esm' })
+const { output } = await bundle.generate({ format: 'esm', inlineDynamicImports: true })
 const m = await import('data:text/javascript;base64,' + Buffer.from(output[0].code).toString('base64'))
 let failed = 0
 const ok = (c, msg) => { console.log(`${c ? '✓' : '✗'} ${msg}`); if (!c) failed++ }

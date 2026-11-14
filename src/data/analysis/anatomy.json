@@ -71,6 +71,11 @@
    "hi": "टेरेस मेजर",
    "gu": "ટેરેસ મેજર"
   },
+  "infraspinatus": {
+   "en": "Infraspinatus",
+   "hi": "इन्फ्रास्पाइनेटस",
+   "gu": "ઇન્ફ્રાસ્પાઇનેટસ"
+  },
   "serratus": {
    "en": "Serratus anterior",
    "hi": "सेरेटस एंटीरियर",
@@ -412,7 +417,10 @@
    "stabilizer": [
     "erectors",
     "rectus_abdominis",
-    "obliques"
+    "obliques",
+    "traps_upper",
+    "infraspinatus",
+    "triceps"
    ]
   },
   "pull-up": {
@@ -430,7 +438,10 @@
    "stabilizer": [
     "erectors",
     "rectus_abdominis",
-    "obliques"
+    "obliques",
+    "traps_upper",
+    "infraspinatus",
+    "triceps"
    ]
   },
   "chin-up": {
@@ -993,7 +1004,10 @@
     "stabilizer": [
      "erectors",
      "rectus_abdominis",
-     "obliques"
+     "obliques",
+     "traps_upper",
+     "infraspinatus",
+     "triceps"
     ]
    },
    "close": {
@@ -1010,7 +1024,10 @@
     ],
     "stabilizer": [
      "erectors",
-     "rectus_abdominis"
+     "rectus_abdominis",
+     "traps_upper",
+     "infraspinatus",
+     "triceps"
     ]
    },
    "reverse": {
@@ -1028,7 +1045,10 @@
     ],
     "stabilizer": [
      "erectors",
-     "rectus_abdominis"
+     "rectus_abdominis",
+     "traps_upper",
+     "infraspinatus",
+     "triceps"
     ]
    },
    "neutral": {
@@ -1046,7 +1066,10 @@
     ],
     "stabilizer": [
      "erectors",
-     "rectus_abdominis"
+     "rectus_abdominis",
+     "traps_upper",
+     "infraspinatus",
+     "triceps"
     ]
    }
   },

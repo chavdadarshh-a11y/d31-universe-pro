@@ -5,7 +5,7 @@
  * (scripts/test-anatomy.ts fails the build if one appears).
  */
 import type { Lang } from '../types'
-import type { P } from './formCheck'
+import type { P, Pose } from './formCheck'
 import type { DrawnMuscle, Mask, Role } from './muscleAnatomy'
 import { fineName, ROLE_ORDER, roleWord } from './muscleRoles'
 
@@ -17,6 +17,33 @@ export const ROLE_COLOR: Record<Role, { fill: string; line: string; fibre: strin
 const FONT_MONO = '"JetBrains Mono", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-monospace, monospace'
 
 const mkCanvas = (w: number, h: number) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c }
+
+/**
+ * Face cue for the front/back decision: the pixels between the eyes and the nose are skin when the person
+ * faces the camera and hair when their back is turned. 'skin' | 'dark' | undefined (can't tell).
+ */
+export function faceCue(src: CanvasImageSource & { width: number; height: number }, pose: Pose): 'skin' | 'dark' | undefined {
+  const P = pose.pts
+  if (!pose.ok || !P[0] || !P[2] || !P[5]) return undefined
+  const c = { x: (P[0].x + P[2].x + P[5].x) / 3, y: (P[0].y + P[2].y + P[5].y) / 3 }, r = Math.max(3, 0.6 * Math.hypot(P[2].x - P[5].x, P[2].y - P[5].y))
+  const n = Math.ceil(2 * r), cv = mkCanvas(n, n), x = cv.getContext('2d', { willReadFrequently: true })!
+  const sw = (src as HTMLImageElement).naturalWidth || src.width, sh = (src as HTMLImageElement).naturalHeight || src.height
+  const kx = sw / pose.W, ky = sh / pose.H
+  try { x.drawImage(src, (c.x - r) * kx, (c.y - r) * ky, 2 * r * kx, 2 * r * ky, 0, 0, n, n) } catch { return undefined }
+  const d = x.getImageData(0, 0, n, n).data
+  let cnt = 0, lum = 0, skin = 0
+  for (let yy = 0; yy < n; yy++) for (let xx = 0; xx < n; xx++) {
+    if ((xx + 0.5 - r) ** 2 + (yy + 0.5 - r) ** 2 > r * r) continue
+    const i = (yy * n + xx) * 4, R = d[i], G = d[i + 1], B = d[i + 2], l = 0.299 * R + 0.587 * G + 0.114 * B
+    cnt++; lum += l
+    if (R > G && G > B && R - B > 12 && l > 55) skin++
+  }
+  if (!cnt) return undefined
+  lum /= cnt; skin /= cnt
+  if (lum < 45 && skin < 0.15) return 'dark'
+  if (skin >= 0.3 && lum >= 50) return 'skin'
+  return undefined
+}
 
 /** person mask → alpha canvas (soft edge) */
 export function maskCanvas(m: Mask): HTMLCanvasElement {
@@ -51,13 +78,72 @@ export function toBW(ctx: CanvasRenderingContext2D, W: number, H: number) {
   ctx.putImageData(img, 0, 0)
 }
 
-export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: number, muscles: DrawnMuscle[], mask: Mask, occluders: P[][] = []) {
+/**
+ * Hair / dark clothing: very dark pixels inside the person mask are not skin, so no muscle is painted there.
+ * Only applied outside the zone [top, bottom] (the app uses: above the neck base = hair) — on the torso a dark pixel is a
+ * shadow on skin and must keep its muscle. Works on a ≤360 px grid; returns an alpha canvas (W×H).
+ */
+function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: Mask, zone: { top: number; bottom: number }, darkLum: number): HTMLCanvasElement {
+  const base = maskCanvas(mask)
+  const out = mkCanvas(W, H), o = out.getContext('2d')!
+  o.imageSmoothingEnabled = true
+  o.drawImage(base, 0, 0, W, H)
+  let px: ImageData
+  try { px = ctx.getImageData(0, 0, W, H) } catch { return out }
+  const k = Math.max(1, Math.ceil(Math.max(W, H) / 360)), gw = Math.ceil(W / k), gh = Math.ceil(H / k)
+  const lum = new Float32Array(gw * gh)
+  for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
+    let s = 0, n = 0
+    for (let y = gy * k; y < Math.min(H, gy * k + k); y++) for (let x = gx * k; x < Math.min(W, gx * k + k); x++) { const i = (y * W + x) * 4; s += 0.299 * px.data[i] + 0.587 * px.data[i + 1] + 0.114 * px.data[i + 2]; n++ }
+    lum[gy * gw + gx] = s / (n || 1)
+  }
+  // blur (r≈2 px of the photo), threshold, erode then dilate (drops thin dark lines such as skin creases)
+  const box = (a: Float32Array, r: number) => {
+    const t = new Float32Array(a.length), u = new Float32Array(a.length)
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) { let s = 0, n = 0; for (let d = -r; d <= r; d++) { const xx = x + d; if (xx >= 0 && xx < gw) { s += a[y * gw + xx]; n++ } } t[y * gw + x] = s / n }
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) { let s = 0, n = 0; for (let d = -r; d <= r; d++) { const yy = y + d; if (yy >= 0 && yy < gh) { s += t[yy * gw + x]; n++ } } u[y * gw + x] = s / n }
+    return u
+  }
+  const morph = (a: Uint8Array, r: number, max: boolean) => {
+    const t = new Uint8Array(a.length), u = new Uint8Array(a.length)
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) { let v = max ? 0 : 1; for (let d = -r; d <= r; d++) { const xx = Math.min(gw - 1, Math.max(0, x + d)); v = max ? v | a[y * gw + xx] : v & a[y * gw + xx] } t[y * gw + x] = v }
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) { let v = max ? 0 : 1; for (let d = -r; d <= r; d++) { const yy = Math.min(gh - 1, Math.max(0, y + d)); v = max ? v | t[yy * gw + x] : v & t[yy * gw + x] } u[y * gw + x] = v }
+    return u
+  }
+  const r = Math.max(1, Math.round(2 / k))
+  const bl = box(lum, r)
+  let dk = new Uint8Array(gw * gh)
+  for (let i = 0; i < dk.length; i++) dk[i] = bl[i] < darkLum ? 1 : 0
+  dk = morph(morph(dk, Math.max(1, Math.round(2 / k)), false), Math.max(1, Math.round(4 / k)), true)
+  // hole mask at grid resolution, scaled up with smoothing (no stair-steps along the hairline)
+  const gc = mkCanvas(gw, gh), gx2 = gc.getContext('2d')!, hole = gx2.createImageData(gw, gh)
+  let any = false
+  for (let gy = 0; gy < gh; gy++) {
+    const y = (gy + 0.5) * k
+    if (y >= zone.top && y <= zone.bottom) continue
+    for (let gx = 0; gx < gw; gx++) if (dk[gy * gw + gx]) { hole.data[(gy * gw + gx) * 4 + 3] = 255; any = true }
+  }
+  if (!any) return out
+  gx2.putImageData(hole, 0, 0)
+  const hc = mkCanvas(W, H), hx = hc.getContext('2d')!
+  hx.imageSmoothingEnabled = true
+  hx.drawImage(gc, 0, 0, W, H)
+  o.globalCompositeOperation = 'destination-out'
+  o.drawImage(hc, 0, 0)
+  return out
+}
+
+export type SkinOpts = { hairZone?: { top: number; bottom: number }; bw?: boolean }
+export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: number, muscles: DrawnMuscle[], mask: Mask, occluders: P[][] = [], skin: SkinOpts = {}) {
+  // read the photo before anything is painted on it
+  const keep = skin.hairZone ? skinCanvas(ctx, W, H, mask, skin.hairZone, skin.bw ? 27 : 42) : null
   const layer = mkCanvas(W, H)
   const c = layer.getContext('2d')!
   c.lineJoin = 'round'
   c.lineCap = 'round'
   const fineLw = Math.max(0.8, Math.min(W, H) / 700)
-  const trunk = muscles.filter((m) => m.seg === 'torso'), limbs = muscles.filter((m) => m.seg !== 'torso')
+  const byLayer = (a: DrawnMuscle, b: DrawnMuscle) => (a.layer ?? -1) - (b.layer ?? -1)
+  const trunk = muscles.filter((m) => m.seg === 'torso').sort(byLayer), limbs = muscles.filter((m) => m.seg !== 'torso').sort(byLayer)
   paint(c, trunk, fineLw)
   if (occluders.length) {
     c.globalCompositeOperation = 'destination-out'
@@ -69,46 +155,78 @@ export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: num
   // keep everything strictly on the person
   c.globalCompositeOperation = 'destination-in'
   c.imageSmoothingEnabled = true
-  c.drawImage(maskCanvas(mask), 0, 0, W, H)
+  if (keep) c.drawImage(keep, 0, 0)
+  else c.drawImage(maskCanvas(mask), 0, 0, W, H)
   ctx.drawImage(layer, 0, 0)
 }
+
+const strokeLines = (c: CanvasRenderingContext2D, lines: P[][]) => {
+  for (const f of lines) {
+    if (f.length < 2) continue
+    c.beginPath()
+    c.moveTo(f[0].x, f[0].y)
+    for (let i = 1; i < f.length; i++) c.lineTo(f[i].x, f[i].y)
+    c.stroke()
+  }
+}
+const centroid = (poly: P[]) => poly.reduce((a, b) => ({ x: a.x + b.x / poly.length, y: a.y + b.y / poly.length }), { x: 0, y: 0 })
 
 function paint(c: CanvasRenderingContext2D, muscles: DrawnMuscle[], fineLw: number) {
   for (const m of muscles) {
     const col = ROLE_COLOR[m.role]
-    for (const poly of m.polys) {
-      if (poly.length < 8) continue
+    m.polys.forEach((poly, pi) => {
+      if (poly.length < 8) return
       const size = Math.sqrt(area(poly))
+      const isApo = !!m.apo?.[pi]
+      if (isApo) {
+        // tendon sheet / aponeurosis: flat, lighter, dashed edge, no fibres
+        polyPath(c, poly)
+        c.fillStyle = col.fill.replace(/[\d.]+\)$/, '0.2)')
+        c.fill()
+        c.save(); c.setLineDash([fineLw * 3, fineLw * 2]); polyPath(c, poly); c.strokeStyle = col.line.replace(/[\d.]+\)$/, '0.6)'); c.lineWidth = fineLw; c.stroke(); c.restore()
+        return
+      }
       polyPath(c, poly)
       c.fillStyle = col.fill
       c.fill()
       c.save()
       polyPath(c, poly)
       c.clip()
-      // fibre striations (template lines warped with the limb)
+      // depth: soft highlight on the belly (light from above), darker toward the edges
+      const ce = centroid(poly)
+      const g = c.createRadialGradient(ce.x - size * 0.12, ce.y - size * 0.16, size * 0.04, ce.x, ce.y, size * 0.75)
+      g.addColorStop(0, 'rgba(255,255,255,0.26)')
+      g.addColorStop(0.45, 'rgba(255,255,255,0.06)')
+      g.addColorStop(1, 'rgba(0,0,0,0.16)')
+      c.fillStyle = g
+      c.fillRect(ce.x - size * 2, ce.y - size * 2, size * 4, size * 4)
+      // fibre striations: this part's own fibres (fall back to the muscle's)
+      const fib = m.partFibers?.[pi] ?? m.fibers
       c.strokeStyle = col.fibre
       c.lineWidth = fineLw
-      for (const f of m.fibers) {
-        c.beginPath()
-        c.moveTo(f[0].x, f[0].y)
-        for (let i = 1; i < f.length; i++) c.lineTo(f[i].x, f[i].y)
-        c.stroke()
-      }
-      // inner edge shading: the inside half of a wide dark stroke (gives the belly volume, no outer glow)
+      strokeLines(c, fib)
+      c.strokeStyle = 'rgba(255,255,255,0.16)'
+      c.lineWidth = fineLw * 0.6
+      c.save(); c.translate(fineLw * 0.9, fineLw * 0.9); strokeLines(c, fib); c.restore()
+      // tendinous intersections (rectus abdominis)
+      const bands = m.partBands?.[pi]
+      if (bands?.length) { c.strokeStyle = col.line; c.lineWidth = fineLw * 2.2; strokeLines(c, bands) }
+      // inner edge shading: the inside half of a wide dark stroke gives the belly volume (no outer glow)
       polyPath(c, poly)
       c.strokeStyle = 'rgba(0,0,0,0.30)'
-      c.lineWidth = Math.max(2, size * 0.22)
+      c.lineWidth = Math.max(2, size * 0.2)
       c.stroke()
       polyPath(c, poly)
       c.strokeStyle = 'rgba(0,0,0,0.18)'
-      c.lineWidth = Math.max(1, size * 0.09)
+      c.lineWidth = Math.max(1, size * 0.08)
       c.stroke()
       c.restore()
+      // crisp edge
       polyPath(c, poly)
       c.strokeStyle = col.line
-      c.lineWidth = fineLw * 1.2
+      c.lineWidth = fineLw * 1.6
       c.stroke()
-    }
+    })
   }
 }
 

@@ -467,3 +467,22 @@ html.light .beam-bar { background: linear-gradient(90deg, #d69e2e, #0891b2); box
 }
 .glass-panel.pack-bar { background: rgba(8, 12, 22, 0.95); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-color: rgba(247, 197, 72, 0.35); }
 html.light .glass-panel.pack-bar { background: rgba(255, 255, 255, 0.96); border-color: rgba(183, 121, 31, 0.4); }
+
+/* ════════════════ v4.1.2 — mobile-safe live background ════════════════
+   The v4.1.1 loop was a VP9 Profile-1 4:4:4 (gbrp) WebM: Android hardware decoders can't do it and Chrome
+   painted it as vertical colour streaks. Now: one darkened WebP (darkness baked in, no CSS filter) inside a
+   wrapper that is animated with transform only. Veil / vignette stay static on top. */
+.shiva-pan { position: absolute; inset: 0; overflow: hidden; transform-origin: 50% 45%; transform: translate3d(0, 2%, 0) scale(1.1); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.shiva-pan.live { animation: shiva-pan 46s ease-in-out infinite; }
+.shiva-pan .shiva { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%;
+  filter: none !important; animation: none !important; transform: none !important; will-change: auto; user-select: none; }
+@media (min-aspect-ratio: 3/4) { .shiva-pan .shiva { object-position: 50% 32%; } }
+/* head (top) → heart chakra → head; scale never above 1.15 */
+@keyframes shiva-pan {
+  0%, 100% { transform: translate3d(0, 6%, 0) scale(1.15); }
+  25%, 75% { transform: translate3d(0, 0, 0) scale(1.08); }
+  50%      { transform: translate3d(0, -7%, 0) scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) { .shiva-pan, .shiva-pan.live { animation: none !important; } }
+/* aurora: no blend modes / layer hints on viewport-sized blobs (cheap, safe compositing on phones) */
+.aurora, html.light .aurora { mix-blend-mode: normal; will-change: auto; }

@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
-import { mediaUrl } from './hud'
+import { useEffect, useRef } from 'react'
 import { useSettings } from '../store/settings'
 
 /**
@@ -10,41 +9,24 @@ import { useSettings } from '../store/settings'
  */
 const BASE = import.meta.env.BASE_URL || '/'
 
-/** Live Shiva background: Darshan's cosmic Shiva artwork only (darkened), a 22 s seamless sine-eased pan
- *  head → heart chakra → head with a gentle 1.15→1.35→1.15 zoom (muted, WebM VP9 + H.264 MP4). Static artwork with reduced motion / Save-Data / video error. */
+/** Live Shiva background (v4.1.2): ONE still image of Darshan's cosmic Shiva (darkness baked into the file,
+ *  720w / 981w WebP, ~150-230 KB) moved only with a GPU-cheap transform: slow pan head → heart chakra → head
+ *  with a gentle 1.08→1.15 zoom. No <video>, no CSS filter, no will-change on huge layers: the old VP9 4:4:4
+ *  (gbrp) loop rendered as coloured streaks on Android GPUs. Static when "Live background" is off,
+ *  Data saver is on, or the phone asks for reduced motion (CSS media query). */
 function LiveShiva() {
-  const allow = useSettings((s) => s.bgVideo && !s.reduceData)
-  return allow ? <LiveShivaVideo /> : <img className="shiva" src={mediaUrl('shiva-720')} srcSet={`${mediaUrl('shiva-720')} 720w, ${mediaUrl('shiva')} 981w`} sizes="100vw" alt="" decoding="async" fetchPriority="low" />
-}
-
-function LiveShivaVideo() {
-  const vref = useRef<HTMLVideoElement>(null)
-  const [still, setStill] = useState(() => {
-    if (typeof window === 'undefined') return true
-    const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
-    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || !!nav.connection?.saveData
-  })
-  useEffect(() => {
-    const v = vref.current
-    if (!v || still) return
-    const sync = () => { if (document.hidden) v.pause(); else v.play().catch(() => {}) }
-    sync()
-    document.addEventListener('visibilitychange', sync)
-    return () => document.removeEventListener('visibilitychange', sync)
-  }, [still])
-  if (still) return <img className="shiva" src={mediaUrl('shiva-720')} srcSet={`${mediaUrl('shiva-720')} 720w, ${mediaUrl('shiva')} 981w`} sizes="100vw" alt="" decoding="async" fetchPriority="low" />
+  const live = useSettings((s) => s.bgVideo && !s.reduceData)
   return (
-    <video
-      ref={vref}
-      className="shiva shiva-video"
-      poster={`${BASE}media/bg/shiva-loop-poster.jpg`}
-      autoPlay muted loop playsInline preload="auto"
-      disablePictureInPicture
-      onError={() => setStill(true)}
-    >
-      <source src={`${BASE}media/bg/shiva-loop.webm`} type="video/webm" />
-      <source src={`${BASE}media/bg/shiva-loop.mp4`} type="video/mp4" onError={() => setStill(true)} />
-    </video>
+    <div className={live ? 'shiva-pan live' : 'shiva-pan'}>
+      <img
+        className="shiva"
+        src={`${BASE}media/bg/shiva-bg-720.webp`}
+        srcSet={`${BASE}media/bg/shiva-bg-720.webp 720w, ${BASE}media/bg/shiva-bg-981.webp 981w`}
+        sizes="(min-width: 700px) 981px, 720px"
+        width={981} height={1603}
+        alt="" decoding="async" draggable={false}
+      />
+    </div>
   )
 }
 

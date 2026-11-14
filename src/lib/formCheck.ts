@@ -279,11 +279,16 @@ export function guessExercise(p: Pose): Guess[] {
     else out.push({ id: 'push-up', sure: true }, { id: 'plank', sure: false })
     return out
   }
-  // upright-ish
-  const wrAboveHead = wrists.length > 0 && nose && wrists.every((w) => w.y < nose.y)
-  if (wrAboveHead) {
-    if (m.hip && m.hip.v < 125) out.push({ id: 'overhead-press', sure: true }, { id: 'pull-up', sure: false })
-    else out.push({ id: 'pull-up', sure: false }, { id: 'overhead-press', sure: false })
+  // upright-ish with the hands overhead (works without a visible face — back views have no nose)
+  const wrAboveHead = wrists.length > 0 && (nose ? wrists.every((w) => w.y < nose.y) : false)
+  const armsOverhead = wrAboveHead || (wrists.length > 0 && wrists.every((w) => w.y < n.shM.y - 0.2 * T))
+  if (armsOverhead) {
+    // seated = hips flexed (thighs forward); a pulldown/press machine seat, not a split
+    const thighsLevel = n.kneeM ? Math.abs(n.kneeM.y - n.hipM.y) < 0.5 * T : false
+    const seated = !!m.hip && m.hip.v < 130 && (thighsLevel || !m.knee || m.knee.v < 150 || m.hip.v < 125)
+    if (seated && p.view === 'back') out.push({ id: 'lat-pulldown', sure: true }, { id: 'overhead-press', sure: false }, { id: 'pull-up', sure: false })
+    else if (seated) out.push({ id: 'overhead-press', sure: true }, { id: 'lat-pulldown', sure: false }, { id: 'pull-up', sure: false })
+    else out.push({ id: 'pull-up', sure: false }, { id: 'overhead-press', sure: false }, { id: 'lat-pulldown', sure: false })
     return out
   }
   if (m.kickHeight && m.kickHeight.v > -20 && m.baseKnee && m.baseKnee.v > 140) {

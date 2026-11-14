@@ -12,13 +12,14 @@ import { detectPhoto, drawPose, getLandmarker, maskToPng, pngToMask, RepCounter,
 import { cloud } from '../lib/cloud'
 import type { AnalysisRecord, Lang, MuscleId, WorkoutSession } from '../types'
 import {
-  analysisEx, buildPose, evaluateRules, exerciseSetup, exLabel, guessExercise, insights, l3, musclesFor, MUSCLE_NAMES, searchExercises,
+  analysisEx, buildPose, evaluateRules, exerciseSetup, exLabel, guessExercise, insights, l3, musclesFor, MUSCLE_NAMES,
   type CheckResult, type Guess, type Mode, type Pose,
 } from '../lib/formCheck'
 import { renderAnalysis } from '../lib/analysisDraw'
 import { fitMuscles, type Mask } from '../lib/muscleAnatomy'
 import { fineName, roleWord, rolesFor, ROLE_ORDER } from '../lib/muscleRoles'
 import { ROLE_COLOR } from '../lib/muscleDraw'
+import { matchExercises, mentionedExercise, parseQuery, resolveExercise, type Grip } from '../lib/exerciseMatch'
 import { hudData, renderPoster, sharePoster, svgToImage, ROLE_LEVEL, type Hud } from '../lib/poster'
 
 const SECTION_STYLE: Record<string, { icon: typeof Eye; color: string }> = {
@@ -100,7 +101,7 @@ function useResult(rec: AnalysisRecord, lang: Lang, src: HTMLCanvasElement | HTM
   const setup = exerciseSetup(exId)
   const muscles = musclesFor(exId)
   const evals = useMemo(() => (pose ? evaluateRules(pose, exId, lang) : { checks: [], skipped: [] }), [pose, exId, lang])
-  const roles = useMemo(() => rolesFor(exId), [exId])
+  const roles = useMemo(() => rolesFor(exId, rec.grip), [exId, rec.grip])
   const anatomy = useMemo(() => (pose ? fitMuscles(pose, scaleMask(raw, W, H), roles) : { drawn: [], notDrawn: [], occluders: [] }), [pose, raw, W, H, roles])
   return { pose, setup, muscles, roles, anatomy, mask: scaleMask(raw, W, H), ...evals }
 }
@@ -118,7 +119,15 @@ function specRows(t: ReturnType<typeof useT>, pose: Pose, exName: string, focus:
 }
 
 /** Result "slide": overlay canvas + mode tabs + insights + checks + body map. Works for new and saved results. */
-function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisRecord; src?: HTMLCanvasElement | null; mask?: RawMask | null; onChangeEx?: (id: string) => void; guesses?: Guess[] }) {
+const GRIP_KEY: Record<Grip, 'gripWide' | 'gripClose' | 'gripReverse' | 'gripNeutral'> = { wide: 'gripWide', close: 'gripClose', reverse: 'gripReverse', neutral: 'gripNeutral' }
+/** "Lat Pulldown · Wide grip" */
+function exTitle(exId: string | undefined, grip: string | undefined, lang: Lang, t: ReturnType<typeof useT>): string {
+  const ex = analysisEx(exId)
+  if (!ex) return ''
+  return exLabel(ex, lang) + (grip && GRIP_KEY[grip as Grip] ? ` · ${t(GRIP_KEY[grip as Grip])}` : '')
+}
+
+function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisRecord; src?: HTMLCanvasElement | null; mask?: RawMask | null; onChangeEx?: (id: string, grip?: Grip) => void; guesses?: Guess[] }) {
   const t = useT()
   const lang = useApp((s) => s.lang)
   const [img, setImg] = useState<HTMLCanvasElement | HTMLImageElement | null>(src ?? null)
@@ -140,8 +149,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
   const bodyMapRef = useRef<HTMLDivElement>(null)
   const roleKinds = useMemo(() => ROLE_ORDER.filter((r) => Object.values(roles).includes(r)), [roles])
   const canvas = useRef<HTMLCanvasElement>(null)
-  const ex = analysisEx(rec.exId)
-  const name = ex ? exLabel(ex, lang) : ''
+  const name = exTitle(rec.exId, rec.grip, lang, t)
   useEffect(() => {
     const c = canvas.current
     if (!c || !img || !pose) return
@@ -158,7 +166,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
     // redraw once the condensed font is ready
     document.fonts?.load('700 40px Oswald').then(draw).catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [img, pose, mode, lang, rec.exId, anatomy, bw, maskS])
+  }, [img, pose, mode, lang, rec.exId, rec.grip, anatomy, bw, maskS])
   const hud: Hud = useMemo(() => hudData(pose, checks, setup.profile, anatomy.drawn, anatomy.notDrawn, lang), [pose, checks, setup.profile, anatomy, lang])
   const savePoster = async () => {
     if (!img || !pose) return
@@ -226,7 +234,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
             {alts.map((g) => <Chip key={g.id} onClick={() => onChangeEx(g.id)}>{exLabel(analysisEx(g.id), lang)}</Chip>)}
             <Chip active={picking} onClick={() => setPicking(!picking)}>{t('otherEx')}</Chip>
           </div>
-          {picking && <div className="mt-2"><ExercisePickerField value="" onPick={(id) => { setPicking(false); onChangeEx(id) }} /></div>}
+          {picking && <div className="mt-2"><ExercisePickerField value="" onPick={(id, g) => { setPicking(false); onChangeEx(id, g) }} /></div>}
         </div>
       )}
 
@@ -296,7 +304,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
           </div>
           {pose?.ok && anatomy.notDrawn.length > 0 && (
             <p className="mt-2.5 text-[11.5px] leading-snug text-dim" data-testid="not-drawn">
-              {t('notDrawnTitle')}: {anatomy.notDrawn.map((m) => fineName(m.id, lang)).join(', ')}
+              {t('notDrawnTitle')}: {anatomy.notDrawn.map((m) => fineName(m.id, lang) + (m.reason === 'noArt' ? ` (${t('noArt')})` : '')).join(', ')}
             </p>
           )}
           <p className="mt-1.5 text-[11px] text-dim">{t('typicalRole')}</p>
@@ -376,23 +384,35 @@ function HudPanels({ hud, t }: { hud: Hud; t: ReturnType<typeof useT> }) {
 }
 const roleWordShort = (r: 'primary' | 'secondary' | 'stabilizer', t: ReturnType<typeof useT>) => (r === 'primary' ? t('primaryM') : r === 'secondary' ? t('secondaryM') : roleWord('stabilizer', useApp.getState().lang))
 
-function ExercisePickerField({ value, onPick, placeholder }: { value: string; onPick: (id: string) => void; placeholder?: string }) {
+function ExercisePickerField({ value, onPick, onText, placeholder }: { value: string; onPick: (id: string, grip?: Grip) => void; onText?: (q: string) => void; placeholder?: string }) {
   const t = useT()
   const lang = useApp((s) => s.lang)
   const [q, setQ] = useState(value)
   const [open, setOpen] = useState(false)
   useEffect(() => setQ(value), [value])
-  const list = useMemo(() => searchExercises(q, 8), [q])
+  const list = useMemo(() => matchExercises(q, 8).map((m) => analysisEx(m.id)!).filter(Boolean), [q])
+  const resolved = useMemo(() => (q.trim() ? resolveExercise(q) : null), [q])
+  const grip = parseQuery(q).grip
+  const choose = (id: string) => {
+    const label = exLabel(analysisEx(id), lang) + (grip ? ` ${t(GRIP_KEY[grip])}` : '')
+    setQ(label); setOpen(false); onText?.(label); onPick(id, grip)
+  }
   return (
     <div className="relative">
       <input className="field" data-testid="ex-input" placeholder={placeholder ?? t('exSearchPh')} value={q} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
-        onChange={(e) => { setQ(e.target.value); setOpen(true); if (!e.target.value) onPick('') }} />
+        onChange={(e) => { setQ(e.target.value); setOpen(true); onText?.(e.target.value) }}
+        onKeyDown={(e) => { if (e.key === 'Enter' && resolved) { e.preventDefault(); choose(resolved.id) } }} />
+      {q.trim() && (
+        <p className={`mt-1 px-1 text-[11.5px] ${resolved ? 'text-cyan' : 'text-gold'}`} data-testid="ex-resolved">
+          {resolved ? t('exResolved', { x: exTitle(resolved.id, resolved.grip, lang, t) }) : t('exNotFound', { x: q.trim() })}
+        </p>
+      )}
       {open && list.length > 0 && (
         <div className="absolute inset-x-0 top-full z-30 mt-1 overflow-hidden rounded-2xl border border-white/10 bg-[#0b0f17] shadow-xl" data-testid="ex-suggest">
           {list.map((e) => (
             <button key={e.id} type="button" className="block w-full px-3 py-2.5 text-left text-[13.5px] hover:bg-white/[0.06]" onMouseDown={(ev) => ev.preventDefault()}
-              onClick={() => { setQ(exLabel(e, lang)); setOpen(false); onPick(e.id) }}>
-              {exLabel(e, lang)}{lang !== 'en' && <span className="ml-1.5 text-[11.5px] text-dim">{e.name}</span>}
+              onClick={() => choose(e.id)}>
+              {exLabel(e, lang)}{grip ? ` · ${t(GRIP_KEY[grip])}` : ''}{lang !== 'en' && <span className="ml-1.5 text-[11.5px] text-dim">{e.name}</span>}
             </button>
           ))}
         </div>
@@ -401,14 +421,14 @@ function ExercisePickerField({ value, onPick, placeholder }: { value: string; on
   )
 }
 
-function makeThumb(base: HTMLCanvasElement, lm: number[][] | undefined, exId: string | undefined, mode: Mode, lang: Lang, mask?: RawMask | null): string {
+function makeThumb(base: HTMLCanvasElement, lm: number[][] | undefined, exId: string | undefined, mode: Mode, lang: Lang, mask?: RawMask | null, grip?: string): string {
   const small = document.createElement('canvas')
   const k = Math.min(1, 200 / Math.max(base.width, base.height))
   const w = Math.round(base.width * k), h = Math.round(base.height * k)
   // fit at full resolution (precise contour), then draw scaled down
   const full = buildPose(lmToPts(lm), base.width, base.height)
   const mk = scaleMask(mask, base.width, base.height)
-  const fit = full.ok && mode === 'muscles' ? fitMuscles(full, mk, rolesFor(exId)) : { drawn: [], occluders: [] }
+  const fit = full.ok && mode === 'muscles' ? fitMuscles(full, mk, rolesFor(exId, grip)) : { drawn: [], occluders: [] }
   const sc = (p: { x: number; y: number }) => ({ x: p.x * k, y: p.y * k })
   const drawn = fit.drawn.map((m) => ({ ...m, anchor: sc(m.anchor), polys: m.polys.map((q) => q.map(sc)), fibers: m.fibers.map((q) => q.map(sc)) }))
   const pose = buildPose(lmToPts(lm), w, h)
@@ -421,7 +441,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
   const t = useT()
   const s = useApp()
   const [files, setFiles] = useState<File[]>([])
-  const [exId, setExId] = useState(initialEx && analysisEx(initialEx) ? initialEx : '')
+  const [exText, setExText] = useState(() => (initialEx && analysisEx(initialEx) ? exLabel(analysisEx(initialEx), useApp.getState().lang) : ''))
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState<'' | 'model' | 'ai'>('')
   const [err, setErr] = useState<string | null>(null)
@@ -460,10 +480,17 @@ function FormCheck({ initialEx }: { initialEx: string }) {
     useApp.setState({ analyses: useApp.getState().analyses.map((a) => (a.id === id ? { ...a, ...patch } : a)) })
 
   const run = async () => {
-    if (!media || !previewUrl) return
+    if (!media || !previewUrl || busy) return
+    // the typed exercise ALWAYS wins over auto-detect; an unrecognised name stops here instead of guessing
+    const typed = exText.trim()
+    const want = typed ? resolveExercise(typed) : null
+    if (typed && !want) { setErr(t('exNotFound', { x: typed })); return }
+    const exId = want?.id ?? ''
+    const grip = want?.grip
     setBusy('model')
     setErr(null)
     setAiNote(null)
+    setCurrent(null)
     try {
       let srcEl: HTMLImageElement | HTMLVideoElement
       if (isVideo) {
@@ -486,8 +513,8 @@ function FormCheck({ initialEx }: { initialEx: string }) {
       const record: AnalysisRecord = {
         id, date: new Date().toISOString(), exId: chosen || undefined, prompt, sections: {}, raw: '', kind: 'ondevice',
         photo: photoC.toDataURL('image/jpeg', 0.72), lm: pose.ok ? lm : undefined, poseFound: pose.ok, detected: !exId && !!chosen,
-        mask: pose.ok && det.mask ? maskToPng(det.mask) : undefined,
-        thumb: makeThumb(base, pose.ok ? lm : undefined, chosen || undefined, mode, s.lang, det.mask),
+        mask: pose.ok && det.mask ? maskToPng(det.mask) : undefined, grip: exId ? grip : undefined, imgHash: det.hash,
+        thumb: makeThumb(base, pose.ok ? lm : undefined, chosen || undefined, mode, s.lang, det.mask, exId ? grip : undefined),
       }
       s.addAnalysis(record)
       setCurrent({ id, base, guesses, mask: det.mask })
@@ -499,6 +526,14 @@ function FormCheck({ initialEx }: { initialEx: string }) {
           const ai = await runAnalysis({ files, prompt, exercise: chosen ? (analysisEx(chosen) as never) : undefined })
           if (ai) {
             update(id, { sections: ai.sections as Record<string, string>, raw: ai.raw })
+            // Gemini vision as a tie-break when the on-device check was unsure: only among the plausible candidates
+            if (!chosen && guesses.length) {
+              const pickId = mentionedExercise(((ai.sections as Record<string, string>)['WHAT I SEE'] ?? '') + ' ' + ai.raw.slice(0, 600), guesses.map((g) => g.id))
+              if (pickId) {
+                update(id, { exId: pickId, detected: true, mode: undefined, thumb: makeThumb(base, pose.ok ? lm : undefined, pickId, exerciseSetup(pickId).mode, s.lang, det.mask) })
+                setAiNote(t('aiTiebreak', { x: exLabel(analysisEx(pickId), s.lang) }))
+              }
+            }
             if (typeof ai.remaining === 'number') setRemaining(ai.remaining)
           }
         } catch (e) {
@@ -512,10 +547,10 @@ function FormCheck({ initialEx }: { initialEx: string }) {
     }
   }
 
-  const changeEx = (newId: string) => {
+  const changeEx = (newId: string, grip?: Grip) => {
     if (!current || !rec) return
     const mode = exerciseSetup(newId || undefined).mode
-    update(rec.id, { exId: newId || undefined, detected: false, mode: undefined, thumb: makeThumb(current.base, rec.lm, newId || undefined, mode, s.lang, current.mask) })
+    update(rec.id, { exId: newId || undefined, grip, detected: false, mode: undefined, thumb: makeThumb(current.base, rec.lm, newId || undefined, mode, s.lang, current.mask, grip) })
   }
   const past = s.analyses.filter((a) => !a.demo && a.id !== current?.id)
 
@@ -561,7 +596,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
 
         <label className="mt-4 block">
           <span className="label">{t('forExercise')}</span>
-          <div className="mt-1.5"><ExercisePickerField value={exId ? exLabel(analysisEx(exId), s.lang) : ''} onPick={(id) => { setExId(id); if (current) changeEx(id) }} /></div>
+          <div className="mt-1.5"><ExercisePickerField value={exText} onText={setExText} onPick={(id, g) => { if (current) changeEx(id, g) }} /></div>
         </label>
         {isLive && s.user && (
           <label className="mt-3 block">
@@ -579,7 +614,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
 
       {rec && current && (
         <div id="result" className="mt-6 scroll-mt-24">
-          <ResultView rec={rec} src={current.base} mask={current.mask} guesses={current.guesses} onChangeEx={changeEx} />
+          <ResultView key={rec.id} rec={rec} src={current.base} mask={current.mask} guesses={current.guesses} onChangeEx={changeEx} />
           {busy === 'ai' && <p className="mt-3 text-[12.5px] text-muted">{t('aiRunning')}</p>}
           {aiNote && <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[12px] text-muted" data-testid="ai-note">{aiNote}</p>}
         </div>
@@ -606,7 +641,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
         </>
       )}
       <Sheet open={!!view} onClose={() => setView(null)} title={view?.exId ? exLabel(analysisEx(view.exId), s.lang) : t('formCheck')}>
-        {view && (view.kind === 'ondevice' ? <ResultView rec={view} /> : <AiCards sections={view.sections} raw={view.raw} />)}
+        {view && (view.kind === 'ondevice' ? <ResultView key={view.id} rec={view} /> : <AiCards sections={view.sections} raw={view.raw} />)}
       </Sheet>
     </div>
   )

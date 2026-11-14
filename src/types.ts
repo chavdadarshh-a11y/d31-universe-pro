@@ -132,6 +132,10 @@ export type AnalysisRecord = {
   lm?: number[][]
   /** person mask (small greyscale PNG) for re-drawing muscle outlines */
   mask?: string
+  /** grip / variant parsed from the typed exercise name (wide, close, reverse, neutral) */
+  grip?: string
+  /** hash of the analysed pixels — identical image ⇒ identical result */
+  imgHash?: string
   poseFound?: boolean
   detected?: boolean
 }

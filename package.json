@@ -9,8 +9,9 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "preview": "vite preview",
     "seed:sql": "node scripts/gen-seed.mjs",
-    "test": "node scripts/test-logic.ts && node scripts/test-pose.ts && node scripts/test-migrations.mjs && node scripts/test-anatomy.ts",
-    "test:anatomy": "node scripts/test-anatomy.ts"
+    "test": "node scripts/test-logic.ts && node scripts/test-pose.ts && node scripts/test-migrations.mjs && node scripts/test-anatomy.ts && node scripts/test-exmatch.mjs",
+    "test:anatomy": "node scripts/test-anatomy.ts",
+    "test:exmatch": "node scripts/test-exmatch.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.2.3",

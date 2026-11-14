@@ -32,7 +32,12 @@ export function getLandmarker(mode: 'IMAGE' | 'VIDEO'): Promise<PL> {
           outputSegmentationMasks: mode === 'IMAGE',
         })
       }
-      for (const [local, delegate] of [[true, 'GPU'], [true, 'CPU'], [false, 'GPU'], [false, 'CPU']] as const) {
+      // Photos run on the CPU: GPU (WebGL) inference can differ run-to-run on phones, and a photo must always
+      // give the same result. The live camera keeps the GPU for speed.
+      const order = mode === 'IMAGE'
+        ? ([[true, 'CPU'], [false, 'CPU']] as const)
+        : ([[true, 'GPU'], [true, 'CPU'], [false, 'GPU'], [false, 'CPU']] as const)
+      for (const [local, delegate] of order) {
         try {
           return await make(local, delegate)
         } catch (e) {
@@ -53,7 +58,30 @@ export type RawMask = { w: number; h: number; data: Float32Array }
 /**
  * Still-photo detection: landmarks from the photo AND its mirror image merged (mergeFlip), plus the person mask.
  */
-export async function detectPhoto(base: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null }> {
+/** content hash of the pixels (identical photo ⇒ identical hash) */
+export function pixelHash(c: HTMLCanvasElement): string {
+  const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data
+  let h1 = 0x811c9dc5, h2 = 0x01000193 ^ c.width ^ (c.height << 12)
+  for (let i = 0; i < d.length; i += 4 * 3) { h1 = Math.imul(h1 ^ d[i] ^ (d[i + 1] << 8) ^ (d[i + 2] << 16), 16777619); h2 = Math.imul(h2 ^ d[i + 2] ^ (d[i] << 8), 2246822519) }
+  return `${c.width}x${c.height}-${(h1 >>> 0).toString(36)}${(h2 >>> 0).toString(36)}`
+}
+const photoCache = new Map<string, { lm: Pt[] | null; mask: RawMask | null }>()
+let detectChain: Promise<unknown> = Promise.resolve()
+
+export async function detectPhoto(base: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null; hash: string }> {
+  const hash = pixelHash(base)
+  const hit = photoCache.get(hash)
+  if (hit) return { ...hit, hash }
+  // one detection at a time — two quick taps can never interleave the photo and mirrored runs
+  const job = detectChain.then(() => detectPhotoNow(base))
+  detectChain = job.catch(() => {})
+  const res = await job
+  photoCache.set(hash, res)
+  if (photoCache.size > 12) photoCache.delete(photoCache.keys().next().value!)
+  return { ...res, hash }
+}
+
+async function detectPhotoNow(base: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null }> {
   const pl = await getLandmarker('IMAGE')
   const r = pl.detect(base)
   let mask: RawMask | null = null

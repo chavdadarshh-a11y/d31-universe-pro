@@ -92,28 +92,20 @@ const SH_BACK: Tpl[] = [
   { id: 'gastrocnemius', seg: 'shin', view: 'back', poly: [[0.02, -0.05], [0.1, -0.9], [0.32, -1.0], [0.62, -0.66], [0.64, -0.1], [0.45, 0.0], [0.2, 0.0]], fiber: { kind: 'along' } },
 ]
 const TO_FRONT: Tpl[] = [
-  { id: 'traps_upper', seg: 'torso', view: 'front', bilateral: true, poly: [[-0.3, 0.15], [-0.12, 0.16], [0.0, 0.45], [0.02, 0.76], [-0.08, 0.5], [-0.22, 0.28]], fiber: { kind: 'fan', o: [0.04, 0.85] } },
   { id: 'obliques', seg: 'torso', view: 'front', bilateral: true, poly: [[0.42, 0.37], [0.4, 0.7], [0.44, 0.92], [0.58, 1.0], [0.8, 0.96], [0.97, 0.8], [1.05, 0.5], [1.0, 0.3], [0.9, 0.28], [0.74, 0.35], [0.55, 0.36]], fiber: { kind: 'dir', d: [0.7, -0.7] } },
-  { id: 'serratus', seg: 'torso', view: 'front', bilateral: true, poly: [[0.26, 0.92], [0.3, 0.76], [0.34, 0.88], [0.38, 0.72], [0.42, 0.86], [0.46, 0.7], [0.48, 0.88], [0.42, 0.98], [0.32, 1.0]], fiber: { kind: 'dir', d: [0.4, -1] } },
   { id: 'rectus_abdominis', seg: 'torso', view: 'front', bilateral: true, poly: [[0.39, 0.02], [0.39, 0.3], [0.55, 0.34], [0.75, 0.33], [0.92, 0.27], [1.03, 0.16], [1.03, 0.02]], fiber: { kind: 'bands', at: [0.53, 0.67, 0.81] } },
   { id: 'pec_major', seg: 'torso', view: 'front', bilateral: true, poly: [[0.0, 0.05], [-0.04, 0.4], [-0.03, 0.72], [0.04, 0.95], [0.12, 1.04], [0.2, 0.96], [0.28, 0.78], [0.35, 0.52], [0.38, 0.28], [0.37, 0.05]], fiber: { kind: 'fan', o: [0.1, 1.06] } },
 ]
 const TO_BACK: Tpl[] = [
   { id: 'erectors', seg: 'torso', view: 'back', bilateral: true, poly: [[0.5, 0.03], [0.55, 0.18], [0.8, 0.22], [1.02, 0.2], [1.02, 0.03]], fiber: { kind: 'along' } },
   { id: 'lats', seg: 'torso', view: 'back', bilateral: true, poly: [[0.18, 0.98], [0.35, 1.02], [0.55, 0.98], [0.75, 0.88], [0.92, 0.55], [1.0, 0.2], [0.98, 0.06], [0.78, 0.06], [0.58, 0.12], [0.42, 0.3], [0.3, 0.5], [0.22, 0.72]], fiber: { kind: 'fan', o: [0.2, 1.0] } },
-  { id: 'teres_major', seg: 'torso', view: 'back', bilateral: true, poly: [[0.1, 0.56], [0.13, 0.78], [0.19, 0.97], [0.28, 1.0], [0.26, 0.82], [0.18, 0.62]], fiber: { kind: 'dir', d: [-0.3, 1] } },
-  { id: 'rhomboids', seg: 'torso', view: 'back', bilateral: true, poly: [[0.08, 0.05], [0.1, 0.3], [0.36, 0.38], [0.42, 0.18], [0.38, 0.05]], fiber: { kind: 'dir', d: [0.5, 1] } },
-  { id: 'traps_mid', seg: 'torso', view: 'back', bilateral: true, poly: [[0.0, 0.0], [0.02, 0.3], [0.06, 0.62], [0.14, 0.58], [0.24, 0.38], [0.38, 0.18], [0.5, 0.04], [0.5, 0.0]], fiber: { kind: 'dir', d: [-0.25, 1] } },
-  { id: 'traps_upper', seg: 'torso', view: 'back', bilateral: true, poly: [[-0.32, 0.0], [-0.3, 0.18], [-0.12, 0.46], [0.04, 0.86], [0.12, 0.55], [0.1, 0.2], [0.06, 0.0]], fiber: { kind: 'fan', o: [0.06, 0.9] } },
 ]
 const TO_SIDE: Tpl[] = [
   { id: 'erectors', seg: 'torso', view: 'side', poly: [[0.45, -0.82], [0.6, -1.0], [1.02, -1.0], [1.02, -0.76], [0.75, -0.7]], fiber: { kind: 'along' } },
   { id: 'lats', seg: 'torso', view: 'side', poly: [[0.05, 0.0], [0.15, -0.5], [0.35, -0.95], [0.65, -0.96], [0.85, -0.76], [0.7, -0.4], [0.45, -0.15], [0.25, 0.05]], fiber: { kind: 'fan', o: [0.05, 0.05] } },
   { id: 'obliques', seg: 'torso', view: 'side', poly: [[0.4, 0.0], [0.42, 0.66], [0.7, 0.66], [1.0, 0.65], [1.0, 0.1], [0.75, -0.1], [0.55, -0.1]], fiber: { kind: 'dir', d: [0.7, 0.7] } },
-  { id: 'serratus', seg: 'torso', view: 'side', poly: [[0.25, 0.05], [0.3, 0.45], [0.36, 0.25], [0.42, 0.5], [0.48, 0.28], [0.52, 0.0], [0.4, -0.1]], fiber: { kind: 'dir', d: [0.4, 1] } },
   { id: 'rectus_abdominis', seg: 'torso', view: 'side', poly: [[0.38, 0.7], [0.4, 1.0], [0.7, 1.02], [1.02, 0.95], [1.02, 0.7], [0.7, 0.68]], fiber: { kind: 'bands', at: [0.52, 0.68, 0.84] } },
   { id: 'pec_major', seg: 'torso', view: 'side', poly: [[0.02, 0.2], [0.0, 0.8], [0.12, 1.02], [0.3, 0.95], [0.37, 0.6], [0.3, 0.3], [0.12, 0.15]], fiber: { kind: 'fan', o: [0.04, 0.1] } },
-  { id: 'traps_upper', seg: 'torso', view: 'side', poly: [[-0.34, -0.25], [-0.3, -0.62], [-0.16, -0.85], [-0.02, -0.82], [0.04, -0.5], [0.06, -0.1], [0.0, 0.05], [-0.12, -0.12], [-0.24, -0.18]], fiber: { kind: 'fan', o: [0.06, -0.2] } },
 ]
 /** draw order = array order (deep → superficial) */
 export const TEMPLATES: Tpl[] = [
@@ -255,7 +247,12 @@ function toFrame(m: Meas, personRatio: number): Frame | null {
 export const fitDebug: { A: P; B: P; inside: number; fracP: number; fracN: number }[] = []
 
 export type DrawnMuscle = { id: Fine; role: Role; seg: Seg; polys: P[][]; fibers: P[][]; anchor: P }
-export type NotDrawn = { id: Fine; role: Role; reason: 'view' | 'fit' }
+export type NotDrawn = { id: Fine; role: Role; reason: 'view' | 'fit' | 'noArt' }
+/**
+ * Muscles with NO drawing on purpose: their old outlines were triangles / slivers / zig-zags, which is not
+ * what the muscle looks like. Until real artwork exists they are listed as "not drawn", never as a primitive.
+ */
+export const NO_ART: ReadonlySet<Fine> = new Set<Fine>(['traps_upper', 'traps_mid', 'rhomboids', 'teres_major', 'serratus'])
 
 function fiberLines(tpl: Tpl, poly: TS[]): TS[][] {
   const ts = poly.map((p) => p[0]), ss = poly.map((p) => p[1])
@@ -361,6 +358,8 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
     for (const { f, mirror } of frs) {
       const map = (p: TS) => f.map(p[0], mirror ? -p[1] : p[1])
       const poly = dense.map(map)
+      // last safety net: a fitted outline that came out oval- or triangle-like is not drawn at all
+      if (primitiveScore(poly) > PRIMITIVE_MAX || triangleLikeness(poly) >= TRIANGLE_MAX) { fitFail.add(tpl.id); continue }
       const m = drawn.get(tpl.id) ?? { id: tpl.id, role, seg: tpl.seg, polys: [], fibers: [], anchor: { x: 0, y: 0 } }
       m.polys.push(poly)
       m.fibers.push(...fibers.map((l) => l.map(map)))
@@ -374,7 +373,7 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
     m.anchor = mul(first.reduce((a, b) => add(a, b), { x: 0, y: 0 }), 1 / first.length)
     void pts
   }
-  const notDrawn: NotDrawn[] = wanted.filter((id) => !drawn.has(id)).map((id) => ({ id, role: roles[id]!, reason: fitFail.has(id) ? 'fit' : 'view' }))
+  const notDrawn: NotDrawn[] = wanted.filter((id) => !drawn.has(id)).map((id) => ({ id, role: roles[id]!, reason: NO_ART.has(id) ? 'noArt' : fitFail.has(id) ? 'fit' : 'view' }))
   // arms in front of the trunk hide trunk muscles (side + front views): their silhouettes are cut out of torso shapes
   const occluders: P[][] = []
   if (view !== 'back') for (const seg of ['upperArm', 'forearm'] as const) for (const d of sidesFor(seg)) {
@@ -458,4 +457,32 @@ export function primitiveScore(poly: P[]): number {
   }
   const sym = Math.min(u1 ? i1 / u1 : 0, u2 ? i2 / u2 : 0)
   return Math.max(ellipseLikeness(poly), sym)
+}
+
+/** shapes scoring above these are primitives (oval / lens / rectangle / triangle) and are never drawn */
+export const PRIMITIVE_MAX = 0.93
+export const TRIANGLE_MAX = 0.8
+
+/**
+ * Triangle-likeness: area of the largest triangle that fits on the outline's convex hull ÷ outline area.
+ * 1.0 = a triangle; a smooth ellipse is 0.41; real muscle outlines here are ≤ 0.78. Affine-invariant, so the
+ * value in template space equals the value on the photo.
+ */
+export function triangleLikeness(poly: P[]): number {
+  const area = (p: P[]) => Math.abs(p.reduce((a, q, i) => { const r = p[(i + 1) % p.length]; return a + q.x * r.y - r.x * q.y }, 0) / 2)
+  const cr = (o: P, a: P, b: P) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+  const srt = [...poly].sort((a, b) => a.x - b.x || a.y - b.y)
+  const lo: P[] = [], up: P[] = []
+  for (const q of srt) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q) }
+  for (const q of srt.reverse()) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q) }
+  let h = lo.slice(0, -1).concat(up.slice(0, -1))
+  if (h.length > 40) h = h.filter((_, i) => i % Math.ceil(h.length / 40) === 0)
+  const A = area(poly)
+  if (!(A > 0)) return 1
+  let best = 0
+  for (let i = 0; i < h.length; i++) for (let j = i + 1; j < h.length; j++) for (let k = j + 1; k < h.length; k++) {
+    const t = Math.abs(cr(h[i], h[j], h[k])) / 2
+    if (t > best) best = t
+  }
+  return Math.min(1, best / A)
 }

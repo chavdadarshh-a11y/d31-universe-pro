@@ -2,7 +2,7 @@
 // Fails if any muscle template — or any shape fitted onto a synthetic body — is an ellipse/primitive,
 // or if the muscle renderer contains primitive-shape drawing calls.
 import fs from 'node:fs'
-import { densify, ellipseLikeness, fitMuscles, primitiveScore, TEMPLATES, type Fine, type Role } from '../src/lib/muscleAnatomy.ts'
+import { densify, ellipseLikeness, fitMuscles, NO_ART, primitiveScore, TEMPLATES, TRIANGLE_MAX, triangleLikeness, type Fine, type Role } from '../src/lib/muscleAnatomy.ts'
 import type { Pose } from '../src/lib/formCheck.ts'
 
 let failed = 0
@@ -19,8 +19,20 @@ const rect = [{ x: 0, y: 0 }, { x: 50, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 30
 ok(primitiveScore(rect) > MAX, 'detector recognises a rectangle as primitive')
 for (const [a, b, r] of [[50, 50, 0], [80, 20, 0.4]]) ok(primitiveScore(ell(a, b, r)) > 0.97, 'primitiveScore flags ellipses')
 
+// triangle detector works (a rounded triangle — like the old trapezius shapes — is caught; an ellipse is not)
+const triPts: [number, number][] = [[0, 0], [0.5, 0.02], [1, 0], [0.75, 0.45], [0.52, 0.9], [0.25, 0.45]]
+const tri = densify(triPts).map(([x, y]) => ({ x: x * 100, y: y * 80 }))
+ok(triangleLikeness(tri) >= TRIANGLE_MAX, `detector recognises a triangle (${triangleLikeness(tri).toFixed(3)})`)
+ok(triangleLikeness(ell(60, 30, 0.3)) < 0.5, 'an ellipse is not a triangle')
+// the old triangle/sliver outlines are gone for good
+for (const id of ['traps_upper', 'traps_mid', 'rhomboids', 'teres_major', 'serratus'] as Fine[]) {
+  ok(!TEMPLATES.some((t) => t.id === id) && NO_ART.has(id), `${id}: no primitive template left (listed as not drawn)`)
+}
+
 // 1) every template outline
 for (const t of TEMPLATES) {
+  const tl = triangleLikeness(densify(t.poly).map(([x, y]) => ({ x, y })))
+  ok(tl < TRIANGLE_MAX, `${t.id}/${t.view} is not triangle-like (score ${tl.toFixed(3)})`)
   const poly = densify(t.poly).map(([x, y]) => ({ x: x * 100, y: y * 40 }))
   const e = primitiveScore(poly)
   ok(t.poly.length >= 5 && poly.length >= 10, `${t.id}/${t.view}: enough outline points`)
@@ -46,6 +58,7 @@ ok(fit.drawn.length >= 10, `synthetic body: muscles fitted (${fit.drawn.length})
 for (const m of fit.drawn) for (const poly of m.polys) {
   const e = primitiveScore(poly)
   ok(poly.length >= 10 && e <= MAX, `fitted ${m.id} is not ellipse-like (score ${e.toFixed(3)})`)
+  ok(triangleLikeness(poly) < TRIANGLE_MAX, `fitted ${m.id} is not triangle-like (${triangleLikeness(poly).toFixed(3)})`)
 }
 // 3) no mask → nothing drawn (never a fallback)
 const none = fitMuscles(pose, null, roles)

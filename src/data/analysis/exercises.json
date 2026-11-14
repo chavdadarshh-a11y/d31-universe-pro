@@ -1,94 +1,1013 @@
 {
-  "_doc": "Analyze: which overlay mode (angles = mobility/joints, muscles = strength, technique = skills/dynamic) and which rule profile (rules.json) each exercise uses. Library exercises not listed fall back to defaultModeByCategory + profile 'generic'. 'extras' are analysis-only exercises (boxing, kicks, stretches) that are not in the training library.",
-  "defaultModeByCategory": { "strength": "muscles", "calisthenics": "technique", "mobility": "angles", "cardio": "technique" },
-  "map": {
-    "bodyweight-squat": { "mode": "angles", "profile": "squat" },
-    "goblet-squat": { "mode": "angles", "profile": "squat" },
-    "back-squat": { "mode": "angles", "profile": "squat" },
-    "front-squat": { "mode": "angles", "profile": "squat" },
-    "deep-squat-hold": { "mode": "angles", "profile": "squat" },
-    "pistol-squat": { "mode": "angles", "profile": "squat" },
-    "forward-lunge": { "mode": "angles", "profile": "lunge" },
-    "bulgarian-split-squat": { "mode": "angles", "profile": "lunge" },
-    "worlds-greatest-stretch": { "mode": "angles", "profile": "lunge" },
-    "couch-stretch": { "mode": "angles", "profile": "generic" },
-    "front-split": { "mode": "angles", "profile": "split" },
-    "middle-split": { "mode": "angles", "profile": "split" },
-    "cat-cow": { "mode": "angles", "profile": "generic" },
-    "romanian-deadlift": { "mode": "muscles", "profile": "hinge" },
-    "deadlift": { "mode": "muscles", "profile": "hinge" },
-    "single-leg-rdl": { "mode": "muscles", "profile": "hinge" },
-    "b-stance-rdl": { "mode": "muscles", "profile": "hinge" },
-    "single-leg-rdl-loaded": { "mode": "muscles", "profile": "hinge" },
-    "hip-thrust": { "mode": "muscles", "profile": "hip_thrust" },
-    "push-up": { "mode": "muscles", "profile": "push_up" },
-    "pike-push-up": { "mode": "muscles", "profile": "generic" },
-    "bench-press": { "mode": "muscles", "profile": "generic" },
-    "overhead-press": { "mode": "muscles", "profile": "overhead_press" },
-    "dips": { "mode": "muscles", "profile": "dips" },
-    "pull-up": { "mode": "muscles", "profile": "pull_up" },
-    "chin-up": { "mode": "muscles", "profile": "pull_up" },
-    "negative-pull-up": { "mode": "muscles", "profile": "pull_up" },
-    "band-pull-up": { "mode": "muscles", "profile": "pull_up" },
-    "weighted-pull-up": { "mode": "muscles", "profile": "pull_up" },
-    "archer-pull-up": { "mode": "muscles", "profile": "pull_up" },
-    "lat-pulldown": { "mode": "muscles", "profile": "pull_up" },
-    "dead-hang": { "mode": "muscles", "profile": "pull_up" },
-    "scap-pull-up": { "mode": "muscles", "profile": "pull_up" },
-    "inverted-row": { "mode": "muscles", "profile": "plank" },
-    "plank": { "mode": "muscles", "profile": "plank" },
-    "side-plank": { "mode": "muscles", "profile": "plank" },
-    "hollow-hold": { "mode": "muscles", "profile": "generic" },
-    "hanging-leg-raise": { "mode": "muscles", "profile": "generic" },
-    "nordic-curl": { "mode": "muscles", "profile": "generic" },
-    "preacher-curl": { "mode": "muscles", "profile": "curl" },
-    "barbell-curl": { "mode": "muscles", "profile": "curl" },
-    "hammer-curl": { "mode": "muscles", "profile": "curl" },
-    "triceps-pushdown": { "mode": "muscles", "profile": "curl" },
-    "skull-crusher": { "mode": "muscles", "profile": "curl" },
-    "headstand": { "mode": "muscles", "profile": "headstand" },
-    "human-flag-progression": { "mode": "technique", "profile": "human_flag" },
-    "straddle-human-flag": { "mode": "technique", "profile": "human_flag" },
-    "full-human-flag": { "mode": "technique", "profile": "human_flag" },
-    "vertical-flag": { "mode": "technique", "profile": "generic" },
-    "tuck-front-lever": { "mode": "technique", "profile": "front_lever" },
-    "adv-tuck-front-lever": { "mode": "technique", "profile": "front_lever" },
-    "one-leg-front-lever": { "mode": "technique", "profile": "front_lever" },
-    "straddle-front-lever": { "mode": "technique", "profile": "front_lever" },
-    "full-front-lever": { "mode": "technique", "profile": "front_lever" },
-    "front-lever-raise": { "mode": "technique", "profile": "front_lever" },
-    "wall-handstand": { "mode": "technique", "profile": "handstand" },
-    "chest-to-wall-handstand": { "mode": "technique", "profile": "handstand" },
-    "freestanding-handstand": { "mode": "technique", "profile": "handstand" },
-    "handstand-push-up": { "mode": "technique", "profile": "handstand" },
-    "l-sit": { "mode": "technique", "profile": "l_sit" },
-    "boxing-jab": { "mode": "technique", "profile": "punch_straight" },
-    "boxing-cross": { "mode": "technique", "profile": "punch_straight" },
-    "boxing-hook": { "mode": "technique", "profile": "punch_hook" },
-    "boxing-uppercut": { "mode": "technique", "profile": "punch_uppercut" },
-    "front-kick": { "mode": "technique", "profile": "kick" },
-    "roundhouse-kick": { "mode": "technique", "profile": "kick" },
-    "side-kick": { "mode": "technique", "profile": "kick" },
-    "standing-hamstring-stretch": { "mode": "angles", "profile": "forward_fold" },
-    "seated-forward-fold": { "mode": "angles", "profile": "forward_fold" },
-    "butterfly-stretch": { "mode": "angles", "profile": "generic" },
-    "pigeon-stretch": { "mode": "angles", "profile": "generic" },
-    "cobra-stretch": { "mode": "angles", "profile": "generic" },
-    "shoulder-dislocates": { "mode": "angles", "profile": "generic" }
+ "_doc": "Analyze: which overlay mode (angles = mobility/joints, muscles = strength, technique = skills/dynamic) and which rule profile (rules.json) each exercise uses. Library exercises not listed fall back to defaultModeByCategory + profile 'generic'. 'extras' are analysis-only exercises (boxing, kicks, stretches) that are not in the training library.",
+ "defaultModeByCategory": {
+  "strength": "muscles",
+  "calisthenics": "technique",
+  "mobility": "angles",
+  "cardio": "technique"
+ },
+ "map": {
+  "bodyweight-squat": {
+   "mode": "angles",
+   "profile": "squat"
   },
-  "extras": [
-    { "id": "boxing-jab", "category": "cardio", "name": "Boxing Jab", "nameHi": "बॉक्सिंग जैब", "nameGu": "બોક્સિંગ જેબ", "primary": ["shoulders", "triceps"], "secondary": ["obliques", "chest", "calves"] },
-    { "id": "boxing-cross", "category": "cardio", "name": "Boxing Cross", "nameHi": "बॉक्सिंग क्रॉस", "nameGu": "બોક્સિંગ ક્રોસ", "primary": ["shoulders", "chest", "obliques"], "secondary": ["triceps", "glutes", "calves"] },
-    { "id": "boxing-hook", "category": "cardio", "name": "Boxing Hook", "nameHi": "बॉक्सिंग हुक", "nameGu": "બોક્સિંગ હુક", "primary": ["obliques", "shoulders"], "secondary": ["chest", "biceps", "glutes"] },
-    { "id": "boxing-uppercut", "category": "cardio", "name": "Boxing Uppercut", "nameHi": "बॉक्सिंग अपरकट", "nameGu": "બોક્સિંગ અપરકટ", "primary": ["shoulders", "biceps", "obliques"], "secondary": ["quads", "glutes"] },
-    { "id": "front-kick", "category": "cardio", "name": "Front Kick", "nameHi": "फ्रंट किक", "nameGu": "ફ્રન્ટ કિક", "primary": ["quads", "abs"], "secondary": ["glutes", "calves", "adductors"] },
-    { "id": "roundhouse-kick", "category": "cardio", "name": "Roundhouse Kick", "nameHi": "राउंडहाउस किक", "nameGu": "રાઉન્ડહાઉસ કિક", "primary": ["glutes", "obliques", "quads"], "secondary": ["adductors", "calves", "abs"] },
-    { "id": "side-kick", "category": "cardio", "name": "Side Kick", "nameHi": "साइड किक", "nameGu": "સાઇડ કિક", "primary": ["glutes", "obliques"], "secondary": ["quads", "hamstrings", "calves"] },
-    { "id": "standing-hamstring-stretch", "category": "mobility", "name": "Standing Hamstring Stretch", "nameHi": "हैमस्ट्रिंग स्ट्रेच", "nameGu": "હેમસ્ટ્રિંગ સ્ટ્રેચ", "primary": ["hamstrings"], "secondary": ["lower_back", "calves"] },
-    { "id": "seated-forward-fold", "category": "mobility", "name": "Seated Forward Fold", "nameHi": "पश्चिमोत्तानासन (फॉरवर्ड फोल्ड)", "nameGu": "પશ્ચિમોત્તાનાસન (ફોરવર્ડ ફોલ્ડ)", "primary": ["hamstrings", "lower_back"], "secondary": ["calves"] },
-    { "id": "butterfly-stretch", "category": "mobility", "name": "Butterfly Stretch", "nameHi": "बटरफ्लाई स्ट्रेच", "nameGu": "બટરફ્લાય સ્ટ્રેચ", "primary": ["adductors"], "secondary": ["glutes"] },
-    { "id": "pigeon-stretch", "category": "mobility", "name": "Pigeon Stretch", "nameHi": "पिजन स्ट्रेच", "nameGu": "પિજન સ્ટ્રેચ", "primary": ["glutes"], "secondary": ["quads", "lower_back"] },
-    { "id": "cobra-stretch", "category": "mobility", "name": "Cobra Stretch", "nameHi": "भुजंगासन (कोबरा)", "nameGu": "ભુજંગાસન (કોબ્રા)", "primary": ["abs"], "secondary": ["lower_back", "chest"] },
-    { "id": "shoulder-dislocates", "category": "mobility", "name": "Shoulder Dislocates (Band/Stick)", "nameHi": "शोल्डर डिस्लोकेट्स", "nameGu": "શોલ્ડર ડિસ્લોકેટ્સ", "primary": ["shoulders"], "secondary": ["chest", "upper_back"] }
+  "goblet-squat": {
+   "mode": "angles",
+   "profile": "squat"
+  },
+  "back-squat": {
+   "mode": "angles",
+   "profile": "squat"
+  },
+  "front-squat": {
+   "mode": "angles",
+   "profile": "squat"
+  },
+  "deep-squat-hold": {
+   "mode": "angles",
+   "profile": "squat"
+  },
+  "pistol-squat": {
+   "mode": "angles",
+   "profile": "squat"
+  },
+  "forward-lunge": {
+   "mode": "angles",
+   "profile": "lunge"
+  },
+  "bulgarian-split-squat": {
+   "mode": "angles",
+   "profile": "lunge"
+  },
+  "worlds-greatest-stretch": {
+   "mode": "angles",
+   "profile": "lunge"
+  },
+  "couch-stretch": {
+   "mode": "angles",
+   "profile": "generic"
+  },
+  "front-split": {
+   "mode": "angles",
+   "profile": "split"
+  },
+  "middle-split": {
+   "mode": "angles",
+   "profile": "split"
+  },
+  "cat-cow": {
+   "mode": "angles",
+   "profile": "generic"
+  },
+  "romanian-deadlift": {
+   "mode": "muscles",
+   "profile": "hinge"
+  },
+  "deadlift": {
+   "mode": "muscles",
+   "profile": "hinge"
+  },
+  "single-leg-rdl": {
+   "mode": "muscles",
+   "profile": "hinge"
+  },
+  "b-stance-rdl": {
+   "mode": "muscles",
+   "profile": "hinge"
+  },
+  "single-leg-rdl-loaded": {
+   "mode": "muscles",
+   "profile": "hinge"
+  },
+  "hip-thrust": {
+   "mode": "muscles",
+   "profile": "hip_thrust"
+  },
+  "push-up": {
+   "mode": "muscles",
+   "profile": "push_up"
+  },
+  "pike-push-up": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "bench-press": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "overhead-press": {
+   "mode": "muscles",
+   "profile": "overhead_press"
+  },
+  "dips": {
+   "mode": "muscles",
+   "profile": "dips"
+  },
+  "pull-up": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "chin-up": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "negative-pull-up": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "band-pull-up": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "weighted-pull-up": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "archer-pull-up": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "lat-pulldown": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "dead-hang": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "scap-pull-up": {
+   "mode": "muscles",
+   "profile": "pull_up"
+  },
+  "inverted-row": {
+   "mode": "muscles",
+   "profile": "plank"
+  },
+  "plank": {
+   "mode": "muscles",
+   "profile": "plank"
+  },
+  "side-plank": {
+   "mode": "muscles",
+   "profile": "plank"
+  },
+  "hollow-hold": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "hanging-leg-raise": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "nordic-curl": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "preacher-curl": {
+   "mode": "muscles",
+   "profile": "curl"
+  },
+  "barbell-curl": {
+   "mode": "muscles",
+   "profile": "curl"
+  },
+  "hammer-curl": {
+   "mode": "muscles",
+   "profile": "curl"
+  },
+  "triceps-pushdown": {
+   "mode": "muscles",
+   "profile": "curl"
+  },
+  "skull-crusher": {
+   "mode": "muscles",
+   "profile": "curl"
+  },
+  "headstand": {
+   "mode": "muscles",
+   "profile": "headstand"
+  },
+  "human-flag-progression": {
+   "mode": "technique",
+   "profile": "human_flag"
+  },
+  "straddle-human-flag": {
+   "mode": "technique",
+   "profile": "human_flag"
+  },
+  "full-human-flag": {
+   "mode": "technique",
+   "profile": "human_flag"
+  },
+  "vertical-flag": {
+   "mode": "technique",
+   "profile": "generic"
+  },
+  "tuck-front-lever": {
+   "mode": "technique",
+   "profile": "front_lever"
+  },
+  "adv-tuck-front-lever": {
+   "mode": "technique",
+   "profile": "front_lever"
+  },
+  "one-leg-front-lever": {
+   "mode": "technique",
+   "profile": "front_lever"
+  },
+  "straddle-front-lever": {
+   "mode": "technique",
+   "profile": "front_lever"
+  },
+  "full-front-lever": {
+   "mode": "technique",
+   "profile": "front_lever"
+  },
+  "front-lever-raise": {
+   "mode": "technique",
+   "profile": "front_lever"
+  },
+  "wall-handstand": {
+   "mode": "technique",
+   "profile": "handstand"
+  },
+  "chest-to-wall-handstand": {
+   "mode": "technique",
+   "profile": "handstand"
+  },
+  "freestanding-handstand": {
+   "mode": "technique",
+   "profile": "handstand"
+  },
+  "handstand-push-up": {
+   "mode": "technique",
+   "profile": "handstand"
+  },
+  "l-sit": {
+   "mode": "technique",
+   "profile": "l_sit"
+  },
+  "boxing-jab": {
+   "mode": "technique",
+   "profile": "punch_straight"
+  },
+  "boxing-cross": {
+   "mode": "technique",
+   "profile": "punch_straight"
+  },
+  "boxing-hook": {
+   "mode": "technique",
+   "profile": "punch_hook"
+  },
+  "boxing-uppercut": {
+   "mode": "technique",
+   "profile": "punch_uppercut"
+  },
+  "front-kick": {
+   "mode": "technique",
+   "profile": "kick"
+  },
+  "roundhouse-kick": {
+   "mode": "technique",
+   "profile": "kick"
+  },
+  "side-kick": {
+   "mode": "technique",
+   "profile": "kick"
+  },
+  "standing-hamstring-stretch": {
+   "mode": "angles",
+   "profile": "forward_fold"
+  },
+  "seated-forward-fold": {
+   "mode": "angles",
+   "profile": "forward_fold"
+  },
+  "butterfly-stretch": {
+   "mode": "angles",
+   "profile": "generic"
+  },
+  "pigeon-stretch": {
+   "mode": "angles",
+   "profile": "generic"
+  },
+  "cobra-stretch": {
+   "mode": "angles",
+   "profile": "generic"
+  },
+  "shoulder-dislocates": {
+   "mode": "angles",
+   "profile": "generic"
+  },
+  "seated-cable-row": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "straight-arm-pulldown": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "t-bar-row": {
+   "mode": "muscles",
+   "profile": "hinge"
+  },
+  "incline-bench-press": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "dumbbell-bench-press": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "chest-fly": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "cable-crossover": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "dumbbell-shoulder-press": {
+   "mode": "muscles",
+   "profile": "overhead_press"
+  },
+  "reverse-fly": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "shrug": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "leg-press": {
+   "mode": "muscles",
+   "profile": "squat"
+  },
+  "hack-squat": {
+   "mode": "muscles",
+   "profile": "squat"
+  },
+  "leg-extension": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "leg-curl": {
+   "mode": "muscles",
+   "profile": "generic"
+  },
+  "sumo-deadlift": {
+   "mode": "muscles",
+   "profile": "hinge"
+  },
+  "concentration-curl": {
+   "mode": "muscles",
+   "profile": "curl"
+  },
+  "cable-curl": {
+   "mode": "muscles",
+   "profile": "curl"
+  },
+  "overhead-triceps-extension": {
+   "mode": "muscles",
+   "profile": "curl"
+  }
+ },
+ "extras": [
+  {
+   "id": "boxing-jab",
+   "category": "cardio",
+   "name": "Boxing Jab",
+   "nameHi": "बॉक्सिंग जैब",
+   "nameGu": "બોક્સિંગ જેબ",
+   "primary": [
+    "shoulders",
+    "triceps"
+   ],
+   "secondary": [
+    "obliques",
+    "chest",
+    "calves"
+   ]
+  },
+  {
+   "id": "boxing-cross",
+   "category": "cardio",
+   "name": "Boxing Cross",
+   "nameHi": "बॉक्सिंग क्रॉस",
+   "nameGu": "બોક્સિંગ ક્રોસ",
+   "primary": [
+    "shoulders",
+    "chest",
+    "obliques"
+   ],
+   "secondary": [
+    "triceps",
+    "glutes",
+    "calves"
+   ]
+  },
+  {
+   "id": "boxing-hook",
+   "category": "cardio",
+   "name": "Boxing Hook",
+   "nameHi": "बॉक्सिंग हुक",
+   "nameGu": "બોક્સિંગ હુક",
+   "primary": [
+    "obliques",
+    "shoulders"
+   ],
+   "secondary": [
+    "chest",
+    "biceps",
+    "glutes"
+   ]
+  },
+  {
+   "id": "boxing-uppercut",
+   "category": "cardio",
+   "name": "Boxing Uppercut",
+   "nameHi": "बॉक्सिंग अपरकट",
+   "nameGu": "બોક્સિંગ અપરકટ",
+   "primary": [
+    "shoulders",
+    "biceps",
+    "obliques"
+   ],
+   "secondary": [
+    "quads",
+    "glutes"
+   ]
+  },
+  {
+   "id": "front-kick",
+   "category": "cardio",
+   "name": "Front Kick",
+   "nameHi": "फ्रंट किक",
+   "nameGu": "ફ્રન્ટ કિક",
+   "primary": [
+    "quads",
+    "abs"
+   ],
+   "secondary": [
+    "glutes",
+    "calves",
+    "adductors"
+   ]
+  },
+  {
+   "id": "roundhouse-kick",
+   "category": "cardio",
+   "name": "Roundhouse Kick",
+   "nameHi": "राउंडहाउस किक",
+   "nameGu": "રાઉન્ડહાઉસ કિક",
+   "primary": [
+    "glutes",
+    "obliques",
+    "quads"
+   ],
+   "secondary": [
+    "adductors",
+    "calves",
+    "abs"
+   ]
+  },
+  {
+   "id": "side-kick",
+   "category": "cardio",
+   "name": "Side Kick",
+   "nameHi": "साइड किक",
+   "nameGu": "સાઇડ કિક",
+   "primary": [
+    "glutes",
+    "obliques"
+   ],
+   "secondary": [
+    "quads",
+    "hamstrings",
+    "calves"
+   ]
+  },
+  {
+   "id": "standing-hamstring-stretch",
+   "category": "mobility",
+   "name": "Standing Hamstring Stretch",
+   "nameHi": "हैमस्ट्रिंग स्ट्रेच",
+   "nameGu": "હેમસ્ટ્રિંગ સ્ટ્રેચ",
+   "primary": [
+    "hamstrings"
+   ],
+   "secondary": [
+    "lower_back",
+    "calves"
+   ]
+  },
+  {
+   "id": "seated-forward-fold",
+   "category": "mobility",
+   "name": "Seated Forward Fold",
+   "nameHi": "पश्चिमोत्तानासन (फॉरवर्ड फोल्ड)",
+   "nameGu": "પશ્ચિમોત્તાનાસન (ફોરવર્ડ ફોલ્ડ)",
+   "primary": [
+    "hamstrings",
+    "lower_back"
+   ],
+   "secondary": [
+    "calves"
+   ]
+  },
+  {
+   "id": "butterfly-stretch",
+   "category": "mobility",
+   "name": "Butterfly Stretch",
+   "nameHi": "बटरफ्लाई स्ट्रेच",
+   "nameGu": "બટરફ્લાય સ્ટ્રેચ",
+   "primary": [
+    "adductors"
+   ],
+   "secondary": [
+    "glutes"
+   ]
+  },
+  {
+   "id": "pigeon-stretch",
+   "category": "mobility",
+   "name": "Pigeon Stretch",
+   "nameHi": "पिजन स्ट्रेच",
+   "nameGu": "પિજન સ્ટ્રેચ",
+   "primary": [
+    "glutes"
+   ],
+   "secondary": [
+    "quads",
+    "lower_back"
+   ]
+  },
+  {
+   "id": "cobra-stretch",
+   "category": "mobility",
+   "name": "Cobra Stretch",
+   "nameHi": "भुजंगासन (कोबरा)",
+   "nameGu": "ભુજંગાસન (કોબ્રા)",
+   "primary": [
+    "abs"
+   ],
+   "secondary": [
+    "lower_back",
+    "chest"
+   ]
+  },
+  {
+   "id": "shoulder-dislocates",
+   "category": "mobility",
+   "name": "Shoulder Dislocates (Band/Stick)",
+   "nameHi": "शोल्डर डिस्लोकेट्स",
+   "nameGu": "શોલ્ડર ડિસ્લોકેટ્સ",
+   "primary": [
+    "shoulders"
+   ],
+   "secondary": [
+    "chest",
+    "upper_back"
+   ]
+  },
+  {
+   "id": "seated-cable-row",
+   "category": "strength",
+   "name": "Seated Cable Row",
+   "nameHi": "सीटेड केबल रो",
+   "nameGu": "સીટેડ કેબલ રો",
+   "primary": [
+    "lats",
+    "upper_back"
+   ],
+   "secondary": [
+    "biceps",
+    "rear_delts",
+    "forearms",
+    "lower_back"
+   ]
+  },
+  {
+   "id": "straight-arm-pulldown",
+   "category": "strength",
+   "name": "Straight-Arm Pulldown",
+   "nameHi": "स्ट्रेट-आर्म पुलडाउन",
+   "nameGu": "સ્ટ્રેટ-આર્મ પુલડાઉન",
+   "primary": [
+    "lats"
+   ],
+   "secondary": [
+    "triceps",
+    "abs",
+    "rear_delts"
+   ]
+  },
+  {
+   "id": "t-bar-row",
+   "category": "strength",
+   "name": "T-Bar Row",
+   "nameHi": "टी-बार रो",
+   "nameGu": "ટી-બાર રો",
+   "primary": [
+    "lats",
+    "upper_back"
+   ],
+   "secondary": [
+    "biceps",
+    "rear_delts",
+    "lower_back"
+   ]
+  },
+  {
+   "id": "incline-bench-press",
+   "category": "strength",
+   "name": "Incline Bench Press",
+   "nameHi": "इनक्लाइन बेंच प्रेस",
+   "nameGu": "ઇન્ક્લાઇન બેન્ચ પ્રેસ",
+   "primary": [
+    "chest",
+    "shoulders"
+   ],
+   "secondary": [
+    "triceps"
+   ]
+  },
+  {
+   "id": "dumbbell-bench-press",
+   "category": "strength",
+   "name": "Dumbbell Bench Press",
+   "nameHi": "डम्बल बेंच प्रेस",
+   "nameGu": "ડમ્બેલ બેન્ચ પ્રેસ",
+   "primary": [
+    "chest"
+   ],
+   "secondary": [
+    "shoulders",
+    "triceps"
+   ]
+  },
+  {
+   "id": "chest-fly",
+   "category": "strength",
+   "name": "Chest Fly / Pec Deck",
+   "nameHi": "चेस्ट फ्लाई / पेक डेक",
+   "nameGu": "ચેસ્ટ ફ્લાય / પેક ડેક",
+   "primary": [
+    "chest"
+   ],
+   "secondary": [
+    "shoulders"
+   ]
+  },
+  {
+   "id": "cable-crossover",
+   "category": "strength",
+   "name": "Cable Crossover",
+   "nameHi": "केबल क्रॉसओवर",
+   "nameGu": "કેબલ ક્રોસઓવર",
+   "primary": [
+    "chest"
+   ],
+   "secondary": [
+    "shoulders"
+   ]
+  },
+  {
+   "id": "dumbbell-shoulder-press",
+   "category": "strength",
+   "name": "Dumbbell Shoulder Press",
+   "nameHi": "डम्बल शोल्डर प्रेस",
+   "nameGu": "ડમ્બેલ શોલ્ડર પ્રેસ",
+   "primary": [
+    "shoulders",
+    "triceps"
+   ],
+   "secondary": [
+    "traps",
+    "abs"
+   ]
+  },
+  {
+   "id": "reverse-fly",
+   "category": "strength",
+   "name": "Reverse Fly",
+   "nameHi": "रिवर्स फ्लाई",
+   "nameGu": "રિવર્સ ફ્લાય",
+   "primary": [
+    "rear_delts",
+    "upper_back"
+   ],
+   "secondary": [
+    "traps"
+   ]
+  },
+  {
+   "id": "shrug",
+   "category": "strength",
+   "name": "Shrug",
+   "nameHi": "श्रग",
+   "nameGu": "શ્રગ",
+   "primary": [
+    "traps"
+   ],
+   "secondary": [
+    "forearms"
+   ]
+  },
+  {
+   "id": "leg-press",
+   "category": "strength",
+   "name": "Leg Press",
+   "nameHi": "लेग प्रेस",
+   "nameGu": "લેગ પ્રેસ",
+   "primary": [
+    "quads",
+    "glutes"
+   ],
+   "secondary": [
+    "hamstrings",
+    "adductors"
+   ]
+  },
+  {
+   "id": "hack-squat",
+   "category": "strength",
+   "name": "Hack Squat",
+   "nameHi": "हैक स्क्वाट",
+   "nameGu": "હેક સ્ક્વોટ",
+   "primary": [
+    "quads",
+    "glutes"
+   ],
+   "secondary": [
+    "adductors"
+   ]
+  },
+  {
+   "id": "leg-extension",
+   "category": "strength",
+   "name": "Leg Extension",
+   "nameHi": "लेग एक्सटेंशन",
+   "nameGu": "લેગ એક્સ્ટેન્શન",
+   "primary": [
+    "quads"
+   ],
+   "secondary": []
+  },
+  {
+   "id": "leg-curl",
+   "category": "strength",
+   "name": "Leg Curl",
+   "nameHi": "लेग कर्ल",
+   "nameGu": "લેગ કર્લ",
+   "primary": [
+    "hamstrings"
+   ],
+   "secondary": [
+    "calves"
+   ]
+  },
+  {
+   "id": "sumo-deadlift",
+   "category": "strength",
+   "name": "Sumo Deadlift",
+   "nameHi": "सूमो डेडलिफ्ट",
+   "nameGu": "સુમો ડેડલિફ્ટ",
+   "primary": [
+    "glutes",
+    "quads",
+    "adductors"
+   ],
+   "secondary": [
+    "hamstrings",
+    "lower_back",
+    "traps"
+   ]
+  },
+  {
+   "id": "concentration-curl",
+   "category": "strength",
+   "name": "Concentration Curl",
+   "nameHi": "कंसन्ट्रेशन कर्ल",
+   "nameGu": "કોન્સન્ટ્રેશન કર્લ",
+   "primary": [
+    "biceps"
+   ],
+   "secondary": [
+    "forearms"
+   ]
+  },
+  {
+   "id": "cable-curl",
+   "category": "strength",
+   "name": "Cable Curl",
+   "nameHi": "केबल कर्ल",
+   "nameGu": "કેબલ કર્લ",
+   "primary": [
+    "biceps"
+   ],
+   "secondary": [
+    "forearms"
+   ]
+  },
+  {
+   "id": "overhead-triceps-extension",
+   "category": "strength",
+   "name": "Overhead Triceps Extension",
+   "nameHi": "ओवरहेड ट्राइसेप्स एक्सटेंशन",
+   "nameGu": "ઓવરહેડ ટ્રાયસેપ્સ એક્સ્ટેન્શન",
+   "primary": [
+    "triceps"
+   ],
+   "secondary": [
+    "shoulders"
+   ]
+  }
+ ],
+ "aliases": {
+  "_doc": "Extra names people type (EN/Hinglish/HI/GU/typos). Matching is fuzzy (edit distance) on top of these.",
+  "lat-pulldown": [
+   "lat pulldown",
+   "lat pull down",
+   "latpulldown",
+   "lat pull",
+   "lats pulldown",
+   "let pull down",
+   "late pull down",
+   "lat machine",
+   "pulldown",
+   "pull down",
+   "front pulldown",
+   "cable pulldown",
+   "lat pul daun",
+   "laat pull down",
+   "लैट पुलडाउन",
+   "लेट पुल डाउन",
+   "लैट पुल डाउन",
+   "पुलडाउन",
+   "લેટ પુલડાઉન",
+   "લેટ પુલ ડાઉન",
+   "પુલડાઉન"
+  ],
+  "seated-cable-row": [
+   "seated row",
+   "cable row",
+   "low row",
+   "seated cable row",
+   "rowing machine",
+   "सीटेड रो",
+   "केबल रो",
+   "સીટેડ રો",
+   "કેબલ રો"
+  ],
+  "straight-arm-pulldown": [
+   "straight arm pulldown",
+   "straight arm pull down",
+   "stiff arm pulldown",
+   "pullover cable"
+  ],
+  "pull-up": [
+   "pullup",
+   "pull up",
+   "pul up",
+   "pullups",
+   "पुल अप",
+   "पुलअप",
+   "પુલ અપ",
+   "પુલઅપ"
+  ],
+  "chin-up": [
+   "chinup",
+   "chin up",
+   "chin ups",
+   "चिन अप",
+   "ચિન અપ"
+  ],
+  "deadlift": [
+   "dead lift",
+   "deadlit",
+   "ded lift",
+   "डेडलिफ्ट",
+   "ડેડલિફ્ટ",
+   "conventional deadlift"
+  ],
+  "romanian-deadlift": [
+   "rdl",
+   "romanian dead lift",
+   "stiff leg deadlift",
+   "आरडीएल"
+  ],
+  "bench-press": [
+   "bench",
+   "flat bench",
+   "bench press",
+   "barbell bench",
+   "chest press",
+   "बेंच प्रेस",
+   "બેન્ચ પ્રેસ"
+  ],
+  "barbell-curl": [
+   "curl",
+   "bicep curl",
+   "biceps curl",
+   "barbell curl",
+   "dumbbell curl",
+   "बाइसेप कर्ल",
+   "बाइसेप्स कर्ल",
+   "બાયસેપ કર્લ"
+  ],
+  "hammer-curl": [
+   "hammer",
+   "hammer curl",
+   "हैमर कर्ल",
+   "હેમર કર્લ"
+  ],
+  "preacher-curl": [
+   "preacher",
+   "scott curl",
+   "प्रीचर कर्ल",
+   "પ્રીચર કર્લ"
+  ],
+  "triceps-pushdown": [
+   "tricep pushdown",
+   "triceps pushdown",
+   "pushdown",
+   "push down",
+   "rope pushdown",
+   "tricep push down",
+   "cable pushdown",
+   "ट्राइसेप पुशडाउन",
+   "ટ્રાયસેપ પુશડાઉન"
+  ],
+  "overhead-press": [
+   "ohp",
+   "shoulder press",
+   "military press",
+   "overhead press",
+   "barbell press",
+   "शोल्डर प्रेस",
+   "ઓવરહેડ પ્રેસ",
+   "શોલ્ડર પ્રેસ"
+  ],
+  "back-squat": [
+   "squat",
+   "squats",
+   "barbell squat",
+   "back squat",
+   "स्क्वाट",
+   "स्क्वैट",
+   "સ્ક્વોટ"
+  ],
+  "barbell-row": [
+   "bent over row",
+   "barbell row",
+   "bent row",
+   "बेंट ओवर रो"
+  ],
+  "dumbbell-row": [
+   "one arm row",
+   "single arm row",
+   "db row",
+   "dumbbell row"
+  ],
+  "hip-thrust": [
+   "hip thrust",
+   "glute bridge",
+   "hip thrusts",
+   "हिप थ्रस्ट"
+  ],
+  "lateral-raise": [
+   "side raise",
+   "lateral raise",
+   "side lateral",
+   "लेटरल रेज़"
+  ],
+  "push-up": [
+   "pushup",
+   "push up",
+   "pushups",
+   "पुश अप",
+   "પુશ અપ"
+  ],
+  "dips": [
+   "dip",
+   "chest dips",
+   "tricep dips",
+   "डिप्स"
+  ],
+  "face-pull": [
+   "face pull",
+   "facepull"
+  ],
+  "leg-press": [
+   "leg press",
+   "लेग प्रेस"
+  ],
+  "human-flag-progression": [
+   "flag",
+   "human flag",
+   "ह्यूमन फ्लैग",
+   "હ્યુમન ફ્લેગ"
   ]
+ }
 }

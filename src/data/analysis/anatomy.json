@@ -57,9 +57,9 @@
    "gu": "અપર ટ્રેપેઝિયસ"
   },
   "traps_mid": {
-   "en": "Middle trapezius",
-   "hi": "मिडल ट्रेपेज़ियस",
-   "gu": "મિડલ ટ્રેપેઝિયસ"
+   "en": "Middle & lower trapezius",
+   "hi": "मिडल व लोअर ट्रेपेज़ियस",
+   "gu": "મિડલ અને લોઅર ટ્રેપેઝિયસ"
   },
   "rhomboids": {
    "en": "Rhomboids",
@@ -400,51 +400,54 @@
   "lat-pulldown": {
    "primary": [
     "lats",
-    "teres_major"
+    "teres_major",
+    "biceps"
    ],
    "secondary": [
-    "biceps",
-    "brachialis",
+    "delt_post",
     "rhomboids",
     "traps_mid",
-    "delt_post"
+    "brachialis"
    ],
    "stabilizer": [
+    "erectors",
     "rectus_abdominis",
-    "forearm_flexors"
+    "obliques"
    ]
   },
   "pull-up": {
    "primary": [
     "lats",
-    "teres_major"
+    "teres_major",
+    "biceps"
    ],
    "secondary": [
-    "biceps",
-    "brachialis",
+    "delt_post",
     "rhomboids",
     "traps_mid",
-    "delt_post"
+    "brachialis"
    ],
    "stabilizer": [
+    "erectors",
     "rectus_abdominis",
-    "forearm_flexors"
+    "obliques"
    ]
   },
   "chin-up": {
    "primary": [
     "lats",
-    "biceps"
+    "biceps",
+    "teres_major"
    ],
    "secondary": [
-    "teres_major",
     "brachialis",
-    "pec_major",
+    "delt_post",
+    "rhomboids",
     "traps_mid"
    ],
    "stabilizer": [
     "rectus_abdominis",
-    "forearm_flexors"
+    "erectors"
    ]
   },
   "push-up": {
@@ -542,6 +545,338 @@
     "glute_med",
     "adductors"
    ]
+  },
+  "weighted-pull-up": {
+   "primary": [
+    "lats",
+    "teres_major",
+    "biceps"
+   ],
+   "secondary": [
+    "delt_post",
+    "rhomboids",
+    "traps_mid",
+    "brachialis"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques"
+   ]
+  },
+  "negative-pull-up": {
+   "primary": [
+    "lats",
+    "teres_major",
+    "biceps"
+   ],
+   "secondary": [
+    "delt_post",
+    "rhomboids",
+    "traps_mid",
+    "brachialis"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques"
+   ]
+  },
+  "band-pull-up": {
+   "primary": [
+    "lats",
+    "teres_major",
+    "biceps"
+   ],
+   "secondary": [
+    "delt_post",
+    "rhomboids",
+    "traps_mid",
+    "brachialis"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques"
+   ]
+  },
+  "archer-pull-up": {
+   "primary": [
+    "lats",
+    "teres_major",
+    "biceps"
+   ],
+   "secondary": [
+    "delt_post",
+    "rhomboids",
+    "traps_mid",
+    "brachialis"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques"
+   ]
+  },
+  "seated-cable-row": {
+   "primary": [
+    "lats",
+    "rhomboids",
+    "traps_mid"
+   ],
+   "secondary": [
+    "teres_major",
+    "delt_post",
+    "biceps",
+    "brachialis"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis"
+   ]
+  },
+  "straight-arm-pulldown": {
+   "primary": [
+    "lats",
+    "teres_major"
+   ],
+   "secondary": [
+    "triceps",
+    "delt_post"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "obliques"
+   ]
+  },
+  "t-bar-row": {
+   "primary": [
+    "lats",
+    "rhomboids",
+    "traps_mid"
+   ],
+   "secondary": [
+    "teres_major",
+    "delt_post",
+    "biceps"
+   ],
+   "stabilizer": [
+    "erectors",
+    "hamstrings",
+    "glute_max"
+   ]
+  },
+  "barbell-row": {
+   "primary": [
+    "lats",
+    "rhomboids",
+    "traps_mid"
+   ],
+   "secondary": [
+    "teres_major",
+    "delt_post",
+    "biceps"
+   ],
+   "stabilizer": [
+    "erectors",
+    "hamstrings",
+    "glute_max"
+   ]
+  },
+  "dumbbell-row": {
+   "primary": [
+    "lats",
+    "rhomboids"
+   ],
+   "secondary": [
+    "teres_major",
+    "delt_post",
+    "biceps",
+    "traps_mid"
+   ],
+   "stabilizer": [
+    "obliques",
+    "erectors"
+   ]
+  },
+  "incline-bench-press": {
+   "primary": [
+    "pec_major",
+    "delt_ant"
+   ],
+   "secondary": [
+    "triceps"
+   ],
+   "stabilizer": [
+    "rectus_abdominis"
+   ]
+  },
+  "dumbbell-bench-press": {
+   "primary": [
+    "pec_major"
+   ],
+   "secondary": [
+    "delt_ant",
+    "triceps"
+   ],
+   "stabilizer": [
+    "rectus_abdominis"
+   ]
+  },
+  "chest-fly": {
+   "primary": [
+    "pec_major"
+   ],
+   "secondary": [
+    "delt_ant"
+   ],
+   "stabilizer": [
+    "biceps"
+   ]
+  },
+  "cable-crossover": {
+   "primary": [
+    "pec_major"
+   ],
+   "secondary": [
+    "delt_ant"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "obliques"
+   ]
+  },
+  "dumbbell-shoulder-press": {
+   "primary": [
+    "delt_ant",
+    "delt_lat",
+    "triceps"
+   ],
+   "secondary": [
+    "traps_upper"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "erectors"
+   ]
+  },
+  "reverse-fly": {
+   "primary": [
+    "delt_post",
+    "rhomboids"
+   ],
+   "secondary": [
+    "traps_mid"
+   ],
+   "stabilizer": [
+    "erectors"
+   ]
+  },
+  "shrug": {
+   "primary": [
+    "traps_upper"
+   ],
+   "secondary": [
+    "forearm_flexors"
+   ],
+   "stabilizer": [
+    "erectors"
+   ]
+  },
+  "leg-press": {
+   "primary": [
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis",
+    "glute_max"
+   ],
+   "secondary": [
+    "adductors",
+    "hamstrings"
+   ],
+   "stabilizer": []
+  },
+  "hack-squat": {
+   "primary": [
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis"
+   ],
+   "secondary": [
+    "glute_max",
+    "adductors"
+   ],
+   "stabilizer": [
+    "erectors"
+   ]
+  },
+  "leg-extension": {
+   "primary": [
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis"
+   ],
+   "secondary": [],
+   "stabilizer": []
+  },
+  "leg-curl": {
+   "primary": [
+    "hamstrings"
+   ],
+   "secondary": [
+    "gastrocnemius"
+   ],
+   "stabilizer": []
+  },
+  "sumo-deadlift": {
+   "primary": [
+    "glute_max",
+    "vastus_lateralis",
+    "adductors"
+   ],
+   "secondary": [
+    "hamstrings",
+    "erectors",
+    "traps_upper"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "forearm_flexors"
+   ]
+  },
+  "concentration-curl": {
+   "primary": [
+    "biceps"
+   ],
+   "secondary": [
+    "brachialis"
+   ],
+   "stabilizer": [
+    "forearm_flexors"
+   ]
+  },
+  "cable-curl": {
+   "primary": [
+    "biceps",
+    "brachialis"
+   ],
+   "secondary": [
+    "forearm_flexors"
+   ],
+   "stabilizer": [
+    "delt_ant"
+   ]
+  },
+  "overhead-triceps-extension": {
+   "primary": [
+    "triceps"
+   ],
+   "secondary": [
+    "delt_post"
+   ],
+   "stabilizer": [
+    "rectus_abdominis"
+   ]
   }
  },
  "profileStabilizers": {
@@ -632,5 +967,119 @@
    "rectus_abdominis",
    "obliques"
   ]
+ },
+ "variants": {
+  "_doc": "Grip/variant modifiers parsed from the typed name shift the TYPICAL emphasis (not measured).",
+  "pull": {
+   "appliesTo": [
+    "lat-pulldown",
+    "pull-up",
+    "weighted-pull-up",
+    "seated-cable-row",
+    "chin-up"
+   ],
+   "wide": {
+    "primary": [
+     "lats",
+     "teres_major",
+     "biceps"
+    ],
+    "secondary": [
+     "delt_post",
+     "rhomboids",
+     "traps_mid",
+     "brachialis"
+    ],
+    "stabilizer": [
+     "erectors",
+     "rectus_abdominis",
+     "obliques"
+    ]
+   },
+   "close": {
+    "primary": [
+     "lats",
+     "biceps",
+     "brachialis"
+    ],
+    "secondary": [
+     "teres_major",
+     "delt_post",
+     "rhomboids",
+     "traps_mid"
+    ],
+    "stabilizer": [
+     "erectors",
+     "rectus_abdominis"
+    ]
+   },
+   "reverse": {
+    "primary": [
+     "biceps",
+     "lats",
+     "brachialis"
+    ],
+    "secondary": [
+     "teres_major",
+     "delt_post",
+     "rhomboids",
+     "traps_mid",
+     "pec_major"
+    ],
+    "stabilizer": [
+     "erectors",
+     "rectus_abdominis"
+    ]
+   },
+   "neutral": {
+    "primary": [
+     "lats",
+     "brachialis",
+     "biceps"
+    ],
+    "secondary": [
+     "teres_major",
+     "delt_post",
+     "rhomboids",
+     "traps_mid",
+     "forearm_flexors"
+    ],
+    "stabilizer": [
+     "erectors",
+     "rectus_abdominis"
+    ]
+   }
+  },
+  "press": {
+   "appliesTo": [
+    "bench-press",
+    "dumbbell-bench-press",
+    "incline-bench-press"
+   ],
+   "close": {
+    "primary": [
+     "triceps",
+     "pec_major"
+    ],
+    "secondary": [
+     "delt_ant"
+    ],
+    "stabilizer": [
+     "rectus_abdominis"
+    ]
+   },
+   "wide": {
+    "primary": [
+     "pec_major"
+    ],
+    "secondary": [
+     "delt_ant",
+     "triceps"
+    ],
+    "stabilizer": [
+     "rectus_abdominis"
+    ]
+   }
+  }
  }
 }

@@ -23,7 +23,7 @@ plugins {
 def twaManifest = [
     applicationId: 'com.d31universe.pro',
     hostName: 'chavdadarshh-a11y.github.io', // The domain being opened in the TWA.
-    launchUrl: '/d31-universe-pro/#/home', // The start path for the TWA. Must be relative to the domain.
+    launchUrl: '/d31-universe-pro/?src=twa#/home', // The start path for the TWA. Must be relative to the domain.
     name: 'D31.UNIVERSE', // The application name.
     launcherName: 'D31.UNIVERSE', // The name shown on the Android Launcher.
     themeColor: '#07080B', // The color used for the status bar.

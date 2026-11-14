@@ -11,6 +11,7 @@ import { Avatar, AvatarPicker } from '../components/Avatar'
 import { deleteAccount, logOut, updateAccount, validEmail } from '../lib/accounts'
 import { useCan } from '../lib/entitlements'
 import { useUnits } from '../lib/units'
+import { IN_APP } from '../lib/appMode'
 
 function Row({ icon, label, value, onClick, danger, testid }: { icon: React.ReactNode; label: string; value?: React.ReactNode; onClick?: () => void; danger?: boolean; testid?: string }) {
   return (
@@ -105,7 +106,7 @@ export function Profile() {
             <div className={`mt-0.5 flex items-center gap-2 text-[16px] font-bold ${plan === 'platinum' ? 'text-platinum' : ''}`}>{t(`plan_${plan}`)} {s.membership.source === 'demo' && <Badge tone="gold">{t('demo')}</Badge>}</div>
             {plan !== 'free' && s.membership.until && <div className="text-[12px] text-muted">{t('validUntil', { d: fmtDate(s.membership.until, s.lang) })}</div>}
           </div>
-          <span className="text-[13px] font-semibold text-cyan">{plan === 'free' ? t('upgrade') : t('manage')}</span>
+          <span className="text-[13px] font-semibold text-cyan">{IN_APP ? t('memDetails') : plan === 'free' ? t('upgrade') : t('manage')}</span>
         </div>
       </Card>
 

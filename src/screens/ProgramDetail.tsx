@@ -12,6 +12,7 @@ import { canProgram } from '../lib/entitlements'
 import { estimateMinutes } from '../lib/plan'
 import { startWorkout } from '../lib/workout'
 import { DownloadButton } from '../components/DownloadButton'
+import { IN_APP } from '../lib/appMode'
 
 export function ProgramDetail({ id }: { id: string }) {
   const t = useT()
@@ -24,7 +25,7 @@ export function ProgramDetail({ id }: { id: string }) {
   const next = (s.programDay[p.id] ?? 0) % p.days.length
 
   const startDay = (i: number) => {
-    if (locked) return navigate('/membership')
+    if (locked) return IN_APP ? s.showToast(t('memberOnly')) : navigate('/membership')
     if (!active) s.set({ activeProgramId: p.id })
     if (!s.active) startWorkout(`${p.name} · ${p.days[i].name}`, p.days[i].items, p.id, i)
     navigate('/player')
@@ -58,7 +59,9 @@ export function ProgramDetail({ id }: { id: string }) {
         <Button variant="outline" size="sm" className="mt-3" onClick={() => navigate(`/path/${p.ladder}`)}>{t('skillPaths')}: {LADDER_BY_ID[p.ladder].name}</Button>
       )}
 
-      {locked ? (
+      {locked && IN_APP ? (
+        <div data-testid="member-only" className="mt-4 flex items-center gap-2 rounded-2xl border border-gold/30 bg-gold/[0.06] px-4 py-3 text-sm text-gold"><Lock size={16} /> {t('memberOnly')}</div>
+      ) : locked ? (
         <Button variant="gold" className="mt-4 w-full" onClick={() => navigate('/membership')}><Lock size={16} /> {t('unlockWith', { p: t(`plan_${p.plan}`) })}</Button>
       ) : active ? (
         <div className="mt-4 flex items-center gap-2 rounded-2xl border border-cyan/25 bg-cyan/[0.06] px-4 py-3 text-sm text-cyan"><CheckCircle2 size={17} /> {t('isActive')}</div>

@@ -13,6 +13,7 @@ import { can } from '../lib/entitlements'
 import { wTxt, toW, wUnit, useUnits } from '../lib/units'
 import { DownloadButton } from '../components/DownloadButton'
 import type { Measurement } from '../types'
+import { IN_APP } from '../lib/appMode'
 
 type Tab = 'history' | 'charts' | 'body' | 'records' | 'photos'
 
@@ -242,7 +243,7 @@ function Photos() {
 
   if (!allowed)
     return (
-      <Empty icon={<Lock size={26} />} text={`${t('f_photos')} — ${t('planNeeded', { p: t('plan_pro') })}`} action={<Button variant="gold" size="sm" onClick={() => navigate('/membership')}>{t('unlockWith', { p: t('plan_pro') })}</Button>} />
+      <Empty icon={<Lock size={26} />} text={IN_APP ? `${t('f_photos')} — ${t('memberOnly')}` : `${t('f_photos')} — ${t('planNeeded', { p: t('plan_pro') })}`} action={IN_APP ? undefined : <Button variant="gold" size="sm" onClick={() => navigate('/membership')}>{t('unlockWith', { p: t('plan_pro') })}</Button>} />
     )
 
   return (

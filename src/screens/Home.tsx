@@ -14,6 +14,7 @@ import { startEmpty, startWorkout } from '../lib/workout'
 import { canProgram } from '../lib/entitlements'
 import { useKnowledge, visiblePosts } from '../lib/knowledge'
 import { PostPanels } from './Knowledge'
+import { IN_APP } from '../lib/appMode'
 
 /** Darshan's Knowledge posts (auto-fed from Drive) as expanding panels. */
 function HomeKnowledge() {
@@ -43,7 +44,7 @@ export function Home() {
 
   const start = () => {
     if (!program || !day) return
-    if (locked) return navigate('/membership')
+    if (locked) return IN_APP ? s.showToast(t('memberOnly')) : navigate('/membership')
     if (!s.active) startWorkout(`${program.name} · ${day.name}`, day.items, program.id, dayIdx)
     navigate('/player')
   }
@@ -105,7 +106,7 @@ export function Home() {
         <div className="flex gap-2 p-3">
           {program && day ? (
             <Button className="flex-1" onClick={start} variant={locked ? 'gold' : 'primary'}>
-              {locked ? <><Lock size={16} /> {t('unlockWith', { p: t(`plan_${program.plan}`) })}</> : <><Play size={16} fill="currentColor" /> {s.active ? t('resume') : t('start')}</>}
+              {locked ? <><Lock size={16} /> {IN_APP ? t('memberOnly') : t('unlockWith', { p: t(`plan_${program.plan}`) })}</> : <><Play size={16} fill="currentColor" /> {s.active ? t('resume') : t('start')}</>}
             </Button>
           ) : (
             <Button className="flex-1" onClick={() => navigate('/train')}>{t('choose')}</Button>

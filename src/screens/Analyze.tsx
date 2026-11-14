@@ -12,6 +12,7 @@ import { compressImage, fmtDate, speak, uid } from '../lib/util'
 import { drawPose, evaluatePose, getLandmarker, RepCounter, type RepKind } from '../lib/pose'
 import { cloud } from '../lib/cloud'
 import type { AnalysisRecord, WorkoutSession } from '../types'
+import { IN_APP } from '../lib/appMode'
 
 const SECTION_STYLE: Record<string, { icon: typeof Eye; color: string }> = {
   'WHAT I SEE': { icon: Eye, color: '#8b93a3' },
@@ -158,7 +159,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
 
   const run = async () => {
     if (needsSignIn) return navigate('/auth?next=/analyze')
-    if (isLive && left <= 0) return navigate('/membership')
+    if (isLive && left <= 0) return IN_APP ? useApp.getState().showToast(t('memberOnly')) : navigate('/membership')
     setBusy(true)
     setErr(null)
     try {

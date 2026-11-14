@@ -12,7 +12,7 @@
   "navigationDividerColorDark": "#07080B",
   "backgroundColor": "#07080B",
   "enableNotifications": true,
-  "startUrl": "/d31-universe-pro/#/home",
+  "startUrl": "/d31-universe-pro/?src=twa#/home",
   "iconUrl": "https://chavdadarshh-a11y.github.io/d31-universe-pro/icons/icon-512.png",
   "maskableIconUrl": "https://chavdadarshh-a11y.github.io/d31-universe-pro/icons/maskable-512.png",
   "monochromeIconUrl": "https://chavdadarshh-a11y.github.io/d31-universe-pro/icons/monochrome-512.png",

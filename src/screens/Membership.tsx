@@ -17,6 +17,7 @@ import { fmtDate } from '../lib/util'
 import { PROGRAMS } from '../data/programs'
 import type { PlanId } from '../types'
 import type { StringKey } from '../i18n/strings'
+import { IN_APP } from '../lib/appMode'
 
 const plusDays = (d: number) => new Date(Date.now() + d * 86400000).toISOString()
 const progCount = (p: PlanId) => PROGRAMS.filter((x) => x.plan === p).length
@@ -62,7 +63,7 @@ export function Membership() {
 
   const requireUser = () => {
     if (isLive && !s.user) {
-      s.showToast(t('signInToBuy'))
+      s.showToast(IN_APP ? t('memSignIn') : t('signInToBuy'))
       navigate('/auth?next=/membership')
       return false
     }
@@ -113,7 +114,7 @@ export function Membership() {
   const day = trialDay()
   const trialDone = !!trialStartedAt() && !onTrial
   const launchOpen = spots !== null && spots > 0
-  const table = rows(t)
+  const table = IN_APP ? rows(t).filter((r) => r.label !== t('cmp_alacarte')) : rows(t)
 
   const PassPrice = ({ id }: { id: PassId }) => {
     const p = passesFor(id.split('_')[0] as PlanId).find((x) => x.id === id)!
@@ -131,14 +132,29 @@ export function Membership() {
       <Header title={t('membership')} back />
       <div className="text-center">
         <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gold/12 text-gold"><Crown size={26} /></span>
-        <h1 className="mt-3 text-[24px] font-extrabold tracking-tight">{t('plansTitle')}</h1>
-        <p className="mt-1 text-[13px] text-muted">{t('plansSub')}</p>
+        <h1 className="mt-3 text-[24px] font-extrabold tracking-tight">{IN_APP ? t('memTitle') : t('plansTitle')}</h1>
+        <p className="mt-1 text-[13px] text-muted">{IN_APP ? t('memSub') : t('plansSub')}</p>
       </div>
+
+      {IN_APP && (
+        <div className="card mt-4 p-4" data-testid="mem-status">
+          <div className="label">{t('memCurrent')}</div>
+          <div className={`mt-1 flex items-center gap-2 text-[20px] font-extrabold ${plan === 'platinum' ? 'text-platinum' : ''}`} style={plan === 'platinum' ? undefined : { color: PLAN_BY_ID[plan].accent }}>
+            {t(`plan_${plan}`)}
+            {onTrial && <Badge tone="gold">{t('trialTitle').split(' ')[0]}</Badge>}
+            {s.membership.source === 'demo' && <Badge tone="gold">{t('demo')}</Badge>}
+          </div>
+          {plan !== 'free' && s.membership.until && <div className="mt-0.5 text-[12.5px] text-muted" data-testid="mem-until">{t('validUntil', { d: fmtDate(s.membership.until, s.lang) })}</div>}
+          <div className="mt-1 text-[12px] text-muted">{t('aiChecksN', { n: PLAN_BY_ID[plan].analyses })} · {KNOWLEDGE_LANGS[plan].length >= 3 ? 'EN · HI · GU' : KNOWLEDGE_LANGS[plan].join(' · ').toUpperCase()}</div>
+          <p className="mt-3 text-[12.5px] leading-snug text-muted">{t('memLinked')}</p>
+          {isLive && !s.user && <Button className="mt-3 w-full" size="sm" onClick={() => navigate('/auth?next=/membership')}>{t('signIn')}</Button>}
+        </div>
+      )}
 
       {!isLive && (
         <div className="mt-4 rounded-2xl border border-violet/30 bg-violet/[0.06] p-3" data-testid="demo-tiers">
           <div className="flex items-center gap-2 text-[12px] font-bold text-violet"><FlaskConical size={14} /> {t('demoPreview')}</div>
-          <p data-testid="payments-off" className="mt-1.5 text-[11.5px] leading-snug text-gold">{t('paymentsOffDemo')}</p>
+          {!IN_APP && <p data-testid="payments-off" className="mt-1.5 text-[11.5px] leading-snug text-gold">{t('paymentsOffDemo')}</p>}
           <div className="relative mt-2 grid grid-cols-4 gap-1 rounded-xl border border-white/10 p-1">
             {PLANS.map((p) => (
               <button key={p.id} data-testid={`demo-${p.id}`} data-on={plan === p.id || undefined} onClick={() => preview(p.id)} className={`relative z-[1] h-9 rounded-lg text-[12px] font-bold transition-colors duration-300 ${plan === p.id ? 'text-frost' : 'text-muted'}`}>{t(`plan_${p.id}`)}</button>
@@ -152,7 +168,7 @@ export function Membership() {
             ))}
             <button data-testid="demo-trial-end" onClick={() => { demoTrialDay(0); s.showToast(`${t('demo')} · ${t('demoTrialEnd')}`) }} className="h-8 flex-1 rounded-lg border border-gold/30 text-[11.5px] font-semibold text-gold">{t('demoTrialEnd')}</button>
           </div>
-          <p className="mt-2 text-[11px] leading-snug text-muted">{t('demoPreviewNote')}</p>
+          {!IN_APP && <p className="mt-2 text-[11px] leading-snug text-muted">{t('demoPreviewNote')}</p>}
           {plan !== 'free' && status.state === 'active' && s.membership.source !== 'trial' && (
             <button data-testid="demo-expire" onClick={() => { s.set({ membership: { ...s.membership, until: new Date(trustedNow() - 1000).toISOString() } }); s.showToast(t('demoExpired')) }} className="mt-2 w-full rounded-lg border border-gold/30 py-2 text-[12px] font-semibold text-gold">{t('demoExpire')}</button>
           )}
@@ -162,7 +178,7 @@ export function Membership() {
       {status.state === 'grace' && status.graceUntil && (
         <div data-testid="grace-banner" className="mt-4 rounded-2xl border border-gold/40 bg-gold/[0.08] p-3 text-[13px] leading-snug text-gold">
           <b>{t('dlUnlockedUntil', { t: new Date(status.graceUntil).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }) })}</b>
-          <p className="mt-1 text-[11.5px] text-gold/80">{t('graceRule')}</p>
+          <p className="mt-1 text-[11.5px] text-gold/80">{t(IN_APP ? 'graceRuleApp' : 'graceRule')}</p>
         </div>
       )}
 
@@ -192,7 +208,8 @@ export function Membership() {
 
       {err && <p className="mt-3 rounded-xl border border-bad/30 bg-bad/[0.08] px-3 py-2 text-[13px] text-bad">{err}</p>}
 
-      {/* tier cards */}
+      {/* tier cards (website only) */}
+      {!IN_APP && <>
       <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
         {PLANS.map((p) => {
           const current = plan === p.id
@@ -242,6 +259,7 @@ export function Membership() {
         <p className="mt-1 text-[12.5px] leading-snug text-muted">{t('alaBody', { v: UNLOCKS.video, p: UNLOCKS.pdf, nv: UNLOCKS.pack.videos, np: UNLOCKS.pack.pdfs, k: UNLOCKS.pack.priceInr })}</p>
         <Button variant="ghost" size="sm" className="mt-3 w-full" onClick={() => navigate('/knowledge')}>{t('knowledge')} →</Button>
       </div>
+      </>}
 
       {/* comparison */}
       <h2 className="label mt-5">{t('features')}</h2>
@@ -264,9 +282,9 @@ export function Membership() {
       <p className="mt-2 text-[11px] leading-snug text-dim">{t('aiNote')}</p>
 
       {plan !== 'free' && s.membership.until && <p className="mt-3 text-center text-[12px] text-muted">{t('validUntil', { d: fmtDate(s.membership.until, s.lang) })}{s.membership.source === 'demo' ? ` · ${t('demo')}` : ''}</p>}
-      <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[12px] text-dim"><ShieldCheck size={14} /> {t('payWith')}</p>
+      {!IN_APP && <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[12px] text-dim"><ShieldCheck size={14} /> {t('payWith')}</p>}
       <p className="mt-2 text-center text-[11px] text-dim">
-        <a className="underline" href="#/legal/terms">{t('terms')}</a> · <a className="underline" href="#/legal/refunds">{t('refunds')}</a>
+        <a className="underline" href="#/legal/terms">{t('terms')}</a>{!IN_APP && <> · <a className="underline" href="#/legal/refunds">{t('refunds')}</a></>}
       </p>
     </div>
   )

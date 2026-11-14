@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { refreshMembership } from './cloud'
 import { PASS_BY_ID, PAY_METHODS, type PassId, type UnlockSku } from '../config/plans'
+import { IN_APP } from './appMode'
 
 declare global {
   interface Window {
@@ -9,6 +10,7 @@ declare global {
 }
 
 function loadScript(): Promise<void> {
+  if (IN_APP) return Promise.reject(new Error('Not available in the app'))
   if (window.Razorpay) return Promise.resolve()
   return new Promise((res, rej) => {
     const s = document.createElement('script')
@@ -43,6 +45,7 @@ const describe = (p: Purchase) => {
 /** Server creates the order (amount decided server-side from pricing.json), browser opens checkout, server verifies signature.
  *  Every purchase is a one-time payment — passes never auto-renew. */
 export async function payWithRazorpay(purchase: Purchase, prefill: { email?: string; name?: string }): Promise<'paid' | 'dismissed'> {
+  if (IN_APP) throw new Error('Not available in the app')
   if (!supabase) throw new Error('Payments need Supabase configured')
   const { data, error } = await supabase.functions.invoke('razorpay-create-order', { body: purchase })
   if (error) throw new Error(error.message)

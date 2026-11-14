@@ -5,6 +5,7 @@ import { useApp, effectivePlan } from '../store/app'
 import { launchSpotsLeft } from '../lib/cloud'
 import { navigate } from '../lib/router'
 import { LAUNCH_SPOTS } from '../lib/plans'
+import { IN_APP } from '../lib/appMode'
 
 /** Real spots left from the server (Supabase RPC), or null when there is no real count.
  *  null means: never show a counter (no fake stats). */
@@ -24,7 +25,7 @@ export function OfferBanner() {
   const t = useT()
   const membership = useApp((s) => s.membership)
   const spots = useLaunchSpots()
-  if (effectivePlan(membership) !== 'free') return null
+  if (IN_APP || effectivePlan(membership) !== 'free') return null
   return (
     <button onClick={() => navigate('/membership')} className="relative mt-4 block w-full overflow-hidden rounded-[20px] border border-gold/30 bg-[#15110a] p-4 text-left">
       <div className="flex items-start gap-3">

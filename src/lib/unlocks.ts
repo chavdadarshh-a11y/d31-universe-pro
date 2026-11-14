@@ -12,6 +12,7 @@ import { useApp } from '../store/app'
 import { supabase } from './supabase'
 import { isLive } from './env'
 import { UNLOCKS, type UnlockSku } from '../config/plans'
+import { IN_APP } from './appMode'
 
 export type UnlockKind = 'video' | 'pdf'
 export const unlockKey = (post: number, kind: UnlockKind, n: number) => `${post}:${kind}:${n}`
@@ -79,6 +80,7 @@ export function validItems(sku: UnlockSku, items: string[]): boolean {
 
 /** Buy an unlock. Live → Razorpay (server decides the amount, verifies, writes user_unlocks). Demo → payments are off. */
 export async function buyUnlock(sku: UnlockSku, items: string[]): Promise<'paid' | 'dismissed' | 'demo'> {
+  if (IN_APP) throw new Error('Not available in the app')
   if (!validItems(sku, items)) throw new Error('invalid')
   if (!isLive) return 'demo'
   const { payWithRazorpay } = await import('./payments')

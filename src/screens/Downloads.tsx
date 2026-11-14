@@ -14,6 +14,7 @@ import { navigate } from '../lib/router'
 import { useDownloadAccess } from '../lib/entitlements'
 import { cloudRestoreReady, fmtBytes, getBlob, savedUrl, storageUsed, useDownloads, type DlItem } from '../lib/downloads'
 import { kPreview } from '../lib/knowledge'
+import { IN_APP } from '../lib/appMode'
 
 const ICON = { video: Film, pdf: FileText, photo: ImageIcon }
 
@@ -37,7 +38,7 @@ export function Downloads() {
   const fmtT = (ms: number) => new Date(ms).toLocaleString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { dateStyle: 'medium', timeStyle: 'short' })
 
   const open = async (it: DlItem) => {
-    if (itemLocked(it)) return navigate('/membership')
+    if (itemLocked(it)) return IN_APP ? toast(t('memberOnly')) : navigate('/membership')
     if (it.type === 'video') {
       const url = await savedUrl(it.item_id)
       if (url) openPlayer({ items: [{ title: it.title, sub: `${it.post ? `#${it.post} · ` : ''}${t('dlOffline')}`, sources: [{ src: url, type: it.mime || 'video/mp4' }], embed: kPreview(it.source_id) }] })
@@ -60,8 +61,8 @@ export function Downloads() {
       {locked && list.some(itemLocked) && (
         <div data-testid="dl-locked-banner" className="mb-3 flex items-center gap-3 rounded-2xl border border-gold/40 bg-gold/[0.08] p-3">
           <Lock size={18} className="shrink-0 text-gold" />
-          <p className="flex-1 text-[13px] text-gold">{t('dlLocked')} · {t('dlRenew')}</p>
-          <Button variant="gold" size="sm" onClick={() => navigate('/membership')}>{t('renew')}</Button>
+          <p className="flex-1 text-[13px] text-gold">{t('dlLocked')} · {IN_APP ? t('memberOnly') : t('dlRenew')}</p>
+          {!IN_APP && <Button variant="gold" size="sm" onClick={() => navigate('/membership')}>{t('renew')}</Button>}
         </div>
       )}
 
@@ -98,7 +99,7 @@ export function Downloads() {
                     <span className="block truncate text-[14px] font-semibold">{it.title}</span>
                     <span className="block truncate font-mono text-[10.5px] text-dim">
                       {it.post ? `#${it.post} · ` : ''}{fmtBytes(it.size)} · {new Date(it.downloaded_at).toLocaleDateString(lang === 'en' ? 'en-IN' : `${lang}-IN`)}
-                      {lockedIt ? ` · ${t('dlRenew')}` : !here ? ` · ${t('dlRestore')}` : ''}
+                      {lockedIt ? ` · ${IN_APP ? t('dlLocked') : t('dlRenew')}` : !here ? ` · ${t('dlRestore')}` : ''}
                     </span>
                   </span>
                 </button>
@@ -110,7 +111,7 @@ export function Downloads() {
           })}
         </div>
       )}
-      <p className="mt-4 text-[11.5px] leading-snug text-dim">{t('graceRule')}</p>
+      <p className="mt-4 text-[11.5px] leading-snug text-dim">{t(IN_APP ? 'graceRuleApp' : 'graceRule')}</p>
 
       {pdf && <PdfViewer blob={pdf.blob} title={pdf.title} onClose={() => setPdf(null)} />}
       {photo && createPortal(

@@ -15,6 +15,7 @@ import { getBlob, itemId, savedUrl, useDownloads, type DlType } from '../lib/dow
 import { openPlayer } from '../components/VideoPlayer'
 import { PdfViewer } from '../components/PdfViewer'
 import { canSaveType, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
+import { IN_APP } from '../lib/appMode'
 
 const LANG_LABEL: Record<KLang, string> = { en: 'English', hi: 'हिंदी', gu: 'ગુજરાતી' }
 const plural = (t: T, n: number, one: StringKey, many: StringKey) => t(n === 1 ? one : many, { n })
@@ -163,7 +164,7 @@ function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: numbe
   const toast = useApp((s) => s.showToast)
   if (!ok)
     return (
-      <button data-testid="k-dl-locked" onClick={() => navigate('/membership')} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/40 px-3 text-[12px] font-bold text-gold" title={t('kPlatinumOnly')}>
+      <button data-testid="k-dl-locked" onClick={() => (IN_APP ? toast(t('memberOnly')) : navigate('/membership'))} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/40 px-3 text-[12px] font-bold text-gold" title={t('kPlatinumOnly')}>
         <Lock size={13} /> {t('plan_platinum')}
       </button>
     )
@@ -206,7 +207,7 @@ function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked }: { f: K
         </span>
       </button>
       {locked
-        ? <button data-testid="k-unlock" onClick={onLocked} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/45 px-3 text-[12px] font-bold text-gold"><Lock size={13} /> ₹{unlockPrice(type === 'pdf' ? 'pdf' : 'video')}</button>
+        ? <button data-testid="k-unlock" onClick={onLocked} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/45 px-3 text-[12px] font-bold text-gold"><Lock size={13} /> {IN_APP ? t('locked') : `₹${unlockPrice(type === 'pdf' ? 'pdf' : 'video')}`}</button>
         : <SaveBtn f={f} type={type} post={post} ukey={ukey} />}
     </Card>
   )
@@ -221,6 +222,7 @@ function UnlockSheet({ item, onClose }: { item: { key: string; title: string } |
   const grant = useUnlocks((s) => s.grant)
   const [busy, setBusy] = useState(false)
   if (!item) return <Sheet open={false} onClose={onClose} title="">{null}</Sheet>
+  if (IN_APP) return <Sheet open onClose={onClose} title={item.title}><p data-testid="unlock-sheet-app" className="flex items-center gap-2 pb-2 text-[14px] leading-snug text-gold"><Lock size={16} className="shrink-0" /> {t('memberOnly')}</p></Sheet>
   const kind = kindOf(item.key)
   const inPack = pack.includes(item.key)
   const pro = passesFor('pro')[0]
@@ -264,7 +266,7 @@ export function PackBar() {
   const clear = useUnlocks((s) => s.clearPack)
   const toast = useApp((s) => s.showToast)
   const [busy, setBusy] = useState(false)
-  if (!pack.length) return null
+  if (IN_APP || !pack.length) return null
   const v = pack.filter((k) => kindOf(k) === 'video').length, d = pack.length - v
   return (
     <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+76px)] z-40 mx-auto max-w-[460px]">
@@ -389,8 +391,8 @@ export function KnowledgePost({ id }: { id: string }) {
         {langLocked && (
           <div data-testid="k-lang-locked" className="flex items-center gap-3 rounded-2xl border border-gold/35 bg-gold/[0.07] p-3">
             <Lock size={17} className="shrink-0 text-gold" />
-            <p className="flex-1 text-[12.5px] leading-snug text-gold">{t('kLangLocked', { p: unlockPrice('video'), d: unlockPrice('pdf') })}</p>
-            <Button size="sm" variant="gold" onClick={() => navigate('/membership')}>{t('upgrade')}</Button>
+            <p className="flex-1 text-[12.5px] leading-snug text-gold">{IN_APP ? t('memberOnly') : t('kLangLocked', { p: unlockPrice('video'), d: unlockPrice('pdf') })}</p>
+            {!IN_APP && <Button size="sm" variant="gold" onClick={() => navigate('/membership')}>{t('upgrade')}</Button>}
           </div>
         )}
         {tab === 'overview' && (

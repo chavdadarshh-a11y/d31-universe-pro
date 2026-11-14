@@ -32,6 +32,9 @@ const goH = async (p, h) => { await p.evaluate((h) => { location.hash = h }, h);
   ok('web: Membership shows buy buttons', buys >= 3, `buy buttons=${buys}`)
   ok('web: Membership shows ₹ prices', /₹\d/.test(await text(p)))
   ok('web: à-la-carte card visible', await p.locator('[data-testid="ala-card"]').isVisible())
+  ok('web: Post passes section visible (Free)', await p.locator('[data-testid="pp-section"]').isVisible() && await p.locator('[data-testid="buy-post_1"]').count() === 1)
+  const ppt = await text(p)
+  ok('web: Post pass prices ₹21 / ₹31 / ₹331', /₹\s*21\b/.test(ppt) && /₹\s*31\b/.test(ppt) && /₹\s*331\b/.test(ppt))
   await p.screenshot({ path: `${OUT}/web-membership.png` })
   await goH(p, '/knowledge/501'); await p.locator('[data-testid="k-lang-hi"]').click().catch(() => {}); await p.waitForTimeout(400)
   await p.getByText(/^Videos/).first().click().catch(() => {}); await p.waitForTimeout(700)
@@ -56,7 +59,9 @@ for (const [label, url] of [['?src=twa', BASE + '?src=twa#/home'], ['?utm_source
       await goH(p, r)
       const tx = await text(p); const m = tx.match(BAD)
       const buyBtns = await p.locator('[data-testid^="buy-"], [data-testid="ala-card"], [data-testid="unlock-single"], [data-testid="pack-buy"], [data-testid="unlock-upgrade"]').count()
+      const pp = /₹\s*21\b|₹\s*31\b|₹\s*331\b/.test(tx) || await p.locator('[data-testid="pp-section"], [data-testid="post-passes"], [data-testid="buy-post_1"], [data-testid="buy-post_3"], [data-testid="buy-post_30"]').count()
       ok(`app(${label}) [${lang}] ${r}: no price/buy`, !m && buyBtns === 0, m ? `found "${m[0]}"` : buyBtns ? `buy elements=${buyBtns}` : '')
+      ok(`app(${label}) [${lang}] ${r}: no post-pass prices`, !pp, pp ? 'found post-pass price or buy button' : '')
       if (lang === 'en' && label === '?src=twa') await p.screenshot({ path: `${OUT}/app-${lang}-${r.replace(/[^a-z0-9]+/gi, '_')}.png` })
     }
     // Knowledge locked HI/GU video tab → neutral message + neutral sheet

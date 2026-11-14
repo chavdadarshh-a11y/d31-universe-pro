@@ -186,6 +186,8 @@ export async function initAuth() {
       await startTrialIfNew() // server allows it once per account
       const { useUnlocks } = await import('./unlocks')
       await useUnlocks.getState().refresh()
+      const { usePostPasses } = await import('./postPasses')
+      await usePostPasses.getState().refresh()
     }
   }
   // "Remember me" was off and the app was closed → end the cloud session too

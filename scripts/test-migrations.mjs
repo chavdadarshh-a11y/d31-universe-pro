@@ -76,5 +76,34 @@ ok(r3.rows[0].r.ok === true, 'user B starts a 7-day trial')
 const fts = await db.query(`select count(*)::int c from public.search_d31_posts('handstand')`)
 ok(fts.rows[0].c >= 0, 'search_d31_posts RPC runs')
 
+// v4.2.2 Knowledge post passes
+blocked = false
+try { await as(A, () => db.exec(`insert into public.user_post_passes (user_id, pass_type, post_ids, expires_at) values ('${A}', 'post_1', '{501}', now() + interval '1 day')`)) } catch { blocked = true }
+ok(blocked, 'RLS: user cannot insert a post pass for themselves')
+
+await db.exec(`insert into public.user_post_passes (user_id, pass_type, post_ids, expires_at) values ('${A}', 'post_3', '{}', now() + interval '1 day')`)
+const already = await as(A, () => db.query(`select public.claim_post_pass_slot(501) r`))
+ok(already.rows[0].r.ok === true, 'user A claims first slot of a 3-post pass (#501)')
+const again = await as(A, () => db.query(`select public.claim_post_pass_slot(501) r`))
+ok(again.rows[0].r.ok === true && again.rows[0].r.reason === 'already', 'claiming the same post again is already')
+await as(A, () => db.query(`select public.claim_post_pass_slot(502) r`))
+await as(A, () => db.query(`select public.claim_post_pass_slot(503) r`))
+const full = await as(A, () => db.query(`select public.claim_post_pass_slot(504) r`))
+ok(full.rows[0].r.ok === false && full.rows[0].r.reason === 'no_slot', 'fourth claim on a 3-post pass is rejected')
+const ids = (await db.query(`select post_ids from public.user_post_passes where user_id = '${A}'`)).rows[0].post_ids
+ok(Array.isArray(ids) && ids.includes(501) && ids.includes(502) && ids.includes(503) && ids.length === 3, `post_ids are 501,502,503 (got ${ids})`)
+
+const seenByBpp = await as(B, () => db.query('select count(*)::int c from public.user_post_passes'))
+ok(seenByBpp.rows[0].c === 0, 'RLS: user B cannot see user A post passes')
+const noSlotB = await as(B, () => db.query(`select public.claim_post_pass_slot(501) r`))
+ok(noSlotB.rows[0].r.ok === false && noSlotB.rows[0].r.reason === 'no_slot', 'user B has no pass to claim a slot on')
+
+await db.exec(`insert into public.user_post_passes (user_id, pass_type, post_ids, expires_at) values ('${B}', 'post_1', '{}', now() - interval '1 hour')`)
+const expired = await as(B, () => db.query(`select public.claim_post_pass_slot(501) r`))
+ok(expired.rows[0].r.ok === false && expired.rows[0].r.reason === 'no_slot', 'expired post pass cannot be claimed')
+
+const own = await as(A, () => db.query('select count(*)::int c from public.user_post_passes'))
+ok(own.rows[0].c === 1, 'user A can read their own post pass')
+
 console.log(failures ? `\n${failures} check(s) failed` : '\nAll database checks passed')
 process.exit(failures ? 1 : 0)

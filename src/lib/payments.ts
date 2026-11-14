@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import { refreshMembership } from './cloud'
-import { PASS_BY_ID, PAY_METHODS, type PassId, type UnlockSku } from '../config/plans'
+import { PASS_BY_ID, PAY_METHODS, POST_PASS_BY_ID, isPostPassId, type PassId, type PostPassId, type UnlockSku } from '../config/plans'
 import { IN_APP } from './appMode'
 
 declare global {
@@ -21,7 +21,7 @@ function loadScript(): Promise<void> {
   })
 }
 
-export type Purchase = { sku: PassId } | { sku: UnlockSku; items: string[] }
+export type Purchase = { sku: PassId } | { sku: UnlockSku; items: string[] } | { sku: PostPassId; posts: number[] }
 
 /** UPI first, then cards, netbanking and wallets (order from pricing.json). */
 const LABEL: Record<string, string> = { upi: 'UPI', card: 'Cards', netbanking: 'Netbanking', wallet: 'Wallets' }
@@ -40,6 +40,7 @@ function checkoutConfig() {
 }
 const describe = (p: Purchase) => {
   if (p.sku in PASS_BY_ID) { const x = PASS_BY_ID[p.sku as PassId]; return `${x.plan.toUpperCase()} — ${x.days} days (one-time, no auto-renew)` }
+  if (isPostPassId(p.sku)) { const x = POST_PASS_BY_ID[p.sku]; return `${x.posts} Knowledge post${x.posts === 1 ? '' : 's'} — ${x.hours} hours (view only)` }
   return p.sku === 'pack' ? 'Mini pack — 3 videos + 3 PDFs' : p.sku === 'video' ? 'Single video unlock' : 'Single PDF unlock'
 }
 /** Server creates the order (amount decided server-side from pricing.json), browser opens checkout, server verifies signature.
@@ -47,7 +48,8 @@ const describe = (p: Purchase) => {
 export async function payWithRazorpay(purchase: Purchase, prefill: { email?: string; name?: string }): Promise<'paid' | 'dismissed'> {
   if (IN_APP) throw new Error('Not available in the app')
   if (!supabase) throw new Error('Payments need Supabase configured')
-  const { data, error } = await supabase.functions.invoke('razorpay-create-order', { body: purchase })
+  const body = 'posts' in purchase ? { sku: purchase.sku, items: purchase.posts } : purchase
+  const { data, error } = await supabase.functions.invoke('razorpay-create-order', { body })
   if (error) throw new Error(error.message)
   const order = data as { orderId: string; amount: number; currency: string; keyId: string; error?: string }
   if (order.error) throw new Error(order.error)
@@ -72,7 +74,8 @@ export async function payWithRazorpay(purchase: Purchase, prefill: { email?: str
           return
         }
         await refreshMembership()
-        if (!(purchase.sku in PASS_BY_ID)) { const { useUnlocks } = await import('./unlocks'); await useUnlocks.getState().refresh() }
+        if (isPostPassId(purchase.sku)) { const { usePostPasses } = await import('./postPasses'); await usePostPasses.getState().refresh() }
+        else if (!(purchase.sku in PASS_BY_ID)) { const { useUnlocks } = await import('./unlocks'); await useUnlocks.getState().refresh() }
         resolve('paid')
       },
     })

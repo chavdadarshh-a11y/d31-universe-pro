@@ -61,3 +61,14 @@ export function useDownloadAccess(): DownloadAccess {
   const m = useApp((s) => s.membership)
   return downloadAccess(m)
 }
+
+/* ───────────── Knowledge post passes ─────────────
+ * A post pass opens the chosen Knowledge posts (all EN/HI/GU videos + PDFs) for a
+ * limited time. It is view/stream only — downloads stay Platinum-only (see FEATURE_PLAN).
+ * Offered to Free, Pro and Gold; Platinum already has every post.
+ */
+export {
+  POST_PASSES, POST_PASS_BY_ID, isPostOpen, postAccess, openSlots, totalOpenSlots,
+  formatRemain, activePasses, buyPostPass, usePostPasses, type PostPassId, type UserPostPass,
+} from './postPasses'
+export { postPassDuration, type PostPassConfig } from '../config/plans'

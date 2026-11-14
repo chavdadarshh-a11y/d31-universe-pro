@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Beam } from './components/Beam'
 import { useUnlocks } from './lib/unlocks'
+import { usePostPasses } from './lib/postPasses'
 import { Home as HomeIcon, Dumbbell, ScanLine, BookOpen, LineChart, User, Play, Pause, Square } from 'lucide-react'
 import { useRoute, navigate } from './lib/router'
 import { useApp } from './store/app'
@@ -130,6 +131,7 @@ export default function App() {
   // in-app downloads: load this account's list; after a reinstall, re-download on Wi-Fi if allowed
   useEffect(() => {
     void useUnlocks.getState().refresh()
+    void usePostPasses.getState().refresh()
     void useDownloads.getState().refresh().then(() => {
       const { list, present, restoreMissing } = useDownloads.getState()
       const missing = list.some((x) => !present[x.item_id])

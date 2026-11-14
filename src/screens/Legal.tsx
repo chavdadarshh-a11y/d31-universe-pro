@@ -1,13 +1,14 @@
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Header } from '../components/ui'
-import { PASSES, TRIAL, UNLOCKS, KNOWLEDGE_LANGS } from '../config/plans'
+import { PASSES, TRIAL, UNLOCKS, KNOWLEDGE_LANGS, POST_PASSES, postPassDuration } from '../config/plans'
 
 const passTxt = PASSES.map((p) => `${p.plan[0].toUpperCase()}${p.plan.slice(1)} ₹${p.priceInr.toLocaleString('en-IN')} / ${p.days} days`).join(', ')
 const MEMBERSHIP_TERMS = `Tiers: Free, Pro, Gold and Platinum. Passes: ${passTxt}. All prices are in INR, paid once through Razorpay (UPI, cards, netbanking, wallets); passes never auto-renew. Every new account gets one free ${TRIAL.days}-day ${TRIAL.plan[0].toUpperCase()}${TRIAL.plan.slice(1)} trial (once per account). Free accounts open Knowledge videos and PDFs in ${KNOWLEDGE_LANGS.free.join(', ').toUpperCase()} only; Pro, Gold and Platinum open all languages. In-app downloads of Knowledge videos, PDFs and photos are part of Platinum. After a paid pass ends there is a short grace period with full access (see the app), then saved downloads stay on the phone but lock until you renew.`
 /** Google Play app: no prices, payment methods or buying instructions (Play payments policy). */
 const MEMBERSHIP_TERMS_APP = `Tiers: Free, Pro, Gold and Platinum. A membership is linked to your D31 account and works on every device where you sign in with that account. Memberships never auto-renew. Every new account gets one free ${TRIAL.days}-day ${TRIAL.plan[0].toUpperCase()}${TRIAL.plan.slice(1)} trial (once per account). Free accounts open Knowledge videos and PDFs in ${KNOWLEDGE_LANGS.free.join(', ').toUpperCase()} only; Pro, Gold and Platinum open all languages. In-app downloads of Knowledge videos, PDFs and photos are part of Platinum. After a membership ends there is a short grace period with full access, then saved downloads stay on the phone but lock.`
 const UNLOCK_TERMS = `You can buy single Knowledge items without a pass: one video ₹${UNLOCKS.video}, one PDF ₹${UNLOCKS.pdf}, or a mini pack of up to ${UNLOCKS.pack.videos} videos + ${UNLOCKS.pack.pdfs} PDFs you pick for ₹${UNLOCKS.pack.priceInr}. A bought item is unlocked permanently for your account, in every language it exists in${UNLOCKS.allowDownload ? ', and can be saved inside the app' : ''}.`
+const POST_PASS_TERMS = `You can also buy a Knowledge post pass: ${POST_PASSES.map((x) => { const d = postPassDuration(x); return `${x.posts} post${x.posts === 1 ? '' : 's'} ₹${x.priceInr} for ${d.n} ${d.unit}`; }).join(', ')}. A post pass opens every language version of the chosen posts (videos and PDFs) for viewing and streaming only, for that time. It does not include in-app downloads (those stay with Platinum). Unused post slots expire with the pass. Post passes are offered to Free, Pro and Gold members; Platinum already has every post.`
 import { env } from '../lib/env'
 import { IN_APP } from '../lib/appMode'
 
@@ -41,7 +42,7 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
         ['Agreement', `By using D31.UNIVERSE you agree to these terms with ${biz}. If you do not agree, please do not use the app.`],
         ['Your account', 'Keep your login secure. You are responsible for activity on your account. One account per person.'],
         ['Memberships', IN_APP ? MEMBERSHIP_TERMS_APP : MEMBERSHIP_TERMS],
-        ...(IN_APP ? [] : [['Single-item unlocks', UNLOCK_TERMS] as [string, string]]),
+        ...(IN_APP ? [] : [['Single-item unlocks', UNLOCK_TERMS] as [string, string], ['Post passes', POST_PASS_TERMS] as [string, string]]),
         ['Acceptable use', 'Do not upload content you do not have rights to, content of other people without their consent, or anything illegal or abusive. Do not attempt to reverse engineer, overload or misuse the AI analysis service.'],
         ['Content', 'Programs, exercise descriptions, videos and D31 Knowledge posts are © Darshan Chavda / D31. You may use them for personal training only.'],
         ['No medical advice', 'See the Health Disclaimer. You train at your own risk.'],
@@ -66,7 +67,7 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
         ['Questions', `For any membership or refund question, ${contact}.`],
         ['Free offers', 'Launch-offer months and free trials are free and do not convert to paid automatically.'],
       ] : [
-        ['One-time passes', 'Every pass (30, 90 or 365 days) is a one-time payment and never auto-renews. Your access simply ends when the pass ends unless you buy again. Single-item unlocks are permanent and are not time-limited.'],
+        ['One-time passes', 'Every membership pass (30, 90 or 365 days) and every Knowledge post pass is a one-time payment and never auto-renews. Your access simply ends when the pass ends unless you buy again. Unused post-pass slots expire with the pass. Single-item unlocks are permanent and are not time-limited.'],
         ['Refunds', `If you are charged by mistake or cannot access paid features because of a fault on our side, ${contact} within 7 days of payment with your Razorpay payment ID. Approved refunds are returned to the original payment method within 5–7 working days.`],
         ['Free offers', 'Launch-offer months and free trials are free and do not convert to paid automatically.'],
       ],

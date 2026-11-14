@@ -31,5 +31,11 @@
     { "fromHour": 6, "toHour": 12, "hours": 3 },
     { "fromHour": 12, "toHour": 24, "hours": 1 }
   ],
-  "_grace_note": "paid passes only (not the trial): full access of that tier for N hours, chosen by the LOCAL hour the pass expired"
+  "_grace_note": "paid passes only (not the trial): full access of that tier for N hours, chosen by the LOCAL hour the pass expired",
+  "postPasses": [
+    { "id": "post_1", "posts": 1, "hours": 24, "inr": 21 },
+    { "id": "post_3", "posts": 3, "hours": 24, "inr": 31 },
+    { "id": "post_30", "posts": 30, "hours": 168, "inr": 331 }
+  ],
+  "_postPasses_note": "Time-limited Knowledge post access for Free, Pro and Gold (Platinum already has every post). A pass opens the chosen posts in every language (videos + PDFs). View/stream only — downloads stay Platinum-only. Website only; hidden in the Android app."
 }

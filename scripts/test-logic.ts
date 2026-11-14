@@ -1,5 +1,6 @@
 // Unit checks for pure logic (run: npm test). Uses Node's built-in TypeScript stripping.
 import { createHmac } from 'node:crypto'
+import pricing from '../supabase/functions/_shared/pricing.json' with { type: 'json' }
 import { computeRecords, isPR, ladderStatus, summarizeSets, volumeOf } from '../src/lib/training.ts'
 import { LADDER_BY_ID } from '../src/data/ladders.ts'
 import { computeStreak, epley, nutritionTargets, readinessBand, readinessScore, weeklyBuckets } from '../src/lib/util.ts'
@@ -46,6 +47,11 @@ const sub = globalThis.crypto.subtle
 const key = await sub.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
 const web = [...new Uint8Array(await sub.sign('HMAC', key, new TextEncoder().encode(`${order}|${pay}`)))].map((b) => b.toString(16).padStart(2, '0')).join('')
 ok(web === sig, 'WebCrypto HMAC (edge function) matches Razorpay reference signature')
+
+const pp = pricing.postPasses as { id: string; posts: number; hours: number; inr: number }[]
+ok(pp.find((x) => x.id === 'post_1')?.inr === 21 && pp.find((x) => x.id === 'post_1')?.hours === 24 && pp.find((x) => x.id === 'post_1')?.posts === 1, 'post pass: 1 post ₹21 / 24 hours')
+ok(pp.find((x) => x.id === 'post_3')?.inr === 31 && pp.find((x) => x.id === 'post_3')?.hours === 24 && pp.find((x) => x.id === 'post_3')?.posts === 3, 'post pass: 3 posts ₹31 / 24 hours')
+ok(pp.find((x) => x.id === 'post_30')?.inr === 331 && pp.find((x) => x.id === 'post_30')?.hours === 168 && pp.find((x) => x.id === 'post_30')?.posts === 30, 'post pass: 30 posts ₹331 / 7 days')
 
 console.log(failed ? `\n${failed} failed` : '\nAll logic checks passed')
 process.exit(failed ? 1 : 0)

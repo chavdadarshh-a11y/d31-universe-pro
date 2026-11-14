@@ -14,6 +14,8 @@ export type PassId = 'pro_30' | 'gold_30' | 'platinum_30' | 'platinum_90' | 'pla
 export type PaidPlan = Exclude<PlanId, 'free'>
 export type PassConfig = { id: PassId; plan: PaidPlan; days: number; priceInr: number }
 export type UnlockSku = 'video' | 'pdf' | 'pack'
+export type PostPassId = 'post_1' | 'post_3' | 'post_30'
+export type PostPassConfig = { id: PostPassId; posts: number; hours: number; priceInr: number }
 
 export const PLAN_IDS: PlanId[] = ['free', 'pro', 'gold', 'platinum']
 export const PLAN_RANK: Record<PlanId, number> = { free: 0, pro: 1, gold: 2, platinum: 3 }
@@ -46,6 +48,16 @@ export const UNLOCKS = {
   allowDownload: pricing.unlocks.allowDownload,
 }
 export const unlockPrice = (sku: UnlockSku) => (sku === 'pack' ? UNLOCKS.pack.priceInr : UNLOCKS[sku])
+
+/** Time-limited Knowledge post passes (website only). Hidden from Platinum — they already have every post. */
+export const POST_PASSES: PostPassConfig[] = (pricing as { postPasses?: { id: string; posts: number; hours: number; inr: number }[] }).postPasses?.map((p) => ({
+  id: p.id as PostPassId, posts: p.posts, hours: p.hours, priceInr: p.inr,
+})) ?? []
+export const POST_PASS_BY_ID = Object.fromEntries(POST_PASSES.map((p) => [p.id, p])) as Record<PostPassId, PostPassConfig>
+export const isPostPassId = (s: string): s is PostPassId => s in POST_PASS_BY_ID
+export const postPassDuration = (p: PostPassConfig) => p.hours % 24 === 0 && p.hours >= 48
+  ? { unit: 'days' as const, n: p.hours / 24 }
+  : { unit: 'hours' as const, n: p.hours }
 
 /** Razorpay checkout order (UPI first). */
 export const PAY_METHODS = pricing.payMethods as ('upi' | 'card' | 'netbanking' | 'wallet')[]

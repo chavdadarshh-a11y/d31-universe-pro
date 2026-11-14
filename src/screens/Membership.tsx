@@ -18,6 +18,7 @@ import { PROGRAMS } from '../data/programs'
 import type { PlanId } from '../types'
 import type { StringKey } from '../i18n/strings'
 import { IN_APP } from '../lib/appMode'
+import { ActivePassList, PostPassButtons, showsPostPasses } from '../components/PostPasses'
 
 const plusDays = (d: number) => new Date(Date.now() + d * 86400000).toISOString()
 const progCount = (p: PlanId) => PROGRAMS.filter((x) => x.plan === p).length
@@ -259,6 +260,15 @@ export function Membership() {
         <p className="mt-1 text-[12.5px] leading-snug text-muted">{t('alaBody', { v: UNLOCKS.video, p: UNLOCKS.pdf, nv: UNLOCKS.pack.videos, np: UNLOCKS.pack.pdfs, k: UNLOCKS.pack.priceInr })}</p>
         <Button variant="ghost" size="sm" className="mt-3 w-full" onClick={() => navigate('/knowledge')}>{t('knowledge')} →</Button>
       </div>
+
+      {showsPostPasses(plan) && (
+        <div className="card mt-4 p-4" data-testid="pp-section">
+          <div className="text-[15px] font-bold">{t('ppTitle')}</div>
+          <p className="mt-1 text-[12.5px] leading-snug text-muted">{t('ppSub')}</p>
+          <div className="mt-3"><PostPassButtons /></div>
+          <ActivePassList />
+        </div>
+      )}
       </>}
 
       {/* comparison */}

@@ -56,3 +56,24 @@ export function validUnlock(sku: string, items: unknown): string[] | null {
   if (sku === "pack") return v <= PACK_LIMITS.videos && p <= PACK_LIMITS.pdfs ? keys : null;
   return null;
 }
+
+export type PostPass = { id: string; posts: number; hours: number; paise: number };
+export const POST_PASSES: Record<string, PostPass> = Object.fromEntries(
+  ((pricing as { postPasses?: { id: string; posts: number; hours: number; inr: number }[] }).postPasses ?? []).map((p) => [
+    p.id,
+    { id: p.id, posts: p.posts, hours: p.hours, paise: p.inr * 100 },
+  ]),
+);
+
+/** Server-side check of post-pass purchases. 1-post must name the post; 3/30 may start empty and be filled later. */
+export function validPostPassItems(sku: string, items: unknown): number[] | null {
+  const cfg = POST_PASSES[sku];
+  if (!cfg) return null;
+  const raw = items == null ? [] : items;
+  if (!Array.isArray(raw)) return null;
+  const ids = raw.map((x) => Number(x));
+  if (ids.some((n) => !Number.isInteger(n) || n < 1 || n > 999999) || new Set(ids).size !== ids.length) return null;
+  if (ids.length > cfg.posts) return null;
+  if (sku === "post_1" && ids.length !== 1) return null;
+  return ids;
+}

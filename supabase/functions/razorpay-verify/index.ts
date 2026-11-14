@@ -2,9 +2,10 @@
  * Supabase Edge Function: razorpay-verify
  * Verifies the Razorpay signature (HMAC-SHA256 of "order_id|payment_id" with the key secret),
  * marks the payment paid, then either extends the membership by the pass length (30/90/365 days, one-time)
- * or writes the bought items to user_unlocks (forever, every language).
+ * or writes the bought items to user_unlocks (forever, every language),
+ * or writes a user_post_passes row (time-limited Knowledge post access, view/stream only).
  */
-import { admin, corsHeaders, json, requireUser } from "../_shared/http.ts";
+import { admin, corsHeaders, json, POST_PASSES, requireUser } from "../_shared/http.ts";
 
 async function hmacHex(secret: string, message: string) {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
@@ -40,6 +41,23 @@ Deno.serve(async (req) => {
     if (pay.status === "paid") return json({ ok: true, plan: pay.plan, alreadyProcessed: true });
 
     await db.from("payments").update({ status: "paid", razorpay_payment_id, paid_at: new Date().toISOString() }).eq("id", pay.id);
+
+    // Knowledge post pass → time-limited row in user_post_passes (view/stream only)
+    if (pay.plan === "postpass" || (pay.sku && POST_PASSES[pay.sku])) {
+      const cfg = POST_PASSES[pay.sku];
+      if (!cfg) return json({ error: "Unknown post pass" }, 400);
+      const postIds = ((pay.items ?? []) as unknown[]).map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= 999999);
+      const expires = new Date(Date.now() + cfg.hours * 3600_000).toISOString();
+      const { error: pe } = await db.from("user_post_passes").insert({
+        user_id: user.id,
+        pass_type: pay.sku,
+        post_ids: postIds,
+        expires_at: expires,
+        order_id: razorpay_order_id,
+      });
+      if (pe) return json({ error: pe.message }, 500);
+      return json({ ok: true, pass: pay.sku, expires_at: expires, post_ids: postIds });
+    }
 
     // à-la-carte unlock → permanent rows in user_unlocks
     if (typeof pay.plan === "string" && pay.plan.startsWith("unlock_")) {

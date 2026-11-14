@@ -8,7 +8,7 @@ export function exportBackup() {
   const st = useApp.getState()
   const data: Record<string, unknown> = { app: 'D31.UNIVERSE', format: 1, exportedAt: new Date().toISOString(), account: st.user ? { email: st.user.email, name: st.user.name } : null }
   for (const k of KEYS) data[k] = st[k]
-  data.analyses = st.analyses.map(({ thumb: _t, photo: _p, ...a }) => { void _t; void _p; return a })
+  data.analyses = st.analyses.map(({ thumb: _t, photo: _p, mask: _m, ...a }) => { void _t; void _p; void _m; return a })
   download(`d31-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(data, null, 2))
 }
 

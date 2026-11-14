@@ -9,7 +9,8 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "preview": "vite preview",
     "seed:sql": "node scripts/gen-seed.mjs",
-    "test": "node scripts/test-logic.ts && node scripts/test-pose.ts && node scripts/test-migrations.mjs"
+    "test": "node scripts/test-logic.ts && node scripts/test-pose.ts && node scripts/test-migrations.mjs && node scripts/test-anatomy.ts",
+    "test:anatomy": "node scripts/test-anatomy.ts"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.2.3",

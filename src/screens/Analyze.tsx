@@ -8,14 +8,18 @@ import { hashQuery } from '../lib/router'
 import { runAnalysis, HEADER_KEYS, D31_ANALYSIS_HEADERS } from '../lib/analyze'
 import { isLive } from '../lib/env'
 import { fmtDate, speak, uid } from '../lib/util'
-import { drawPose, getLandmarker, RepCounter, type RepKind } from '../lib/pose'
+import { detectPhoto, drawPose, getLandmarker, maskToPng, pngToMask, RepCounter, type RawMask, type RepKind } from '../lib/pose'
 import { cloud } from '../lib/cloud'
 import type { AnalysisRecord, Lang, MuscleId, WorkoutSession } from '../types'
 import {
   analysisEx, buildPose, evaluateRules, exerciseSetup, exLabel, guessExercise, insights, l3, musclesFor, MUSCLE_NAMES, searchExercises,
   type CheckResult, type Guess, type Mode, type Pose,
 } from '../lib/formCheck'
-import { renderAnalysis, visibleMuscles } from '../lib/analysisDraw'
+import { renderAnalysis } from '../lib/analysisDraw'
+import { fitMuscles, type Mask } from '../lib/muscleAnatomy'
+import { fineName, roleWord, rolesFor, ROLE_ORDER } from '../lib/muscleRoles'
+import { ROLE_COLOR } from '../lib/muscleDraw'
+import { hudData, renderPoster, sharePoster, svgToImage, ROLE_LEVEL, type Hud } from '../lib/poster'
 
 const SECTION_STYLE: Record<string, { icon: typeof Eye; color: string }> = {
   'WHAT I SEE': { icon: Eye, color: '#8b93a3' },
@@ -40,8 +44,6 @@ export default function Analyze() {
 }
 
 
-const ORANGE = '#ff6a1f'
-const LIME = '#b8ff3c'
 
 function AiCards({ sections, raw }: { sections: Record<string, string>; raw: string }) {
   const t = useT()
@@ -82,12 +84,15 @@ function toCanvas(src: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement, 
   return c
 }
 const loadImg = (url: string) => new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url })
-const lmToPts = (lm?: number[][]) => lm?.map(([x, y, v]) => ({ x, y, visibility: v, presence: v }))
+const lmToPts = (lm?: number[][]) => lm?.map(([x, y, v, z]) => ({ x, y, z, visibility: v, presence: v }))
+/** raw mask → Mask in the coordinate space of a W×H image */
+const scaleMask = (m: RawMask | null | undefined, W: number, H: number): Mask | null => (m && W && H ? { w: m.w, h: m.h, data: m.data, sx: m.w / W, sy: m.h / H } : null)
+const ROLE_SWATCH = { primary: '#ff2d26', secondary: '#ffce2e' }
 
 const STATUS_COLOR: Record<CheckResult['status'], string> = { ok: '#34d399', warn: '#f5b942', fix: '#ff3b30', info: '#8b93a3' }
 const MODE_SUB: Record<Mode, 'subAngles' | 'subMuscles' | 'subTechnique'> = { angles: 'subAngles', muscles: 'subMuscles', technique: 'subTechnique' }
 
-function useResult(rec: AnalysisRecord, lang: Lang, src: HTMLCanvasElement | HTMLImageElement | null) {
+function useResult(rec: AnalysisRecord, lang: Lang, src: HTMLCanvasElement | HTMLImageElement | null, raw: RawMask | null) {
   const W = src ? (src instanceof HTMLCanvasElement ? src.width : src.naturalWidth) : 0
   const H = src ? (src instanceof HTMLCanvasElement ? src.height : src.naturalHeight) : 0
   const pose = useMemo<Pose | null>(() => (src && rec.lm ? buildPose(lmToPts(rec.lm), W, H) : src ? buildPose(null, W, H) : null), [src, rec.lm, W, H])
@@ -95,7 +100,9 @@ function useResult(rec: AnalysisRecord, lang: Lang, src: HTMLCanvasElement | HTM
   const setup = exerciseSetup(exId)
   const muscles = musclesFor(exId)
   const evals = useMemo(() => (pose ? evaluateRules(pose, exId, lang) : { checks: [], skipped: [] }), [pose, exId, lang])
-  return { pose, setup, muscles, ...evals }
+  const roles = useMemo(() => rolesFor(exId), [exId])
+  const anatomy = useMemo(() => (pose ? fitMuscles(pose, scaleMask(raw, W, H), roles) : { drawn: [], notDrawn: [], occluders: [] }), [pose, raw, W, H, roles])
+  return { pose, setup, muscles, roles, anatomy, mask: scaleMask(raw, W, H), ...evals }
 }
 
 function specRows(t: ReturnType<typeof useT>, pose: Pose, exName: string, focus: string, mode: Mode, muscles: { primary: MuscleId[] }, lang: Lang): [string, string][] {
@@ -111,7 +118,7 @@ function specRows(t: ReturnType<typeof useT>, pose: Pose, exName: string, focus:
 }
 
 /** Result "slide": overlay canvas + mode tabs + insights + checks + body map. Works for new and saved results. */
-function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; src?: HTMLCanvasElement | null; onChangeEx?: (id: string) => void; guesses?: Guess[] }) {
+function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisRecord; src?: HTMLCanvasElement | null; mask?: RawMask | null; onChangeEx?: (id: string) => void; guesses?: Guess[] }) {
   const t = useT()
   const lang = useApp((s) => s.lang)
   const [img, setImg] = useState<HTMLCanvasElement | HTMLImageElement | null>(src ?? null)
@@ -119,26 +126,58 @@ function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; sr
     if (src) { setImg(src); return }
     if (rec.photo) loadImg(rec.photo).then(setImg).catch(() => setImg(null))
   }, [src, rec.photo])
-  const { pose, setup, muscles, checks, skipped } = useResult(rec, lang, img)
-  const noMus = (m: Mode): Mode => (m === 'muscles' ? 'angles' : m)
-  const [mode, setMode] = useState<Mode>(noMus(rec.mode ?? setup.mode))
-  useEffect(() => setMode(noMus(rec.mode ?? exerciseSetup(rec.exId).mode)), [rec.exId, rec.mode])
+  const [raw, setRaw] = useState<RawMask | null>(mask ?? null)
+  useEffect(() => {
+    if (mask) { setRaw(mask); return }
+    setRaw(null)
+    if (rec.mask) pngToMask(rec.mask).then(setRaw).catch(() => setRaw(null))
+  }, [mask, rec.mask])
+  const { pose, setup, muscles, roles, anatomy, mask: maskS, checks, skipped } = useResult(rec, lang, img, raw)
+  const [mode, setMode] = useState<Mode>(rec.mode ?? setup.mode)
+  useEffect(() => setMode(rec.mode ?? exerciseSetup(rec.exId).mode), [rec.exId, rec.mode])
+  const [bw, setBw] = useState(true)
+  const [posterMsg, setPosterMsg] = useState('')
+  const bodyMapRef = useRef<HTMLDivElement>(null)
+  const roleKinds = useMemo(() => ROLE_ORDER.filter((r) => Object.values(roles).includes(r)), [roles])
   const canvas = useRef<HTMLCanvasElement>(null)
   const ex = analysisEx(rec.exId)
   const name = ex ? exLabel(ex, lang) : ''
   useEffect(() => {
     const c = canvas.current
     if (!c || !img || !pose) return
-    const draw = () => renderAnalysis(c, img, pose, {
-      mode, lang, title: name || t('formCheck'), subtitle: t(MODE_SUB[mode]), profile: setup.profile, muscles,
-      spec: pose.ok ? specRows(t, pose, name, l3(setup.profile.focus, lang), mode, muscles, lang) : [],
-    })
+    const draw = () => {
+      renderAnalysis(c, img, pose, {
+        mode, lang, title: name || t('formCheck'), subtitle: t(MODE_SUB[mode]), profile: setup.profile, muscles,
+        spec: pose.ok ? specRows(t, pose, name, l3(setup.profile.focus, lang), mode, muscles, lang) : [],
+        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders }, bw: mode === 'muscles' && bw,
+      })
+      // test hook: the exact outlines that were drawn (checked by the anti-primitive e2e test)
+      ;(window as unknown as { __d31MuscleShapes?: unknown }).__d31MuscleShapes = mode === 'muscles' && maskS ? anatomy.drawn.map((m) => ({ id: m.id, role: m.role, polys: m.polys })) : []
+    }
     draw()
     // redraw once the condensed font is ready
     document.fonts?.load('700 40px Oswald').then(draw).catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [img, pose, mode, lang, rec.exId])
-  const shown = useMemo(() => (pose ? visibleMuscles(pose, [...muscles.primary, ...muscles.secondary]) : new Set<MuscleId>()), [pose, muscles])
+  }, [img, pose, mode, lang, rec.exId, anatomy, bw, maskS])
+  const hud: Hud = useMemo(() => hudData(pose, checks, setup.profile, anatomy.drawn, anatomy.notDrawn, lang), [pose, checks, setup.profile, anatomy, lang])
+  const savePoster = async () => {
+    if (!img || !pose) return
+    setPosterMsg('')
+    try {
+      const ov = document.createElement('canvas')
+      renderAnalysis(ov, img, pose, {
+        mode, lang, title: '', subtitle: '', profile: setup.profile, muscles, spec: [], chrome: false, labels: true,
+        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders }, bw: mode === 'muscles' && bw,
+      })
+      const bm = await svgToImage(bodyMapRef.current?.querySelector('svg') ?? null)
+      const poster = renderPoster({ overlay: ov, bodyMap: bm, hud, title: name || t('formCheck'), lang, t: (k) => t(k as never), date: fmtDate(rec.date, lang) })
+      ;(window as unknown as { __d31Poster?: string }).__d31Poster = poster.toDataURL('image/png')
+      const how = await sharePoster(poster, `d31-${(rec.exId || 'analysis')}-${rec.id.slice(0, 6)}.png`)
+      setPosterMsg(how === 'downloaded' ? t('posterReady') : '')
+    } catch (e) {
+      setPosterMsg(t('posterFail', { e: e instanceof Error ? e.message : String(e) }))
+    }
+  }
   const top = insights(checks)
   const [picking, setPicking] = useState(false)
   const alts = (guesses ?? []).filter((g) => g.id !== rec.exId)
@@ -149,13 +188,31 @@ function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; sr
         <canvas ref={canvas} className="block w-full" data-testid="od-canvas" />
       </div>
       <div className="flex gap-1.5" role="tablist" data-testid="mode-tabs">
-        {(['angles', 'technique'] as Mode[]).map((m) => (
+        {(['angles', 'muscles', 'technique'] as Mode[]).map((m) => (
           <button key={m} role="tab" data-testid={`mode-${m}`} aria-selected={mode === m} onClick={() => setMode(m)}
             className={`flex-1 rounded-xl border px-2 py-2 font-mono text-[11.5px] font-bold uppercase tracking-wider transition ${mode === m ? 'border-[#ff3b30]/60 bg-[#ff3b30]/12 text-white' : 'border-white/10 bg-white/[0.03] text-muted'}`}>
             {t(m === 'angles' ? 'modeAngles' : m === 'muscles' ? 'modeMuscles' : 'modeTechnique')}
           </button>
         ))}
       </div>
+
+      {pose?.ok && (
+        <div className="flex items-center gap-2">
+          {mode === 'muscles' && (
+            <button data-testid="bw-toggle" aria-pressed={bw} onClick={() => setBw(!bw)}
+              className={`rounded-xl border px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wider ${bw ? 'border-white/40 bg-white/10 text-white' : 'border-white/10 text-muted'}`}>{t('bwPhoto')}</button>
+          )}
+          <button data-testid="save-poster" onClick={savePoster} className="ml-auto flex items-center gap-1.5 rounded-xl border border-[#ff3b30]/50 bg-[#ff3b30]/10 px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wider text-white">
+            <Save size={13} /> {t('savePoster')}
+          </button>
+        </div>
+      )}
+      {posterMsg && <p className="px-1 text-[12px] text-cyan" data-testid="poster-msg">{posterMsg}</p>}
+      {mode === 'muscles' && pose?.ok && rec.exId && anatomy.drawn.length === 0 && (
+        <div className="flex items-start gap-2 rounded-2xl border border-gold/25 bg-gold/[0.07] p-3 text-[13px] leading-snug text-gold" data-testid="no-muscles">
+          <AlertTriangle size={15} className="mt-0.5 shrink-0" /> <span>{t('musclesNoneDrawn')}</span>
+        </div>
+      )}
 
       {onChangeEx && (unsure || rec.detected || picking) && (
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3" data-testid="detect-box">
@@ -219,20 +276,30 @@ function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; sr
         </div>
       )}
 
+      {rec.exId && pose?.ok && <HudPanels hud={hud} t={t} />}
+
       {rec.exId && muscles.primary.length > 0 && (
         <div className="card p-3.5" data-testid="bodymap">
           <div className="label mb-2">{t('musclesWorked')}</div>
-          <BodyMap primary={muscles.primary} secondary={muscles.secondary} frontLabel={t('viewFront')} backLabel={t('viewBack')} colors={{ primary: ORANGE, secondary: LIME }} />
-          <div className="mt-3 grid grid-cols-1 gap-1.5">
-            {[...muscles.primary.map((m) => [m, true] as const), ...muscles.secondary.map((m) => [m, false] as const)].map(([m, p]) => (
-              <div key={m} className="flex items-center gap-2 text-[12.5px]">
-                <span className="h-3 w-3 shrink-0 rounded-[3px]" style={{ background: p ? ORANGE : LIME, opacity: p ? 0.95 : 0.75 }} />
-                <span className="font-semibold">{l3(MUSCLE_NAMES[m], lang)}</span>
-                <span className="text-dim">· {p ? t('primaryM') : t('secondaryM')}</span>
-                {pose?.ok && !shown.has(m) && <span className="ml-auto text-[11px] text-dim">{t('notInPhoto')}</span>}
+          <div ref={bodyMapRef}>
+            <BodyMap primary={muscles.primary} secondary={muscles.secondary} frontLabel={t('viewFront')} backLabel={t('viewBack')} colors={{ primary: ROLE_SWATCH.primary, secondary: ROLE_SWATCH.secondary }} />
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-1.5" data-testid="muscle-list">
+            {hud.muscles.map((m) => (
+              <div key={m.id} className="flex items-center gap-2 text-[12.5px]">
+                <span className="h-3 w-3 shrink-0" style={{ background: ROLE_COLOR[m.role].fill }} />
+                <span className="font-semibold">{m.name}</span>
+                <span className="text-dim">· {roleWord(m.role, lang)}</span>
+                {pose?.ok && <span className={`ml-auto text-[11px] ${m.drawn ? 'text-cyan' : 'text-dim'}`}>{m.drawn ? t('drawnOnPhoto') : t('notInPhoto')}</span>}
               </div>
             ))}
           </div>
+          {pose?.ok && anatomy.notDrawn.length > 0 && (
+            <p className="mt-2.5 text-[11.5px] leading-snug text-dim" data-testid="not-drawn">
+              {t('notDrawnTitle')}: {anatomy.notDrawn.map((m) => fineName(m.id, lang)).join(', ')}
+            </p>
+          )}
+          <p className="mt-1.5 text-[11px] text-dim">{t('typicalRole')}</p>
         </div>
       )}
 
@@ -247,6 +314,67 @@ function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; sr
     </div>
   )
 }
+
+function HudPanels({ hud, t }: { hud: Hud; t: ReturnType<typeof useT> }) {
+  const head = (n: string, k: string) => (
+    <div className="mb-2 flex items-center gap-2 font-mono text-[10.5px] font-bold uppercase tracking-[0.16em]"><span className="text-[#ff3b30]">{n}</span><span className="text-white">{t(k as never)}</span></div>
+  )
+  const box = 'relative rounded-xl border border-white/10 bg-[#0a0e15] p-3 before:absolute before:left-0 before:top-0 before:h-3 before:w-3 before:border-l-2 before:border-t-2 before:border-[#ff3b30]'
+  const g = hud.gauge
+  const v = g ? Math.max(0, Math.min(180, g.value)) : 0
+  const R = 46, cx = 60, cy = 58
+  const end = { x: cx + Math.cos(Math.PI + (v / 180) * Math.PI) * R, y: cy + Math.sin(Math.PI + (v / 180) * Math.PI) * R }
+  return (
+    <div className="grid grid-cols-2 gap-2" data-testid="hud">
+      <div className={box}>
+        {head('01', 'hudTarget')}
+        <ul className="space-y-1">
+          {hud.muscles.filter((m) => m.role === 'primary').slice(0, 4).map((m) => (
+            <li key={m.id} className="flex items-center gap-1.5 font-mono text-[10.5px] uppercase leading-tight text-frost"><span className="h-2 w-2 shrink-0" style={{ background: ROLE_COLOR.primary.fill }} />{m.name}</li>
+          ))}
+        </ul>
+      </div>
+      <div className={box} data-testid="hud-gauge">
+        {head('02', 'hudAngles')}
+        {g ? (
+          <div className="flex flex-col items-center">
+            <svg viewBox="0 0 120 70" className="w-full max-w-[150px]">
+              <path d={`M${cx - R},${cy} A${R},${R} 0 0 1 ${cx + R},${cy}`} stroke="rgba(255,255,255,0.14)" strokeWidth="9" fill="none" />
+              {v > 0 && <path d={`M${cx - R},${cy} A${R},${R} 0 0 1 ${end.x.toFixed(1)},${end.y.toFixed(1)}`} stroke="#ff3b30" strokeWidth="9" fill="none" />}
+              <line x1={cx} y1={cy} x2={cx + (end.x - cx) * 0.78} y2={cy + (end.y - cy) * 0.78} stroke="#fff" strokeWidth="2.5" />
+            </svg>
+            <div className="-mt-1 text-[24px] font-bold leading-none" style={{ fontFamily: 'Oswald, sans-serif' }}>{Math.round(g.value)}°</div>
+            <div className="mt-0.5 font-mono text-[9.5px] uppercase text-dim">{g.label} · EST.</div>
+          </div>
+        ) : <p className="text-[11.5px] text-dim">{t('hudNoAngle')}</p>}
+      </div>
+      <div className={box}>
+        {head('03', 'hudPath')}
+        <ul className="space-y-1.5">{hud.path.map((c, i) => <li key={i} className="flex gap-1.5 font-mono text-[10.5px] uppercase leading-snug text-frost/90"><span className="text-[#ff3b30]">↻</span>{c}</li>)}</ul>
+      </div>
+      <div className={box} data-testid="hud-form">
+        {head('04', 'hudForm')}
+        {hud.form.length ? (
+          <ul className="space-y-1.5">{hud.form.map((f, i) => <li key={i} className="flex gap-1.5 text-[11px] leading-snug"><span className={f.ok ? 'text-[#34d399]' : 'text-gold'}>{f.ok ? '✓' : '!'}</span><span className="text-frost/90">{f.text}</span></li>)}</ul>
+        ) : <p className="text-[11.5px] text-dim">{t('hudNoForm')}</p>}
+      </div>
+      <div className={`${box} col-span-2`} data-testid="hud-activation">
+        {head('05', 'hudActivation')}
+        <div className="space-y-1.5">
+          {hud.muscles.slice(0, 6).map((m) => (
+            <div key={m.id} className="grid grid-cols-[1fr_1.1fr_auto] items-center gap-2 font-mono text-[10.5px] uppercase">
+              <span className="truncate text-frost">{m.name}</span>
+              <span className="h-1.5 bg-white/10"><span className="block h-full" style={{ width: `${ROLE_LEVEL[m.role] * 100}%`, background: ROLE_COLOR[m.role].text }} /></span>
+              <span style={{ color: ROLE_COLOR[m.role].text }}>{roleWordShort(m.role, t)}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[10.5px] text-dim">{t('typicalRole')}</p>
+      </div>
+    </div>
+  )
+}
+const roleWordShort = (r: 'primary' | 'secondary' | 'stabilizer', t: ReturnType<typeof useT>) => (r === 'primary' ? t('primaryM') : r === 'secondary' ? t('secondaryM') : roleWord('stabilizer', useApp.getState().lang))
 
 function ExercisePickerField({ value, onPick, placeholder }: { value: string; onPick: (id: string) => void; placeholder?: string }) {
   const t = useT()
@@ -273,13 +401,19 @@ function ExercisePickerField({ value, onPick, placeholder }: { value: string; on
   )
 }
 
-function makeThumb(base: HTMLCanvasElement, lm: number[][] | undefined, exId: string | undefined, mode: Mode, lang: Lang): string {
+function makeThumb(base: HTMLCanvasElement, lm: number[][] | undefined, exId: string | undefined, mode: Mode, lang: Lang, mask?: RawMask | null): string {
   const small = document.createElement('canvas')
   const k = Math.min(1, 200 / Math.max(base.width, base.height))
   const w = Math.round(base.width * k), h = Math.round(base.height * k)
+  // fit at full resolution (precise contour), then draw scaled down
+  const full = buildPose(lmToPts(lm), base.width, base.height)
+  const mk = scaleMask(mask, base.width, base.height)
+  const fit = full.ok && mode === 'muscles' ? fitMuscles(full, mk, rolesFor(exId)) : { drawn: [], occluders: [] }
+  const sc = (p: { x: number; y: number }) => ({ x: p.x * k, y: p.y * k })
+  const drawn = fit.drawn.map((m) => ({ ...m, anchor: sc(m.anchor), polys: m.polys.map((q) => q.map(sc)), fibers: m.fibers.map((q) => q.map(sc)) }))
   const pose = buildPose(lmToPts(lm), w, h)
   const setup = exerciseSetup(exId)
-  renderAnalysis(small, base, pose, { mode, lang, title: '', subtitle: '', profile: setup.profile, muscles: musclesFor(exId), spec: [], chrome: false })
+  renderAnalysis(small, base, pose, { mode, lang, title: '', subtitle: '', profile: setup.profile, muscles: musclesFor(exId), spec: [], chrome: false, anatomy: { drawn, mask: scaleMask(mask, w, h), roles: [], occluders: fit.occluders.map((q) => q.map(sc)) }, bw: mode === 'muscles' })
   return small.toDataURL('image/jpeg', 0.72)
 }
 
@@ -293,7 +427,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
   const [err, setErr] = useState<string | null>(null)
   const [aiNote, setAiNote] = useState<string | null>(null)
   const [remaining, setRemaining] = useState<number | null>(null)
-  const [current, setCurrent] = useState<{ id: string; base: HTMLCanvasElement; guesses: Guess[] } | null>(null)
+  const [current, setCurrent] = useState<{ id: string; base: HTMLCanvasElement; guesses: Guess[]; mask: RawMask | null } | null>(null)
   const [view, setView] = useState<AnalysisRecord | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const input = useRef<HTMLInputElement>(null)
@@ -340,10 +474,9 @@ function FormCheck({ initialEx }: { initialEx: string }) {
         srcEl = v
       } else srcEl = await loadImg(previewUrl)
       const base = toCanvas(srcEl, 1080)
-      const pl = await getLandmarker('IMAGE')
-      const r = pl.detect(base)
-      const raw = r.landmarks[0]
-      const lm = raw?.map((p) => [+p.x.toFixed(4), +p.y.toFixed(4), +(Math.min(p.visibility ?? 0, (p as { presence?: number }).presence ?? 1)).toFixed(3)])
+      const det = await detectPhoto(base)
+      const raw = det.lm
+      const lm = raw?.map((p) => [+p.x.toFixed(4), +p.y.toFixed(4), +(Math.min(p.visibility ?? 0, p.presence ?? 1)).toFixed(3), +(p.z ?? 0).toFixed(4)])
       const pose = buildPose(lmToPts(lm), base.width, base.height)
       const guesses = exId ? [] : guessExercise(pose)
       const chosen = exId || (guesses[0]?.sure ? guesses[0].id : '')
@@ -353,10 +486,11 @@ function FormCheck({ initialEx }: { initialEx: string }) {
       const record: AnalysisRecord = {
         id, date: new Date().toISOString(), exId: chosen || undefined, prompt, sections: {}, raw: '', kind: 'ondevice',
         photo: photoC.toDataURL('image/jpeg', 0.72), lm: pose.ok ? lm : undefined, poseFound: pose.ok, detected: !exId && !!chosen,
-        thumb: makeThumb(base, pose.ok ? lm : undefined, chosen || undefined, mode, s.lang),
+        mask: pose.ok && det.mask ? maskToPng(det.mask) : undefined,
+        thumb: makeThumb(base, pose.ok ? lm : undefined, chosen || undefined, mode, s.lang, det.mask),
       }
       s.addAnalysis(record)
-      setCurrent({ id, base, guesses })
+      setCurrent({ id, base, guesses, mask: det.mask })
       setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
       // AI coach in addition (only when the backend is really configured + signed in)
       if (isLive && s.user && !isVideo) {
@@ -381,7 +515,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
   const changeEx = (newId: string) => {
     if (!current || !rec) return
     const mode = exerciseSetup(newId || undefined).mode
-    update(rec.id, { exId: newId || undefined, detected: false, mode: undefined, thumb: makeThumb(current.base, rec.lm, newId || undefined, mode, s.lang) })
+    update(rec.id, { exId: newId || undefined, detected: false, mode: undefined, thumb: makeThumb(current.base, rec.lm, newId || undefined, mode, s.lang, current.mask) })
   }
   const past = s.analyses.filter((a) => !a.demo && a.id !== current?.id)
 
@@ -445,7 +579,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
 
       {rec && current && (
         <div id="result" className="mt-6 scroll-mt-24">
-          <ResultView rec={rec} src={current.base} guesses={current.guesses} onChangeEx={changeEx} />
+          <ResultView rec={rec} src={current.base} mask={current.mask} guesses={current.guesses} onChangeEx={changeEx} />
           {busy === 'ai' && <p className="mt-3 text-[12.5px] text-muted">{t('aiRunning')}</p>}
           {aiNote && <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[12px] text-muted" data-testid="ai-note">{aiNote}</p>}
         </div>

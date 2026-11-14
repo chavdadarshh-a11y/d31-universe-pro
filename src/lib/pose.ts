@@ -3,7 +3,8 @@
  * Visual rule for D31: thin lines + small joint dots + angle pills. No glow, no blobs.
  */
 import type { NormalizedLandmark, PoseLandmarker as PL } from '@mediapipe/tasks-vision'
-import { angle, conf, evaluatePose, L, layoutLabels, R, reliable, type JointAngle, type PoseResult } from './poseFilter'
+import { angle, conf, evaluatePose, L, layoutLabels, R, reliable, type JointAngle, type PoseResult, type Pt } from './poseFilter'
+import { mergeFlip } from './poseTTA'
 
 // Self-hosted under the site (works offline once cached by the service worker); CDN as fallback.
 const LOCAL = `${import.meta.env.BASE_URL}mediapipe`
@@ -27,6 +28,8 @@ export function getLandmarker(mode: 'IMAGE' | 'VIDEO'): Promise<PL> {
           baseOptions: { modelAssetPath: local ? `${LOCAL}/pose_landmarker_${v}.task` : CDN_MODEL(v), delegate },
           runningMode: mode,
           numPoses: 1,
+          // person mask for photos: muscle outlines are fitted to + clipped by the real body contour
+          outputSegmentationMasks: mode === 'IMAGE',
         })
       }
       for (const [local, delegate] of [[true, 'GPU'], [true, 'CPU'], [false, 'GPU'], [false, 'CPU']] as const) {
@@ -44,6 +47,60 @@ export function getLandmarker(mode: 'IMAGE' | 'VIDEO'): Promise<PL> {
 }
 
 export { angle, L, R, evaluatePose, type JointAngle, type PoseResult } from './poseFilter'
+
+export type RawMask = { w: number; h: number; data: Float32Array }
+
+/**
+ * Still-photo detection: landmarks from the photo AND its mirror image merged (mergeFlip), plus the person mask.
+ */
+export async function detectPhoto(base: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null }> {
+  const pl = await getLandmarker('IMAGE')
+  const r = pl.detect(base)
+  let mask: RawMask | null = null
+  const m = r.segmentationMasks?.[0]
+  if (m) {
+    try { mask = { w: m.width, h: m.height, data: new Float32Array(m.getAsFloat32Array()) } } catch { mask = null }
+  }
+  r.segmentationMasks?.forEach((x) => x.close())
+  const lm = (r.landmarks[0] as Pt[] | undefined) ?? null
+  let flip: Pt[] | null = null
+  try {
+    const f = document.createElement('canvas')
+    f.width = base.width; f.height = base.height
+    const fx = f.getContext('2d')!
+    fx.translate(base.width, 0); fx.scale(-1, 1); fx.drawImage(base, 0, 0)
+    const rf = pl.detect(f)
+    rf.segmentationMasks?.forEach((x) => x.close())
+    flip = (rf.landmarks[0] as Pt[] | undefined) ?? null
+  } catch { flip = null }
+  return { lm: mergeFlip(lm, flip, base.width, base.height), mask }
+}
+
+/** mask → small greyscale PNG for saved results */
+export function maskToPng(m: RawMask, maxW = 270): string {
+  const k = Math.min(1, maxW / m.w)
+  const src = document.createElement('canvas'); src.width = m.w; src.height = m.h
+  const sx = src.getContext('2d')!
+  const img = sx.createImageData(m.w, m.h)
+  for (let i = 0; i < m.w * m.h; i++) { const v = Math.round(Math.max(0, Math.min(1, m.data[i])) * 255); img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255 }
+  sx.putImageData(img, 0, 0)
+  const out = document.createElement('canvas'); out.width = Math.round(m.w * k); out.height = Math.round(m.h * k)
+  out.getContext('2d')!.drawImage(src, 0, 0, out.width, out.height)
+  return out.toDataURL('image/png')
+}
+
+export async function pngToMask(url: string): Promise<RawMask | null> {
+  const img = new Image()
+  img.src = url
+  try { await img.decode() } catch { return null }
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight
+  const x = c.getContext('2d')!
+  x.drawImage(img, 0, 0)
+  const d = x.getImageData(0, 0, c.width, c.height).data
+  const data = new Float32Array(c.width * c.height)
+  for (let i = 0; i < data.length; i++) data[i] = d[i * 4] / 255
+  return { w: c.width, h: c.height, data }
+}
 
 const BONES: [number, number][] = [
   [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24],

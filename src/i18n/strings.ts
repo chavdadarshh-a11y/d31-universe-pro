@@ -4,6 +4,7 @@ import { en42, hi42, gu42 } from './strings42'
 import { en43, hi43, gu43 } from './strings43'
 import { en44, hi44, gu44 } from './strings44'
 import { en45, hi45, gu45 } from './strings45'
+import { en46, hi46, gu46 } from './strings46'
 /* eslint-disable */
 // D31.UNIVERSE UI strings — English is the source of truth. TypeScript forces
 // Hindi and Gujarati to define every key, so no screen is ever half-translated.
@@ -126,7 +127,7 @@ const en0 = {
   pauseLbl: 'Pause', resumeLbl: 'Resume', pausedLbl: 'Paused', workoutMenu: 'Workout', minimize: 'Minimise · keep it running', endWorkout: 'End workout', saveFinish: 'Finish & save · {n} sets', endDiscard: 'End & discard', noSetsQ: 'No set is ticked ✓ yet, so there is nothing to save. End this workout without saving?', keepTraining: 'Keep training', staleMsg: 'This workout has been open since {x}. Finish it or end it.', workoutSaved: '✓ Workout saved · {n} sets', tickHint: 'Tick ✓ each set you finish. Only ticked sets are saved.', clipLbl: 'Clip', playClip: 'Play clip', clipSource: 'Darshan’s own training video', timerPaused: 'Timer paused', setsTicked: '{n} sets ticked',
 }
 
-export const en = { ...en0, ...en4, ...en41, ...en42, ...en43, ...en44, ...en45 }
+export const en = { ...en0, ...en4, ...en41, ...en42, ...en43, ...en44, ...en45, ...en46 }
 export type StringKey = keyof typeof en
 type Dict = Record<StringKey, string>
 type Dict0 = Record<keyof typeof en0, string>
@@ -333,6 +334,6 @@ const gu0: Dict0 = {
   pauseLbl: 'રોકો', resumeLbl: 'ફરી શરૂ', pausedLbl: 'રોકાયેલું', workoutMenu: 'વર્કઆઉટ', minimize: 'નાનું કરો · ચાલુ રાખો', endWorkout: 'વર્કઆઉટ પૂરું કરો', saveFinish: 'પૂરું કરો અને સેવ કરો · {n} સેટ', endDiscard: 'પૂરું કરો, સેવ નહીં', noSetsQ: 'હજી કોઈ સેટ ✓ ટિક નથી, તેથી સેવ કરવા જેવું કંઈ નથી. સેવ કર્યા વગર વર્કઆઉટ પૂરું કરીએ?', keepTraining: 'ટ્રેનિંગ ચાલુ રાખો', staleMsg: 'આ વર્કઆઉટ {x} થી ખુલ્લું છે. તેને પૂરું કરો અથવા બંધ કરો.', workoutSaved: '✓ વર્કઆઉટ સેવ · {n} સેટ', tickHint: 'દરેક પૂરો સેટ ✓ ટિક કરો. ફક્ત ટિક કરેલા સેટ જ સેવ થાય છે.', clipLbl: 'ક્લિપ', playClip: 'ક્લિપ ચલાવો', clipSource: 'દર્શનનો પોતાનો ટ્રેનિંગ વીડિયો', timerPaused: 'ટાઇમર રોકાયેલું', setsTicked: '{n} સેટ ટિક',
 }
 
-export const hi: Dict = { ...hi0, ...hi4, ...hi41, ...hi42, ...hi43, ...hi44, ...hi45 }
-export const gu: Dict = { ...gu0, ...gu4, ...gu41, ...gu42, ...gu43, ...gu44, ...gu45 }
+export const hi: Dict = { ...hi0, ...hi4, ...hi41, ...hi42, ...hi43, ...hi44, ...hi45, ...hi46 }
+export const gu: Dict = { ...gu0, ...gu4, ...gu41, ...gu42, ...gu43, ...gu44, ...gu45, ...gu46 }
 export const DICTS = { en, hi, gu } as const

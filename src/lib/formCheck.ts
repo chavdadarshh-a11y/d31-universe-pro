@@ -103,13 +103,18 @@ export type Pose = {
   named: Record<string, P>
   torsoLen: number
   inverted: boolean
+  /** relative depth per landmark (smaller = nearer camera), when known */
+  z?: Record<number, number>
+  /** shoulder separation / torso length (≈0 pure side view, ≥0.55 front/back) */
+  spread?: number
 }
 
 export function buildPose(lm: Pt[] | null | undefined, W: number, H: number): Pose {
   const empty: Pose = { ok: false, W, H, pts: {}, vis: [], view: 'side', metrics: {}, named: {}, torsoLen: 0, inverted: false }
-  if (!lm || lm.length < 33 || !plausiblePose(lm)) return empty
+  if (!lm || lm.length < 33 || !plausiblePose(lm, W / (H || 1))) return empty
   const pts: Record<number, P> = {}
-  for (let i = 0; i < 33; i++) if (reliable(lm[i])) pts[i] = { x: lm[i].x * W, y: lm[i].y * H }
+  const z: Record<number, number> = {}
+  for (let i = 0; i < 33; i++) if (reliable(lm[i])) { pts[i] = { x: lm[i].x * W, y: lm[i].y * H }; const zz = (lm[i] as { z?: number }).z; if (typeof zz === 'number') z[i] = zz }
   const has = (...ids: number[]) => ids.every((i) => pts[i])
   const vis = Object.keys(pts).map(Number)
   const anyOf = (a: number, b: number): P | undefined => (pts[a] && pts[b] ? mid(pts[a], pts[b]) : pts[a] ?? pts[b])
@@ -129,8 +134,10 @@ export function buildPose(lm: Pt[] | null | undefined, W: number, H: number): Po
   let view: View = 'side'
   let front: P | undefined
   const up = sub(shM, hipM)
+  let spread: number | undefined
   if (has(11, 12)) {
     const r = sub(pts[11], pts[12])
+    spread = len(r) / (torsoLen || 1)
     const cross = up.x * r.y - up.y * r.x
     if (len(r) > 0.55 * torsoLen) view = cross > 0 ? 'front' : 'back'
   }
@@ -225,7 +232,7 @@ export function buildPose(lm: Pt[] | null | undefined, W: number, H: number): Po
     if (pts[k.sh]) metrics.kickHip = { v: angleAt(pts[k.sh], pts[k.hip], pts[k.knee]), at: pts[k.hip], a: pts[k.sh], c: pts[k.knee] }
     Object.assign(named, { kickHip: pts[k.hip], kickKnee: pts[k.knee], kickAnk: pts[k.ank] })
   }
-  return { ok: true, W, H, pts, vis, view, front, metrics, named, torsoLen, inverted }
+  return { ok: true, W, H, pts, vis, view, front, metrics, named, torsoLen, inverted, z, spread }
 }
 
 // ---------- exercise guess from pose geometry ----------

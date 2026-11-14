@@ -61,7 +61,9 @@ const ratioOk = (a: number, b: number, max = 3) => a > 0 && b > 0 && a / b <= ma
  * Whole-pose sanity check. Returns false when the reliable landmarks describe a body
  * that cannot exist (knee inside torso/head, absurd limb proportions, collapsed box).
  */
-export function plausiblePose(lm: Pt[]): boolean {
+/** aspect = image width / height, so the proportion checks use real (not squashed) distances */
+export function plausiblePose(lm: Pt[], aspect = 1): boolean {
+  if (aspect !== 1) lm = lm.map((p) => (p ? { ...p, x: p.x * aspect } : p))
   const idx = [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28].filter((i) => reliable(lm[i]))
   if (idx.length < 3) return false
   const xs = idx.map((i) => lm[i].x)

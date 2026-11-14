@@ -2,26 +2,24 @@
  * Canvas renderers for the Analyze result "slide": photo + one of three overlays
  * (angles / muscles / technique) + condensed title + mono spec box.
  * Everything is anchored to clearly visible body points only (Pose.pts).
- * Muscles are drawn as solid, contained shapes (no blur, no glow).
+ * Muscles: ONLY anatomical outlines fitted to the body contour (muscleAnatomy + muscleDraw). Nothing else.
  */
 import type { Lang, MuscleId } from '../types'
-import { l3, metricLabel, MUSCLE_NAMES, type Mode, type P, type Pose, type Profile } from './formCheck'
+import { l3, metricLabel, type Mode, type P, type Pose, type Profile } from './formCheck'
+import type { DrawnMuscle, Mask, Role } from './muscleAnatomy'
+import { drawLegend, drawMuscleLabels, drawMuscleLayer, toBW } from './muscleDraw'
 
 const BONES: [number, number][] = [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28], [27, 31], [28, 32]]
 const sub = (a: P, b: P): P => ({ x: a.x - b.x, y: a.y - b.y })
-const add = (a: P, b: P): P => ({ x: a.x + b.x, y: a.y + b.y })
 const mul = (a: P, k: number): P => ({ x: a.x * k, y: a.y * k })
 const len = (a: P) => Math.hypot(a.x, a.y)
 const norm = (a: P): P => { const l = len(a) || 1; return { x: a.x / l, y: a.y / l } }
 const perp = (a: P): P => ({ x: -a.y, y: a.x })
 const lerp = (a: P, b: P, t: number): P => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t })
-const dot = (a: P, b: P) => a.x * b.x + a.y * b.y
 
 const FONT_TITLE = '"Oswald", "Noto Sans Devanagari", "Noto Sans Gujarati", Impact, sans-serif'
 const FONT_MONO = '"JetBrains Mono", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-monospace, monospace'
 const RED = '#ff3b30'
-const ORANGE = { core: 'rgba(255,84,20,0.72)', edge: 'rgba(255,160,56,0.58)', line: '#ffd2a1', text: '#ff9a4d' }
-const LIME = { core: 'rgba(184,255,60,0.5)', edge: 'rgba(170,240,50,0.36)', line: '#e4ff9e', text: '#c6ff5c' }
 const BLUE = 'rgba(96,150,255,0.85)'
 
 export type RenderOpts = {
@@ -34,6 +32,12 @@ export type RenderOpts = {
   spec: [string, string][]
   /** draw title + spec (off for the small thumbnail) */
   chrome?: boolean
+  /** fitted anatomical muscles + the person mask they are clipped to (muscles mode) */
+  anatomy?: { drawn: DrawnMuscle[]; mask: Mask | null; roles: Role[]; occluders?: P[][] }
+  /** black & white photo underneath */
+  bw?: boolean
+  /** muscle labels + legend even without chrome (poster) */
+  labels?: boolean
 }
 
 export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource, pose: Pose, o: RenderOpts) {
@@ -43,18 +47,28 @@ export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource
   const ctx = canvas.getContext('2d')!
   ctx.imageSmoothingQuality = 'high'
   ctx.drawImage(src, 0, 0, W, H)
-  ctx.fillStyle = 'rgba(4,6,10,0.22)'
+  if (o.bw) toBW(ctx, W, H)
+  ctx.fillStyle = o.mode === 'muscles' ? 'rgba(4,6,10,0.12)' : 'rgba(4,6,10,0.22)'
   ctx.fillRect(0, 0, W, H)
-  const drawn: string[] = []
+  let drawn: DrawnMuscle[] = []
   if (pose.ok) {
-    // HOTFIX v4.2.1: the muscle photo overlay is disabled until the anatomical renderer ships (body map still shows muscles)
     if (o.mode === 'technique') drawTechnique(ctx, pose, o)
-    else drawAngles(ctx, pose, o)
+    else if (o.mode === 'muscles') {
+      const a = o.anatomy
+      if (a?.mask && a.drawn.length) {
+        drawMuscleLayer(ctx, W, H, a.drawn, a.mask, a.occluders)
+        drawn = a.drawn
+      }
+    } else drawAngles(ctx, pose, o)
   }
-  if (o.chrome !== false) {
-    drawTitle(ctx, W, H, o.title, o.subtitle)
-    drawSpec(ctx, W, H, o.spec)
+  const chrome = o.chrome !== false
+  if (chrome) drawTitle(ctx, W, H, o.title, o.subtitle)
+  if ((chrome || o.labels) && o.mode === 'muscles' && drawn.length) {
+    const cx = pose.named.shM && pose.named.hipM ? (pose.named.shM.x + pose.named.hipM.x) / 2 : W / 2
+    drawMuscleLabels(ctx, W, H, drawn, o.lang, cx, chrome ? { top: H * 0.2, bottom: H * 0.76 } : { top: H * 0.03, bottom: H * 0.86 })
+    if (o.anatomy?.roles.length) drawLegend(ctx, W, H, o.lang, o.anatomy.roles)
   }
+  if (chrome) drawSpec(ctx, W, H, o.spec)
   return { drawnMuscles: drawn }
 }
 
@@ -287,218 +301,6 @@ function horizonArc(ctx: CanvasRenderingContext2D, p: Pose, o: RenderOpts, lw: n
   ctx.beginPath(); ctx.arc(a.x, a.y, R, Math.min(t1, t1 + d), Math.max(t1, t1 + d)); ctx.stroke()
   ctx.restore()
   pill(ctx, `${metricLabel(key, o.lang).toUpperCase()}: ${Math.round(m.v)}°`, lerp(a, b, 0.5), p.W, p.H, taken, fs, '#ffd0cc')
-}
-
-// ---------------- MODE 2: muscles ----------------
-type Shape = { id: MuscleId; poly: P[]; fiber: P; anchor: P }
-
-/** smooth muscle-belly shape along segment a→b (t0..t1). width/off are in pixels; side = unit normal for the offset. */
-function lens(a: P, b: P, t0: number, t1: number, width: number, off = 0, side?: P): P[] {
-  const d = sub(b, a)
-  const n = side ?? norm(perp(d))
-  const out: P[] = [], back: P[] = []
-  const N = 16
-  for (let i = 0; i <= N; i++) {
-    const s = i / N
-    const c = add(lerp(a, b, t0 + (t1 - t0) * s), mul(n, off))
-    const hw = (width * Math.pow(Math.sin(Math.PI * Math.pow(s, 0.8)), 0.55)) / 2
-    out.push(add(c, mul(n, hw)))
-    back.push(sub(c, mul(n, hw)))
-  }
-  return [...out, ...back.reverse()]
-}
-
-function torsoFrame(p: Pose): ((u: number, v: number) => P) | null {
-  const P = p.pts
-  if (p.view !== 'side') {
-    if (!(P[11] && P[12] && P[23] && P[24])) return null
-    // u = -1 at the person's right edge, +1 at the left edge; widths kept anatomically sane
-    const T = p.torsoLen
-    const widen = (r: P, l: P, min: number): [P, P] => {
-      const m = lerp(r, l, 0.5), d = sub(l, r), w = len(d)
-      if (w >= min) return [r, l]
-      const u = w > 1 ? norm(d) : norm(sub(P[11], P[12]))
-      return [sub(m, mul(u, min / 2)), add(m, mul(u, min / 2))]
-    }
-    const [sr, sl] = widen(P[12], P[11], 0.62 * T)
-    const [hr, hl] = widen(P[24], P[23], 0.5 * Math.max(len(sub(sl, sr)), 0.62 * T))
-    return (u, v) => { const k = (u * 1.14 + 1) / 2; return lerp(lerp(sr, sl, k), lerp(hr, hl, k), v) }
-  }
-  const sh = p.named.shM, hip = p.named.hipM
-  if (!sh || !hip || !p.front) return null
-  const f = p.front, w = p.torsoLen * 0.3
-  return (u, v) => add(lerp(sh, hip, v), mul(f, u * w * (1 - 0.12 * v)))
-}
-
-// torso templates in (u,v); front/back views are mirrored for both sides
-const T_FRONT: Partial<Record<MuscleId, { pts: [number, number][]; fiber: [number, number]; center?: boolean }>> = {
-  chest: { pts: [[0.06, 0.05], [0.5, 0.0], [0.86, 0.1], [0.8, 0.3], [0.45, 0.38], [0.06, 0.33]], fiber: [1, 0.15] },
-  abs: { pts: [[-0.24, 0.42], [0.24, 0.42], [0.22, 0.97], [-0.22, 0.97]], fiber: [1, 0], center: true },
-  obliques: { pts: [[0.34, 0.44], [0.82, 0.36], [0.9, 0.72], [0.72, 0.98], [0.34, 0.92]], fiber: [0.6, 1] },
-  lats: { pts: [[0.68, 0.14], [1.1, 0.2], [1.02, 0.62], [0.74, 0.52]], fiber: [0.3, 1] },
-  traps: { pts: [[0.12, -0.16], [0.6, -0.03], [0.32, 0.03]], fiber: [1, 0.4] },
-}
-const T_BACK: typeof T_FRONT = {
-  traps: { pts: [[0, -0.2], [0.58, -0.03], [0.24, 0.24], [0, 0.52]], fiber: [1, 0.5] },
-  upper_back: { pts: [[0.06, 0.1], [0.44, 0.12], [0.4, 0.34], [0.06, 0.42]], fiber: [1, 0.3] },
-  lats: { pts: [[0.44, 0.2], [0.96, 0.17], [0.92, 0.56], [0.46, 0.88], [0.16, 0.76], [0.34, 0.42]], fiber: [0.7, 1] },
-  lower_back: { pts: [[0.03, 0.55], [0.22, 0.55], [0.24, 1.0], [0.03, 1.0]], fiber: [0, 1] },
-  obliques: { pts: [[0.86, 0.6], [0.98, 0.72], [0.92, 0.98], [0.76, 0.96]], fiber: [0.4, 1] },
-}
-// side view: u = -1 back … +1 front
-const T_SIDE: typeof T_FRONT = {
-  chest: { pts: [[0.2, 0.04], [0.96, 0.08], [0.92, 0.34], [0.3, 0.38]], fiber: [1, 0.1] },
-  abs: { pts: [[0.55, 0.42], [0.96, 0.44], [0.9, 0.97], [0.55, 0.97]], fiber: [1, 0] },
-  obliques: { pts: [[-0.12, 0.42], [0.5, 0.4], [0.5, 0.96], [-0.06, 0.9]], fiber: [0.6, 1] },
-  lats: { pts: [[-0.92, 0.14], [-0.2, 0.2], [0.0, 0.6], [-0.5, 0.82], [-0.88, 0.56]], fiber: [0.6, 1] },
-  upper_back: { pts: [[-1, 0.0], [-0.5, 0.02], [-0.55, 0.3], [-0.96, 0.3]], fiber: [1, 0.2] },
-  traps: { pts: [[-0.72, -0.16], [0.0, -0.12], [-0.2, 0.08], [-0.82, 0.08]], fiber: [1, 0.3] },
-  lower_back: { pts: [[-0.96, 0.55], [-0.6, 0.55], [-0.6, 1.0], [-0.98, 1.0]], fiber: [0, 1] },
-}
-
-function buildShapes(p: Pose, want: Set<MuscleId>): Shape[] {
-  const P = p.pts, shapes: Shape[] = []
-  const frame = torsoFrame(p)
-  const tmpl = p.view === 'front' ? T_FRONT : p.view === 'back' ? T_BACK : T_SIDE
-  if (frame) {
-    for (const [id, t] of Object.entries(tmpl) as [MuscleId, NonNullable<(typeof T_FRONT)[MuscleId]>][]) {
-      if (!want.has(id)) continue
-      const sides = p.view === 'side' || t.center ? [1] : [1, -1]
-      for (const s of sides) {
-        const poly = t.pts.map(([u, v]) => frame(u * s, v))
-        const f0 = frame(0, 0.5), f1 = frame(t.fiber[0] * 0.2 * s, 0.5 + t.fiber[1] * 0.2)
-        shapes.push({ id, poly, fiber: norm(sub(f1, f0)), anchor: centroid(poly) })
-      }
-    }
-  }
-  const center = p.named.shM && p.named.hipM ? lerp(p.named.shM, p.named.hipM, 0.5) : undefined
-  const sideNormal = (a: P, b: P, toward: 'front' | 'back' | 'out' | 'in'): P | undefined => {
-    const n = norm(perp(sub(b, a)))
-    let ref: P | undefined
-    if (toward === 'front' || toward === 'back') { if (!p.front) return undefined; ref = toward === 'front' ? p.front : mul(p.front, -1) }
-    else { if (!center) return undefined; const mm = lerp(a, b, 0.5); ref = toward === 'out' ? sub(mm, center) : sub(center, mm) }
-    return dot(n, ref) >= 0 ? n : mul(n, -1)
-  }
-  const limb = (id: MuscleId, a: number, b: number, t0: number, t1: number, w: number, rule: { front?: [number, number, 'front' | 'back' | 'out' | 'in'] | 'hide' | 'full'; back?: [number, number, 'front' | 'back' | 'out' | 'in'] | 'hide' | 'full'; side?: [number, number, 'front' | 'back'] | 'full' | 'hide' }) => {
-    if (!want.has(id) || !P[a] || !P[b]) return
-    const r = rule[p.view] ?? 'full'
-    if (r === 'hide') return
-    const T = p.torsoLen
-    // skip badly foreshortened segments (would become a meaningless blob)
-    if (len(sub(P[b], P[a])) < 0.28 * T) return
-    let poly: P[]
-    if (r === 'full') poly = lens(P[a], P[b], t0, t1, w * T)
-    else {
-      const n = sideNormal(P[a], P[b], r[2])
-      poly = n ? lens(P[a], P[b], t0, t1, r[1] * T, r[0] * T, n) : lens(P[a], P[b], t0, t1, w * T)
-    }
-    shapes.push({ id, poly, fiber: norm(sub(P[b], P[a])), anchor: centroid(poly) })
-  }
-  for (const s of [{ sh: 11, el: 13, wr: 15, hip: 23, knee: 25, ank: 27 }, { sh: 12, el: 14, wr: 16, hip: 24, knee: 26, ank: 28 }]) {
-    limb('shoulders', s.sh, s.el, -0.22, 0.42, 0.44, { back: [0, 0.34, 'out'] })
-    limb('rear_delts', s.sh, s.el, -0.2, 0.4, 0.4, { front: 'hide', side: [0.08, 0.26, 'back'] })
-    limb('biceps', s.sh, s.el, 0.28, 0.92, 0.27, { back: 'hide', side: [0.07, 0.18, 'front'] })
-    limb('triceps', s.sh, s.el, 0.22, 0.94, 0.27, { front: [0.1, 0.14, 'out'], side: [0.07, 0.18, 'back'] })
-    limb('forearms', s.el, s.wr, 0.04, 0.74, 0.23, {})
-    limb('quads', s.hip, s.knee, 0.08, 0.94, 0.42, { back: 'hide', side: [0.08, 0.3, 'front'] })
-    limb('hamstrings', s.hip, s.knee, 0.2, 0.94, 0.36, { front: 'hide', side: [0.09, 0.26, 'back'] })
-    limb('glutes', s.hip, s.knee, -0.3, 0.3, 0.5, { front: 'hide', side: [0.16, 0.36, 'back'] })
-    limb('adductors', s.hip, s.knee, 0.04, 0.62, 0.16, { front: [0.12, 0.16, 'in'], back: [0.12, 0.16, 'in'], side: 'hide' })
-    limb('calves', s.knee, s.ank, 0.04, 0.62, 0.27, { front: [0.08, 0.14, 'out'], side: [0.07, 0.19, 'back'] })
-  }
-  return shapes
-}
-
-function centroid(poly: P[]): P {
-  const s = poly.reduce((a, b) => add(a, b), { x: 0, y: 0 })
-  return mul(s, 1 / poly.length)
-}
-function smoothPath(ctx: CanvasRenderingContext2D, poly: P[]) {
-  const n = poly.length
-  ctx.beginPath()
-  const m0 = lerp(poly[n - 1], poly[0], 0.5)
-  ctx.moveTo(m0.x, m0.y)
-  for (let i = 0; i < n; i++) {
-    const p1 = poly[i], m = lerp(p1, poly[(i + 1) % n], 0.5)
-    ctx.quadraticCurveTo(p1.x, p1.y, m.x, m.y)
-  }
-  ctx.closePath()
-}
-
-export function drawMuscles(ctx: CanvasRenderingContext2D, p: Pose, o: RenderOpts): string[] {
-  const prim = new Set(o.muscles.primary), sec = new Set(o.muscles.secondary.filter((m) => !prim.has(m)))
-  const shapes = buildShapes(p, new Set([...prim, ...sec]))
-  const lw = Math.max(1.2, Math.min(p.W, p.H) / 420)
-  // secondary first so primaries sit on top
-  const ordered = [...shapes.filter((s) => !prim.has(s.id)), ...shapes.filter((s) => prim.has(s.id))]
-  for (const s of ordered) {
-    const C = prim.has(s.id) ? ORANGE : LIME
-    ctx.save()
-    smoothPath(ctx, s.poly)
-    const xs = s.poly.map((q) => q.x), ys = s.poly.map((q) => q.y)
-    const r = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) / 2
-    const g = ctx.createRadialGradient(s.anchor.x, s.anchor.y, 0, s.anchor.x, s.anchor.y, Math.max(4, r))
-    g.addColorStop(0, C.core)
-    g.addColorStop(1, C.edge)
-    ctx.fillStyle = g
-    ctx.fill()
-    ctx.clip()
-    // fibre striations, contained in the muscle outline
-    const f = s.fiber, n = perp(f)
-    ctx.strokeStyle = prim.has(s.id) ? 'rgba(110,24,0,0.5)' : 'rgba(40,80,0,0.5)'
-    ctx.lineWidth = Math.max(0.8, lw * 0.6)
-    const step = Math.max(2.5, r / 8)
-    for (let k = -r * 1.2; k <= r * 1.2; k += step) {
-      const c = add(s.anchor, mul(n, k))
-      ctx.beginPath()
-      ctx.moveTo(c.x - f.x * r * 1.3 + n.x * Math.sin(k) * 2, c.y - f.y * r * 1.3 + n.y * Math.sin(k) * 2)
-      ctx.quadraticCurveTo(c.x + n.x * step * 0.6, c.y + n.y * step * 0.6, c.x + f.x * r * 1.3, c.y + f.y * r * 1.3)
-      ctx.stroke()
-    }
-    ctx.restore()
-    smoothPath(ctx, s.poly)
-    ctx.strokeStyle = C.line
-    ctx.lineWidth = lw * 1.3
-    ctx.stroke()
-  }
-  // one leader label per muscle, stacked on the nearer side margin
-  const fs = Math.round(fsBase(p.W, p.H) * 0.74)
-  ctx.font = `700 ${fs}px ${FONT_MONO}`
-  const seen = new Map<MuscleId, Shape>()
-  for (const s of shapes) if (!seen.has(s.id) || s.anchor.y < seen.get(s.id)!.anchor.y) seen.set(s.id, s)
-  const items = [...seen.values()].sort((a, b) => a.anchor.y - b.anchor.y)
-  const taken = reserveChrome(p.W, p.H)
-  const cols = { left: [] as Box[], right: [] as Box[] }
-  for (const s of items) {
-    const txt = l3(MUSCLE_NAMES[s.id], o.lang).toUpperCase()
-    const w = ctx.measureText(txt).width + fs * 0.8, h = fs * 1.6
-    const side = s.anchor.x < p.W / 2 ? 'left' : 'right'
-    const x = side === 'left' ? Math.max(4, Math.min(s.anchor.x - p.W * 0.18, p.W * 0.03)) : Math.min(p.W - w - 4, Math.max(s.anchor.x + p.W * 0.18, p.W * 0.97 - w))
-    let y = Math.max(p.H * 0.2, s.anchor.y - h / 2)
-    let b = { x, y, w, h }
-    for (let k = 0; k < 40 && [...taken, ...cols[side]].some((t) => overlap(t, b)); k++) { y += h * 0.6; b = { x, y, w, h } }
-    if (y + h > p.H - 4) continue
-    cols[side].push(b)
-    const C = prim.has(s.id) ? ORANGE : LIME
-    const end = { x: side === 'left' ? b.x + b.w : b.x, y: b.y + h / 2 }
-    ctx.strokeStyle = C.line
-    ctx.lineWidth = 1
-    ctx.beginPath(); ctx.moveTo(s.anchor.x, s.anchor.y); ctx.lineTo(end.x + (side === 'left' ? fs : -fs), end.y); ctx.lineTo(end.x, end.y); ctx.stroke()
-    ctx.fillStyle = C.line
-    ctx.beginPath(); ctx.arc(s.anchor.x, s.anchor.y, 2.6, 0, Math.PI * 2); ctx.fill()
-    ctx.fillStyle = 'rgba(6,8,12,0.72)'
-    ctx.fillRect(b.x, b.y, b.w, b.h)
-    ctx.fillStyle = C.text
-    ctx.textBaseline = 'middle'
-    ctx.fillText(txt, b.x + fs * 0.4, b.y + h / 2 + 1)
-  }
-  return [...seen.keys()]
-}
-
-/** which muscles of the list can be drawn on this photo (visible segments + view) */
-export function visibleMuscles(p: Pose, ids: MuscleId[]): Set<MuscleId> {
-  if (!p.ok) return new Set()
-  return new Set(buildShapes(p, new Set(ids)).map((s) => s.id))
 }
 
 // ---------------- MODE 3: technique ----------------

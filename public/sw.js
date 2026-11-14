@@ -1,5 +1,5 @@
 /* D31.UNIVERSE service worker — app-shell caching so the app opens offline. */
-const VERSION = 'd31-v4.2.2'
+const VERSION = 'd31-v4.3.0'
 const OFFLINE = 'd31-offline-clips' // Platinum "save offline" clips — never deleted on update
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png']
 

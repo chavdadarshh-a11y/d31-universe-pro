@@ -1,0 +1,636 @@
+{
+ "_doc": "Fine anatomical regions drawn on photos. Roles are the TYPICAL role of each muscle in the exercise (textbook), not a measurement.",
+ "names": {
+  "pec_major": {
+   "en": "Pectoralis major",
+   "hi": "पेक्टोरेलिस मेजर",
+   "gu": "પેક્ટોરાલિસ મેજર"
+  },
+  "delt_ant": {
+   "en": "Anterior deltoid",
+   "hi": "एंटीरियर डेल्टॉइड",
+   "gu": "એન્ટિરિયર ડેલ્ટોઇડ"
+  },
+  "delt_lat": {
+   "en": "Lateral deltoid",
+   "hi": "लेटरल डेल्टॉइड",
+   "gu": "લેટરલ ડેલ્ટોઇડ"
+  },
+  "delt_post": {
+   "en": "Posterior deltoid",
+   "hi": "पोस्टीरियर डेल्टॉइड",
+   "gu": "પોસ્ટીરિયર ડેલ્ટોઇડ"
+  },
+  "biceps": {
+   "en": "Biceps brachii",
+   "hi": "बाइसेप्स ब्रैकाई",
+   "gu": "બાયસેપ્સ બ્રેકી"
+  },
+  "brachialis": {
+   "en": "Brachialis",
+   "hi": "ब्रैकियलिस",
+   "gu": "બ્રેકિયાલિસ"
+  },
+  "triceps": {
+   "en": "Triceps brachii",
+   "hi": "ट्राइसेप्स ब्रैकाई",
+   "gu": "ટ્રાયસેપ્સ બ્રેકી"
+  },
+  "forearm_flexors": {
+   "en": "Forearm flexors",
+   "hi": "फोरआर्म फ्लेक्सर्स",
+   "gu": "ફોરઆર્મ ફ્લેક્સર્સ"
+  },
+  "forearm_extensors": {
+   "en": "Forearm extensors",
+   "hi": "फोरआर्म एक्सटेंसर्स",
+   "gu": "ફોરઆર્મ એક્સટેન્સર્સ"
+  },
+  "lats": {
+   "en": "Latissimus dorsi",
+   "hi": "लैटिसिमस डॉर्सी",
+   "gu": "લેટિસિમસ ડોર્સી"
+  },
+  "traps_upper": {
+   "en": "Upper trapezius",
+   "hi": "अपर ट्रेपेज़ियस",
+   "gu": "અપર ટ્રેપેઝિયસ"
+  },
+  "traps_mid": {
+   "en": "Middle trapezius",
+   "hi": "मिडल ट्रेपेज़ियस",
+   "gu": "મિડલ ટ્રેપેઝિયસ"
+  },
+  "rhomboids": {
+   "en": "Rhomboids",
+   "hi": "रॉमबॉइड्स",
+   "gu": "રોમ્બોઇડ્સ"
+  },
+  "teres_major": {
+   "en": "Teres major",
+   "hi": "टेरेस मेजर",
+   "gu": "ટેરેસ મેજર"
+  },
+  "serratus": {
+   "en": "Serratus anterior",
+   "hi": "सेरेटस एंटीरियर",
+   "gu": "સેરેટસ એન્ટિરિયર"
+  },
+  "rectus_abdominis": {
+   "en": "Rectus abdominis",
+   "hi": "रेक्टस एब्डोमिनिस",
+   "gu": "રેક્ટસ એબ્ડોમિનિસ"
+  },
+  "obliques": {
+   "en": "Obliques",
+   "hi": "ऑब्लिक्स",
+   "gu": "ઓબ્લિક્સ"
+  },
+  "erectors": {
+   "en": "Erector spinae",
+   "hi": "इरेक्टर स्पाइनी",
+   "gu": "ઇરેક્ટર સ્પાઇની"
+  },
+  "glute_max": {
+   "en": "Gluteus maximus",
+   "hi": "ग्लूटियस मैक्सिमस",
+   "gu": "ગ્લુટિયસ મેક્સિમસ"
+  },
+  "glute_med": {
+   "en": "Gluteus medius",
+   "hi": "ग्लूटियस मीडियस",
+   "gu": "ગ્લુટિયસ મીડિયસ"
+  },
+  "rectus_femoris": {
+   "en": "Rectus femoris",
+   "hi": "रेक्टस फेमोरिस",
+   "gu": "રેક્ટસ ફેમોરિસ"
+  },
+  "vastus_lateralis": {
+   "en": "Vastus lateralis",
+   "hi": "वेस्टस लेटरलिस",
+   "gu": "વેસ્ટસ લેટરાલિસ"
+  },
+  "vastus_medialis": {
+   "en": "Vastus medialis",
+   "hi": "वेस्टस मीडियलिस",
+   "gu": "વેસ્ટસ મીડિયાલિસ"
+  },
+  "hamstrings": {
+   "en": "Hamstrings",
+   "hi": "हैमस्ट्रिंग्स",
+   "gu": "હેમસ્ટ્રિંગ્સ"
+  },
+  "adductors": {
+   "en": "Adductors",
+   "hi": "एडक्टर्स",
+   "gu": "એડક્ટર્સ"
+  },
+  "gastrocnemius": {
+   "en": "Gastrocnemius",
+   "hi": "गैस्ट्रोक्नेमियस",
+   "gu": "ગેસ્ટ્રોક્નેમિયસ"
+  },
+  "soleus": {
+   "en": "Soleus",
+   "hi": "सोलियस",
+   "gu": "સોલિયસ"
+  },
+  "tibialis": {
+   "en": "Tibialis anterior",
+   "hi": "टिबियलिस एंटीरियर",
+   "gu": "ટિબિયાલિસ એન્ટિરિયર"
+  }
+ },
+ "roleWords": {
+  "primary": {
+   "en": "Primary",
+   "hi": "मुख्य",
+   "gu": "મુખ્ય"
+  },
+  "secondary": {
+   "en": "Secondary",
+   "hi": "सहायक",
+   "gu": "સહાયક"
+  },
+  "stabilizer": {
+   "en": "Stabilizer",
+   "hi": "स्टेबलाइज़र",
+   "gu": "સ્ટેબિલાઇઝર"
+  }
+ },
+ "byExercise": {
+  "back-squat": {
+   "primary": [
+    "glute_max",
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis"
+   ],
+   "secondary": [
+    "adductors",
+    "hamstrings"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques",
+    "glute_med"
+   ]
+  },
+  "front-squat": {
+   "primary": [
+    "glute_max",
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis"
+   ],
+   "secondary": [
+    "adductors",
+    "hamstrings"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques",
+    "glute_med"
+   ]
+  },
+  "goblet-squat": {
+   "primary": [
+    "glute_max",
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis"
+   ],
+   "secondary": [
+    "adductors",
+    "hamstrings"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques",
+    "glute_med"
+   ]
+  },
+  "bodyweight-squat": {
+   "primary": [
+    "glute_max",
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis"
+   ],
+   "secondary": [
+    "adductors",
+    "hamstrings"
+   ],
+   "stabilizer": [
+    "erectors",
+    "rectus_abdominis",
+    "obliques",
+    "glute_med"
+   ]
+  },
+  "bulgarian-split-squat": {
+   "primary": [
+    "glute_max",
+    "rectus_femoris",
+    "vastus_lateralis",
+    "vastus_medialis"
+   ],
+   "secondary": [
+    "adductors",
+    "hamstrings"
+   ],
+   "stabilizer": [
+    "glute_med",
+    "rectus_abdominis",
+    "obliques",
+    "gastrocnemius"
+   ]
+  },
+  "deadlift": {
+   "primary": [
+    "glute_max",
+    "hamstrings",
+    "erectors"
+   ],
+   "secondary": [
+    "rectus_femoris",
+    "vastus_lateralis",
+    "lats",
+    "traps_upper",
+    "forearm_flexors"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "obliques"
+   ]
+  },
+  "romanian-deadlift": {
+   "primary": [
+    "hamstrings",
+    "glute_max"
+   ],
+   "secondary": [
+    "erectors",
+    "adductors"
+   ],
+   "stabilizer": [
+    "lats",
+    "forearm_flexors",
+    "rectus_abdominis"
+   ]
+  },
+  "hip-thrust": {
+   "primary": [
+    "glute_max"
+   ],
+   "secondary": [
+    "hamstrings",
+    "rectus_femoris",
+    "vastus_lateralis",
+    "adductors"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "glute_med"
+   ]
+  },
+  "overhead-press": {
+   "primary": [
+    "delt_ant",
+    "delt_lat",
+    "triceps"
+   ],
+   "secondary": [
+    "traps_upper",
+    "serratus",
+    "pec_major"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "obliques",
+    "erectors"
+   ]
+  },
+  "headstand": {
+   "primary": [
+    "delt_ant",
+    "triceps",
+    "rectus_abdominis"
+   ],
+   "secondary": [
+    "traps_upper",
+    "obliques",
+    "serratus"
+   ],
+   "stabilizer": [
+    "erectors",
+    "glute_max"
+   ]
+  },
+  "preacher-curl": {
+   "primary": [
+    "biceps",
+    "brachialis"
+   ],
+   "secondary": [
+    "forearm_flexors"
+   ],
+   "stabilizer": [
+    "delt_ant"
+   ]
+  },
+  "barbell-curl": {
+   "primary": [
+    "biceps",
+    "brachialis"
+   ],
+   "secondary": [
+    "forearm_flexors"
+   ],
+   "stabilizer": [
+    "delt_ant",
+    "rectus_abdominis",
+    "erectors"
+   ]
+  },
+  "hammer-curl": {
+   "primary": [
+    "brachialis",
+    "biceps"
+   ],
+   "secondary": [
+    "forearm_extensors",
+    "forearm_flexors"
+   ],
+   "stabilizer": [
+    "delt_ant",
+    "rectus_abdominis"
+   ]
+  },
+  "triceps-pushdown": {
+   "primary": [
+    "triceps"
+   ],
+   "secondary": [
+    "forearm_extensors"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "obliques",
+    "lats",
+    "forearm_flexors"
+   ]
+  },
+  "skull-crusher": {
+   "primary": [
+    "triceps"
+   ],
+   "secondary": [
+    "forearm_extensors"
+   ],
+   "stabilizer": [
+    "pec_major",
+    "delt_ant"
+   ]
+  },
+  "lat-pulldown": {
+   "primary": [
+    "lats",
+    "teres_major"
+   ],
+   "secondary": [
+    "biceps",
+    "brachialis",
+    "rhomboids",
+    "traps_mid",
+    "delt_post"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "forearm_flexors"
+   ]
+  },
+  "pull-up": {
+   "primary": [
+    "lats",
+    "teres_major"
+   ],
+   "secondary": [
+    "biceps",
+    "brachialis",
+    "rhomboids",
+    "traps_mid",
+    "delt_post"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "forearm_flexors"
+   ]
+  },
+  "chin-up": {
+   "primary": [
+    "lats",
+    "biceps"
+   ],
+   "secondary": [
+    "teres_major",
+    "brachialis",
+    "pec_major",
+    "traps_mid"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "forearm_flexors"
+   ]
+  },
+  "push-up": {
+   "primary": [
+    "pec_major",
+    "triceps"
+   ],
+   "secondary": [
+    "delt_ant"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "obliques",
+    "serratus",
+    "glute_max"
+   ]
+  },
+  "dips": {
+   "primary": [
+    "pec_major",
+    "triceps"
+   ],
+   "secondary": [
+    "delt_ant"
+   ],
+   "stabilizer": [
+    "rectus_abdominis",
+    "lats"
+   ]
+  },
+  "plank": {
+   "primary": [
+    "rectus_abdominis"
+   ],
+   "secondary": [
+    "obliques"
+   ],
+   "stabilizer": [
+    "delt_ant",
+    "serratus",
+    "glute_max",
+    "rectus_femoris"
+   ]
+  },
+  "human-flag-progression": {
+   "primary": [
+    "obliques",
+    "lats",
+    "delt_lat",
+    "delt_ant"
+   ],
+   "secondary": [
+    "triceps",
+    "forearm_flexors",
+    "rectus_abdominis",
+    "serratus"
+   ],
+   "stabilizer": [
+    "glute_med",
+    "adductors"
+   ]
+  },
+  "straddle-human-flag": {
+   "primary": [
+    "obliques",
+    "lats",
+    "delt_lat",
+    "delt_ant"
+   ],
+   "secondary": [
+    "triceps",
+    "forearm_flexors",
+    "rectus_abdominis",
+    "serratus"
+   ],
+   "stabilizer": [
+    "glute_med",
+    "adductors"
+   ]
+  },
+  "full-human-flag": {
+   "primary": [
+    "obliques",
+    "lats",
+    "delt_lat",
+    "delt_ant"
+   ],
+   "secondary": [
+    "triceps",
+    "forearm_flexors",
+    "rectus_abdominis",
+    "serratus"
+   ],
+   "stabilizer": [
+    "glute_med",
+    "adductors"
+   ]
+  }
+ },
+ "profileStabilizers": {
+  "squat": [
+   "erectors",
+   "rectus_abdominis",
+   "obliques",
+   "glute_med"
+  ],
+  "lunge": [
+   "glute_med",
+   "rectus_abdominis",
+   "obliques"
+  ],
+  "hinge": [
+   "rectus_abdominis",
+   "obliques",
+   "lats",
+   "forearm_flexors"
+  ],
+  "hip_thrust": [
+   "rectus_abdominis",
+   "glute_med"
+  ],
+  "push_up": [
+   "rectus_abdominis",
+   "obliques",
+   "serratus"
+  ],
+  "plank": [
+   "delt_ant",
+   "serratus",
+   "glute_max"
+  ],
+  "pull_up": [
+   "rectus_abdominis",
+   "forearm_flexors"
+  ],
+  "overhead_press": [
+   "rectus_abdominis",
+   "obliques",
+   "erectors"
+  ],
+  "dips": [
+   "rectus_abdominis"
+  ],
+  "curl": [
+   "delt_ant",
+   "rectus_abdominis"
+  ],
+  "human_flag": [
+   "glute_med",
+   "adductors"
+  ],
+  "front_lever": [
+   "rectus_abdominis",
+   "forearm_flexors",
+   "glute_max"
+  ],
+  "headstand": [
+   "erectors",
+   "rectus_abdominis"
+  ],
+  "handstand": [
+   "rectus_abdominis",
+   "serratus",
+   "forearm_flexors"
+  ],
+  "l_sit": [
+   "triceps",
+   "forearm_flexors"
+  ],
+  "punch_straight": [
+   "obliques",
+   "rectus_abdominis",
+   "gastrocnemius"
+  ],
+  "punch_hook": [
+   "obliques",
+   "rectus_abdominis"
+  ],
+  "punch_uppercut": [
+   "obliques",
+   "rectus_abdominis"
+  ],
+  "kick": [
+   "glute_med",
+   "rectus_abdominis",
+   "obliques"
+  ]
+ }
+}

@@ -130,6 +130,8 @@ export type AnalysisRecord = {
   /** base photo (≤540px) + normalised landmarks so the result can be re-drawn in any mode */
   photo?: string
   lm?: number[][]
+  /** person mask (small greyscale PNG) for re-drawing muscle outlines */
+  mask?: string
   poseFound?: boolean
   detected?: boolean
 }

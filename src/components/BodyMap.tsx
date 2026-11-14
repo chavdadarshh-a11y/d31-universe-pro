@@ -84,8 +84,8 @@ const COLORS = {
   secondary: '#f5b942',
 }
 
-function Figure({ regions, primary, secondary, label, showLabel, viewBox = '0 0 200 430' }: { regions: Region[]; primary: Set<MuscleId>; secondary: Set<MuscleId>; label: string; showLabel: boolean; viewBox?: string }) {
-  const fill = (id: MuscleId) => (primary.has(id) ? COLORS.primary : secondary.has(id) ? COLORS.secondary : COLORS.muscle)
+function Figure({ regions, primary, secondary, label, showLabel, viewBox = '0 0 200 430', colors }: { regions: Region[]; primary: Set<MuscleId>; secondary: Set<MuscleId>; label: string; showLabel: boolean; viewBox?: string; colors?: { primary: string; secondary: string } }) {
+  const fill = (id: MuscleId) => (primary.has(id) ? colors?.primary ?? COLORS.primary : secondary.has(id) ? colors?.secondary ?? COLORS.secondary : COLORS.muscle)
   const op = (id: MuscleId) => (primary.has(id) ? 0.92 : secondary.has(id) ? 0.7 : 1)
   return (
     <svg viewBox={viewBox} className="h-full w-full" role="img" aria-label={label}>
@@ -111,17 +111,17 @@ function Figure({ regions, primary, secondary, label, showLabel, viewBox = '0 0 
 }
 
 export function BodyMap({
-  primary, secondary, frontLabel = 'Front', backLabel = 'Back', compact = false, className = '',
-}: { primary: MuscleId[]; secondary: MuscleId[]; frontLabel?: string; backLabel?: string; compact?: boolean; className?: string }) {
+  primary, secondary, frontLabel = 'Front', backLabel = 'Back', compact = false, className = '', colors,
+}: { primary: MuscleId[]; secondary: MuscleId[]; frontLabel?: string; backLabel?: string; compact?: boolean; className?: string; colors?: { primary: string; secondary: string } }) {
   const p = new Set(primary)
   const s = new Set(secondary.filter((m) => !p.has(m)))
   return (
     <div className={`grid grid-cols-2 gap-2 ${className}`}>
       <div className={compact ? 'h-24' : 'h-64'}>
-        <Figure regions={FRONT} primary={p} secondary={s} label={frontLabel} showLabel={!compact} />
+        <Figure regions={FRONT} primary={p} secondary={s} label={frontLabel} showLabel={!compact} colors={colors} />
       </div>
       <div className={compact ? 'h-24' : 'h-64'}>
-        <Figure regions={BACK} primary={p} secondary={s} label={backLabel} showLabel={!compact} />
+        <Figure regions={BACK} primary={p} secondary={s} label={backLabel} showLabel={!compact} colors={colors} />
       </div>
     </div>
   )

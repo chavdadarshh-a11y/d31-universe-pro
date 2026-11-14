@@ -1,18 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Upload, Eye, CheckCircle2, AlertTriangle, Wrench, Target, ArrowRight, X, LogIn, Camera, Square, RotateCcw, Save, Volume2, VolumeX, SwitchCamera, Zap } from 'lucide-react'
-import { useApp, effectivePlan } from '../store/app'
+import { Upload, Eye, CheckCircle2, AlertTriangle, Wrench, Target, ArrowRight, X, Camera, Square, RotateCcw, Save, Volume2, VolumeX, SwitchCamera, Zap, ChevronRight, Info, ScanLine } from 'lucide-react'
+import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Chip, Header, Label, Sheet, Stepper, Tabs } from '../components/ui'
-import { EXERCISES, EX_BY_ID, exName } from '../data/exercises'
-import { hashQuery, navigate } from '../lib/router'
+import { BodyMap } from '../components/BodyMap'
+import { hashQuery } from '../lib/router'
 import { runAnalysis, HEADER_KEYS, D31_ANALYSIS_HEADERS } from '../lib/analyze'
 import { isLive } from '../lib/env'
-import { PLAN_BY_ID } from '../lib/plans'
-import { compressImage, fmtDate, speak, uid } from '../lib/util'
-import { drawPose, evaluatePose, getLandmarker, RepCounter, type RepKind } from '../lib/pose'
+import { fmtDate, speak, uid } from '../lib/util'
+import { drawPose, getLandmarker, RepCounter, type RepKind } from '../lib/pose'
 import { cloud } from '../lib/cloud'
-import type { AnalysisRecord, WorkoutSession } from '../types'
-import { IN_APP } from '../lib/appMode'
+import type { AnalysisRecord, Lang, MuscleId, WorkoutSession } from '../types'
+import {
+  analysisEx, buildPose, evaluateRules, exerciseSetup, exLabel, guessExercise, insights, l3, musclesFor, MUSCLE_NAMES, searchExercises,
+  type CheckResult, type Guess, type Mode, type Pose,
+} from '../lib/formCheck'
+import { renderAnalysis, visibleMuscles } from '../lib/analysisDraw'
 
 const SECTION_STYLE: Record<string, { icon: typeof Eye; color: string }> = {
   'WHAT I SEE': { icon: Eye, color: '#8b93a3' },
@@ -36,12 +39,16 @@ export default function Analyze() {
   )
 }
 
-function ResultCards({ sections, raw, demo }: { sections: Record<string, string>; raw: string; demo: boolean }) {
+
+const ORANGE = '#ff6a1f'
+const LIME = '#b8ff3c'
+
+function AiCards({ sections, raw }: { sections: Record<string, string>; raw: string }) {
   const t = useT()
   const has = D31_ANALYSIS_HEADERS.some((h) => sections[h])
+  if (!has && !raw) return null
   return (
     <div className="space-y-2.5">
-      {demo && <div className="rounded-xl border border-gold/25 bg-gold/[0.07] px-3 py-2 text-[12.5px] text-gold">{t('demoAnalysis')}</div>}
       {has ? (
         D31_ANALYSIS_HEADERS.filter((h) => sections[h]).map((h) => {
           const st = SECTION_STYLE[h]
@@ -61,92 +68,248 @@ function ResultCards({ sections, raw, demo }: { sections: Record<string, string>
   )
 }
 
-function PosePreview({ file, show }: { file: File; show: boolean }) {
-  const canvas = useRef<HTMLCanvasElement>(null)
-  const [img, setImg] = useState<HTMLImageElement | null>(null)
-  // undefined = still detecting, null = no pose found
-  const [lm, setLm] = useState<import('@mediapipe/tasks-vision').NormalizedLandmark[] | null | undefined>(undefined)
-  const pose = useMemo(() => evaluatePose(lm ?? null), [lm])
+/** Draw a media file (image, or the current frame of a video element) onto a canvas, long side ≤ max. */
+function toCanvas(src: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement, max: number): HTMLCanvasElement {
+  const w0 = src instanceof HTMLVideoElement ? src.videoWidth : src instanceof HTMLCanvasElement ? src.width : src.naturalWidth
+  const h0 = src instanceof HTMLVideoElement ? src.videoHeight : src instanceof HTMLCanvasElement ? src.height : src.naturalHeight
+  const k = Math.min(1, max / Math.max(w0, h0))
+  const c = document.createElement('canvas')
+  c.width = Math.round(w0 * k)
+  c.height = Math.round(h0 * k)
+  const ctx = c.getContext('2d')!
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(src, 0, 0, c.width, c.height)
+  return c
+}
+const loadImg = (url: string) => new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url })
+const lmToPts = (lm?: number[][]) => lm?.map(([x, y, v]) => ({ x, y, visibility: v, presence: v }))
+
+const STATUS_COLOR: Record<CheckResult['status'], string> = { ok: '#34d399', warn: '#f5b942', fix: '#ff3b30', info: '#8b93a3' }
+const MODE_SUB: Record<Mode, 'subAngles' | 'subMuscles' | 'subTechnique'> = { angles: 'subAngles', muscles: 'subMuscles', technique: 'subTechnique' }
+
+function useResult(rec: AnalysisRecord, lang: Lang, src: HTMLCanvasElement | HTMLImageElement | null) {
+  const W = src ? (src instanceof HTMLCanvasElement ? src.width : src.naturalWidth) : 0
+  const H = src ? (src instanceof HTMLCanvasElement ? src.height : src.naturalHeight) : 0
+  const pose = useMemo<Pose | null>(() => (src && rec.lm ? buildPose(lmToPts(rec.lm), W, H) : src ? buildPose(null, W, H) : null), [src, rec.lm, W, H])
+  const exId = rec.exId
+  const setup = exerciseSetup(exId)
+  const muscles = musclesFor(exId)
+  const evals = useMemo(() => (pose ? evaluateRules(pose, exId, lang) : { checks: [], skipped: [] }), [pose, exId, lang])
+  return { pose, setup, muscles, ...evals }
+}
+
+function specRows(t: ReturnType<typeof useT>, pose: Pose, exName: string, focus: string, mode: Mode, muscles: { primary: MuscleId[] }, lang: Lang): [string, string][] {
+  const body = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]
+  const n = body.filter((i) => pose.pts[i]).length
+  const f = mode === 'muscles' && muscles.primary.length ? muscles.primary.map((m) => l3(MUSCLE_NAMES[m], lang)).join(' / ') : focus
+  return [
+    [t('specSubject'), exName || '—'],
+    [t('specFocus'), f || '—'],
+    [t('specView'), t(pose.view === 'front' ? 'viewFront' : pose.view === 'back' ? 'viewBack' : 'viewSide')],
+    [t('specPoints'), `${n}/12`],
+  ]
+}
+
+/** Result "slide": overlay canvas + mode tabs + insights + checks + body map. Works for new and saved results. */
+function ResultView({ rec, src, onChangeEx, guesses }: { rec: AnalysisRecord; src?: HTMLCanvasElement | null; onChangeEx?: (id: string) => void; guesses?: Guess[] }) {
   const t = useT()
+  const lang = useApp((s) => s.lang)
+  const [img, setImg] = useState<HTMLCanvasElement | HTMLImageElement | null>(src ?? null)
   useEffect(() => {
-    const url = URL.createObjectURL(file)
-    const i = new Image()
-    i.onload = () => setImg(i)
-    i.src = url
-    return () => URL.revokeObjectURL(url)
-  }, [file])
-  useEffect(() => {
-    if (!img) return
-    let alive = true
-    getLandmarker('IMAGE')
-      .then((pl) => {
-        const r = pl.detect(img)
-        if (alive) setLm(r.landmarks[0] ?? null)
-      })
-      .catch(() => alive && setLm(null))
-    return () => {
-      alive = false
-    }
-  }, [img])
+    if (src) { setImg(src); return }
+    if (rec.photo) loadImg(rec.photo).then(setImg).catch(() => setImg(null))
+  }, [src, rec.photo])
+  const { pose, setup, muscles, checks, skipped } = useResult(rec, lang, img)
+  const [mode, setMode] = useState<Mode>(rec.mode ?? setup.mode)
+  useEffect(() => setMode(rec.mode ?? exerciseSetup(rec.exId).mode), [rec.exId, rec.mode])
+  const canvas = useRef<HTMLCanvasElement>(null)
+  const ex = analysisEx(rec.exId)
+  const name = ex ? exLabel(ex, lang) : ''
   useEffect(() => {
     const c = canvas.current
-    if (!c || !img) return
-    const scale = Math.min(1, 1080 / Math.max(img.width, img.height))
-    c.width = Math.round(img.width * scale)
-    c.height = Math.round(img.height * scale)
-    const ctx = c.getContext('2d')!
-    ctx.imageSmoothingQuality = 'high'
-    ctx.drawImage(img, 0, 0, c.width, c.height)
-    if (show && lm) drawPose(ctx, lm, c.width, c.height, { angles: pose.angles, result: pose })
-  }, [img, lm, show, pose])
+    if (!c || !img || !pose) return
+    const draw = () => renderAnalysis(c, img, pose, {
+      mode, lang, title: name || t('formCheck'), subtitle: t(MODE_SUB[mode]), profile: setup.profile, muscles,
+      spec: pose.ok ? specRows(t, pose, name, l3(setup.profile.focus, lang), mode, muscles, lang) : [],
+    })
+    draw()
+    // redraw once the condensed font is ready
+    document.fonts?.load('700 40px Oswald').then(draw).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [img, pose, mode, lang, rec.exId])
+  const shown = useMemo(() => (pose ? visibleMuscles(pose, [...muscles.primary, ...muscles.secondary]) : new Set<MuscleId>()), [pose, muscles])
+  const top = insights(checks)
+  const [picking, setPicking] = useState(false)
+  const alts = (guesses ?? []).filter((g) => g.id !== rec.exId)
+  const unsure = !rec.exId && !!guesses?.length
   return (
-    <div>
-      <canvas ref={canvas} className="w-full rounded-2xl bg-black" />
-      {show && lm !== undefined && pose.notMeasurable && (
-        <div className="mt-2 flex items-start gap-2 rounded-xl border border-gold/25 bg-gold/[0.07] px-3 py-2 text-[12.5px] leading-snug text-gold">
-          <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-          <span>{t('angleNotMeasurable')}</span>
+    <div className="space-y-3" data-testid="od-result">
+      <div className="overflow-hidden rounded-[22px] border border-white/10 bg-[#05070b]">
+        <canvas ref={canvas} className="block w-full" data-testid="od-canvas" />
+      </div>
+      <div className="flex gap-1.5" role="tablist" data-testid="mode-tabs">
+        {(['angles', 'muscles', 'technique'] as Mode[]).map((m) => (
+          <button key={m} role="tab" data-testid={`mode-${m}`} aria-selected={mode === m} onClick={() => setMode(m)}
+            className={`flex-1 rounded-xl border px-2 py-2 font-mono text-[11.5px] font-bold uppercase tracking-wider transition ${mode === m ? 'border-[#ff3b30]/60 bg-[#ff3b30]/12 text-white' : 'border-white/10 bg-white/[0.03] text-muted'}`}>
+            {t(m === 'angles' ? 'modeAngles' : m === 'muscles' ? 'modeMuscles' : 'modeTechnique')}
+          </button>
+        ))}
+      </div>
+
+      {onChangeEx && (unsure || rec.detected || picking) && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3" data-testid="detect-box">
+          {rec.exId && rec.detected ? (
+            <div className="flex items-center gap-2 text-[13px]"><ScanLine size={15} className="text-cyan" /> <span>{t('detectedAs', { x: name })}</span></div>
+          ) : (
+            <div className="flex items-start gap-2 text-[13px] text-gold"><AlertTriangle size={15} className="mt-0.5 shrink-0" /> <span>{t('pickExQ')}</span></div>
+          )}
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {rec.exId && rec.detected && <span className="text-[11.5px] text-dim">{t('changeQ')}</span>}
+            {alts.map((g) => <Chip key={g.id} onClick={() => onChangeEx(g.id)}>{exLabel(analysisEx(g.id), lang)}</Chip>)}
+            <Chip active={picking} onClick={() => setPicking(!picking)}>{t('otherEx')}</Chip>
+          </div>
+          {picking && <div className="mt-2"><ExercisePickerField value="" onPick={(id) => { setPicking(false); onChangeEx(id) }} /></div>}
         </div>
       )}
-      {show && pose.angles.length > 0 && (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] text-dim">{t('anglesNote')}:</span>
-          {pose.angles.map((a) => <Badge key={a.name} tone="cyan">{t(`joint_${a.name}`)} {Math.round(a.deg)}°</Badge>)}
+
+      {pose && !pose.ok ? (
+        <div className="flex items-start gap-2 rounded-2xl border border-gold/25 bg-gold/[0.07] p-3 text-[13px] leading-snug text-gold" data-testid="no-pose">
+          <AlertTriangle size={15} className="mt-0.5 shrink-0" /> <span>{t('noPose')}</span>
+        </div>
+      ) : (
+        <div className="rounded-[22px] border border-white/10 bg-[#07090d] p-4" data-testid="insights">
+          <div className="font-mono text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#ff3b30]">{t('odTitle')} · {t('keyPoints')}</div>
+          <div className="mt-1 text-[26px] font-bold uppercase leading-none tracking-tight" style={{ fontFamily: 'Oswald, "Noto Sans Devanagari", "Noto Sans Gujarati", sans-serif' }}>{name || t('formCheck')}</div>
+          {!rec.exId ? (
+            <p className="mt-3 text-[13.5px] text-muted">{t('pickExercise')}</p>
+          ) : top.length ? (
+            <ul className="mt-3 space-y-2.5">
+              {top.map((c) => (
+                <li key={c.metric} className="flex gap-2 text-[14px] leading-snug">
+                  <ChevronRight size={18} strokeWidth={3} className="mt-[1px] shrink-0 text-[#ff3b30]" />
+                  <span><b className="text-white">{c.label}:</b> <span className="text-frost/90">{c.msg}</span></span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-[13.5px] text-muted">{setup.profile.checks.length ? t('angleNotMeasurable') : t('noRules')}</p>
+          )}
+          {rec.exId && setup.profile.cues.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">{setup.profile.cues.map((c, i) => <span key={i} className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-[10.5px] uppercase tracking-wide text-frost/80">{l3(c, lang)}</span>)}</div>
+          )}
+        </div>
+      )}
+
+      {pose?.ok && checks.length > 0 && (
+        <div className="card p-3.5" data-testid="checks">
+          <div className="label mb-2">{t('checksTitle')}</div>
+          <div className="space-y-2">
+            {checks.map((c) => (
+              <div key={c.metric} className="flex items-start gap-2.5">
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: STATUS_COLOR[c.status] }} />
+                <div className="min-w-0 flex-1 text-[13px] leading-snug">
+                  <div className="flex items-baseline justify-between gap-2"><span className="font-semibold">{c.label}</span><span className="font-mono text-[12.5px] text-cyan">{c.value}</span></div>
+                  {c.msg && <div className="text-muted">{c.msg}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+          {skipped.length > 0 && <p className="mt-2.5 text-[11.5px] text-dim">{t('skippedNote', { x: skipped.join(', ') })}</p>}
+        </div>
+      )}
+
+      {rec.exId && muscles.primary.length > 0 && (
+        <div className="card p-3.5" data-testid="bodymap">
+          <div className="label mb-2">{t('musclesWorked')}</div>
+          <BodyMap primary={muscles.primary} secondary={muscles.secondary} frontLabel={t('viewFront')} backLabel={t('viewBack')} colors={{ primary: ORANGE, secondary: LIME }} />
+          <div className="mt-3 grid grid-cols-1 gap-1.5">
+            {[...muscles.primary.map((m) => [m, true] as const), ...muscles.secondary.map((m) => [m, false] as const)].map(([m, p]) => (
+              <div key={m} className="flex items-center gap-2 text-[12.5px]">
+                <span className="h-3 w-3 shrink-0 rounded-[3px]" style={{ background: p ? ORANGE : LIME, opacity: p ? 0.95 : 0.75 }} />
+                <span className="font-semibold">{l3(MUSCLE_NAMES[m], lang)}</span>
+                <span className="text-dim">· {p ? t('primaryM') : t('secondaryM')}</span>
+                {pose?.ok && !shown.has(m) && <span className="ml-auto text-[11px] text-dim">{t('notInPhoto')}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <p className="flex gap-1.5 px-1 text-[11.5px] leading-snug text-dim"><Info size={13} className="mt-[1px] shrink-0" /> {t('honestNote')}</p>
+
+      {(rec.raw || Object.keys(rec.sections ?? {}).length > 0) && (
+        <div>
+          <div className="label mb-2 mt-2">{t('aiTitle')}</div>
+          <AiCards sections={rec.sections} raw={rec.raw} />
         </div>
       )}
     </div>
   )
 }
 
-function VideoPreview({ file }: { file: File }) {
-  const [url, setUrl] = useState('')
-  useEffect(() => {
-    const u = URL.createObjectURL(file)
-    setUrl(u)
-    return () => URL.revokeObjectURL(u)
-  }, [file])
-  return url ? <video src={url} controls playsInline muted className="w-full rounded-2xl bg-black" /> : null
+function ExercisePickerField({ value, onPick, placeholder }: { value: string; onPick: (id: string) => void; placeholder?: string }) {
+  const t = useT()
+  const lang = useApp((s) => s.lang)
+  const [q, setQ] = useState(value)
+  const [open, setOpen] = useState(false)
+  useEffect(() => setQ(value), [value])
+  const list = useMemo(() => searchExercises(q, 8), [q])
+  return (
+    <div className="relative">
+      <input className="field" data-testid="ex-input" placeholder={placeholder ?? t('exSearchPh')} value={q} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onChange={(e) => { setQ(e.target.value); setOpen(true); if (!e.target.value) onPick('') }} />
+      {open && list.length > 0 && (
+        <div className="absolute inset-x-0 top-full z-30 mt-1 overflow-hidden rounded-2xl border border-white/10 bg-[#0b0f17] shadow-xl" data-testid="ex-suggest">
+          {list.map((e) => (
+            <button key={e.id} type="button" className="block w-full px-3 py-2.5 text-left text-[13.5px] hover:bg-white/[0.06]" onMouseDown={(ev) => ev.preventDefault()}
+              onClick={() => { setQ(exLabel(e, lang)); setOpen(false); onPick(e.id) }}>
+              {exLabel(e, lang)}{lang !== 'en' && <span className="ml-1.5 text-[11.5px] text-dim">{e.name}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function makeThumb(base: HTMLCanvasElement, lm: number[][] | undefined, exId: string | undefined, mode: Mode, lang: Lang): string {
+  const small = document.createElement('canvas')
+  const k = Math.min(1, 200 / Math.max(base.width, base.height))
+  const w = Math.round(base.width * k), h = Math.round(base.height * k)
+  const pose = buildPose(lmToPts(lm), w, h)
+  const setup = exerciseSetup(exId)
+  renderAnalysis(small, base, pose, { mode, lang, title: '', subtitle: '', profile: setup.profile, muscles: musclesFor(exId), spec: [], chrome: false })
+  return small.toDataURL('image/jpeg', 0.72)
 }
 
 function FormCheck({ initialEx }: { initialEx: string }) {
   const t = useT()
   const s = useApp()
-  const plan = effectivePlan(s.membership)
-  const limit = PLAN_BY_ID[plan].analyses
-  const monthKey = new Date().toISOString().slice(0, 7)
-  const usedLocal = s.analyses.filter((a) => a.date.startsWith(monthKey) && !a.demo).length
-  const [remaining, setRemaining] = useState<number | null>(null)
-  const left = remaining ?? Math.max(0, limit - usedLocal)
   const [files, setFiles] = useState<File[]>([])
-  const [exId, setExId] = useState(initialEx && EX_BY_ID[initialEx] ? initialEx : '')
+  const [exId, setExId] = useState(initialEx && analysisEx(initialEx) ? initialEx : '')
   const [prompt, setPrompt] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [busy, setBusy] = useState<'' | 'model' | 'ai'>('')
   const [err, setErr] = useState<string | null>(null)
-  const [result, setResult] = useState<AnalysisRecord | null>(null)
-  const [showPose, setShowPose] = useState(true)
+  const [aiNote, setAiNote] = useState<string | null>(null)
+  const [remaining, setRemaining] = useState<number | null>(null)
+  const [current, setCurrent] = useState<{ id: string; base: HTMLCanvasElement; guesses: Guess[] } | null>(null)
   const [view, setView] = useState<AnalysisRecord | null>(null)
+  const [previewUrl, setPreviewUrl] = useState('')
   const input = useRef<HTMLInputElement>(null)
-  const needsSignIn = isLive && !s.user
+  const video = useRef<HTMLVideoElement>(null)
+  const media = files[0]
+  const isVideo = !!media?.type.startsWith('video/')
+  const rec = current ? s.analyses.find((a) => a.id === current.id) ?? null : null
+  // clean out any legacy fake demo entries that are still in memory
+  useEffect(() => {
+    if (s.analyses.some((a) => a.demo)) useApp.setState({ analyses: s.analyses.filter((a) => !a.demo) })
+  }, [s.analyses])
+  useEffect(() => {
+    if (!media) { setPreviewUrl(''); return }
+    const u = URL.createObjectURL(media)
+    setPreviewUrl(u)
+    return () => URL.revokeObjectURL(u)
+  }, [media])
 
   const pick = (list: FileList | null) => {
     if (!list) return
@@ -154,115 +317,161 @@ function FormCheck({ initialEx }: { initialEx: string }) {
     const big = arr.find((f) => f.size > 20 * 1024 * 1024)
     setErr(big ? `${big.name}: max 20 MB` : null)
     setFiles(arr.filter((f) => f.size <= 20 * 1024 * 1024))
-    setResult(null)
+    setCurrent(null)
+    setAiNote(null)
   }
 
+  const update = (id: string, patch: Partial<AnalysisRecord>) =>
+    useApp.setState({ analyses: useApp.getState().analyses.map((a) => (a.id === id ? { ...a, ...patch } : a)) })
+
   const run = async () => {
-    if (needsSignIn) return navigate('/auth?next=/analyze')
-    if (isLive && left <= 0) return IN_APP ? useApp.getState().showToast(t('memberOnly')) : navigate('/membership')
-    setBusy(true)
+    if (!media || !previewUrl) return
+    setBusy('model')
     setErr(null)
+    setAiNote(null)
     try {
-      const ex = exId ? EX_BY_ID[exId] : undefined
-      const r = await runAnalysis({ files, prompt, exercise: ex })
-      if (typeof r.remaining === 'number') setRemaining(r.remaining)
-      const firstImg = files.find((f) => f.type.startsWith('image/'))
-      const rec: AnalysisRecord = {
-        id: uid(), date: new Date().toISOString(), exId: ex?.id, prompt, sections: r.sections as Record<string, string>, raw: r.raw, demo: r.demo,
-        thumb: firstImg ? await compressImage(firstImg, 200, 0.7) : undefined,
+      let srcEl: HTMLImageElement | HTMLVideoElement
+      if (isVideo) {
+        const v = video.current!
+        if (v.readyState < 2) await new Promise((r) => v.addEventListener('loadeddata', r, { once: true }))
+        if (v.currentTime === 0) { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); await new Promise((r) => v.addEventListener('seeked', r, { once: true })) }
+        v.pause()
+        srcEl = v
+      } else srcEl = await loadImg(previewUrl)
+      const base = toCanvas(srcEl, 1080)
+      const pl = await getLandmarker('IMAGE')
+      const r = pl.detect(base)
+      const raw = r.landmarks[0]
+      const lm = raw?.map((p) => [+p.x.toFixed(4), +p.y.toFixed(4), +(Math.min(p.visibility ?? 0, (p as { presence?: number }).presence ?? 1)).toFixed(3)])
+      const pose = buildPose(lmToPts(lm), base.width, base.height)
+      const guesses = exId ? [] : guessExercise(pose)
+      const chosen = exId || (guesses[0]?.sure ? guesses[0].id : '')
+      const photoC = toCanvas(base, 540)
+      const mode = exerciseSetup(chosen || undefined).mode
+      const id = uid()
+      const record: AnalysisRecord = {
+        id, date: new Date().toISOString(), exId: chosen || undefined, prompt, sections: {}, raw: '', kind: 'ondevice',
+        photo: photoC.toDataURL('image/jpeg', 0.72), lm: pose.ok ? lm : undefined, poseFound: pose.ok, detected: !exId && !!chosen,
+        thumb: makeThumb(base, pose.ok ? lm : undefined, chosen || undefined, mode, s.lang),
       }
-      s.addAnalysis(rec)
-      setResult(rec)
-      setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+      s.addAnalysis(record)
+      setCurrent({ id, base, guesses })
+      setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+      // AI coach in addition (only when the backend is really configured + signed in)
+      if (isLive && s.user && !isVideo) {
+        setBusy('ai')
+        try {
+          const ai = await runAnalysis({ files, prompt, exercise: chosen ? (analysisEx(chosen) as never) : undefined })
+          if (ai) {
+            update(id, { sections: ai.sections as Record<string, string>, raw: ai.raw })
+            if (typeof ai.remaining === 'number') setRemaining(ai.remaining)
+          }
+        } catch (e) {
+          setAiNote(t('aiFailed', { e: e instanceof Error ? e.message : String(e) }))
+        }
+      } else if (!isLive) setAiNote(t('aiNotConnected'))
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))
     } finally {
-      setBusy(false)
+      setBusy('')
     }
   }
 
-  const firstImage = files.find((f) => f.type.startsWith('image/'))
+  const changeEx = (newId: string) => {
+    if (!current || !rec) return
+    const mode = exerciseSetup(newId || undefined).mode
+    update(rec.id, { exId: newId || undefined, detected: false, mode: undefined, thumb: makeThumb(current.base, rec.lm, newId || undefined, mode, s.lang) })
+  }
+  const past = s.analyses.filter((a) => !a.demo && a.id !== current?.id)
 
   return (
     <div>
       <section className="glass-panel p-4">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <Label>{t('uploadTitle')}</Label>
-        <Badge tone={left > 0 ? 'cyan' : 'bad'}>{t('analysesLeft', { n: left })}</Badge>
-      </div>
-      <input ref={input} type="file" accept="image/*,video/*" multiple className="hidden" onChange={(e) => pick(e.target.files)} />
-
-      {files.length === 0 ? (
-        <button onClick={() => input.current?.click()} className="glass-drop mt-3 flex w-full flex-col items-center gap-3 rounded-[20px] px-6 py-9 text-center">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl border border-cyan/30 bg-cyan/10 text-cyan shadow-[0_0_28px_-6px_rgba(34,211,238,0.7)]"><Upload size={24} /></span>
-          <span className="text-[15px] font-semibold">{t('pickFiles')}</span>
-          <span className="max-w-[260px] text-[12.5px] text-muted">{t('uploadSub')}</span>
-        </button>
-      ) : (
-        <div className="mt-2 space-y-2">
-          {firstImage ? <PosePreview file={firstImage} show={showPose} /> : files[0] && <VideoPreview file={files[0]} />}
-          <div className="flex flex-wrap items-center gap-2">
-            {files.map((f, i) => (
-              <span key={i} className="flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] pl-3 pr-1 text-[12px]">
-                <span className="max-w-[140px] truncate">{f.name}</span>
-                <button aria-label={t('delete')} className="grid h-6 w-6 place-items-center rounded-full hover:bg-white/10" onClick={() => setFiles(files.filter((_, j) => j !== i))}><X size={13} /></button>
-              </span>
-            ))}
-            {files.length < 3 && <Chip onClick={() => input.current?.click()}>+ {t('add')}</Chip>}
-            {firstImage && <Chip active={showPose} onClick={() => setShowPose(!showPose)}>{t('skeleton')}</Chip>}
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <Label>{t('uploadTitle')}</Label>
+          <div className="flex flex-wrap gap-1.5">
+            <Badge tone="cyan">{t('odUnlimited')}</Badge>
+            {remaining !== null && <Badge tone={remaining > 0 ? 'violet' : 'bad'}>{t('aiLeft', { n: remaining })}</Badge>}
           </div>
         </div>
-      )}
+        <input ref={input} type="file" accept="image/*,video/*" multiple className="hidden" data-testid="file-input" onChange={(e) => pick(e.target.files)} />
 
-      <label className="mt-4 block">
-        <span className="label">{t('forExercise')}</span>
-        <select className="field mt-1.5 appearance-none" value={exId} onChange={(e) => setExId(e.target.value)}>
-          <option value="">—</option>
-          {EXERCISES.map((e) => <option key={e.id} value={e.id}>{exName(e, s.lang)}</option>)}
-        </select>
-      </label>
-      <label className="mt-3 block">
-        <span className="label">{t('yourQuestion')}</span>
-        <textarea className="field mt-1.5 min-h-[84px] resize-none" placeholder={t('questionPh')} value={prompt} onChange={(e) => setPrompt(e.target.value)} />
-      </label>
+        {!media ? (
+          <button onClick={() => input.current?.click()} className="glass-drop mt-3 flex w-full flex-col items-center gap-3 rounded-[20px] px-6 py-9 text-center">
+            <span className="grid h-14 w-14 place-items-center rounded-2xl border border-cyan/30 bg-cyan/10 text-cyan shadow-[0_0_28px_-6px_rgba(34,211,238,0.7)]"><Upload size={24} /></span>
+            <span className="text-[15px] font-semibold">{t('pickFiles')}</span>
+            <span className="max-w-[260px] text-[12.5px] text-muted">{t('uploadSub')}</span>
+          </button>
+        ) : (
+          <div className="mt-2 space-y-2">
+            {!current && previewUrl && (isVideo ? (
+              <>
+                <video ref={video} src={previewUrl} controls playsInline muted preload="auto" className="w-full rounded-2xl bg-black" />
+                <p className="text-[11.5px] text-muted">{t('pickFrame')}</p>
+              </>
+            ) : (
+              <img src={previewUrl} alt="" className="w-full rounded-2xl bg-black" />
+            ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {files.map((f, i) => (
+                <span key={i} className="flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] pl-3 pr-1 text-[12px]">
+                  <span className="max-w-[140px] truncate">{f.name}</span>
+                  <button aria-label={t('delete')} className="grid h-6 w-6 place-items-center rounded-full hover:bg-white/10" onClick={() => { setFiles(files.filter((_, j) => j !== i)); setCurrent(null) }}><X size={13} /></button>
+                </span>
+              ))}
+              {files.length < 3 && <Chip onClick={() => input.current?.click()}>+ {t('add')}</Chip>}
+            </div>
+          </div>
+        )}
 
-      {err && <p className="mt-3 rounded-xl border border-bad/30 bg-bad/[0.08] px-3 py-2 text-[13px] text-bad">{err}</p>}
+        <label className="mt-4 block">
+          <span className="label">{t('forExercise')}</span>
+          <div className="mt-1.5"><ExercisePickerField value={exId ? exLabel(analysisEx(exId), s.lang) : ''} onPick={(id) => { setExId(id); if (current) changeEx(id) }} /></div>
+        </label>
+        {isLive && s.user && (
+          <label className="mt-3 block">
+            <span className="label">{t('yourQuestion')}</span>
+            <textarea className="field mt-1.5 min-h-[70px] resize-none" placeholder={t('questionPh')} value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+          </label>
+        )}
 
-      {needsSignIn ? (
-        <Button className="mt-4 w-full" size="lg" onClick={() => navigate('/auth?next=/analyze')}><LogIn size={17} /> {t('signInToAnalyze')}</Button>
-      ) : (
-        <Button className="mt-4 w-full" size="lg" disabled={files.length === 0 || busy} onClick={run}>
-          {busy ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" /> {t('analyzing')}</> : <>{t('runAnalysis')} <ArrowRight size={17} /></>}
+        {err && <p className="mt-3 rounded-xl border border-bad/30 bg-bad/[0.08] px-3 py-2 text-[13px] text-bad">{err}</p>}
+
+        <Button className="mt-4 w-full" size="lg" data-testid="run-check" disabled={!media || !!busy} onClick={run}>
+          {busy === 'model' ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" /> {t('poseLoading')}</> : <>{t('checkForm')} <ArrowRight size={17} /></>}
         </Button>
-      )}
       </section>
 
-      {result && (
+      {rec && current && (
         <div id="result" className="mt-6 scroll-mt-24">
-          <Label className="mb-2">{result.exId ? exName(EX_BY_ID[result.exId], s.lang) : t('formCheck')}</Label>
-          <ResultCards sections={result.sections} raw={result.raw} demo={result.demo} />
+          <ResultView rec={rec} src={current.base} guesses={current.guesses} onChangeEx={changeEx} />
+          {busy === 'ai' && <p className="mt-3 text-[12.5px] text-muted">{t('aiRunning')}</p>}
+          {aiNote && <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[12px] text-muted" data-testid="ai-note">{aiNote}</p>}
         </div>
       )}
 
-      {s.analyses.length > 0 && (
+      {past.length > 0 && (
         <>
           <div className="label mb-2 mt-7 !text-frost/80">{t('pastAnalyses')}</div>
-          <div className="space-y-2">
-            {s.analyses.slice(0, 8).map((a) => (
-              <Card key={a.id} onClick={() => setView(a)} className="flex items-center gap-3 p-2.5">
-                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-panel-2">{a.thumb && <img src={a.thumb} alt="" className="h-full w-full object-cover" />}</div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-[14px] font-semibold">{a.exId ? exName(EX_BY_ID[a.exId], s.lang) : t('formCheck')}</div>
-                  <div className="truncate text-[12px] text-muted">{a.sections['QUICK VERDICT'] ?? a.prompt}</div>
-                </div>
-                <div className="flex flex-col items-end gap-1"><span className="text-[11px] text-dim">{fmtDate(a.date, s.lang)}</span>{a.demo && <Badge tone="gold">{t('demo')}</Badge>}</div>
-              </Card>
-            ))}
+          <div className="space-y-2" data-testid="past">
+            {past.slice(0, 10).map((a) => {
+              const ex = analysisEx(a.exId)
+              return (
+                <Card key={a.id} onClick={() => setView(a)} className="flex items-center gap-3 p-2.5">
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-panel-2">{a.thumb && <img src={a.thumb} alt="" className="h-full w-full object-cover" />}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[14px] font-semibold">{ex ? exLabel(ex, s.lang) : t('formCheck')}</div>
+                    <div className="truncate text-[12px] text-muted">{a.kind === 'ondevice' ? (a.poseFound ? t('odTitle') : t('noPose')) : a.sections['QUICK VERDICT'] ?? a.prompt}</div>
+                  </div>
+                  <span className="text-[11px] text-dim">{fmtDate(a.date, s.lang)}</span>
+                </Card>
+              )
+            })}
           </div>
         </>
       )}
-      <Sheet open={!!view} onClose={() => setView(null)} title={view?.exId ? exName(EX_BY_ID[view.exId], s.lang) : t('formCheck')}>
-        {view && <ResultCards sections={view.sections} raw={view.raw} demo={view.demo} />}
+      <Sheet open={!!view} onClose={() => setView(null)} title={view?.exId ? exLabel(analysisEx(view.exId), s.lang) : t('formCheck')}>
+        {view && (view.kind === 'ondevice' ? <ResultView rec={view} /> : <AiCards sections={view.sections} raw={view.raw} />)}
       </Sheet>
     </div>
   )

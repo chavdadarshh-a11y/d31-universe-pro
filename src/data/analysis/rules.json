@@ -1,0 +1,2116 @@
+{
+ "_doc": "On-device form rules. Every check reads ONE measured metric (degrees or %) from the pose; a check is skipped when its body points are not clearly visible. bands: [min,max) -> status ok|warn|fix|info + message ({v} = measured value). 'when' = only evaluate if another metric is inside the range. 'skipFor' = exercise ids that ignore this check. Angles are measured in the 2-D photo, so camera angle matters.",
+ "metricLabels": {
+  "knee": {
+   "en": "Knee angle",
+   "hi": "घुटने का कोण",
+   "gu": "ઘૂંટણનો ખૂણો"
+  },
+  "hip": {
+   "en": "Hip angle",
+   "hi": "कूल्हे का कोण",
+   "gu": "થાપાનો ખૂણો"
+  },
+  "elbow": {
+   "en": "Elbow angle",
+   "hi": "कोहनी का कोण",
+   "gu": "કોણીનો ખૂણો"
+  },
+  "elbowMin": {
+   "en": "Elbow lock (weaker arm)",
+   "hi": "कोहनी लॉक (कमज़ोर हाथ)",
+   "gu": "કોણી લૉક (નબળો હાથ)"
+  },
+  "shoulder": {
+   "en": "Shoulder angle",
+   "hi": "कंधे का कोण",
+   "gu": "ખભાનો ખૂણો"
+  },
+  "kneeMin": {
+   "en": "Front knee",
+   "hi": "आगे का घुटना",
+   "gu": "આગળનો ઘૂંટણ"
+  },
+  "trunkLean": {
+   "en": "Torso lean",
+   "hi": "धड़ का झुकाव",
+   "gu": "ધડનો ઝુકાવ"
+  },
+  "bodyLine": {
+   "en": "Body line vs horizontal",
+   "hi": "बॉडी लाइन (क्षैतिज से)",
+   "gu": "બોડી લાઇન (આડી રેખાથી)"
+  },
+  "bodyFromVertical": {
+   "en": "Body line vs vertical",
+   "hi": "बॉडी लाइन (सीधी खड़ी रेखा से)",
+   "gu": "બોડી લાઇન (ઊભી રેખાથી)"
+  },
+  "hipLine": {
+   "en": "Shoulder–hip–ankle line",
+   "hi": "कंधा–कूल्हा–टखना लाइन",
+   "gu": "ખભો–થાપો–પગની ઘૂંટી લાઇન"
+  },
+  "hipSag": {
+   "en": "Hip sag / pike",
+   "hi": "कूल्हा नीचे / ऊपर",
+   "gu": "થાપો નીચે / ઉપર"
+  },
+  "legsGap": {
+   "en": "Legs together",
+   "hi": "पैर साथ",
+   "gu": "પગ સાથે"
+  },
+  "elbowTop": {
+   "en": "Top arm",
+   "hi": "ऊपर वाला हाथ",
+   "gu": "ઉપરનો હાથ"
+  },
+  "elbowBottom": {
+   "en": "Bottom arm",
+   "hi": "नीचे वाला हाथ",
+   "gu": "નીચેનો હાથ"
+  },
+  "elbowLead": {
+   "en": "Punching arm",
+   "hi": "पंच वाला हाथ",
+   "gu": "પંચ વાળો હાથ"
+  },
+  "shoulderLead": {
+   "en": "Elbow height",
+   "hi": "कोहनी की ऊँचाई",
+   "gu": "કોણીની ઊંચાઈ"
+  },
+  "guardDist": {
+   "en": "Guard hand",
+   "hi": "गार्ड हाथ",
+   "gu": "ગાર્ડ હાથ"
+  },
+  "kickHeight": {
+   "en": "Kick height",
+   "hi": "किक की ऊँचाई",
+   "gu": "કિકની ઊંચાઈ"
+  },
+  "baseKnee": {
+   "en": "Standing leg",
+   "hi": "खड़ा पैर",
+   "gu": "ઊભો પગ"
+  },
+  "legSplit": {
+   "en": "Split angle",
+   "hi": "स्प्लिट कोण",
+   "gu": "સ્પ્લિટ ખૂણો"
+  },
+  "torsoLine": {
+   "en": "Torso line vs horizontal",
+   "hi": "धड़ की लाइन (क्षैतिज से)",
+   "gu": "ધડની લાઇન (આડી રેખાથી)"
+  }
+ },
+ "profiles": {
+  "generic": {
+   "focus": {
+    "en": "Measured joint angles",
+    "hi": "मापे गए जोड़ों के कोण",
+    "gu": "માપેલા સાંધાના ખૂણા"
+   },
+   "angles": [
+    "knee",
+    "hip",
+    "elbow"
+   ],
+   "checks": [],
+   "cues": []
+  },
+  "squat": {
+   "focus": {
+    "en": "Squat depth & torso angle",
+    "hi": "स्क्वाट डेप्थ और धड़ का कोण",
+    "gu": "સ્ક્વોટ ડેપ્થ અને ધડનો ખૂણો"
+   },
+   "angles": [
+    "knee",
+    "hip",
+    "trunk"
+   ],
+   "checks": [
+    {
+     "metric": "knee",
+     "bands": [
+      {
+       "r": [
+        0,
+        95
+       ],
+       "s": "ok",
+       "en": "Knee {v}° — thighs at or below parallel. Good depth.",
+       "hi": "घुटना {v}° — जांघ पैरेलल या उससे नीचे। अच्छी डेप्थ।",
+       "gu": "ઘૂંટણ {v}° — સાથળ પેરેલલ કે તેનાથી નીચે. સારી ડેપ્થ."
+      },
+      {
+       "r": [
+        95,
+        120
+       ],
+       "s": "warn",
+       "en": "Knee {v}° — just above parallel. Sit 2–5 cm deeper if your hips and ankles allow.",
+       "hi": "घुटना {v}° — पैरेलल से थोड़ा ऊपर। मोबिलिटी हो तो 2–5 सेमी और नीचे बैठें।",
+       "gu": "ઘૂંટણ {v}° — પેરેલલથી થોડું ઉપર. મોબિલિટી હોય તો 2–5 સેમી વધુ નીચે બેસો."
+      },
+      {
+       "r": [
+        120,
+        160
+       ],
+       "s": "info",
+       "en": "Knee {v}° — this is mid-rep. Upload the bottom position to judge depth.",
+       "hi": "घुटना {v}° — यह रेप का बीच का हिस्सा है। डेप्थ जाँचने के लिए सबसे नीचे वाली फोटो डालें।",
+       "gu": "ઘૂંટણ {v}° — આ રેપનો વચ્ચેનો ભાગ છે. ડેપ્થ તપાસવા સૌથી નીચેની ફોટો મૂકો."
+      },
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "info",
+       "en": "Knee {v}° — standing position. Upload the bottom of the rep for a depth check.",
+       "hi": "घुटना {v}° — खड़ी पोज़िशन। डेप्थ के लिए रेप के सबसे नीचे की फोटो डालें।",
+       "gu": "ઘૂંટણ {v}° — ઊભી પોઝિશન. ડેપ્થ માટે રેપના સૌથી નીચેની ફોટો મૂકો."
+      }
+     ]
+    },
+    {
+     "metric": "trunkLean",
+     "when": {
+      "knee": [
+       0,
+       140
+      ]
+     },
+     "bands": [
+      {
+       "r": [
+        0,
+        45
+       ],
+       "s": "ok",
+       "en": "Torso lean {v}° — chest stays proud.",
+       "hi": "धड़ का झुकाव {v}° — छाती ऊपर बनी है।",
+       "gu": "ધડનો ઝુકાવ {v}° — છાતી ઉપર રહી છે."
+      },
+      {
+       "r": [
+        45,
+        60
+       ],
+       "s": "warn",
+       "en": "Torso lean {v}° — quite forward. OK for low-bar; keep the bar over mid-foot.",
+       "hi": "धड़ का झुकाव {v}° — काफ़ी आगे। लो-बार में ठीक है; बार पैर के बीच के ऊपर रखें।",
+       "gu": "ધડનો ઝુકાવ {v}° — ઘણું આગળ. લો-બારમાં ઠીક છે; બાર પગના વચ્ચે ઉપર રાખો."
+      },
+      {
+       "r": [
+        60,
+        181
+       ],
+       "s": "fix",
+       "en": "Torso lean {v}° — chest is dropping. Brace harder and let the knees travel forward.",
+       "hi": "धड़ का झुकाव {v}° — छाती गिर रही है। कोर ज़्यादा टाइट करें और घुटनों को आगे जाने दें।",
+       "gu": "ધડનો ઝુકાવ {v}° — છાતી પડી રહી છે. કોર વધુ ટાઇટ કરો અને ઘૂંટણને આગળ જવા દો."
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "en": "Knees track over the toes",
+     "hi": "घुटने पंजों की दिशा में",
+     "gu": "ઘૂંટણ અંગૂઠાની દિશામાં"
+    },
+    {
+     "en": "Whole foot stays on the floor",
+     "hi": "पूरा पैर ज़मीन पर",
+     "gu": "આખો પગ જમીન પર"
+    }
+   ]
+  },
+  "lunge": {
+   "focus": {
+    "en": "Front knee & upright torso",
+    "hi": "आगे का घुटना और सीधा धड़",
+    "gu": "આગળનો ઘૂંટણ અને સીધું ધડ"
+   },
+   "angles": [
+    "knee",
+    "hip",
+    "trunk"
+   ],
+   "checks": [
+    {
+     "metric": "kneeMin",
+     "bands": [
+      {
+       "r": [
+        0,
+        75
+       ],
+       "s": "warn",
+       "en": "Front knee {v}° — very closed. Take a slightly longer step.",
+       "hi": "आगे का घुटना {v}° — बहुत मुड़ा है। कदम थोड़ा लंबा लें।",
+       "gu": "આગળનો ઘૂંટણ {v}° — ખૂબ વળેલો. પગલું થોડું લાંબું લો."
+      },
+      {
+       "r": [
+        75,
+        110
+       ],
+       "s": "ok",
+       "en": "Front knee {v}° — close to 90°. Good bottom position.",
+       "hi": "आगे का घुटना {v}° — लगभग 90°। अच्छी पोज़िशन।",
+       "gu": "આગળનો ઘૂંટણ {v}° — લગભગ 90°. સારી પોઝિશન."
+      },
+      {
+       "r": [
+        110,
+        181
+       ],
+       "s": "info",
+       "en": "Front knee {v}° — not at the bottom yet. Upload the lowest point.",
+       "hi": "आगे का घुटना {v}° — अभी नीचे तक नहीं। सबसे नीचे की फोटो डालें।",
+       "gu": "આગળનો ઘૂંટણ {v}° — હજી નીચે સુધી નહીં. સૌથી નીચેની ફોટો મૂકો."
+      }
+     ]
+    },
+    {
+     "metric": "trunkLean",
+     "bands": [
+      {
+       "r": [
+        0,
+        20
+       ],
+       "s": "ok",
+       "en": "Torso lean {v}° — tall torso.",
+       "hi": "धड़ {v}° — सीधा और लंबा।",
+       "gu": "ધડ {v}° — સીધું અને ઊંચું."
+      },
+      {
+       "r": [
+        20,
+        181
+       ],
+       "s": "warn",
+       "en": "Torso lean {v}° — leaning over the knee. Stay tall, ribs down.",
+       "hi": "धड़ {v}° — घुटने के ऊपर झुक रहे हैं। सीधे रहें, पसलियाँ नीचे।",
+       "gu": "ધડ {v}° — ઘૂંટણ ઉપર ઝૂકી રહ્યા છો. સીધા રહો, પાંસળી નીચે."
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "en": "Push the floor away with the front heel",
+     "hi": "आगे की एड़ी से ज़मीन को धक्का दें",
+     "gu": "આગળની એડીથી જમીનને ધક્કો આપો"
+    }
+   ]
+  },
+  "split": {
+   "focus": {
+    "en": "Split range",
+    "hi": "स्प्लिट रेंज",
+    "gu": "સ્પ્લિટ રેન્જ"
+   },
+   "angles": [
+    "legSplit",
+    "knee"
+   ],
+   "checks": [
+    {
+     "metric": "legSplit",
+     "bands": [
+      {
+       "r": [
+        160,
+        200
+       ],
+       "s": "ok",
+       "en": "Split {v}° — full or near-full split.",
+       "hi": "स्प्लिट {v}° — पूरा या लगभग पूरा।",
+       "gu": "સ્પ્લિટ {v}° — પૂરું કે લગભગ પૂરું."
+      },
+      {
+       "r": [
+        120,
+        160
+       ],
+       "s": "warn",
+       "en": "Split {v}° — getting close. Keep the hips square and breathe into it.",
+       "hi": "स्प्लिट {v}° — करीब हैं। कूल्हे सीधे रखें और सांस लेते रहें।",
+       "gu": "સ્પ્લિટ {v}° — નજીક છો. થાપા સીધા રાખો અને શ્વાસ લેતા રહો."
+      },
+      {
+       "r": [
+        0,
+        120
+       ],
+       "s": "info",
+       "en": "Split {v}° — early range. Use blocks under the hands and hold 60–90 s.",
+       "hi": "स्प्लिट {v}° — शुरुआती रेंज। हाथों के नीचे ब्लॉक रखें, 60–90 सेकंड होल्ड करें।",
+       "gu": "સ્પ્લિટ {v}° — શરૂઆતની રેન્જ. હાથ નીચે બ્લોક રાખો, 60–90 સેકન્ડ હોલ્ડ કરો."
+      }
+     ]
+    },
+    {
+     "metric": "knee",
+     "bands": [
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "ok",
+       "en": "Knee {v}° — legs straight.",
+       "hi": "घुटना {v}° — पैर सीधे।",
+       "gu": "ઘૂંટણ {v}° — પગ સીધા."
+      },
+      {
+       "r": [
+        0,
+        160
+       ],
+       "s": "warn",
+       "en": "Knee {v}° — a knee is bent. Straighten it, even if you go less deep.",
+       "hi": "घुटना {v}° — घुटना मुड़ा है। कम नीचे जाएँ पर पैर सीधा रखें।",
+       "gu": "ઘૂંટણ {v}° — ઘૂંટણ વળેલો છે. ઓછું નીચે જાઓ પણ પગ સીધો રાખો."
+      }
+     ]
+    }
+   ],
+   "cues": []
+  },
+  "forward_fold": {
+   "focus": {
+    "en": "Hip hinge range",
+    "hi": "हिप हिंज रेंज",
+    "gu": "હિપ હિંજ રેન્જ"
+   },
+   "angles": [
+    "hip",
+    "knee"
+   ],
+   "checks": [
+    {
+     "metric": "hip",
+     "bands": [
+      {
+       "r": [
+        0,
+        60
+       ],
+       "s": "ok",
+       "en": "Hip angle {v}° — deep fold.",
+       "hi": "कूल्हे का कोण {v}° — गहरा फोल्ड।",
+       "gu": "થાપાનો ખૂણો {v}° — ઊંડો ફોલ્ડ."
+      },
+      {
+       "r": [
+        60,
+        100
+       ],
+       "s": "info",
+       "en": "Hip angle {v}° — moderate range. Hinge from the hips, not the upper back.",
+       "hi": "कूल्हे का कोण {v}° — मध्यम रेंज। पीठ नहीं, कूल्हों से झुकें।",
+       "gu": "થાપાનો ખૂણો {v}° — મધ્યમ રેન્જ. પીઠથી નહીં, થાપાથી ઝૂકો."
+      },
+      {
+       "r": [
+        100,
+        181
+       ],
+       "s": "info",
+       "en": "Hip angle {v}° — early range. Hold 45 s and bend a little deeper each breath.",
+       "hi": "कूल्हे का कोण {v}° — शुरुआती रेंज। 45 सेकंड होल्ड करें, हर सांस के साथ थोड़ा और झुकें।",
+       "gu": "થાપાનો ખૂણો {v}° — શરૂઆતની રેન્જ. 45 સેકન્ડ હોલ્ડ કરો, દરેક શ્વાસે થોડું વધુ ઝૂકો."
+      }
+     ]
+    },
+    {
+     "metric": "knee",
+     "bands": [
+      {
+       "r": [
+        165,
+        181
+       ],
+       "s": "ok",
+       "en": "Knee {v}° — legs straight.",
+       "hi": "घुटना {v}° — पैर सीधे।",
+       "gu": "ઘૂંટણ {v}° — પગ સીધા."
+      },
+      {
+       "r": [
+        0,
+        165
+       ],
+       "s": "info",
+       "en": "Knee {v}° — knees soft. Fine, but the stretch moves away from the hamstrings.",
+       "hi": "घुटना {v}° — घुटने थोड़े मुड़े। ठीक है, पर हैमस्ट्रिंग पर खिंचाव कम होगा।",
+       "gu": "ઘૂંટણ {v}° — ઘૂંટણ થોડા વળેલા. ઠીક છે, પણ હેમસ્ટ્રિંગ પર ખેંચાણ ઓછું થશે."
+      }
+     ]
+    }
+   ],
+   "cues": []
+  },
+  "hinge": {
+   "focus": {
+    "en": "Posterior chain · hip hinge",
+    "hi": "पोस्टीरियर चेन · हिप हिंज",
+    "gu": "પોસ્ટીરિયર ચેન · હિપ હિંજ"
+   },
+   "angles": [
+    "hip",
+    "knee",
+    "trunk"
+   ],
+   "checks": [
+    {
+     "metric": "elbow",
+     "bands": [
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "ok",
+       "en": "Elbow {v}° — arms long, like hooks.",
+       "hi": "कोहनी {v}° — हाथ सीधे, हुक की तरह।",
+       "gu": "કોણી {v}° — હાથ સીધા, હૂકની જેમ."
+      },
+      {
+       "r": [
+        0,
+        160
+       ],
+       "s": "fix",
+       "en": "Elbow {v}° — arms are bent. Keep them straight and pull with the lats.",
+       "hi": "कोहनी {v}° — हाथ मुड़े हैं। सीधे रखें और लैट्स से खींचें।",
+       "gu": "કોણી {v}° — હાથ વળેલા છે. સીધા રાખો અને લેટ્સથી ખેંચો."
+      }
+     ]
+    },
+    {
+     "metric": "trunkLean",
+     "bands": [
+      {
+       "r": [
+        0,
+        20
+       ],
+       "s": "info",
+       "en": "Torso {v}° from vertical — lockout / top position. Upload the bottom of the hinge too.",
+       "hi": "धड़ {v}° — लॉकआउट/ऊपर की पोज़िशन। हिंज के नीचे की फोटो भी डालें।",
+       "gu": "ધડ {v}° — લૉકઆઉટ/ઉપરની પોઝિશન. હિંજના નીચેની ફોટો પણ મૂકો."
+      },
+      {
+       "r": [
+        20,
+        95
+       ],
+       "s": "ok",
+       "en": "Torso {v}° from vertical — hips are hinging back.",
+       "hi": "धड़ {v}° — कूल्हे पीछे की ओर हिंज कर रहे हैं।",
+       "gu": "ધડ {v}° — થાપા પાછળ તરફ હિંજ કરી રહ્યા છે."
+      }
+     ]
+    },
+    {
+     "metric": "knee",
+     "when": {
+      "trunkLean": [
+       20,
+       95
+      ]
+     },
+     "bands": [
+      {
+       "r": [
+        140,
+        181
+       ],
+       "s": "ok",
+       "en": "Knee {v}° — soft knees, hips do the work (RDL style).",
+       "hi": "घुटना {v}° — हल्के मुड़े घुटने, काम कूल्हे कर रहे हैं (RDL)।",
+       "gu": "ઘૂંટણ {v}° — હળવા વળેલા ઘૂંટણ, કામ થાપા કરે છે (RDL)."
+      },
+      {
+       "r": [
+        90,
+        140
+       ],
+       "s": "info",
+       "en": "Knee {v}° — deadlift-style knee bend. For an RDL keep the knees straighter.",
+       "hi": "घुटना {v}° — डेडलिफ्ट जैसा मोड़। RDL के लिए घुटने ज़्यादा सीधे रखें।",
+       "gu": "ઘૂંટણ {v}° — ડેડલિફ્ટ જેવો વળાંક. RDL માટે ઘૂંટણ વધુ સીધા રાખો."
+      },
+      {
+       "r": [
+        0,
+        90
+       ],
+       "s": "warn",
+       "en": "Knee {v}° — this looks more like a squat than a hinge. Push the hips back.",
+       "hi": "घुटना {v}° — यह हिंज से ज़्यादा स्क्वाट लग रहा है। कूल्हे पीछे धकेलें।",
+       "gu": "ઘૂંટણ {v}° — આ હિંજ કરતાં સ્ક્વોટ જેવું લાગે છે. થાપા પાછળ ધકેલો."
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "en": "Spine shape can't be measured from body points — check it on video",
+     "hi": "रीढ़ का आकार बॉडी पॉइंट्स से नहीं मापा जा सकता — वीडियो में देखें",
+     "gu": "કરોડરજ્જુનો આકાર બોડી પોઇન્ટ્સથી માપી શકાતો નથી — વીડિયોમાં જુઓ"
+    }
+   ]
+  },
+  "hip_thrust": {
+   "focus": {
+    "en": "Glute lockout",
+    "hi": "ग्लूट लॉकआउट",
+    "gu": "ગ્લુટ લૉકઆઉટ"
+   },
+   "angles": [
+    "hip",
+    "knee"
+   ],
+   "checks": [
+    {
+     "metric": "hip",
+     "bands": [
+      {
+       "r": [
+        165,
+        200
+       ],
+       "s": "ok",
+       "en": "Hip {v}° — full lockout. Squeeze 1 s at the top.",
+       "hi": "कूल्हा {v}° — पूरा लॉकआउट। ऊपर 1 सेकंड स्क्वीज़ करें।",
+       "gu": "થાપો {v}° — પૂરો લૉકઆઉટ. ઉપર 1 સેકન્ડ સ્ક્વીઝ કરો."
+      },
+      {
+       "r": [
+        140,
+        165
+       ],
+       "s": "warn",
+       "en": "Hip {v}° — almost there. Drive the hips 2–3 cm higher.",
+       "hi": "कूल्हा {v}° — लगभग। कूल्हे 2–3 सेमी और ऊपर करें।",
+       "gu": "થાપો {v}° — લગભગ. થાપા 2–3 સેમી વધુ ઉપર કરો."
+      },
+      {
+       "r": [
+        0,
+        140
+       ],
+       "s": "info",
+       "en": "Hip {v}° — bottom / mid position. Upload the top to check lockout.",
+       "hi": "कूल्हा {v}° — नीचे/बीच की पोज़िशन। लॉकआउट के लिए ऊपर की फोटो डालें।",
+       "gu": "થાપો {v}° — નીચે/વચ્ચેની પોઝિશન. લૉકઆઉટ માટે ઉપરની ફોટો મૂકો."
+      }
+     ]
+    },
+    {
+     "metric": "knee",
+     "when": {
+      "hip": [
+       150,
+       200
+      ]
+     },
+     "bands": [
+      {
+       "r": [
+        75,
+        105
+       ],
+       "s": "ok",
+       "en": "Knee {v}° — shins vertical at the top.",
+       "hi": "घुटना {v}° — ऊपर पिंडलियाँ सीधी खड़ी।",
+       "gu": "ઘૂંટણ {v}° — ઉપર પિંડી ઊભી."
+      },
+      {
+       "r": [
+        105,
+        181
+       ],
+       "s": "warn",
+       "en": "Knee {v}° — feet too far out (hamstrings take over). Step them in.",
+       "hi": "घुटना {v}° — पैर बहुत दूर (हैमस्ट्रिंग ज़्यादा)। पैर पास लाएँ।",
+       "gu": "ઘૂંટણ {v}° — પગ બહુ દૂર (હેમસ્ટ્રિંગ વધુ). પગ નજીક લાવો."
+      },
+      {
+       "r": [
+        0,
+        75
+       ],
+       "s": "warn",
+       "en": "Knee {v}° — feet too close (quads take over). Move them out a little.",
+       "hi": "घुटना {v}° — पैर बहुत पास (क्वाड्स ज़्यादा)। थोड़ा दूर रखें।",
+       "gu": "ઘૂંટણ {v}° — પગ બહુ નજીક (ક્વોડ્સ વધુ). થોડા દૂર રાખો."
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "en": "Chin tucked, ribs down at the top",
+     "hi": "ऊपर ठोड़ी अंदर, पसलियाँ नीचे",
+     "gu": "ઉપર દાઢી અંદર, પાંસળી નીચે"
+    }
+   ]
+  },
+  "push_up": {
+   "focus": {
+    "en": "Chest · triceps · body line",
+    "hi": "छाती · ट्राइसेप्स · बॉडी लाइन",
+    "gu": "છાતી · ટ્રાઇસેપ્સ · બોડી લાઇન"
+   },
+   "angles": [
+    "elbow",
+    "hipLine"
+   ],
+   "checks": [
+    {
+     "metric": "hipSag",
+     "bands": [
+      {
+       "r": [
+        -6,
+        6
+       ],
+       "s": "ok",
+       "en": "Hips in line ({v}%) — straight plank from head to heels.",
+       "hi": "कूल्हे लाइन में ({v}%) — सिर से एड़ी तक सीधा।",
+       "gu": "થાપા લાઇનમાં ({v}%) — માથાથી એડી સુધી સીધું."
+      },
+      {
+       "r": [
+        6,
+        100
+       ],
+       "s": "fix",
+       "en": "Hips sagging ({v}% below the line). Squeeze glutes and brace the abs.",
+       "hi": "कूल्हे नीचे लटक रहे हैं ({v}%)। ग्लूट्स दबाएँ, पेट टाइट करें।",
+       "gu": "થાપા નીચે લટકે છે ({v}%). ગ્લુટ્સ દબાવો, પેટ ટાઇટ કરો."
+      },
+      {
+       "r": [
+        -100,
+        -6
+       ],
+       "s": "warn",
+       "en": "Hips piked up ({v}%). Lower them into one straight line.",
+       "hi": "कूल्हे ऊपर उठे हैं ({v}%)। सीधी लाइन में लाएँ।",
+       "gu": "થાપા ઉપર ઊઠ્યા છે ({v}%). સીધી લાઇનમાં લાવો."
+      }
+     ]
+    },
+    {
+     "metric": "elbow",
+     "bands": [
+      {
+       "r": [
+        0,
+        100
+       ],
+       "s": "ok",
+       "en": "Elbow {v}° — chest close to the floor. Full depth.",
+       "hi": "कोहनी {v}° — छाती ज़मीन के पास। पूरी डेप्थ।",
+       "gu": "કોણી {v}° — છાતી જમીન પાસે. પૂરી ડેપ્થ."
+      },
+      {
+       "r": [
+        100,
+        150
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — mid-rep.",
+       "hi": "कोहनी {v}° — रेप का बीच।",
+       "gu": "કોણી {v}° — રેપની વચ્ચે."
+      },
+      {
+       "r": [
+        150,
+        181
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — top position, arms locked.",
+       "hi": "कोहनी {v}° — ऊपर की पोज़िशन, हाथ लॉक।",
+       "gu": "કોણી {v}° — ઉપરની પોઝિશન, હાથ લૉક."
+      }
+     ]
+    }
+   ],
+   "cues": []
+  },
+  "plank": {
+   "focus": {
+    "en": "Core · straight body line",
+    "hi": "कोर · सीधी बॉडी लाइन",
+    "gu": "કોર · સીધી બોડી લાઇન"
+   },
+   "angles": [
+    "hipLine",
+    "elbow"
+   ],
+   "checks": [
+    {
+     "metric": "hipSag",
+     "bands": [
+      {
+       "r": [
+        -6,
+        6
+       ],
+       "s": "ok",
+       "en": "Hips in line ({v}%) — solid plank.",
+       "hi": "कूल्हे लाइन में ({v}%) — मज़बूत प्लैंक।",
+       "gu": "થાપા લાઇનમાં ({v}%) — મજબૂત પ્લેન્ક."
+      },
+      {
+       "r": [
+        6,
+        100
+       ],
+       "s": "fix",
+       "en": "Hips sagging ({v}% below the line). Tuck the pelvis and squeeze glutes.",
+       "hi": "कूल्हे नीचे ({v}%)। पेल्विस अंदर, ग्लूट्स टाइट।",
+       "gu": "થાપા નીચે ({v}%). પેલ્વિસ અંદર, ગ્લુટ્સ ટાઇટ."
+      },
+      {
+       "r": [
+        -100,
+        -6
+       ],
+       "s": "warn",
+       "en": "Hips too high ({v}%). Lower them to shoulder height.",
+       "hi": "कूल्हे बहुत ऊपर ({v}%)। कंधों की ऊँचाई पर लाएँ।",
+       "gu": "થાપા બહુ ઉપર ({v}%). ખભાની ઊંચાઈએ લાવો."
+      }
+     ]
+    }
+   ],
+   "cues": []
+  },
+  "pull_up": {
+   "focus": {
+    "en": "Latissimus dorsi · scapular control",
+    "hi": "लैट्स · स्कैपुला कंट्रोल",
+    "gu": "લેટ્સ · સ્કેપ્યુલા કંટ્રોલ"
+   },
+   "angles": [
+    "elbow",
+    "shoulder"
+   ],
+   "checks": [
+    {
+     "metric": "elbow",
+     "bands": [
+      {
+       "r": [
+        0,
+        75
+       ],
+       "s": "ok",
+       "en": "Elbow {v}° — top of the pull, elbows driven down.",
+       "hi": "कोहनी {v}° — पुल का ऊपरी हिस्सा, कोहनियाँ नीचे खींचीं।",
+       "gu": "કોણી {v}° — પુલનો ઉપરનો ભાગ, કોણીઓ નીચે ખેંચી."
+      },
+      {
+       "r": [
+        75,
+        150
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — mid-pull. Keep the chest up to the bar.",
+       "hi": "कोहनी {v}° — बीच का पुल। छाती बार की ओर रखें।",
+       "gu": "કોણી {v}° — વચ્ચેનો પુલ. છાતી બાર તરફ રાખો."
+      },
+      {
+       "r": [
+        150,
+        181
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — full hang. Set the shoulders down before pulling.",
+       "hi": "कोहनी {v}° — पूरा हैंग। खींचने से पहले कंधे नीचे सेट करें।",
+       "gu": "કોણી {v}° — પૂરો હેંગ. ખેંચતા પહેલાં ખભા નીચે સેટ કરો."
+      }
+     ]
+    },
+    {
+     "metric": "hipLine",
+     "bands": [
+      {
+       "r": [
+        155,
+        200
+       ],
+       "s": "ok",
+       "en": "Body {v}° — hollow and still, no swing.",
+       "hi": "शरीर {v}° — सीधा और स्थिर, झूल नहीं।",
+       "gu": "શરીર {v}° — સીધું અને સ્થિર, ઝૂલો નહીં."
+      },
+      {
+       "r": [
+        0,
+        155
+       ],
+       "s": "info",
+       "en": "Hips bent {v}° — fine for crossed legs; avoid kipping.",
+       "hi": "कूल्हे मुड़े {v}° — पैर क्रॉस हों तो ठीक; झटका न दें।",
+       "gu": "થાપા વળેલા {v}° — પગ ક્રોસ હોય તો ઠીક; ઝટકો ન આપો."
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "en": "Pull elbows to the back pockets",
+     "hi": "कोहनियाँ पीछे की जेब की ओर",
+     "gu": "કોણીઓ પાછળના ખિસ્સા તરફ"
+    }
+   ]
+  },
+  "overhead_press": {
+   "focus": {
+    "en": "Deltoids · triceps · stacked lockout",
+    "hi": "डेल्टॉइड · ट्राइसेप्स · लॉकआउट",
+    "gu": "ડેલ્ટોઇડ · ટ્રાઇસેપ્સ · લૉકઆઉટ"
+   },
+   "angles": [
+    "elbow",
+    "shoulder",
+    "trunk"
+   ],
+   "checks": [
+    {
+     "metric": "elbow",
+     "bands": [
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "ok",
+       "en": "Elbow {v}° — full lockout overhead.",
+       "hi": "कोहनी {v}° — ऊपर पूरा लॉकआउट।",
+       "gu": "કોણી {v}° — ઉપર પૂરો લૉકઆઉટ."
+      },
+      {
+       "r": [
+        0,
+        160
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — mid-press. Upload the top to check lockout.",
+       "hi": "कोहनी {v}° — बीच का प्रेस। लॉकआउट के लिए ऊपर की फोटो डालें।",
+       "gu": "કોણી {v}° — વચ્ચેનો પ્રેસ. લૉકઆઉટ માટે ઉપરની ફોટો મૂકો."
+      }
+     ]
+    },
+    {
+     "metric": "trunkLean",
+     "bands": [
+      {
+       "r": [
+        0,
+        15
+       ],
+       "s": "ok",
+       "en": "Torso {v}° — stacked, no big lean back.",
+       "hi": "धड़ {v}° — सीधा, पीछे ज़्यादा नहीं झुके।",
+       "gu": "ધડ {v}° — સીધું, પાછળ વધુ ન ઝૂક્યા."
+      },
+      {
+       "r": [
+        15,
+        181
+       ],
+       "s": "warn",
+       "en": "Torso {v}° — leaning back. Ribs down, squeeze glutes.",
+       "hi": "धड़ {v}° — पीछे झुक रहे हैं। पसलियाँ नीचे, ग्लूट्स टाइट।",
+       "gu": "ધડ {v}° — પાછળ ઝૂકો છો. પાંસળી નીચે, ગ્લુટ્સ ટાઇટ."
+      }
+     ]
+    }
+   ],
+   "cues": []
+  },
+  "dips": {
+   "focus": {
+    "en": "Triceps · chest depth",
+    "hi": "ट्राइसेप्स · छाती डेप्थ",
+    "gu": "ટ્રાઇસેપ્સ · છાતી ડેપ્થ"
+   },
+   "angles": [
+    "elbow",
+    "shoulder"
+   ],
+   "checks": [
+    {
+     "metric": "elbow",
+     "bands": [
+      {
+       "r": [
+        0,
+        95
+       ],
+       "s": "ok",
+       "en": "Elbow {v}° — full depth.",
+       "hi": "कोहनी {v}° — पूरी डेप्थ।",
+       "gu": "કોણી {v}° — પૂરી ડેપ્થ."
+      },
+      {
+       "r": [
+        95,
+        150
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — mid-rep.",
+       "hi": "कोहनी {v}° — रेप का बीच।",
+       "gu": "કોણી {v}° — રેપની વચ્ચે."
+      },
+      {
+       "r": [
+        150,
+        181
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — top support, arms locked.",
+       "hi": "कोहनी {v}° — ऊपर, हाथ लॉक।",
+       "gu": "કોણી {v}° — ઉપર, હાથ લૉક."
+      }
+     ]
+    }
+   ],
+   "cues": []
+  },
+  "curl": {
+   "focus": {
+    "en": "Arm angle",
+    "hi": "हाथ का कोण",
+    "gu": "હાથનો ખૂણો"
+   },
+   "angles": [
+    "elbow",
+    "shoulder"
+   ],
+   "checks": [
+    {
+     "metric": "elbow",
+     "bands": [
+      {
+       "r": [
+        0,
+        60
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — fully bent (top of a curl / bottom of an extension).",
+       "hi": "कोहनी {v}° — पूरी मुड़ी।",
+       "gu": "કોણી {v}° — પૂરી વળેલી."
+      },
+      {
+       "r": [
+        60,
+        150
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — mid-range.",
+       "hi": "कोहनी {v}° — बीच की रेंज।",
+       "gu": "કોણી {v}° — વચ્ચેની રેન્જ."
+      },
+      {
+       "r": [
+        150,
+        181
+       ],
+       "s": "info",
+       "en": "Elbow {v}° — arm straight (full stretch / lockout).",
+       "hi": "कोहनी {v}° — हाथ सीधा।",
+       "gu": "કોણી {v}° — હાથ સીધો."
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "en": "Keep the upper arm still",
+     "hi": "ऊपरी बाँह स्थिर रखें",
+     "gu": "ઉપરનો હાથ સ્થિર રાખો"
+    }
+   ]
+  },
+  "human_flag": {
+   "focus": {
+    "en": "Obliques · lats · push–pull arms",
+    "hi": "ऑब्लिक्स · लैट्स · पुश–पुल हाथ",
+    "gu": "ઓબ્લિક્સ · લેટ્સ · પુશ–પુલ હાથ"
+   },
+   "angles": [
+    "elbowTop",
+    "elbowBottom",
+    "bodyLine"
+   ],
+   "checks": [
+    {
+     "metric": "bodyLine",
+     "bands": [
+      {
+       "r": [
+        0,
+        10
+       ],
+       "s": "ok",
+       "en": "Body {v}° from horizontal — level flag.",
+       "hi": "शरीर क्षैतिज से {v}° — सीधा फ्लैग।",
+       "gu": "શરીર આડી રેખાથી {v}° — સીધો ફ્લેગ."
+      },
+      {
+       "r": [
+        10,
+        25
+       ],
+       "s": "warn",
+       "en": "Body {v}° from horizontal — close. Push the bottom arm harder to lift the hips.",
+       "hi": "शरीर क्षैतिज से {v}° — करीब। नीचे वाले हाथ से और ज़ोर से धक्का दें।",
+       "gu": "શરીર આડી રેખાથી {v}° — નજીક. નીચેના હાથથી વધુ જોરથી ધક્કો આપો."
+      },
+      {
+       "r": [
+        25,
+        91
+       ],
+       "s": "fix",
+       "en": "Body {v}° from horizontal — still a rising/vertical flag. Build holds at this angle, then lower 10° at a time.",
+       "hi": "शरीर क्षैतिज से {v}° — अभी ऊपर उठा/वर्टिकल फ्लैग। इसी कोण पर होल्ड बनाएँ, फिर 10° करके नीचे लाएँ।",
+       "gu": "શરીર આડી રેખાથી {v}° — હજી ઊંચો/વર્ટિકલ ફ્લેગ. આ ખૂણે હોલ્ડ બનાવો, પછી 10° કરીને નીચે લાવો."
+      }
+     ]
+    },
+    {
+     "metric": "torsoLine",
+     "onlyIfMissing": "bodyLine",
+     "bands": [
+      {
+       "r": [
+        0,
+        10
+       ],
+       "s": "ok",
+       "en": "Torso {v}° from horizontal — level (legs not clearly visible, so only the torso is measured).",
+       "hi": "धड़ क्षैतिज से {v}° — सीधा (पैर साफ़ नहीं दिखे, इसलिए सिर्फ़ धड़ मापा)।",
+       "gu": "ધડ આડી રેખાથી {v}° — સીધું (પગ સ્પષ્ટ ન દેખાયા, તેથી ફક્ત ધડ માપ્યું)."
+      },
+      {
+       "r": [
+        10,
+        25
+       ],
+       "s": "warn",
+       "en": "Torso {v}° from horizontal — close. Push the bottom arm harder to lift the hips.",
+       "hi": "धड़ क्षैतिज से {v}° — करीब। नीचे वाले हाथ से और ज़ोर से धक्का दें।",
+       "gu": "ધડ આડી રેખાથી {v}° — નજીક. નીચેના હાથથી વધુ જોરથી ધક્કો આપો."
+      },
+      {
+       "r": [
+        25,
+        91
+       ],
+       "s": "fix",
+       "en": "Torso {v}° from horizontal — still rising. Build holds here, then lower 10° at a time.",
+       "hi": "धड़ क्षैतिज से {v}° — अभी ऊपर उठा। यहीं होल्ड बनाएँ, फिर 10° करके नीचे लाएँ।",
+       "gu": "ધડ આડી રેખાથી {v}° — હજી ઊંચું. અહીં હોલ્ડ બનાવો, પછી 10° કરીને નીચે લાવો."
+      }
+     ]
+    },
+    {
+     "metric": "elbowBottom",
+     "bands": [
+      {
+       "r": [
+        165,
+        181
+       ],
+       "s": "ok",
+       "en": "Bottom arm {v}° — locked. Good push.",
+       "hi": "नीचे वाला हाथ {v}° — लॉक। अच्छा पुश।",
+       "gu": "નીચેનો હાથ {v}° — લૉક. સારો પુશ."
+      },
+      {
+       "r": [
+        145,
+        165
+       ],
+       "s": "warn",
+       "en": "Bottom arm {v}° — slightly bent. Lock the elbow and press into the pole.",
+       "hi": "नीचे वाला हाथ {v}° — थोड़ा मुड़ा। कोहनी लॉक करें और पोल में दबाएँ।",
+       "gu": "નીચેનો હાથ {v}° — થોડો વળેલો. કોણી લૉક કરો અને પોલમાં દબાવો."
+      },
+      {
+       "r": [
+        0,
+        145
+       ],
+       "s": "fix",
+       "en": "Bottom arm {v}° — bent. A bent bottom arm collapses the flag; lock it first.",
+       "hi": "नीचे वाला हाथ {v}° — मुड़ा है। इससे फ्लैग गिरता है; पहले इसे लॉक करें।",
+       "gu": "નીચેનો હાથ {v}° — વળેલો છે. એનાથી ફ્લેગ પડે છે; પહેલાં તેને લૉક કરો."
+      }
+     ]
+    },
+    {
+     "metric": "elbowTop",
+     "bands": [
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "ok",
+       "en": "Top arm {v}° — straight pull.",
+       "hi": "ऊपर वाला हाथ {v}° — सीधा पुल।",
+       "gu": "ઉપરનો હાથ {v}° — સીધો પુલ."
+      },
+      {
+       "r": [
+        0,
+        160
+       ],
+       "s": "warn",
+       "en": "Top arm {v}° — bent. Pull with a long arm; the lats do the work.",
+       "hi": "ऊपर वाला हाथ {v}° — मुड़ा। सीधे हाथ से खींचें; काम लैट्स का है।",
+       "gu": "ઉપરનો હાથ {v}° — વળેલો. સીધા હાથે ખેંચો; કામ લેટ્સનું છે."
+      }
+     ]
+    },
+    {
+     "metric": "hipSag",
+     "bands": [
+      {
+       "r": [
+        -6,
+        6
+       ],
+       "s": "ok",
+       "en": "Hips in line ({v}%) — no sag.",
+       "hi": "कूल्हे लाइन में ({v}%) — झुकाव नहीं।",
+       "gu": "થાપા લાઇનમાં ({v}%) — ઝૂકાવ નથી."
+      },
+      {
+       "r": [
+        6,
+        100
+       ],
+       "s": "fix",
+       "en": "Hips dropping ({v}% below the line). Squeeze the obliques and lift the hips.",
+       "hi": "कूल्हे गिर रहे हैं ({v}%)। ऑब्लिक्स टाइट करें, कूल्हे ऊपर।",
+       "gu": "થાપા પડી રહ્યા છે ({v}%). ઓબ્લિક્સ ટાઇટ કરો, થાપા ઉપર."
+      },
+      {
+       "r": [
+        -100,
+        -6
+       ],
+       "s": "warn",
+       "en": "Hips piked ({v}%). Open the hips into one line.",
+       "hi": "कूल्हे मुड़े ({v}%)। कूल्हे खोलकर एक लाइन बनाएँ।",
+       "gu": "થાપા વળેલા ({v}%). થાપા ખોલીને એક લાઇન બનાવો."
+      }
+     ]
+    },
+    {
+     "metric": "legsGap",
+     "skipFor": [
+      "straddle-human-flag"
+     ],
+     "bands": [
+      {
+       "r": [
+        0,
+        0.7
+       ],
+       "s": "ok",
+       "en": "Legs together.",
+       "hi": "पैर साथ हैं।",
+       "gu": "પગ સાથે છે."
+      },
+      {
+       "r": [
+        0.7,
+        99
+       ],
+       "s": "info",
+       "en": "Legs apart — fine for a straddle; for a full flag squeeze them together.",
+       "hi": "पैर अलग — स्ट्रैडल में ठीक; फुल फ्लैग में साथ रखें।",
+       "gu": "પગ અલગ — સ્ટ્રેડલમાં ઠીક; ફુલ ફ્લેગમાં સાથે રાખો."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "arrow",
+     "from": "shBot",
+     "to": "wrBot",
+     "label": {
+      "en": "PUSH",
+      "hi": "पुश",
+      "gu": "પુશ"
+     }
+    },
+    {
+     "type": "arrow",
+     "from": "wrTop",
+     "to": "shTop",
+     "label": {
+      "en": "PULL",
+      "hi": "पुल",
+      "gu": "પુલ"
+     }
+    },
+    {
+     "type": "extend",
+     "from": "shM",
+     "to": "far",
+     "label": {
+      "en": "LEVEL LINE",
+      "hi": "सीधी लाइन",
+      "gu": "સીધી લાઇન"
+     }
+    }
+   ],
+   "cues": [
+    {
+     "en": "Push the bottom arm, pull the top arm",
+     "hi": "नीचे का हाथ धकेलें, ऊपर का खींचें",
+     "gu": "નીચેનો હાથ ધકેલો, ઉપરનો ખેંચો"
+    },
+    {
+     "en": "Stack the hips over the shoulders",
+     "hi": "कूल्हे कंधों की सीध में",
+     "gu": "થાપા ખભાની સીધમાં"
+    }
+   ]
+  },
+  "front_lever": {
+   "focus": {
+    "en": "Lats · straight-arm pull",
+    "hi": "लैट्स · सीधे हाथ का पुल",
+    "gu": "લેટ્સ · સીધા હાથનો પુલ"
+   },
+   "angles": [
+    "elbow",
+    "bodyLine"
+   ],
+   "checks": [
+    {
+     "metric": "bodyLine",
+     "bands": [
+      {
+       "r": [
+        0,
+        10
+       ],
+       "s": "ok",
+       "en": "Body {v}° from horizontal — level lever.",
+       "hi": "शरीर {v}° — सीधा लीवर।",
+       "gu": "શરીર {v}° — સીધો લિવર."
+      },
+      {
+       "r": [
+        10,
+        25
+       ],
+       "s": "warn",
+       "en": "Body {v}° from horizontal — hips/legs a bit low. Depress the shoulders harder.",
+       "hi": "शरीर {v}° — कूल्हे/पैर थोड़े नीचे। कंधे और नीचे दबाएँ।",
+       "gu": "શરીર {v}° — થાપા/પગ થોડા નીચે. ખભા વધુ નીચે દબાવો."
+      },
+      {
+       "r": [
+        25,
+        91
+       ],
+       "s": "fix",
+       "en": "Body {v}° from horizontal — too steep. Use an easier tuck to hold it level.",
+       "hi": "शरीर {v}° — बहुत तिरछा। आसान टक से सीधा होल्ड करें।",
+       "gu": "શરીર {v}° — બહુ ત્રાંસું. સહેલા ટકથી સીધું હોલ્ડ કરો."
+      }
+     ]
+    },
+    {
+     "metric": "torsoLine",
+     "onlyIfMissing": "bodyLine",
+     "bands": [
+      {
+       "r": [
+        0,
+        10
+       ],
+       "s": "ok",
+       "en": "Torso {v}° from horizontal — level (legs not clearly visible).",
+       "hi": "धड़ {v}° — सीधा (पैर साफ़ नहीं दिखे)।",
+       "gu": "ધડ {v}° — સીધું (પગ સ્પષ્ટ ન દેખાયા)."
+      },
+      {
+       "r": [
+        10,
+        91
+       ],
+       "s": "warn",
+       "en": "Torso {v}° from horizontal. Depress the shoulders to level it.",
+       "hi": "धड़ {v}°। कंधे नीचे दबाकर सीधा करें।",
+       "gu": "ધડ {v}°. ખભા નીચે દબાવી સીધું કરો."
+      }
+     ]
+    },
+    {
+     "metric": "elbowMin",
+     "bands": [
+      {
+       "r": [
+        165,
+        181
+       ],
+       "s": "ok",
+       "en": "Arms {v}° — locked straight.",
+       "hi": "हाथ {v}° — सीधे लॉक।",
+       "gu": "હાથ {v}° — સીધા લૉક."
+      },
+      {
+       "r": [
+        0,
+        165
+       ],
+       "s": "fix",
+       "en": "Arm bent ({v}°). Straight arms only — regress the tuck instead.",
+       "hi": "हाथ मुड़ा ({v}°)। सिर्फ़ सीधे हाथ — इसके बजाय आसान टक करें।",
+       "gu": "હાથ વળેલો ({v}°). ફક્ત સીધા હાથ — તેના બદલે સહેલો ટક કરો."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "arrow",
+     "from": "wrM",
+     "to": "hipM",
+     "label": {
+      "en": "PULL DOWN",
+      "hi": "नीचे खींचें",
+      "gu": "નીચે ખેંચો"
+     }
+    },
+    {
+     "type": "extend",
+     "from": "shM",
+     "to": "far",
+     "label": {
+      "en": "LEVEL LINE",
+      "hi": "सीधी लाइन",
+      "gu": "સીધી લાઇન"
+     }
+    }
+   ],
+   "cues": [
+    {
+     "en": "Shoulders down, ribs tucked",
+     "hi": "कंधे नीचे, पसलियाँ अंदर",
+     "gu": "ખભા નીચે, પાંસળી અંદર"
+    }
+   ]
+  },
+  "headstand": {
+   "focus": {
+    "en": "Deltoids · triceps · core stack",
+    "hi": "डेल्टॉइड · ट्राइसेप्स · कोर",
+    "gu": "ડેલ્ટોઇડ · ટ્રાઇસેપ્સ · કોર"
+   },
+   "angles": [
+    "hipLine",
+    "knee",
+    "elbow"
+   ],
+   "checks": [
+    {
+     "metric": "bodyFromVertical",
+     "bands": [
+      {
+       "r": [
+        0,
+        8
+       ],
+       "s": "ok",
+       "en": "Body {v}° off vertical — well stacked.",
+       "hi": "शरीर सीधी रेखा से {v}° — अच्छा स्टैक।",
+       "gu": "શરીર ઊભી રેખાથી {v}° — સારો સ્ટેક."
+      },
+      {
+       "r": [
+        8,
+        18
+       ],
+       "s": "warn",
+       "en": "Body {v}° off vertical — slight lean. Bring the hips over the shoulders.",
+       "hi": "शरीर {v}° झुका — कूल्हे कंधों के ऊपर लाएँ।",
+       "gu": "શરીર {v}° ઝૂક્યું — થાપા ખભા ઉપર લાવો."
+      },
+      {
+       "r": [
+        18,
+        91
+       ],
+       "s": "fix",
+       "en": "Body {v}° off vertical — not stacked yet. Walk the feet in and lift slowly.",
+       "hi": "शरीर {v}° झुका — अभी स्टैक नहीं। पैर पास लाकर धीरे उठें।",
+       "gu": "શરીર {v}° ઝૂક્યું — હજી સ્ટેક નથી. પગ નજીક લાવી ધીમે ઊઠો."
+      }
+     ]
+    },
+    {
+     "metric": "hipLine",
+     "bands": [
+      {
+       "r": [
+        160,
+        200
+       ],
+       "s": "ok",
+       "en": "Hips open {v}° — one straight line.",
+       "hi": "कूल्हे खुले {v}° — एक सीधी लाइन।",
+       "gu": "થાપા ખુલ્લા {v}° — એક સીધી લાઇન."
+      },
+      {
+       "r": [
+        120,
+        160
+       ],
+       "s": "warn",
+       "en": "Hips {v}° — piked/arched. Squeeze glutes and point the toes up.",
+       "hi": "कूल्हे {v}° — मुड़े। ग्लूट्स टाइट, पंजे ऊपर।",
+       "gu": "થાપા {v}° — વળેલા. ગ્લુટ્સ ટાઇટ, અંગૂઠા ઉપર."
+      },
+      {
+       "r": [
+        0,
+        120
+       ],
+       "s": "info",
+       "en": "Hips {v}° — tuck/pike entry position.",
+       "hi": "कूल्हे {v}° — टक/पाइक एंट्री।",
+       "gu": "થાપા {v}° — ટક/પાઇક એન્ટ્રી."
+      }
+     ]
+    },
+    {
+     "metric": "knee",
+     "bands": [
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "ok",
+       "en": "Knee {v}° — legs straight.",
+       "hi": "घुटना {v}° — पैर सीधे।",
+       "gu": "ઘૂંટણ {v}° — પગ સીધા."
+      },
+      {
+       "r": [
+        0,
+        160
+       ],
+       "s": "info",
+       "en": "Knee {v}° — legs bent (tuck). Extend when stable.",
+       "hi": "घुटना {v}° — पैर मुड़े (टक)। स्थिर होने पर सीधे करें।",
+       "gu": "ઘૂંટણ {v}° — પગ વળેલા (ટક). સ્થિર થાય ત્યારે સીધા કરો."
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "en": "Press the forearms down, keep weight off the neck",
+     "hi": "फोरआर्म नीचे दबाएँ, गर्दन पर वज़न नहीं",
+     "gu": "ફોરઆર્મ નીચે દબાવો, ગરદન પર વજન નહીં"
+    }
+   ]
+  },
+  "handstand": {
+   "focus": {
+    "en": "Shoulder line · stack",
+    "hi": "कंधे की लाइन · स्टैक",
+    "gu": "ખભાની લાઇન · સ્ટેક"
+   },
+   "angles": [
+    "elbow",
+    "shoulder",
+    "hipLine"
+   ],
+   "checks": [
+    {
+     "metric": "elbowMin",
+     "bands": [
+      {
+       "r": [
+        165,
+        181
+       ],
+       "s": "ok",
+       "en": "Arms {v}° — locked.",
+       "hi": "हाथ {v}° — लॉक।",
+       "gu": "હાથ {v}° — લૉક."
+      },
+      {
+       "r": [
+        0,
+        165
+       ],
+       "s": "fix",
+       "en": "Arm bent ({v}°). Lock the elbows and push tall.",
+       "hi": "हाथ मुड़ा ({v}°)। कोहनी लॉक करें, ऊपर धकेलें।",
+       "gu": "હાથ વળેલો ({v}°). કોણી લૉક કરો, ઉપર ધકેલો."
+      }
+     ]
+    },
+    {
+     "metric": "shoulder",
+     "bands": [
+      {
+       "r": [
+        160,
+        200
+       ],
+       "s": "ok",
+       "en": "Shoulder {v}° — fully open.",
+       "hi": "कंधा {v}° — पूरा खुला।",
+       "gu": "ખભો {v}° — પૂરો ખુલ્લો."
+      },
+      {
+       "r": [
+        0,
+        160
+       ],
+       "s": "warn",
+       "en": "Shoulder {v}° — closed (banana shape). Push the floor away, ears inside the arms.",
+       "hi": "कंधा {v}° — बंद। ज़मीन को धकेलें, कान हाथों के बीच।",
+       "gu": "ખભો {v}° — બંધ. જમીનને ધકેલો, કાન હાથ વચ્ચે."
+      }
+     ]
+    },
+    {
+     "metric": "bodyFromVertical",
+     "bands": [
+      {
+       "r": [
+        0,
+        8
+       ],
+       "s": "ok",
+       "en": "Body {v}° off vertical — stacked.",
+       "hi": "शरीर {v}° — स्टैक।",
+       "gu": "શરીર {v}° — સ્ટેક."
+      },
+      {
+       "r": [
+        8,
+        91
+       ],
+       "s": "warn",
+       "en": "Body {v}° off vertical. Stack hips over hands.",
+       "hi": "शरीर {v}° झुका। कूल्हे हाथों के ऊपर लाएँ।",
+       "gu": "શરીર {v}° ઝૂક્યું. થાપા હાથ ઉપર લાવો."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "arrow",
+     "from": "shM",
+     "to": "wrM",
+     "label": {
+      "en": "PUSH TALL",
+      "hi": "ऊपर धकेलें",
+      "gu": "ઉપર ધકેલો"
+     }
+    },
+    {
+     "type": "extend",
+     "from": "wrM",
+     "to": "far",
+     "label": {
+      "en": "STACK",
+      "hi": "स्टैक",
+      "gu": "સ્ટેક"
+     }
+    }
+   ],
+   "cues": []
+  },
+  "l_sit": {
+   "focus": {
+    "en": "Hip flexors · core · triceps",
+    "hi": "हिप फ्लेक्सर · कोर · ट्राइसेप्स",
+    "gu": "હિપ ફ્લેક્સર · કોર · ટ્રાઇસેપ્સ"
+   },
+   "angles": [
+    "hip",
+    "knee",
+    "elbow"
+   ],
+   "checks": [
+    {
+     "metric": "hip",
+     "bands": [
+      {
+       "r": [
+        0,
+        100
+       ],
+       "s": "ok",
+       "en": "Hip {v}° — legs at or above horizontal.",
+       "hi": "कूल्हा {v}° — पैर क्षैतिज या ऊपर।",
+       "gu": "થાપો {v}° — પગ આડા કે ઉપર."
+      },
+      {
+       "r": [
+        100,
+        181
+       ],
+       "s": "warn",
+       "en": "Hip {v}° — legs dropping. Lift them to hip height.",
+       "hi": "कूल्हा {v}° — पैर गिर रहे। कूल्हे की ऊँचाई तक उठाएँ।",
+       "gu": "થાપો {v}° — પગ પડી રહ્યા. થાપાની ઊંચાઈ સુધી ઉઠાવો."
+      }
+     ]
+    },
+    {
+     "metric": "elbowMin",
+     "bands": [
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "ok",
+       "en": "Arms {v}° — locked, shoulders pushed down.",
+       "hi": "हाथ {v}° — लॉक।",
+       "gu": "હાથ {v}° — લૉક."
+      },
+      {
+       "r": [
+        0,
+        160
+       ],
+       "s": "warn",
+       "en": "Arm bent ({v}°). Lock out and depress the shoulders.",
+       "hi": "हाथ मुड़ा ({v}°)। लॉक करें, कंधे नीचे।",
+       "gu": "હાથ વળેલો ({v}°). લૉક કરો, ખભા નીચે."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "arrow",
+     "from": "shM",
+     "to": "wrM",
+     "label": {
+      "en": "PUSH DOWN",
+      "hi": "नीचे दबाएँ",
+      "gu": "નીચે દબાવો"
+     }
+    }
+   ],
+   "cues": []
+  },
+  "punch_straight": {
+   "focus": {
+    "en": "Shoulder drive · hip rotation · guard",
+    "hi": "कंधे की ताकत · कूल्हे का घुमाव · गार्ड",
+    "gu": "ખભાની તાકાત · થાપાનો વળાંક · ગાર્ડ"
+   },
+   "angles": [
+    "elbowLead",
+    "trunk"
+   ],
+   "checks": [
+    {
+     "metric": "elbowLead",
+     "bands": [
+      {
+       "r": [
+        160,
+        181
+       ],
+       "s": "ok",
+       "en": "Punching arm {v}° — full extension at impact.",
+       "hi": "पंच वाला हाथ {v}° — इम्पैक्ट पर पूरा सीधा।",
+       "gu": "પંચ વાળો હાથ {v}° — ઇમ્પેક્ટ પર પૂરો સીધો."
+      },
+      {
+       "r": [
+        120,
+        160
+       ],
+       "s": "info",
+       "en": "Punching arm {v}° — still travelling. Snap it straight, then return fast.",
+       "hi": "पंच वाला हाथ {v}° — अभी रास्ते में। पूरा सीधा करें, फिर तेज़ वापस।",
+       "gu": "પંચ વાળો હાથ {v}° — હજી રસ્તામાં. પૂરો સીધો કરો, પછી ઝડપથી પાછો."
+      },
+      {
+       "r": [
+        0,
+        120
+       ],
+       "s": "info",
+       "en": "Punching arm {v}° — chambered / guard position.",
+       "hi": "हाथ {v}° — गार्ड पोज़िशन।",
+       "gu": "હાથ {v}° — ગાર્ડ પોઝિશન."
+      }
+     ]
+    },
+    {
+     "metric": "guardDist",
+     "bands": [
+      {
+       "r": [
+        0,
+        0.45
+       ],
+       "s": "ok",
+       "en": "Guard hand at the chin.",
+       "hi": "गार्ड हाथ ठोड़ी पर।",
+       "gu": "ગાર્ડ હાથ દાઢી પર."
+      },
+      {
+       "r": [
+        0.45,
+        99
+       ],
+       "s": "fix",
+       "en": "Guard hand dropped. Bring the other fist back to the chin.",
+       "hi": "गार्ड हाथ नीचे गिरा। दूसरी मुट्ठी ठोड़ी पर वापस लाएँ।",
+       "gu": "ગાર્ડ હાથ નીચે પડ્યો. બીજી મુઠ્ઠી દાઢી પર પાછી લાવો."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "extend",
+     "from": "leadEl",
+     "to": "leadWr",
+     "label": {
+      "en": "DRIVE",
+      "hi": "ड्राइव",
+      "gu": "ડ્રાઇવ"
+     }
+    },
+    {
+     "type": "arc",
+     "center": "hipM",
+     "through": "shM",
+     "label": {
+      "en": "HIP ROTATION",
+      "hi": "कूल्हे का घुमाव",
+      "gu": "થાપાનો વળાંક"
+     }
+    }
+   ],
+   "cues": [
+    {
+     "en": "Turn the hip and rear foot into the punch",
+     "hi": "पंच के साथ कूल्हा और पिछला पैर घुमाएँ",
+     "gu": "પંચ સાથે થાપો અને પાછળનો પગ ફેરવો"
+    }
+   ]
+  },
+  "punch_hook": {
+   "focus": {
+    "en": "Obliques · shoulder · 90° arm",
+    "hi": "ऑब्लिक्स · कंधा · 90° हाथ",
+    "gu": "ઓબ્લિક્સ · ખભો · 90° હાથ"
+   },
+   "angles": [
+    "elbowLead",
+    "shoulderLead"
+   ],
+   "checks": [
+    {
+     "metric": "elbowLead",
+     "bands": [
+      {
+       "r": [
+        75,
+        115
+       ],
+       "s": "ok",
+       "en": "Hook arm {v}° — tight 90° hook.",
+       "hi": "हुक हाथ {v}° — टाइट 90° हुक।",
+       "gu": "હુક હાથ {v}° — ટાઇટ 90° હુક."
+      },
+      {
+       "r": [
+        115,
+        181
+       ],
+       "s": "warn",
+       "en": "Hook arm {v}° — too open (looping). Keep the elbow near 90°.",
+       "hi": "हुक हाथ {v}° — बहुत खुला। कोहनी 90° के पास रखें।",
+       "gu": "હુક હાથ {v}° — બહુ ખુલ્લો. કોણી 90° પાસે રાખો."
+      },
+      {
+       "r": [
+        0,
+        75
+       ],
+       "s": "warn",
+       "en": "Hook arm {v}° — very tight; you lose reach.",
+       "hi": "हुक हाथ {v}° — बहुत टाइट; रीच कम।",
+       "gu": "હુક હાથ {v}° — બહુ ટાઇટ; રીચ ઓછી."
+      }
+     ]
+    },
+    {
+     "metric": "shoulderLead",
+     "bands": [
+      {
+       "r": [
+        70,
+        110
+       ],
+       "s": "ok",
+       "en": "Elbow at shoulder height ({v}°).",
+       "hi": "कोहनी कंधे की ऊँचाई पर ({v}°)।",
+       "gu": "કોણી ખભાની ઊંચાઈએ ({v}°)."
+      },
+      {
+       "r": [
+        0,
+        70
+       ],
+       "s": "warn",
+       "en": "Elbow low ({v}°). Lift it to shoulder height for a head hook.",
+       "hi": "कोहनी नीचे ({v}°)। हेड हुक के लिए कंधे तक उठाएँ।",
+       "gu": "કોણી નીચે ({v}°). હેડ હુક માટે ખભા સુધી ઉઠાવો."
+      },
+      {
+       "r": [
+        110,
+        181
+       ],
+       "s": "warn",
+       "en": "Elbow too high ({v}°).",
+       "hi": "कोहनी बहुत ऊपर ({v}°)।",
+       "gu": "કોણી બહુ ઉપર ({v}°)."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "arc",
+     "center": "leadSh",
+     "through": "leadWr",
+     "label": {
+      "en": "HOOK PATH",
+      "hi": "हुक पाथ",
+      "gu": "હુક પાથ"
+     }
+    },
+    {
+     "type": "arc",
+     "center": "hipM",
+     "through": "shM",
+     "label": {
+      "en": "HIP ROTATION",
+      "hi": "कूल्हे का घुमाव",
+      "gu": "થાપાનો વળાંક"
+     }
+    }
+   ],
+   "cues": [
+    {
+     "en": "Pivot the lead foot with the hook",
+     "hi": "हुक के साथ आगे का पैर घुमाएँ",
+     "gu": "હુક સાથે આગળનો પગ ફેરવો"
+    }
+   ]
+  },
+  "punch_uppercut": {
+   "focus": {
+    "en": "Legs drive · obliques · biceps",
+    "hi": "पैरों की ताकत · ऑब्लिक्स · बाइसेप्स",
+    "gu": "પગની તાકાત · ઓબ્લિક્સ · બાયસેપ્સ"
+   },
+   "angles": [
+    "elbowLead",
+    "knee"
+   ],
+   "checks": [
+    {
+     "metric": "elbowLead",
+     "bands": [
+      {
+       "r": [
+        70,
+        115
+       ],
+       "s": "ok",
+       "en": "Uppercut arm {v}° — compact.",
+       "hi": "अपरकट हाथ {v}° — कॉम्पैक्ट।",
+       "gu": "અપરકટ હાથ {v}° — કોમ્પેક્ટ."
+      },
+      {
+       "r": [
+        115,
+        181
+       ],
+       "s": "warn",
+       "en": "Uppercut arm {v}° — too long. Keep it bent, drive with the legs.",
+       "hi": "अपरकट हाथ {v}° — बहुत लंबा। मोड़कर रखें, पैरों से ताकत दें।",
+       "gu": "અપરકટ હાથ {v}° — બહુ લાંબો. વાળેલો રાખો, પગથી તાકાત આપો."
+      },
+      {
+       "r": [
+        0,
+        70
+       ],
+       "s": "info",
+       "en": "Arm {v}° — chambered.",
+       "hi": "हाथ {v}° — तैयार पोज़िशन।",
+       "gu": "હાથ {v}° — તૈયાર પોઝિશન."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "arc",
+     "center": "leadSh",
+     "through": "leadWr",
+     "label": {
+      "en": "UPWARD PATH",
+      "hi": "ऊपर का रास्ता",
+      "gu": "ઉપરનો રસ્તો"
+     }
+    }
+   ],
+   "cues": [
+    {
+     "en": "Dip the knees, then drive up through the punch",
+     "hi": "घुटने थोड़े मोड़ें, फिर ऊपर पंच के साथ उठें",
+     "gu": "ઘૂંટણ થોડા વાળો, પછી પંચ સાથે ઉપર ઊઠો"
+    }
+   ]
+  },
+  "kick": {
+   "focus": {
+    "en": "Hip drive · balance on the base leg",
+    "hi": "कूल्हे की ताकत · खड़े पैर पर बैलेंस",
+    "gu": "થાપાની તાકાત · ઊભા પગ પર બેલેન્સ"
+   },
+   "angles": [
+    "kickHip",
+    "baseKnee",
+    "trunk"
+   ],
+   "checks": [
+    {
+     "metric": "kickHeight",
+     "bands": [
+      {
+       "r": [
+        0,
+        200
+       ],
+       "s": "ok",
+       "en": "Kicking foot {v}% above hip height — high kick.",
+       "hi": "किक का पैर कूल्हे से {v}% ऊपर — हाई किक।",
+       "gu": "કિકનો પગ થાપાથી {v}% ઉપર — હાઇ કિક."
+      },
+      {
+       "r": [
+        -60,
+        0
+       ],
+       "s": "info",
+       "en": "Kicking foot {v}% below hip height — mid/low kick. Chamber the knee higher for more height.",
+       "hi": "किक का पैर कूल्हे से {v}% नीचे — मिड/लो किक। ज़्यादा ऊँचाई के लिए घुटना ऊपर लाएँ।",
+       "gu": "કિકનો પગ થાપાથી {v}% નીચે — મિડ/લો કિક. વધુ ઊંચાઈ માટે ઘૂંટણ ઉપર લાવો."
+      }
+     ]
+    },
+    {
+     "metric": "baseKnee",
+     "bands": [
+      {
+       "r": [
+        150,
+        181
+       ],
+       "s": "ok",
+       "en": "Standing leg {v}° — tall base.",
+       "hi": "खड़ा पैर {v}° — मज़बूत बेस।",
+       "gu": "ઊભો પગ {v}° — મજબૂત બેઝ."
+      },
+      {
+       "r": [
+        0,
+        150
+       ],
+       "s": "info",
+       "en": "Standing leg {v}° — soft knee; fine for balance.",
+       "hi": "खड़ा पैर {v}° — हल्का मुड़ा; बैलेंस के लिए ठीक।",
+       "gu": "ઊભો પગ {v}° — હળવો વળેલો; બેલેન્સ માટે ઠીક."
+      }
+     ]
+    }
+   ],
+   "technique": [
+    {
+     "type": "arc",
+     "center": "kickHip",
+     "through": "kickAnk",
+     "label": {
+      "en": "KICK PATH",
+      "hi": "किक पाथ",
+      "gu": "કિક પાથ"
+     }
+    },
+    {
+     "type": "extend",
+     "from": "kickKnee",
+     "to": "kickAnk",
+     "label": {
+      "en": "EXTEND",
+      "hi": "सीधा करें",
+      "gu": "સીધો કરો"
+     }
+    }
+   ],
+   "cues": [
+    {
+     "en": "Pivot the base foot, hands stay up",
+     "hi": "खड़ा पैर घुमाएँ, हाथ ऊपर रखें",
+     "gu": "ઊભો પગ ફેરવો, હાથ ઉપર રાખો"
+    }
+   ]
+  }
+ }
+}

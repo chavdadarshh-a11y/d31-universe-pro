@@ -5,8 +5,12 @@
 import type { NormalizedLandmark, PoseLandmarker as PL } from '@mediapipe/tasks-vision'
 import { angle, conf, evaluatePose, L, layoutLabels, R, reliable, type JointAngle, type PoseResult } from './poseFilter'
 
-const WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm'
-const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task'
+// Self-hosted under the site (works offline once cached by the service worker); CDN as fallback.
+const LOCAL = `${import.meta.env.BASE_URL}mediapipe`
+const CDN_WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm'
+const CDN_MODEL = (v: 'lite' | 'full') => `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_${v}/float16/1/pose_landmarker_${v}.task`
+// photos use the more accurate "full" model; the live camera uses "lite" for speed
+const variant = (mode: 'IMAGE' | 'VIDEO') => (mode === 'IMAGE' ? 'full' : 'lite')
 
 const cache: Partial<Record<'IMAGE' | 'VIDEO', Promise<PL>>> = {}
 
@@ -14,18 +18,25 @@ export function getLandmarker(mode: 'IMAGE' | 'VIDEO'): Promise<PL> {
   if (!cache[mode]) {
     cache[mode] = (async () => {
       const { FilesetResolver, PoseLandmarker } = await import('@mediapipe/tasks-vision')
-      const fileset = await FilesetResolver.forVisionTasks(WASM)
-      const make = (delegate: 'GPU' | 'CPU') =>
-        PoseLandmarker.createFromOptions(fileset, {
-          baseOptions: { modelAssetPath: MODEL, delegate },
+      const v = variant(mode)
+      const make = async (local: boolean, delegate: 'GPU' | 'CPU') => {
+        const fileset = local
+          ? { wasmLoaderPath: `${LOCAL}/vision_wasm_internal.js`, wasmBinaryPath: `${LOCAL}/vision_wasm_internal.wasm` }
+          : await FilesetResolver.forVisionTasks(CDN_WASM)
+        return PoseLandmarker.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: local ? `${LOCAL}/pose_landmarker_${v}.task` : CDN_MODEL(v), delegate },
           runningMode: mode,
           numPoses: 1,
         })
-      try {
-        return await make('GPU')
-      } catch {
-        return await make('CPU')
       }
+      for (const [local, delegate] of [[true, 'GPU'], [true, 'CPU'], [false, 'GPU'], [false, 'CPU']] as const) {
+        try {
+          return await make(local, delegate)
+        } catch (e) {
+          if (!local && delegate === 'CPU') throw e
+        }
+      }
+      throw new Error('Pose model failed to load')
     })()
     cache[mode]!.catch(() => delete cache[mode])
   }

@@ -66,7 +66,7 @@ const defaultProfile: Profile = {
   name: '', goal: 'muscle', level: 'beginner', equipment: ['none'], sex: 'male', age: 25, heightCm: 172, weightKg: 70, activity: 1.375,
 }
 
-export const STORE_VERSION = 4
+export const STORE_VERSION = 5
 /** A brand-new account's data (what gets written for a fresh account before it is loaded). */
 export function blankPersisted(extra: Partial<AppState> = {}) {
   const { toast: _t, ...rest } = initial
@@ -154,7 +154,7 @@ export const useApp = create<AppState>()(
     }),
     {
       name: 'd31-pro-v1',
-      version: 4,
+      version: STORE_VERSION,
       // one blob per account: the key is resolved at call time from the current session
       storage: createJSONStorage(() => ({
         getItem: () => localStorage.getItem(dataKey()),
@@ -173,6 +173,8 @@ export const useApp = create<AppState>()(
           st.sessions = (st.sessions ?? []).map(fix)
           if (st.active) st.active.log.forEach((l) => l.sets.forEach((set) => { set.type = set.type ?? 'working' }))
         }
+        // v5: the old fake "DEMO SAMPLE" analyses are removed
+        st.analyses = (st.analyses ?? []).filter((a) => !a.demo)
         // v4: tiers are free / pro / platinum
         if (st.membership) st.membership = { ...st.membership, plan: normalizePlan(st.membership.plan as string) }
         return st as AppState

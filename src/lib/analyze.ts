@@ -13,35 +13,12 @@ export async function fileToBase64(file: File): Promise<string> {
   return btoa(bin)
 }
 
-/** DEMO text in the six D31 headers, written in plain language so it reads like the real thing. */
-export function demoAnalysis(prompt: string, ex?: Exercise): string {
-  const name = ex?.name ?? 'your movement'
-  const cue = ex?.cues[0] ?? 'Brace before every rep'
-  const mistake = ex?.mistakes[0] ?? 'Losing position at the hardest point'
-  return [
-    'WHAT I SEE',
-    `DEMO SAMPLE — ${name}. Side view, full body visible. Question: "${prompt || 'form check'}".`,
-    'QUICK VERDICT',
-    'Solid base. One fault shows up at the bottom of the rep — fix it before adding load.',
-    "WHAT'S GOOD",
-    'Stable foot position, controlled tempo and a neutral head.',
-    'FIX THIS',
-    `${mistake}. Film again after 2 sessions of the cue below.`,
-    'TECHNIQUE',
-    `${cue}. Slow the lowering to 3 seconds and pause 1 second at the bottom.`,
-    'NEXT MOVE',
-    '3 sets of 8 at a lighter load with the pause, then re-upload from the same angle.',
-  ].join('\n')
-}
+export type AnalysisResult = ParsedAnalysis & { remaining?: number }
 
-export type AnalysisResult = ParsedAnalysis & { demo: boolean; remaining?: number }
-
-export async function runAnalysis(opts: { files: File[]; prompt: string; exercise?: Exercise }): Promise<AnalysisResult> {
+/** AI coach (server-side Gemini). Returns null when the backend is not configured — never fake text. */
+export async function runAnalysis(opts: { files: File[]; prompt: string; exercise?: Exercise }): Promise<AnalysisResult | null> {
   const { files, prompt, exercise } = opts
-  if (!isLive || !supabase) {
-    await new Promise((r) => setTimeout(r, 1400))
-    return { ...parseD31Analysis(demoAnalysis(prompt, exercise)), demo: true }
-  }
+  if (!isLive || !supabase) return null
   const media = await Promise.all(files.map(async (f) => ({ mediaBase64: await fileToBase64(f), mimeType: f.type || 'image/jpeg' })))
   const { data, error } = await supabase.functions.invoke('analyze-media', {
     body: {
@@ -66,7 +43,7 @@ export async function runAnalysis(opts: { files: File[]; prompt: string; exercis
   const d = data as { analysis?: string; error?: string; remaining?: number }
   if (d.error) throw new Error(d.error)
   if (!d.analysis) throw new Error('Empty analysis')
-  return { ...parseD31Analysis(d.analysis), demo: false, remaining: d.remaining }
+  return { ...parseD31Analysis(d.analysis), remaining: d.remaining }
 }
 
 export const HEADER_KEYS = {

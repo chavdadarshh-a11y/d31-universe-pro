@@ -1,0 +1,33 @@
+{
+  "_doc": "Muscle drawing data. 'names' = anatomical labels drawn on the photo (EN/HI/GU). 'byExercise' overrides the primary/secondary muscles from the exercise library for the overlay + body map. Muscle ids match src/types.ts MuscleId.",
+  "names": {
+    "chest": { "en": "Pectoralis major", "hi": "पेक्टोरैलिस (छाती)", "gu": "પેક્ટોરાલિસ (છાતી)" },
+    "shoulders": { "en": "Deltoid", "hi": "डेल्टॉइड (कंधा)", "gu": "ડેલ્ટોઇડ (ખભો)" },
+    "rear_delts": { "en": "Posterior deltoid", "hi": "पिछला डेल्टॉइड", "gu": "પાછળનો ડેલ્ટોઇડ" },
+    "biceps": { "en": "Biceps brachii", "hi": "बाइसेप्स", "gu": "બાયસેપ્સ" },
+    "triceps": { "en": "Triceps brachii", "hi": "ट्राइसेप्स", "gu": "ટ્રાઇસેપ્સ" },
+    "forearms": { "en": "Forearm flexors", "hi": "फोरआर्म (अग्रबाहु)", "gu": "ફોરઆર્મ (આગળનો હાથ)" },
+    "abs": { "en": "Rectus abdominis", "hi": "रेक्टस एब्डोमिनिस (एब्स)", "gu": "રેક્ટસ એબ્ડોમિનિસ (એબ્સ)" },
+    "obliques": { "en": "Obliques", "hi": "ऑब्लिक्स (बगल का पेट)", "gu": "ઓબ્લિક્સ (બાજુનું પેટ)" },
+    "traps": { "en": "Trapezius", "hi": "ट्रेपेज़ियस", "gu": "ટ્રેપેઝિયસ" },
+    "lats": { "en": "Latissimus dorsi", "hi": "लैटिसिमस डॉर्सी", "gu": "લેટિસિમસ ડોર્સી" },
+    "upper_back": { "en": "Rhomboids", "hi": "रॉमबॉइड्स (ऊपरी पीठ)", "gu": "રોમ્બોઇડ્સ (ઉપલી પીઠ)" },
+    "lower_back": { "en": "Erector spinae", "hi": "इरेक्टर स्पाइनी (निचली पीठ)", "gu": "ઇરેક્ટર સ્પાઇની (નીચલી પીઠ)" },
+    "glutes": { "en": "Gluteus maximus", "hi": "ग्लूटियस मैक्सिमस", "gu": "ગ્લુટિયસ મેક્સિમસ" },
+    "quads": { "en": "Quadriceps", "hi": "क्वाड्रिसेप्स (जांघ आगे)", "gu": "ક્વોડ્રિસેપ્સ (સાથળ આગળ)" },
+    "hamstrings": { "en": "Hamstrings", "hi": "हैमस्ट्रिंग्स (जांघ पीछे)", "gu": "હેમસ્ટ્રિંગ્સ (સાથળ પાછળ)" },
+    "adductors": { "en": "Adductors", "hi": "एडक्टर्स (अंदरूनी जांघ)", "gu": "એડક્ટર્સ (અંદરની સાથળ)" },
+    "calves": { "en": "Gastrocnemius", "hi": "गैस्ट्रोक्नेमियस (पिंडली)", "gu": "ગેસ્ટ્રોક્નેમિયસ (પિંડી)" }
+  },
+  "byExercise": {
+    "human-flag-progression": { "primary": ["obliques", "shoulders", "lats"], "secondary": ["triceps", "forearms", "abs"] },
+    "straddle-human-flag": { "primary": ["obliques", "shoulders", "lats"], "secondary": ["triceps", "forearms", "adductors", "abs"] },
+    "full-human-flag": { "primary": ["obliques", "shoulders", "lats"], "secondary": ["triceps", "forearms", "abs", "glutes"] },
+    "headstand": { "primary": ["shoulders", "triceps", "abs"], "secondary": ["traps", "obliques", "lower_back"] },
+    "pull-up": { "primary": ["lats", "biceps"], "secondary": ["upper_back", "rear_delts", "forearms", "abs"] },
+    "deadlift": { "primary": ["glutes", "hamstrings", "lower_back"], "secondary": ["quads", "lats", "traps", "forearms"] },
+    "romanian-deadlift": { "primary": ["hamstrings", "glutes"], "secondary": ["lower_back", "lats", "forearms"] },
+    "hip-thrust": { "primary": ["glutes"], "secondary": ["hamstrings", "quads", "abs"] },
+    "overhead-press": { "primary": ["shoulders", "triceps"], "secondary": ["traps", "abs", "upper_back"] }
+  }
+}

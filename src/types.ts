@@ -118,10 +118,20 @@ export type AnalysisRecord = {
   date: string
   exId?: string
   prompt: string
+  /** AI coach (Gemini) sections — only when the server returned a real analysis */
   sections: Record<string, string>
   raw: string
-  demo: boolean
+  /** legacy fake demo entries (removed on load) */
+  demo?: boolean
   thumb?: string
+  /** on-device check */
+  kind?: 'ondevice'
+  mode?: 'angles' | 'muscles' | 'technique'
+  /** base photo (≤540px) + normalised landmarks so the result can be re-drawn in any mode */
+  photo?: string
+  lm?: number[][]
+  poseFound?: boolean
+  detected?: boolean
 }
 
 export type ActiveWorkout = {

@@ -486,3 +486,116 @@ html.light .glass-panel.pack-bar { background: rgba(255, 255, 255, 0.96); border
 @media (prefers-reduced-motion: reduce) { .shiva-pan, .shiva-pan.live { animation: none !important; } }
 /* aurora: no blend modes / layer hints on viewport-sized blobs (cheap, safe compositing on phones) */
 .aurora, html.light .aurora { mix-blend-mode: normal; will-change: auto; }
+
+
+/* ════════════════ v4.3.2 — light mode: every box is clear frosted glass ════════════════
+   Dark mode is untouched. Existing colours stay. Shiva shows clearly through the chrome. */
+html.light {
+  --glass: rgba(255, 255, 255, 0.26);
+  --glass-strong: rgba(255, 255, 255, 0.36);
+  --glass-edge: rgba(255, 255, 255, 0.58);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 28px -16px rgba(15, 40, 80, 0.28);
+  --color-panel: rgba(255, 255, 255, 0.26);
+  --color-panel-2: rgba(255, 255, 255, 0.16);
+}
+
+html.light .card,
+html.light .card-2,
+html.light .glass-panel,
+html.light .glass-drop,
+html.light .glass-panel.pack-bar,
+html.light .hero-glow,
+html.light .platinum-card,
+html.light .gold-card,
+html.light .tabs-bar,
+html.light .sheet-in,
+html.light .clip-badge,
+html.light .field,
+html.light .num {
+  background-color: var(--glass);
+  background-image: none;
+  border-color: var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(1.18);
+  -webkit-backdrop-filter: blur(18px) saturate(1.18);
+}
+
+/* faint gold / platinum wash, still see-through */
+html.light .gold-card {
+  background: linear-gradient(150deg, rgba(247, 197, 72, 0.2), rgba(251, 146, 60, 0.07) 50%, transparent), var(--glass);
+  border-color: rgba(183, 121, 31, 0.45);
+}
+html.light .platinum-card {
+  background: linear-gradient(150deg, rgba(203, 213, 225, 0.28), rgba(167, 139, 250, 0.1) 50%, rgba(34, 211, 238, 0.07)), var(--glass);
+  border-color: rgba(100, 116, 139, 0.45);
+}
+html.light .hero-glow {
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(8, 145, 178, 0.1), transparent 55%),
+    radial-gradient(100% 90% at 100% 0%, rgba(183, 121, 31, 0.08), transparent 55%),
+    var(--glass);
+}
+html.light .glass-drop {
+  background: radial-gradient(120% 90% at 50% 0%, rgba(8, 145, 178, 0.08), transparent 60%), var(--glass);
+  border-color: rgba(8, 145, 178, 0.28);
+}
+
+/* header + bottom nav: same glass, a touch stronger so titles stay readable while scrolling */
+html.light header[class*="bg-[#04060c]"],
+html.light .nav-bar {
+  background-color: var(--glass-strong);
+  background-image: none;
+  box-shadow: 0 8px 24px -18px rgba(15, 40, 80, 0.25);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+}
+/* nav sits over dark photo panels on Today — a slightly stronger frost + darker labels keep WCAG contrast */
+html.light .nav-bar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.66));
+  box-shadow: 0 -10px 28px -20px rgba(15, 40, 80, 0.28);
+  backdrop-filter: blur(24px) saturate(1.25);
+  -webkit-backdrop-filter: blur(24px) saturate(1.25);
+}
+html.light .nav-bar .text-dim {
+  color: #152033;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.92), 0 0 14px rgba(255, 255, 255, 0.75);
+}
+
+/* dark hex utility backgrounds (tabs, steppers, toasts, resume bar, list tiles…) become glass too.
+   Photo/video .dark-zone and the header/sheet (styled above) stay excluded, as before. */
+html.light [class*="bg-[#0"]:not(.dark-zone):not(.dark-zone *):not(header):not(.sheet-in) {
+  background-color: var(--glass);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+}
+
+html.light .sheet-in {
+  background: var(--glass-strong);
+  border-color: rgba(8, 145, 178, 0.22);
+}
+
+html.light .field,
+html.light .num {
+  background: var(--glass-strong);
+  border-color: rgba(8, 60, 100, 0.16);
+  color: #0b1220;
+}
+
+html.light .beam-tab {
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(183, 121, 31, 0.28), 0 2px 8px -4px rgba(15, 40, 80, 0.18);
+}
+
+/* dark ink stays readable over the artwork */
+html.light .card,
+html.light .card-2,
+html.light .glass-panel,
+html.light .glass-drop,
+html.light .tabs-bar,
+html.light .sheet-in,
+html.light header,
+html.light .nav-bar,
+html.light .field,
+html.light .num {
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8), 0 0 12px rgba(255, 255, 255, 0.42);
+}

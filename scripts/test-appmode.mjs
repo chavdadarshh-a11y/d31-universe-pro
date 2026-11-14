@@ -1,7 +1,7 @@
 import { chromium } from '/workspace/build/pw/node_modules/playwright-core/index.mjs'
 import fs from 'node:fs'
 const BASE = process.argv[2] || 'http://localhost:8941/d31-universe-pro/'
-const OUT = '/workspace/d31-play/test-appmode'; fs.mkdirSync(OUT, { recursive: true })
+const OUT = process.argv[3] || '/workspace/d31-play/test-appmode'; fs.mkdirSync(OUT, { recursive: true })
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome' })
 const res = []; const ok = (n, c, x = '') => { res.push(`${c ? 'PASS' : 'FAIL'} ${n}${x ? ' — ' + x : ''}`); console.log(res.at(-1)) }
 const UA = 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'

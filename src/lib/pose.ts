@@ -13,20 +13,24 @@ const CDN_MODEL = (v: 'lite' | 'full') => `https://storage.googleapis.com/mediap
 // photos use the more accurate "full" model; the live camera uses "lite" for speed
 const variant = (mode: 'IMAGE' | 'VIDEO') => (mode === 'IMAGE' ? 'full' : 'lite')
 
-const cache: Partial<Record<'IMAGE' | 'VIDEO', Promise<PL>>> = {}
+const cache: Partial<Record<'IMAGE' | 'VIDEO' | 'IMAGE_NOSEG', Promise<PL>>> = {}
 
-export function getLandmarker(mode: 'IMAGE' | 'VIDEO'): Promise<PL> {
+/** forget a landmarker whose wasm instance aborted (it can't be used again) */
+export function resetLandmarker(mode: 'IMAGE' | 'VIDEO' | 'IMAGE_NOSEG') { delete cache[mode] }
+
+export function getLandmarker(mode: 'IMAGE' | 'VIDEO' | 'IMAGE_NOSEG'): Promise<PL> {
   if (!cache[mode]) {
     cache[mode] = (async () => {
       const { FilesetResolver, PoseLandmarker } = await import('@mediapipe/tasks-vision')
-      const v = variant(mode)
+      const v = variant(mode === 'VIDEO' ? 'VIDEO' : 'IMAGE')
+      const run = mode === 'VIDEO' ? 'VIDEO' : 'IMAGE'
       const make = async (local: boolean, delegate: 'GPU' | 'CPU') => {
         const fileset = local
           ? { wasmLoaderPath: `${LOCAL}/vision_wasm_internal.js`, wasmBinaryPath: `${LOCAL}/vision_wasm_internal.wasm` }
           : await FilesetResolver.forVisionTasks(CDN_WASM)
         return PoseLandmarker.createFromOptions(fileset, {
           baseOptions: { modelAssetPath: local ? `${LOCAL}/pose_landmarker_${v}.task` : CDN_MODEL(v), delegate },
-          runningMode: mode,
+          runningMode: run,
           numPoses: 1,
           // person mask for photos: muscle outlines are fitted to + clipped by the real body contour
           outputSegmentationMasks: mode === 'IMAGE',
@@ -34,7 +38,7 @@ export function getLandmarker(mode: 'IMAGE' | 'VIDEO'): Promise<PL> {
       }
       // Photos run on the CPU: GPU (WebGL) inference can differ run-to-run on phones, and a photo must always
       // give the same result. The live camera keeps the GPU for speed.
-      const order = mode === 'IMAGE'
+      const order = run === 'IMAGE'
         ? ([[true, 'CPU'], [false, 'CPU']] as const)
         : ([[true, 'GPU'], [true, 'CPU'], [false, 'GPU'], [false, 'CPU']] as const)
       for (const [local, delegate] of order) {
@@ -81,8 +85,27 @@ export async function detectPhoto(base: HTMLCanvasElement): Promise<{ lm: Pt[] |
   return { ...res, hash }
 }
 
+/**
+ * Some photos make the MediaPipe wasm abort inside the segmentation step ("Check failed: 1 == ChannelSize()").
+ * An aborted instance is dead, so: drop it, retry once on a re-encoded copy (opaque RGB, even size), and as a
+ * last resort detect the joints without a person mask (no muscle artwork then, but the check still works).
+ */
 async function detectPhotoNow(base: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null }> {
-  const pl = await getLandmarker('IMAGE')
+  try { return await detectOnce(base, 'IMAGE') } catch { resetLandmarker('IMAGE') }
+  const c = document.createElement('canvas')
+  c.width = Math.max(16, Math.round(base.width / 16) * 16); c.height = Math.max(16, Math.round(base.height / 16) * 16)
+  const x = c.getContext('2d')!
+  x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height); x.imageSmoothingQuality = 'high'; x.drawImage(base, 0, 0, c.width, c.height)
+  try {
+    const r = await detectOnce(c, 'IMAGE')
+    // landmarks are normalised; the mask is resampled to the real photo size by its own w/h
+    return r
+  } catch { resetLandmarker('IMAGE') }
+  try { return await detectOnce(base, 'IMAGE_NOSEG') } catch (e) { resetLandmarker('IMAGE_NOSEG'); throw e }
+}
+
+async function detectOnce(base: HTMLCanvasElement, mode: 'IMAGE' | 'IMAGE_NOSEG'): Promise<{ lm: Pt[] | null; mask: RawMask | null }> {
+  const pl = await getLandmarker(mode)
   const r = pl.detect(base)
   let mask: RawMask | null = null
   const m = r.segmentationMasks?.[0]

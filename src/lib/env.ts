@@ -18,4 +18,4 @@ export const env = {
 
 /** Live mode = Supabase configured. Everything else (Gemini, Razorpay) lives server-side behind it. */
 export const isLive = Boolean(env.supabaseUrl && env.supabaseAnonKey)
-export const APP_VERSION = '4.4.3'
+export const APP_VERSION = '4.4.4'

@@ -124,6 +124,8 @@ export type AnalysisRecord = {
   /** legacy fake demo entries (removed on load) */
   demo?: boolean
   thumb?: string
+  /** thumb drawn on the full-colour photo (v4.4.4+); older greyscale thumbs are re-drawn once */
+  thumbColor?: boolean
   /** on-device check */
   kind?: 'ondevice'
   mode?: 'angles' | 'muscles' | 'technique'

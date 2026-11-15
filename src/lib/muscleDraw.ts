@@ -67,16 +67,6 @@ function polyPath(ctx: CanvasRenderingContext2D, poly: P[]) {
 }
 const area = (poly: P[]) => { let a = 0; for (let i = 0; i < poly.length; i++) { const p = poly[i], q = poly[(i + 1) % poly.length]; a += p.x * q.y - q.x * p.y } return Math.abs(a / 2) }
 
-/** greyscale + a little contrast, manual (canvas filter is not supported everywhere) */
-export function toBW(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  const img = ctx.getImageData(0, 0, W, H), d = img.data
-  for (let i = 0; i < d.length; i += 4) {
-    const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]
-    const v = Math.max(0, Math.min(255, (g - 128) * 1.12 + 120))
-    d[i] = d[i + 1] = d[i + 2] = v
-  }
-  ctx.putImageData(img, 0, 0)
-}
 
 /**
  * Hair / dark clothing: very dark pixels inside the person mask are not skin, so no muscle is painted there.
@@ -133,10 +123,10 @@ function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: M
   return out
 }
 
-export type SkinOpts = { hairZone?: { top: number; bottom: number }; bw?: boolean }
+export type SkinOpts = { hairZone?: { top: number; bottom: number } }
 export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: number, muscles: DrawnMuscle[], mask: Mask, occluders: P[][] = [], skin: SkinOpts = {}) {
   // read the photo before anything is painted on it
-  const keep = skin.hairZone ? skinCanvas(ctx, W, H, mask, skin.hairZone, skin.bw ? 27 : 42) : null
+  const keep = skin.hairZone ? skinCanvas(ctx, W, H, mask, skin.hairZone, 48) : null
   const layer = mkCanvas(W, H)
   const c = layer.getContext('2d')!
   c.lineJoin = 'round'
@@ -171,61 +161,73 @@ const strokeLines = (c: CanvasRenderingContext2D, lines: P[][]) => {
 }
 const centroid = (poly: P[]) => poly.reduce((a, b) => ({ x: a.x + b.x / poly.length, y: a.y + b.y / poly.length }), { x: 0, y: 0 })
 
+/** heat ramps (core → edge): primary = red-dominant, secondary = amber/yellow, stabilizer = green */
+const HEAT: Record<Role, [number, string][]> = {
+  primary: [[0, 'rgba(255,214,92,0.86)'], [0.17, 'rgba(255,122,30,0.8)'], [0.45, 'rgba(236,34,24,0.62)'], [0.75, 'rgba(214,30,30,0.22)'], [1, 'rgba(214,30,30,0)']],
+  secondary: [[0, 'rgba(255,246,168,0.82)'], [0.3, 'rgba(255,202,40,0.68)'], [0.66, 'rgba(255,172,30,0.26)'], [1, 'rgba(255,172,30,0)']],
+  stabilizer: [[0, 'rgba(206,255,196,0.74)'], [0.34, 'rgba(72,222,122,0.58)'], [0.7, 'rgba(40,190,110,0.22)'], [1, 'rgba(40,190,110,0)']],
+}
+/** principal axes of an outline (for an elongated heat core that follows the muscle belly) */
+function axes(poly: P[]) {
+  const ce = centroid(poly)
+  let xx = 0, yy = 0, xy = 0
+  for (const p of poly) { const dx = p.x - ce.x, dy = p.y - ce.y; xx += dx * dx; yy += dy * dy; xy += dx * dy }
+  xx /= poly.length; yy /= poly.length; xy /= poly.length
+  const tr = xx + yy, det = xx * yy - xy * xy, l1 = tr / 2 + Math.sqrt(Math.max(0, (tr * tr) / 4 - det)), l2 = Math.max(1e-6, tr - l1)
+  return { ce, ang: 0.5 * Math.atan2(2 * xy, xx - yy), a: Math.sqrt(l1), b: Math.sqrt(l2) }
+}
+
 function paint(c: CanvasRenderingContext2D, muscles: DrawnMuscle[], fineLw: number) {
   for (const m of muscles) {
-    const col = ROLE_COLOR[m.role]
+    const heat = HEAT[m.role]
     m.polys.forEach((poly, pi) => {
       if (poly.length < 8) return
       const size = Math.sqrt(area(poly))
-      const isApo = !!m.apo?.[pi]
-      if (isApo) {
-        // tendon sheet / aponeurosis: flat, lighter, dashed edge, no fibres
-        polyPath(c, poly)
-        c.fillStyle = col.fill.replace(/[\d.]+\)$/, '0.2)')
-        c.fill()
-        c.save(); c.setLineDash([fineLw * 3, fineLw * 2]); polyPath(c, poly); c.strokeStyle = col.line.replace(/[\d.]+\)$/, '0.6)'); c.lineWidth = fineLw; c.stroke(); c.restore()
+      if (m.apo?.[pi]) {
+        // tendon sheet / aponeurosis: a faint pale sheet with a dashed light edge, no heat, no fibres
+        polyPath(c, poly); c.fillStyle = 'rgba(255,255,255,0.1)'; c.fill()
+        c.save(); c.setLineDash([fineLw * 3, fineLw * 2]); polyPath(c, poly); c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = fineLw * 0.9; c.stroke(); c.restore()
         return
       }
-      polyPath(c, poly)
-      c.fillStyle = col.fill
-      c.fill()
       c.save()
       polyPath(c, poly)
       c.clip()
-      // depth: soft highlight on the belly (light from above), darker toward the edges
-      const ce = centroid(poly)
-      const g = c.createRadialGradient(ce.x - size * 0.12, ce.y - size * 0.16, size * 0.04, ce.x, ce.y, size * 0.75)
-      g.addColorStop(0, 'rgba(255,255,255,0.26)')
-      g.addColorStop(0.45, 'rgba(255,255,255,0.06)')
-      g.addColorStop(1, 'rgba(0,0,0,0.16)')
+      // translucent pale sheen: the skin stays visible through the muscle
+      c.fillStyle = 'rgba(226,236,255,0.2)'
+      c.fillRect(-1e5, -1e5, 2e5, 2e5)
+      // heat: hot core on the belly fading to the edges (follows the muscle's long axis)
+      const ax = axes(poly)
+      c.save()
+      c.translate(ax.ce.x, ax.ce.y); c.rotate(ax.ang); c.scale(ax.a * 1.55, ax.b * 1.55)
+      const g = c.createRadialGradient(0, 0, 0, 0, 0, 1)
+      for (const [o, col] of heat) g.addColorStop(o, col)
       c.fillStyle = g
-      c.fillRect(ce.x - size * 2, ce.y - size * 2, size * 4, size * 4)
-      // fibre striations: this part's own fibres (fall back to the muscle's)
+      c.fillRect(-2, -2, 4, 4)
+      c.restore()
+      // fine fibre striations (light, plus a faint darker line for depth)
       const fib = m.partFibers?.[pi] ?? m.fibers
-      c.strokeStyle = col.fibre
-      c.lineWidth = fineLw
+      c.strokeStyle = 'rgba(70,10,0,0.16)'; c.lineWidth = fineLw * 0.8
       strokeLines(c, fib)
-      c.strokeStyle = 'rgba(255,255,255,0.16)'
-      c.lineWidth = fineLw * 0.6
-      c.save(); c.translate(fineLw * 0.9, fineLw * 0.9); strokeLines(c, fib); c.restore()
+      c.strokeStyle = 'rgba(255,255,255,0.26)'; c.lineWidth = fineLw * 0.55
+      c.save(); c.translate(fineLw * 0.7, fineLw * 0.7); strokeLines(c, fib); c.restore()
       // tendinous intersections (rectus abdominis)
       const bands = m.partBands?.[pi]
-      if (bands?.length) { c.strokeStyle = col.line; c.lineWidth = fineLw * 2.2; strokeLines(c, bands) }
-      // inner edge shading: the inside half of a wide dark stroke gives the belly volume (no outer glow)
+      if (bands?.length) { c.strokeStyle = 'rgba(255,255,255,0.62)'; c.lineWidth = fineLw * 1.5; strokeLines(c, bands) }
+      // soft light inner rim (volume without dark blocks)
       polyPath(c, poly)
-      c.strokeStyle = 'rgba(0,0,0,0.30)'
-      c.lineWidth = Math.max(2, size * 0.2)
-      c.stroke()
-      polyPath(c, poly)
-      c.strokeStyle = 'rgba(0,0,0,0.18)'
-      c.lineWidth = Math.max(1, size * 0.08)
+      c.strokeStyle = 'rgba(255,255,255,0.16)'
+      c.lineWidth = Math.max(2, size * 0.09)
       c.stroke()
       c.restore()
-      // crisp edge
+      // thin crisp light outline with a soft glow
+      c.save()
+      c.shadowColor = 'rgba(255,255,255,0.55)'
+      c.shadowBlur = fineLw * 3
       polyPath(c, poly)
-      c.strokeStyle = col.line
-      c.lineWidth = fineLw * 1.6
+      c.strokeStyle = 'rgba(236,244,255,0.9)'
+      c.lineWidth = fineLw * 1.05
       c.stroke()
+      c.restore()
     })
   }
 }
@@ -234,7 +236,7 @@ type Box = { x: number; y: number; w: number; h: number }
 
 /** side labels "PRIMARY: BICEPS BRACHII" with leader lines; collision-avoiding per column */
 export function drawMuscleLabels(ctx: CanvasRenderingContext2D, W: number, _H: number, muscles: DrawnMuscle[], lang: Lang, centerX: number, zone: { top: number; bottom: number }, max = 6) {
-  const fs = Math.round(Math.max(9, Math.min(17, W / 42)))
+  const fs = Math.round(Math.max(9, Math.min(17 * Math.max(1, Math.min(W, _H) / 700), W / 42)))
   ctx.font = `700 ${fs}px ${FONT_MONO}`
   const list = [...muscles].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role)).slice(0, max)
   const pad = W * 0.03, h = fs * 2.1, gap = fs * 0.45
@@ -293,7 +295,7 @@ export function drawMuscleLabels(ctx: CanvasRenderingContext2D, W: number, _H: n
 }
 
 export function drawLegend(ctx: CanvasRenderingContext2D, W: number, H: number, lang: Lang, roles: Role[]) {
-  const fs = Math.round(Math.max(9, Math.min(16, W / 44)))
+  const fs = Math.round(Math.max(9, Math.min(16 * Math.max(1, Math.min(W, H) / 700), W / 44)))
   ctx.font = `700 ${fs}px ${FONT_MONO}`
   const pad = W * 0.035
   let y = H - pad - roles.length * fs * 1.7

@@ -7,7 +7,7 @@
 import type { Lang, MuscleId } from '../types'
 import { l3, metricLabel, type Mode, type P, type Pose, type Profile } from './formCheck'
 import type { DrawnMuscle, Mask, Role } from './muscleAnatomy'
-import { drawLegend, drawMuscleLabels, drawMuscleLayer, toBW } from './muscleDraw'
+import { drawLegend, drawMuscleLabels, drawMuscleLayer } from './muscleDraw'
 
 const BONES: [number, number][] = [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28], [27, 31], [28, 32]]
 const sub = (a: P, b: P): P => ({ x: a.x - b.x, y: a.y - b.y })
@@ -35,7 +35,6 @@ export type RenderOpts = {
   /** fitted anatomical muscles + the person mask they are clipped to (muscles mode) */
   anatomy?: { drawn: DrawnMuscle[]; mask: Mask | null; roles: Role[]; occluders?: P[][]; hairZone?: { top: number; bottom: number } }
   /** black & white photo underneath */
-  bw?: boolean
   /** muscle labels + legend even without chrome (poster) */
   labels?: boolean
 }
@@ -47,16 +46,14 @@ export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource
   const ctx = canvas.getContext('2d')!
   ctx.imageSmoothingQuality = 'high'
   ctx.drawImage(src, 0, 0, W, H)
-  if (o.bw) toBW(ctx, W, H)
-  ctx.fillStyle = o.mode === 'muscles' ? 'rgba(4,6,10,0.12)' : 'rgba(4,6,10,0.22)'
-  ctx.fillRect(0, 0, W, H)
+  // the user's photo is always shown in its original full colour — no greyscale, no desaturation, no darkening
   let drawn: DrawnMuscle[] = []
   if (pose.ok) {
     if (o.mode === 'technique') drawTechnique(ctx, pose, o)
     else if (o.mode === 'muscles') {
       const a = o.anatomy
       if (a?.mask && a.drawn.length) {
-        drawMuscleLayer(ctx, W, H, a.drawn, a.mask, a.occluders, { hairZone: a.hairZone, bw: o.bw })
+        drawMuscleLayer(ctx, W, H, a.drawn, a.mask, a.occluders, { hairZone: a.hairZone })
         drawn = a.drawn
       }
     } else drawAngles(ctx, pose, o)
@@ -72,7 +69,9 @@ export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource
   return { drawnMuscles: drawn }
 }
 
-const fsBase = (W: number, H: number) => Math.round(Math.max(11, Math.min(22, Math.min(W, H) / 32)))
+/** text scales with the photo (HD photos keep the same look as a 540 px one) */
+const hd = (W: number, H: number) => Math.max(1, Math.min(W, H) / 700)
+const fsBase = (W: number, H: number) => Math.round(Math.max(11, Math.min(22 * hd(W, H), Math.min(W, H) / 32)))
 
 // ---------------- title + spec ----------------
 function drawTitle(ctx: CanvasRenderingContext2D, W: number, H: number, title: string, subtitle: string) {
@@ -113,7 +112,7 @@ function drawSpec(ctx: CanvasRenderingContext2D, W: number, H: number, rows: [st
   const x = W - maxW - W * 0.035, y = H - bh - W * 0.035
   ctx.fillStyle = 'rgba(6,8,12,0.82)'
   ctx.strokeStyle = 'rgba(255,255,255,0.28)'
-  ctx.lineWidth = 1
+  ctx.lineWidth = hd(W, H)
   ctx.beginPath(); ctx.rect(x, y, maxW, bh); ctx.fill(); ctx.stroke()
   ctx.textBaseline = 'middle'
   lines.forEach(([k, v], i) => {
@@ -159,7 +158,7 @@ function pill(ctx: CanvasRenderingContext2D, text: string, anchor: P, W: number,
   const b = placeBox(w, h, anchor.x, anchor.y, W, H, taken)
   if (!b) return
   ctx.strokeStyle = 'rgba(255,255,255,0.7)'
-  ctx.lineWidth = 1
+  ctx.lineWidth = hd(W, H)
   ctx.beginPath()
   ctx.moveTo(anchor.x, anchor.y)
   ctx.lineTo(Math.min(Math.max(anchor.x, b.x), b.x + b.w), Math.min(Math.max(anchor.y, b.y), b.y + b.h))
@@ -310,7 +309,7 @@ function drawTechnique(ctx: CanvasRenderingContext2D, p: Pose, o: RenderOpts) {
   ctx.save()
   // alignment grid
   ctx.strokeStyle = 'rgba(110,160,255,0.22)'
-  ctx.lineWidth = 1
+  ctx.lineWidth = hd(W, H)
   const step = W / 8
   for (let x = step; x < W; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke() }
   for (let y = step; y < H; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke() }

@@ -129,6 +129,20 @@ function exTitle(exId: string | undefined, grip: string | undefined, lang: Lang,
   return exLabel(ex, lang) + (grip && GRIP_KEY[grip as Grip] ? ` · ${t(GRIP_KEY[grip as Grip])}` : '')
 }
 
+/** upscale (never downscale) so the long side is ≥ 1920 px; returns the source itself when it is already that big */
+function hdCanvas(src: HTMLCanvasElement | HTMLImageElement | null): HTMLCanvasElement | HTMLImageElement | null {
+  if (!src) return src
+  const w = src instanceof HTMLImageElement ? src.naturalWidth : src.width, h = src instanceof HTMLImageElement ? src.naturalHeight : src.height
+  const k = Math.min(3, 1920 / Math.max(w, h, 1))
+  if (k <= 1.05) return src
+  const c = document.createElement('canvas')
+  c.width = Math.round(w * k); c.height = Math.round(h * k)
+  const x = c.getContext('2d')!
+  x.imageSmoothingQuality = 'high'
+  x.drawImage(src, 0, 0, c.width, c.height)
+  return c
+}
+
 function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisRecord; src?: HTMLCanvasElement | null; mask?: RawMask | null; onChangeEx?: (id: string, grip?: Grip) => void; guesses?: Guess[] }) {
   const t = useT()
   const lang = useApp((s) => s.lang)
@@ -137,16 +151,17 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
     if (src) { setImg(src); return }
     if (rec.photo) loadImg(rec.photo).then(setImg).catch(() => setImg(null))
   }, [src, rec.photo])
+  // HD: small photos are drawn on a ≥1920 px canvas so lines, outlines and text stay crisp on high-DPI screens and in the poster
+  const hdImg = useMemo(() => hdCanvas(img), [img])
   const [raw, setRaw] = useState<RawMask | null>(mask ?? null)
   useEffect(() => {
     if (mask) { setRaw(mask); return }
     setRaw(null)
     if (rec.mask) pngToMask(rec.mask).then(setRaw).catch(() => setRaw(null))
   }, [mask, rec.mask])
-  const { pose, setup, muscles, roles, anatomy, mask: maskS, checks, skipped, face } = useResult(rec, lang, img, raw)
+  const { pose, setup, muscles, roles, anatomy, mask: maskS, checks, skipped, face } = useResult(rec, lang, hdImg, raw)
   const [mode, setMode] = useState<Mode>(rec.mode ?? setup.mode)
   useEffect(() => setMode(rec.mode ?? exerciseSetup(rec.exId).mode), [rec.exId, rec.mode])
-  const [bw, setBw] = useState(true)
   const [posterMsg, setPosterMsg] = useState('')
   const bodyMapRef = useRef<HTMLDivElement>(null)
   const roleKinds = useMemo(() => ROLE_ORDER.filter((r) => Object.values(roles).includes(r)), [roles])
@@ -159,7 +174,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
       renderAnalysis(c, img, pose, {
         mode, lang, title: name || t('formCheck'), subtitle: t(MODE_SUB[mode]), profile: setup.profile, muscles,
         spec: pose.ok ? specRows(t, pose, name, l3(setup.profile.focus, lang), mode, muscles, lang) : [],
-        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone }, bw: mode === 'muscles' && bw,
+        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone },
       })
       // test hook: the exact outlines that were drawn (checked by the anti-primitive e2e test)
       ;(window as unknown as { __d31MuscleShapes?: unknown }).__d31MuscleShapes = mode === 'muscles' && maskS ? anatomy.drawn.map((m) => ({ id: m.id, role: m.role, polys: m.polys, apo: m.apo })) : []
@@ -169,7 +184,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
     // redraw once the condensed font is ready
     document.fonts?.load('700 40px Oswald').then(draw).catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [img, pose, mode, lang, rec.exId, rec.grip, anatomy, bw, maskS])
+  }, [img, pose, mode, lang, rec.exId, rec.grip, anatomy, maskS])
   const hud: Hud = useMemo(() => hudData(pose, checks, setup.profile, anatomy.drawn, anatomy.notDrawn, lang), [pose, checks, setup.profile, anatomy, lang])
   const savePoster = async () => {
     if (!img || !pose) return
@@ -178,7 +193,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
       const ov = document.createElement('canvas')
       renderAnalysis(ov, img, pose, {
         mode, lang, title: '', subtitle: '', profile: setup.profile, muscles, spec: [], chrome: false, labels: true,
-        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone }, bw: mode === 'muscles' && bw,
+        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone },
       })
       const bm = await svgToImage(bodyMapRef.current?.querySelector('svg') ?? null)
       const poster = renderPoster({ overlay: ov, bodyMap: bm, hud, title: name || t('formCheck'), lang, t: (k) => t(k as never), date: fmtDate(rec.date, lang) })
@@ -209,10 +224,6 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
 
       {pose?.ok && (
         <div className="flex items-center gap-2">
-          {mode === 'muscles' && (
-            <button data-testid="bw-toggle" aria-pressed={bw} onClick={() => setBw(!bw)}
-              className={`rounded-xl border px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wider ${bw ? 'border-white/40 bg-white/10 text-white' : 'border-white/10 text-muted'}`}>{t('bwPhoto')}</button>
-          )}
           <button data-testid="save-poster" onClick={savePoster} className="ml-auto flex items-center gap-1.5 rounded-xl border border-[#ff3b30]/50 bg-[#ff3b30]/10 px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wider text-white">
             <Save size={13} /> {t('savePoster')}
           </button>
@@ -436,7 +447,7 @@ function makeThumb(base: HTMLCanvasElement, lm: number[][] | undefined, exId: st
   const drawn = fit.drawn.map((m) => ({ ...m, anchor: sc(m.anchor), polys: m.polys.map((q) => q.map(sc)), fibers: m.fibers.map((q) => q.map(sc)), partFibers: m.partFibers?.map((g) => g.map((q) => q.map(sc))), partBands: m.partBands?.map((g) => g.map((q) => q.map(sc))) }))
   const pose = buildPose(lmToPts(lm), w, h)
   const setup = exerciseSetup(exId)
-  renderAnalysis(small, base, pose, { mode, lang, title: '', subtitle: '', profile: setup.profile, muscles: musclesFor(exId), spec: [], chrome: false, anatomy: { drawn, mask: scaleMask(mask, w, h), roles: [], occluders: fit.occluders.map((q) => q.map(sc)) }, bw: mode === 'muscles' })
+  renderAnalysis(small, base, pose, { mode, lang, title: '', subtitle: '', profile: setup.profile, muscles: musclesFor(exId), spec: [], chrome: false, anatomy: { drawn, mask: scaleMask(mask, w, h), roles: [], occluders: fit.occluders.map((q) => q.map(sc)) } })
   return small.toDataURL('image/jpeg', 0.72)
 }
 
@@ -458,6 +469,27 @@ function FormCheck({ initialEx }: { initialEx: string }) {
   const media = files[0]
   const isVideo = !!media?.type.startsWith('video/')
   const rec = current ? s.analyses.find((a) => a.id === current.id) ?? null : null
+  // history thumbnails made before v4.4.4 were greyscale: re-draw them once from the stored full-colour photo
+  useEffect(() => {
+    const old = s.analyses.filter((a) => a.kind === 'ondevice' && a.photo && !a.thumbColor)
+    if (!old.length) return
+    let stop = false
+    ;(async () => {
+      for (const a of old) {
+        if (stop) return
+        try {
+          const im = await loadImg(a.photo!)
+          const base = document.createElement('canvas'); base.width = im.naturalWidth; base.height = im.naturalHeight
+          base.getContext('2d')!.drawImage(im, 0, 0)
+          const mk = a.mask ? await pngToMask(a.mask).catch(() => null) : null
+          const thumb = makeThumb(base, a.lm, a.exId, a.mode ?? exerciseSetup(a.exId).mode, s.lang, mk, a.grip)
+          useApp.setState((st) => ({ analyses: st.analyses.map((x) => (x.id === a.id ? { ...x, thumb, thumbColor: true } : x)) }))
+        } catch { useApp.setState((st) => ({ analyses: st.analyses.map((x) => (x.id === a.id ? { ...x, thumb: x.photo, thumbColor: true } : x)) })) }
+      }
+    })()
+    return () => { stop = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   // clean out any legacy fake demo entries that are still in memory
   useEffect(() => {
     if (s.analyses.some((a) => a.demo)) useApp.setState({ analyses: s.analyses.filter((a) => !a.demo) })
@@ -504,23 +536,25 @@ function FormCheck({ initialEx }: { initialEx: string }) {
         srcEl = v
       } else srcEl = await loadImg(previewUrl)
       const base = toCanvas(srcEl, 1080)
+      // display / poster at the photo's own resolution (detection runs on the 1080 px copy; landmarks are normalised)
+      const full = toCanvas(srcEl, 4096)
       const det = await detectPhoto(base)
       const raw = det.lm
       const lm = raw?.map((p) => [+p.x.toFixed(4), +p.y.toFixed(4), +(Math.min(p.visibility ?? 0, p.presence ?? 1)).toFixed(3), +(p.z ?? 0).toFixed(4)])
       const pose = buildPose(lmToPts(lm), base.width, base.height)
       const guesses = exId ? [] : guessExercise(pose)
       const chosen = exId || (guesses[0]?.sure ? guesses[0].id : '')
-      const photoC = toCanvas(base, 540)
+      const photoC = toCanvas(base, 720)
       const mode = exerciseSetup(chosen || undefined).mode
       const id = uid()
       const record: AnalysisRecord = {
         id, date: new Date().toISOString(), exId: chosen || undefined, prompt, sections: {}, raw: '', kind: 'ondevice',
-        photo: photoC.toDataURL('image/jpeg', 0.72), lm: pose.ok ? lm : undefined, poseFound: pose.ok, detected: !exId && !!chosen,
+        photo: photoC.toDataURL('image/jpeg', 0.86), lm: pose.ok ? lm : undefined, poseFound: pose.ok, detected: !exId && !!chosen,
         mask: pose.ok && det.mask ? maskToPng(det.mask) : undefined, grip: exId ? grip : undefined, imgHash: det.hash,
-        thumb: makeThumb(base, pose.ok ? lm : undefined, chosen || undefined, mode, s.lang, det.mask, exId ? grip : undefined),
+        thumb: makeThumb(base, pose.ok ? lm : undefined, chosen || undefined, mode, s.lang, det.mask, exId ? grip : undefined), thumbColor: true,
       }
       s.addAnalysis(record)
-      setCurrent({ id, base, guesses, mask: det.mask })
+      setCurrent({ id, base: full, guesses, mask: det.mask })
       setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
       // AI coach in addition (only when the backend is really configured + signed in)
       if (isLive && s.user && !isVideo) {

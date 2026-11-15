@@ -85,8 +85,12 @@ export type PosterInput = {
 
 export function renderPoster(p: PosterInput): HTMLCanvasElement {
   const W = 1080, H = 1920
-  const c = document.createElement('canvas'); c.width = W; c.height = H
+  // HD: the poster is laid out in 1080×1920 units but rendered at up to 3× so the photo keeps its own resolution
+  const hdK = Math.min(3, Math.max(1, p.overlay.width / (W - 96), p.overlay.height / 900))
+  const c = document.createElement('canvas'); c.width = Math.round(W * hdK); c.height = Math.round(H * hdK)
   const ctx = c.getContext('2d')!
+  ctx.scale(hdK, hdK)
+  ctx.imageSmoothingQuality = 'high'
   ctx.fillStyle = '#05070b'; ctx.fillRect(0, 0, W, H)
   // HUD grid
   ctx.strokeStyle = 'rgba(255,255,255,0.035)'; ctx.lineWidth = 1

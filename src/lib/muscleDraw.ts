@@ -45,6 +45,26 @@ export function faceCue(src: CanvasImageSource & { width: number; height: number
   return undefined
 }
 
+/** YCbCr skin rule (works across skin tones in gym light) */
+export function skinClass(R: number, G: number, B: number): 1 | 0 | -1 {
+  const Y = 0.299 * R + 0.587 * G + 0.114 * B
+  const Cb = 128 - 0.168736 * R - 0.331264 * G + 0.5 * B, Cr = 128 + 0.5 * R - 0.418688 * G - 0.081312 * B
+  // dark: only a clearly blue / green garment colour is decided (skin in shadow keeps Cr > Cb)
+  if (Y < 30) return Cb > 140 || Cr < 118 ? 0 : -1
+  return Cr >= 132 && Cr <= 182 && Cb >= 72 && Cb <= 130 ? 1 : 0
+}
+/** sampler over the photo (≤360 px grid): 1 skin, 0 clothing / non-skin, -1 too dark to tell */
+export function skinSampler(src: CanvasImageSource & { width: number; height: number }, W: number, H: number): (x: number, y: number) => number {
+  const k = Math.max(1, Math.ceil(Math.max(W, H) / 360)), gw = Math.ceil(W / k), gh = Math.ceil(H / k)
+  const cv = mkCanvas(gw, gh), x = cv.getContext('2d', { willReadFrequently: true })!
+  x.imageSmoothingQuality = 'high'
+  let d: Uint8ClampedArray
+  try { x.drawImage(src, 0, 0, gw, gh); d = x.getImageData(0, 0, gw, gh).data } catch { return () => -1 }
+  const g = new Int8Array(gw * gh)
+  for (let i = 0; i < g.length; i++) g[i] = skinClass(d[i * 4], d[i * 4 + 1], d[i * 4 + 2])
+  return (px, py) => { const gx = Math.floor(px / k), gy = Math.floor(py / k); return gx < 0 || gy < 0 || gx >= gw || gy >= gh ? -1 : g[gy * gw + gx] }
+}
+
 /** person mask → alpha canvas (soft edge) */
 export function maskCanvas(m: Mask): HTMLCanvasElement {
   const c = mkCanvas(m.w, m.h)
@@ -73,7 +93,7 @@ const area = (poly: P[]) => { let a = 0; for (let i = 0; i < poly.length; i++) {
  * Only applied outside the zone [top, bottom] (the app uses: above the neck base = hair) — on the torso a dark pixel is a
  * shadow on skin and must keep its muscle. Works on a ≤360 px grid; returns an alpha canvas (W×H).
  */
-function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: Mask, zone: { top: number; bottom: number }, darkLum: number): HTMLCanvasElement {
+function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: Mask, zone: { top: number; bottom: number }, darkLum: number, clothBottom = -1): HTMLCanvasElement {
   const base = maskCanvas(mask)
   const out = mkCanvas(W, H), o = out.getContext('2d')!
   o.imageSmoothingEnabled = true
@@ -82,10 +102,13 @@ function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: M
   try { px = ctx.getImageData(0, 0, W, H) } catch { return out }
   const k = Math.max(1, Math.ceil(Math.max(W, H) / 360)), gw = Math.ceil(W / k), gh = Math.ceil(H / k)
   const lum = new Float32Array(gw * gh)
+  let cloth = new Uint8Array(gw * gh)
   for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
-    let s = 0, n = 0
-    for (let y = gy * k; y < Math.min(H, gy * k + k); y++) for (let x = gx * k; x < Math.min(W, gx * k + k); x++) { const i = (y * W + x) * 4; s += 0.299 * px.data[i] + 0.587 * px.data[i + 1] + 0.114 * px.data[i + 2]; n++ }
+    let s = 0, n = 0, R = 0, G = 0, B = 0
+    for (let y = gy * k; y < Math.min(H, gy * k + k); y++) for (let x = gx * k; x < Math.min(W, gx * k + k); x++) { const i = (y * W + x) * 4; s += 0.299 * px.data[i] + 0.587 * px.data[i + 1] + 0.114 * px.data[i + 2]; R += px.data[i]; G += px.data[i + 1]; B += px.data[i + 2]; n++ }
     lum[gy * gw + gx] = s / (n || 1)
+    // clothing (upper body only): a clearly non-skin colour, e.g. a blue tank top
+    if ((gy + 0.5) * k < clothBottom && n) cloth[gy * gw + gx] = skinClass(R / n, G / n, B / n) === 0 ? 1 : 0
   }
   // blur (r≈2 px of the photo), threshold, erode then dilate (drops thin dark lines such as skin creases)
   const box = (a: Float32Array, r: number) => {
@@ -105,6 +128,22 @@ function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: M
   let dk = new Uint8Array(gw * gh)
   for (let i = 0; i < dk.length; i++) dk[i] = bl[i] < darkLum ? 1 : 0
   dk = morph(morph(dk, Math.max(1, Math.round(2 / k)), false), Math.max(1, Math.round(4 / k)), true)
+  // clothing: drop small blobs (tattoos, skin texture, shadows), keep solid garment areas
+  if (clothBottom > 0) {
+    cloth = morph(morph(cloth, 2, false), 2, true)
+    // and only large connected garment areas count (a tattoo or a dark patch on bare skin is not a shirt)
+    const minCells = Math.max(40, Math.round(0.004 * gw * gh)), seen = new Uint8Array(cloth.length), stack: number[] = [], comp: number[] = []
+    for (let i0 = 0; i0 < cloth.length; i0++) {
+      if (!cloth[i0] || seen[i0]) continue
+      comp.length = 0; stack.push(i0); seen[i0] = 1
+      while (stack.length) {
+        const i = stack.pop()!; comp.push(i)
+        const x = i % gw, y = (i - x) / gw
+        for (const j of [x > 0 ? i - 1 : -1, x < gw - 1 ? i + 1 : -1, y > 0 ? i - gw : -1, y < gh - 1 ? i + gw : -1]) if (j >= 0 && cloth[j] && !seen[j]) { seen[j] = 1; stack.push(j) }
+      }
+      if (comp.length < minCells) for (const i of comp) cloth[i] = 0
+    }
+  }
   // hole mask at grid resolution, scaled up with smoothing (no stair-steps along the hairline)
   const gc = mkCanvas(gw, gh), gx2 = gc.getContext('2d')!, hole = gx2.createImageData(gw, gh)
   let any = false
@@ -113,6 +152,7 @@ function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: M
     if (y >= zone.top && y <= zone.bottom) continue
     for (let gx = 0; gx < gw; gx++) if (dk[gy * gw + gx]) { hole.data[(gy * gw + gx) * 4 + 3] = 255; any = true }
   }
+  for (let i = 0; i < cloth.length; i++) if (cloth[i]) { hole.data[i * 4 + 3] = 255; any = true }
   if (!any) return out
   gx2.putImageData(hole, 0, 0)
   const hc = mkCanvas(W, H), hx = hc.getContext('2d')!
@@ -123,10 +163,10 @@ function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: M
   return out
 }
 
-export type SkinOpts = { hairZone?: { top: number; bottom: number } }
+export type SkinOpts = { hairZone?: { top: number; bottom: number }; clothBottom?: number }
 export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: number, muscles: DrawnMuscle[], mask: Mask, occluders: P[][] = [], skin: SkinOpts = {}) {
   // read the photo before anything is painted on it
-  const keep = skin.hairZone ? skinCanvas(ctx, W, H, mask, skin.hairZone, 48) : null
+  const keep = skin.hairZone || skin.clothBottom ? skinCanvas(ctx, W, H, mask, skin.hairZone ?? { top: -1e9, bottom: 1e9 }, 48, skin.clothBottom ?? -1) : null
   const layer = mkCanvas(W, H)
   const c = layer.getContext('2d')!
   c.lineJoin = 'round'
@@ -177,6 +217,18 @@ function axes(poly: P[]) {
   return { ce, ang: 0.5 * Math.atan2(2 * xy, xx - yy), a: Math.sqrt(l1), b: Math.sqrt(l2) }
 }
 
+/** keep fibres whose middles are at least `gap` px apart (evenly thinned, order kept) */
+function sparseFibres(lines: P[][], gap: number): P[][] {
+  const out: P[][] = []
+  let last: P | null = null
+  for (const f of lines) {
+    if (f.length < 2) continue
+    const m = f[Math.floor(f.length / 2)]
+    if (!last || Math.hypot(m.x - last.x, m.y - last.y) >= gap) { out.push(f); last = m }
+  }
+  return out
+}
+
 function paint(c: CanvasRenderingContext2D, muscles: DrawnMuscle[], fineLw: number) {
   for (const m of muscles) {
     const heat = HEAT[m.role]
@@ -189,6 +241,8 @@ function paint(c: CanvasRenderingContext2D, muscles: DrawnMuscle[], fineLw: numb
         c.save(); c.setLineDash([fineLw * 3, fineLw * 2]); polyPath(c, poly); c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = fineLw * 0.9; c.stroke(); c.restore()
         return
       }
+      // this part sits on top: clear what lower muscles painted underneath, so overlaps never stack fibres
+      c.save(); c.globalCompositeOperation = 'destination-out'; polyPath(c, poly); c.fillStyle = '#000'; c.fill(); c.restore()
       c.save()
       polyPath(c, poly)
       c.clip()
@@ -204,12 +258,12 @@ function paint(c: CanvasRenderingContext2D, muscles: DrawnMuscle[], fineLw: numb
       c.fillStyle = g
       c.fillRect(-2, -2, 4, 4)
       c.restore()
-      // fine fibre striations (light, plus a faint darker line for depth)
-      const fib = m.partFibers?.[pi] ?? m.fibers
-      c.strokeStyle = 'rgba(70,10,0,0.16)'; c.lineWidth = fineLw * 0.8
+      // fine fibre striations: thinned to an even on-screen spacing (no crowding on small parts), one light line each
+      const fib = sparseFibres(m.partFibers?.[pi] ?? m.fibers, fineLw * 6)
+      c.strokeStyle = 'rgba(60,8,0,0.14)'; c.lineWidth = fineLw * 0.9
       strokeLines(c, fib)
-      c.strokeStyle = 'rgba(255,255,255,0.26)'; c.lineWidth = fineLw * 0.55
-      c.save(); c.translate(fineLw * 0.7, fineLw * 0.7); strokeLines(c, fib); c.restore()
+      c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = fineLw * 0.65
+      strokeLines(c, fib)
       // tendinous intersections (rectus abdominis)
       const bands = m.partBands?.[pi]
       if (bands?.length) { c.strokeStyle = 'rgba(255,255,255,0.62)'; c.lineWidth = fineLw * 1.5; strokeLines(c, bands) }
@@ -219,7 +273,11 @@ function paint(c: CanvasRenderingContext2D, muscles: DrawnMuscle[], fineLw: numb
       c.lineWidth = Math.max(2, size * 0.09)
       c.stroke()
       c.restore()
-      // thin crisp light outline with a soft glow
+      // thin crisp light outline with a soft glow, over a faint dark line that separates neighbouring muscles
+      polyPath(c, poly)
+      c.strokeStyle = 'rgba(0,0,0,0.28)'
+      c.lineWidth = fineLw * 2.4
+      c.stroke()
       c.save()
       c.shadowColor = 'rgba(255,255,255,0.55)'
       c.shadowBlur = fineLw * 3

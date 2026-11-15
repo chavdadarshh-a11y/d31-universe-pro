@@ -281,9 +281,50 @@ function fiberLines(tpl: Tpl, poly: TS[]): TS[][] {
  * Fit every wanted muscle onto the photo. Only segments whose joints are clearly visible, that are not badly
  * foreshortened, and whose contour is fitted from the segmentation mask are drawn.
  */
-export type FitResult = { drawn: DrawnMuscle[]; notDrawn: NotDrawn[]; occluders: P[][]; hairZone?: { top: number; bottom: number } }
+export type FitResult = { drawn: DrawnMuscle[]; notDrawn: NotDrawn[]; occluders: P[][]; hairZone?: { top: number; bottom: number }; clothBottom?: number }
 const LOWER_TEMPLATE = new Set<Fine>(['glute_max', 'glute_med', 'hamstrings', 'gastrocnemius', 'soleus', 'tibialis'])
-export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark'): FitResult {
+/**
+ * Clothing: upper-body muscles (trunk + arms, above the hips of an upright body) are only drawn where the photo
+ * shows skin. A muscle whose outline is mostly on a shirt / tank top is listed as not drawn; the renderer also
+ * clips the rest of the artwork off the garment (clothBottom).
+ */
+export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark', skinAt?: (x: number, y: number) => number): FitResult {
+  const r = fitMusclesRaw(pose, mask, roles, face)
+  const sh = pose.named.shM, hip = pose.named.hipM
+  // upright bodies only (shoulders above hips); hips out of frame → one torso length below the shoulders
+  const bottom = hip ? hip.y : sh ? sh.y + (pose.torsoLen || 0) : 0
+  // back views are left alone: the clothing cue is for shirts / tank tops over the chest and arms, and coloured gym
+  // light on a bare back must never wipe out the lats
+  const back = (pose.ok ? artView(pose, face) : null) === 'back' || pose.view === 'back'
+  if (!skinAt || !pose.ok || !sh || back || bottom <= sh.y + 1) return r
+  const drawn: DrawnMuscle[] = [], notDrawn = [...r.notDrawn]
+  for (const m of r.drawn) {
+    if (m.seg !== 'torso' && m.seg !== 'upperArm' && m.seg !== 'forearm') { drawn.push(m); continue }
+    let n = 0, known = 0, skin = 0
+    for (const poly of m.polys.filter((_, i) => !m.apo?.[i])) {
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
+      for (const p of poly) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y) }
+      const st = Math.max(1, Math.max(x1 - x0, y1 - y0) / 24)
+      for (let y = y0; y <= y1; y += st) for (let x = x0; x <= x1; x += st) {
+        if (y >= bottom || !inPolygon(poly, x, y)) continue
+        n++; const v = skinAt(x, y); if (v >= 0) { known++; if (v === 1) skin++ }
+      }
+    }
+    // too-dark cells (hair, deep shadow) say nothing either way; the renderer clips the garment part of a kept muscle
+    if (n >= 8 && known >= 0.3 * n && skin / known < 0.5) notDrawn.push({ id: m.id, role: m.role, reason: 'fit' })
+    else drawn.push(m)
+  }
+  return { ...r, drawn, notDrawn, clothBottom: bottom }
+}
+function inPolygon(poly: P[], x: number, y: number): boolean {
+  let c = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j]
+    if (a.y > y !== b.y > y && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) c = !c
+  }
+  return c
+}
+function fitMusclesRaw(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark'): FitResult {
   // front / back views: the anatomical artwork (muscleArt) draws every muscle it covers; NO fallback to the
   // old outlines for those — if the artwork can't be fitted the muscle is simply not drawn.
   const av = pose.ok ? artView(pose, face) : null

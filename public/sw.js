@@ -8,7 +8,9 @@ self.addEventListener('install', (e) => {
 })
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== OFFLINE).map((k) => caches.delete(k)))).then(() => self.clients.claim()))
+  // only this channel's old caches are removed: the live app ('d31-v…') and the preview ('d31-preview-…') share the origin
+  const mine = (k) => (VERSION.startsWith('d31-preview-') ? k.startsWith('d31-preview-') : !k.startsWith('d31-preview-'))
+  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => mine(k) && k !== VERSION && k !== OFFLINE).map((k) => caches.delete(k)))).then(() => self.clients.claim()))
 })
 
 self.addEventListener('fetch', (e) => {

@@ -1,0 +1,43 @@
+name: Deploy PREVIEW (art-preview → gh-pages/preview/)
+# Preview only: builds branch art-preview into the /preview/ subfolder of gh-pages and keeps every other file
+# (the live app at the root stays exactly as the main deploy left it). Own base path, own service-worker
+# cache channel ('d31-preview-…'), own localStorage copy — see src/lib/previewIsolation.ts.
+on:
+  push:
+    branches: [art-preview]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: preview-deploy
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore binary assets (stored as base64 text)
+        run: |
+          cd binary-assets
+          find . -name '*.b64' | while read f; do t="../${f#./}"; t="${t%.b64}"; mkdir -p "$(dirname "$t")"; base64 -d "$f" > "$t"; done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/preview/
+          VITE_PREVIEW: '1'
+      - name: Preview service-worker channel + no indexing
+        run: |
+          sed -i "s/^const VERSION = '[^']*'/const VERSION = 'd31-preview-v4.5.0-${GITHUB_SHA::7}'/" dist/sw.js
+          grep -m1 "const VERSION" dist/sw.js
+          sed -i 's#<head>#<head><meta name="robots" content="noindex">#' dist/index.html
+          touch dist/.nojekyll
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: preview
+          keep_files: true

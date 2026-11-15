@@ -1,8 +1,10 @@
+import './lib/previewIsolation'
 import './lib/appMode'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
+import { PreviewBadge } from './components/PreviewBadge'
 import { initAuth } from './lib/cloud'
 import { captureReferralFromUrl } from './lib/referral'
 import { trackInstall } from './lib/analytics'
@@ -14,6 +16,7 @@ void initAuth()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
+    <PreviewBadge />
   </StrictMode>,
 )
 

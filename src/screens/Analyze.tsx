@@ -16,7 +16,7 @@ import {
   type CheckResult, type Guess, type Mode, type Pose,
 } from '../lib/formCheck'
 import { renderAnalysis } from '../lib/analysisDraw'
-import { artView, fitMuscles, type FitResult, type Mask } from '../lib/muscleAnatomy'
+import { artView, fitMuscles, primitiveScore, triangleLikeness, type FitResult, type Mask } from '../lib/muscleAnatomy'
 import { anchorDebug } from '../lib/muscleArt'
 import { fineName, roleWord, rolesFor, ROLE_ORDER } from '../lib/muscleRoles'
 import { faceCue, ROLE_COLOR, skinSampler } from '../lib/muscleDraw'
@@ -180,7 +180,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
         anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone, clothBottom: anatomy.clothBottom },
       })
       // test hook: the exact outlines that were drawn (checked by the anti-primitive e2e test)
-      ;(window as unknown as { __d31MuscleShapes?: unknown }).__d31MuscleShapes = mode === 'muscles' && maskS ? anatomy.drawn.map((m) => ({ id: m.id, role: m.role, polys: m.polys, apo: m.apo })) : []
+      ;(window as unknown as { __d31MuscleShapes?: unknown }).__d31MuscleShapes = mode === 'muscles' && maskS ? anatomy.drawn.map((m) => ({ id: m.id, role: m.role, polys: m.polys, apo: m.apo, prim: m.polys.map((q) => [primitiveScore(q), triangleLikeness(q), q.length]) })) : []
       ;(window as unknown as { __d31MuscleDebug?: unknown }).__d31MuscleDebug = { clothBottom: anatomy.clothBottom, view: pose.view, artView: pose.ok ? artView(pose, face) : null, face, notDrawn: anatomy.notDrawn, log: anchorDebug.map((d) => d.msg) }
     }
     draw()

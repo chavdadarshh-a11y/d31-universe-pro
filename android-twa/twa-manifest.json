@@ -21,8 +21,8 @@
     "path": "/workspace/d31-play/keys/d31-upload.jks",
     "alias": "d31upload"
   },
-  "appVersionName": "4.1.2",
-  "appVersionCode": 1,
+  "appVersionName": "4.4.6",
+  "appVersionCode": 2,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://chavdadarshh-a11y.github.io/d31-universe-pro/manifest.webmanifest",
@@ -44,5 +44,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "4.1.2"
+  "appVersion": "4.4.6"
 }

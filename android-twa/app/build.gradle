@@ -57,8 +57,8 @@ android {
         applicationId "com.d31universe.pro"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 1
-        versionName "4.1.2"
+        versionCode 2
+        versionName "4.4.6"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-14T09:42:56.148Z",
+ "generatedAt": "2026-11-16T10:37:47.521Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1167,8 +1167,653 @@
    "number": 506,
    "title": "",
    "rawName": "506. ......",
-   "cover": null,
-   "photos": [],
+   "cover": {
+    "id": "1YSNX5lKAcI-HSP9nHDimyDkozY4Ezmfj",
+    "name": "1792407070770.png",
+    "mime": "image/png"
+   },
+   "photos": [
+    {
+     "id": "1YSNX5lKAcI-HSP9nHDimyDkozY4Ezmfj",
+     "name": "1792407070770.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1_hqLKA4kt49dIamoxxWsZ5lmYj-j0f5o",
+     "name": "1792407076788.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1GMTE6WJ9AHcx4KtZ59Tmb8YKcQMXEtUE",
+     "name": "1792407077653.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "152p06wmolMi0hDHCty5aZFcF-xnRH3KH",
+     "name": "1792407077967.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1zLX9euLqsrwJA-V8L2qpX2VibC8kCiI9",
+     "name": "1792407079351.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1CmkP2G1vi7e_ezZyHp7j_hFsBbkwzjfD",
+     "name": "1792407081216.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "15pEK54SXONrRxCpmnSXiC3XcsSkBVJo-",
+     "name": "1792407084834.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1raFQW1ujRVzI4IO_JFgO9OkbnZWo5SNE",
+     "name": "1792407088027.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1-IeWnTu50mZnITROjSNSJ2KYFYaFXxS2",
+     "name": "1792407091028.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1xopysZYmiMqmX7aS1YxXLSN7v31Po2No",
+     "name": "1792407092851.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1laCiReXDE_sStwhhnwaUQq7XaMe8XrdP",
+     "name": "1792407100137.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1qCZqfwVlHCl1wjor-Ci0BK6QIyedJSRc",
+     "name": "1792407104292.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "10bjeXA6Fpf0dWqqkKIXpWyJdmYDViNzc",
+     "name": "1792407107269.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1pXOyxI936JfKuOzJChROxv03wiScCphK",
+     "name": "1792407110836.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1NJR0P2soclyt_6dnIsCaLlf86Y_zUq1J",
+     "name": "1792407114301.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1wsrNYaZXP_RX8IENZk5H__rhJ-DUid73",
+     "name": "1792407116002.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "10f9fP8oY-rHH35unULjwfu5nl7oPr2fh",
+     "name": "Biceps_Isolation_Masterclass_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1evdtxFWlT8WlNKxRu0RBGVATh1-vCR9M",
+     "name": "Biceps_Isolation_Masterclass_-_Slide_12.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1PG7AWUAJ-D_INz74ycMXrBbHydn5gt_-",
+     "name": "Biceps_Isolation_Masterclass_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1PnUiVhQOZqnXETMMjzeJ1z9nrxD1oyFU",
+     "name": "Biceps_Isolation_Masterclass_-_Slide_5 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1uQ4IDrc4QBYdiKibK7GQgZFu_bu4-7cj",
+     "name": "Biceps_Isolation_Masterclass_-_Slide_8.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "11s-JhrACSlCxRQaaqo89E4Z9oS4IQML8",
+     "name": "Biomechanical_Triceps_Blueprint_-_Slide_6 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1yj_tE1eGWFJxQ6Zgk3paOlGRlcR8X1aU",
+     "name": "Hacking_the_Kinetic_Chain_-_Slide_1 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "19Oj3mW0K2xN73QTgTYM-8K-AlWCRdMqg",
+     "name": "Hacking_the_Kinetic_Chain_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ZhbU0iDMJVG5cZsXzse8v2jcKsJRrs44",
+     "name": "Hacking_the_Kinetic_Chain_-_Slide_5 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "18LTEcmiJuJYlnVYaqMlq-hH_vpx8aofV",
+     "name": "Hacking_the_Kinetic_Chain_-_Slide_7 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "17tepAT2EqnrmgaYKWnIEETF0bw5jUIQz",
+     "name": "Hacking_the_Preacher_Curl_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "12_bYUxq_GNUymqQUDYGz4ZUuLD_YJ9Bo",
+     "name": "Hacking_the_Preacher_Curl_-_Slide_10.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1dTst9RiV5hMxWmlOg6Exdybe2HjgZIP_",
+     "name": "Hacking_the_Preacher_Curl_-_Slide_2.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1eRKINahM7GUjEOwjgCrf_spx8TmswLZf",
+     "name": "Hacking_the_Preacher_Curl_-_Slide_4.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1Wjr-ZXxqcn3ga_bGBoJ0xLopEEQLBohd",
+     "name": "Hacking_the_Preacher_Curl_-_Slide_6.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1rXxJ9fLMJYQ3g-Gr8d6yWeZ189qRLlmQ",
+     "name": "Hacking_the_Preacher_Curl_-_Slide_7.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1qqnK7WnRkFjcINfkuQSd2VPyA13k0hRk",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "19qL3kWCJbbtEz-EwKvO6-bWi67qsUSN3",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_13.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1cgcfk4o6reUm8Rtt0IV_DDA7fdhatUBc",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_14.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1z0nKlVr99jyqXPB95Kt3Rb5R08Ezufli",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_2.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1cAkyCgyd_nEfl9PLhIxrXMOdjwf0RR-C",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ypnMV7omXY7FfprqKjMExjoUVVIBxNpA",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_5.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1bWkOW0jOEpudvZ91PWEsMun83kne7rSn",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_6.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1OtEb1YP6Spo2fobR1AquaKKuQVINDdBR",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_7.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1RR1VJDzxh4PnwcU8EyiAR9-YCDtC84BY",
+     "name": "Machine_Overhead_Triceps_Masterclass_-_Slide_9.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1WK0px_-ntdXUiyWSGwsYuq00YUThCGWJ",
+     "name": "Machine_Overhead_Triceps_Mechanics_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ROJH-ZTexzcfio1-uyTF1tBO9zFjG_Hx",
+     "name": "Machine_Overhead_Triceps_Mechanics_-_Slide_11.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1G_E_lZOUwQSDmVp3cwUQgpVd6p277kR3",
+     "name": "Machine_Overhead_Triceps_Mechanics_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "14EGW6TyZHTS2LB9_NiMRgpIvPBpY6L5y",
+     "name": "Machine_Overhead_Triceps_Mechanics_-_Slide_4.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1g_wZLgisfm1B8t4gBWaDAOActfjovDk5",
+     "name": "Machine_Overhead_Triceps_Mechanics_-_Slide_6.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "106FHHEDKwV28fAvLGxPqPuuF1FCChISG",
+     "name": "Machine_Overhead_Triceps_Mechanics_-_Slide_8.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ibZON_bqT9GpNZQkE2zErJwDu1F5wP7E",
+     "name": "Preacher_Curl_Triceps_Hack_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1xhKB11JvrZlEU4-Vr743_yTDX9m6-a5R",
+     "name": "Preacher_Curl_Triceps_Hack_-_Slide_2.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1KfsBgCuqx3XhD5DW3KELluxEeO149Te2",
+     "name": "Preacher_Curl_Triceps_Hack_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1IK7PnTrsCqbRXOl7FNRdHgvmGMbyJvWI",
+     "name": "Preacher_Curl_Triceps_Hack_-_Slide_4.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1kkloW4nHcgq-p9anySDn4zcHPOYMOLUn",
+     "name": "Preacher_Curl_Triceps_Hack_-_Slide_6.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1aeFCbWST3sNitD4TOykYXHAHpcGakc2Z",
+     "name": "Preacher_Curl_Triceps_Hack_-_Slide_8.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1hmFgyu3_QWPFCqg6irmL9xeFIfe1eKg9",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1hDg7t3UJK1TQ7vZ5m4HFuxw81LNH56L8",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_10.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1J0UEYloOmZ_FQ2HgKjlGFJ6aFi5z4LVQ",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1g1i9gI0hNc-pTBc7uZqPwYLrBGCZvFnC",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_4.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1Wt1xcFYdIYoU-ptxSy8sDmZrpKn9TCtS",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_6.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1jx4ZLLL-KpsBoss9TpXukJJ5qlRuk23Q",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_7.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1CnjIEHvA6CcZ_mgZtwQJD0JgKacMlO7g",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_9 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1QcfQAraFD9OJ9dKANJ_1bESDgucZxPmr",
+     "name": "Reverse_Bicep_Isolation_Blueprint_-_Slide_9.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1nkvFS8erL_C10DbdJu2lpz_gXPhAk0xd",
+     "name": "Reverse_Preacher_Masterclass_-_Slide_1 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1MyTXKItwGi_oDT-xCr5QEW8Y1rIkwhtt",
+     "name": "Reverse_Preacher_Masterclass_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1gM21EXIRjbdCklqsrAP6ch4HzygybNxF",
+     "name": "Reverse_Preacher_Masterclass_-_Slide_10 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1bgot4eYdmSvWD4thULEjsOCFuR3BkyDS",
+     "name": "Reverse_Preacher_Masterclass_-_Slide_10 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1MnXNiwQJU1ikudfJ4CS6X_KS-3Xwwuy-",
+     "name": "Reverse_Preacher_Masterclass_-_Slide_2 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1h1ZwzkxwLX6nq_Etrvf4reEM82ssdqBt",
+     "name": "Reverse_Preacher_Masterclass_-_Slide_2 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1iYxdsMWEUa1WZ9O6v7GOnChjYWeg_8L4",
+     "name": "Reverse_Preacher_Tricep_Hack_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "10PoCv4_WlwQ7Lrs_N1TlBNU5YFt5Thgs",
+     "name": "Reverse_Preacher_Tricep_Hack_-_Slide_12 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1FFfgYD7jreOX0D3vGTrFep1fx03VvP3V",
+     "name": "Reverse_Preacher_Tricep_Hack_-_Slide_2.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ogXgKf2fc40fwU0ctc77Md6LyA0YBHV6",
+     "name": "Reverse_Preacher_Tricep_Hack_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1Yc_0FmjpRLIUkCEZQ_ykN8zazxLb7Okp",
+     "name": "Reverse_Preacher_Tricep_Hack_-_Slide_5.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1l99uKT0WxftEc723Acu2RVe6hbHNqM9u",
+     "name": "Reverse_Preacher_Tricep_Hack_-_Slide_6.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1t4vwhACQiXV6Kr_9jfkiZOkFZMuFYWKz",
+     "name": "Reverse_Preacher_Tricep_Hack_-_Slide_8 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1X0yIcP9ptAuJbTvMe_xJH42kKu6iC8yg",
+     "name": "Reverse_Preacher_Triceps_Blueprint_-_Slide_1 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1AUq-r578FZelTAVux341m_oSHmlnxs4U",
+     "name": "Reverse_Preacher_Triceps_Blueprint_-_Slide_4.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1N0uHQqftBbC_kvG9ZqxP5t3tIlT9dO63",
+     "name": "Reverse_Preacher_Triceps_Blueprint_-_Slide_5.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ry_Vl-QpKYr4tHVV4k3BDRtyXB3Gukf_",
+     "name": "Reverse_Preacher_Triceps_Blueprint_-_Slide_7 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1vkmYPSOIpyEZNU515ffj8FW2ZLSHZzb8",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_1 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1YRVXMblp9okaG388m6uJI_IT9aXyjf_j",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_12.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1aDA3l-Xehnanfst9FbqZanrX1fvUNW5O",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_2 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1RIUobh3T_hZ32mnl_2wRAC1Ox9TXSbBU",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_3.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1qKlGiAqcLmw5Drjwo28D9NtMfkKdoCWa",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_4 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1rCQFz3tf_ewWpJDcSWjvB3MD5AW4XpsN",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_5 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1aHhbj0MGZEyzAbqsDLq3SqEK_jyMcZ44",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_6 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "11Jt27-whGhQXMXhX1lCawmL8dcKb3amz",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_7 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1LtzTJUonERASO_NrrVtiXaIvU0Qzcs8E",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_7 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1WEDSJdfUvGdfIb9Pr5K5vtq1hGAiRhPC",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_8 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1Lk2t-J4JFCxSBWO7HeHlpIeUypjkyjxP",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_8 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1OfdYP5rZkP_gy7MtJkyUxLSeoqDEcmSI",
+     "name": "Reverse_Preacher_Triceps_Hack_-_Slide_9 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ZTCbrI5PsOejNx9Sm97nMJ-t2bzaKdrG",
+     "name": "The_Preacher_Curl_Triceps_Hack_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1eTYFqVdS2v9BjuOJh03Lo8YvCB8-ApuS",
+     "name": "The_Preacher_Curl_Triceps_Hack_-_Slide_2.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1b9rwtzko1DUWxkoXCPWf4STTCV40GDVm",
+     "name": "The_Preacher_Curl_Triceps_Hack_-_Slide_4 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1Wlb5EpjRK9fJHLtirQ5Erygb5XEK9LbI",
+     "name": "The_Preacher_Curl_Triceps_Hack_-_Slide_5.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1qecZBVAlt9P5oEuh7jU_Qmh7Y8hyLXdT",
+     "name": "The_Preacher_Curl_Triceps_Hack_-_Slide_6.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1fUHfGfYCyi5XQe_xf_Hld-JyT8OA_-ug",
+     "name": "The_Preacher_Curl_Triceps_Hack_-_Slide_8 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1XraF8oXxSbMbC-Gg7jI7oSdgCbv1RtKC",
+     "name": "The_Reverse-Preacher_Triceps_Hack_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1J5PF8blC-DBII3w2GJLDjH3CD5F7fH0z",
+     "name": "The_Reverse-Preacher_Triceps_Hack_-_Slide_2.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1PZb4LRDqcu2uUJXYdPWNqyf3izG38BRW",
+     "name": "The_Reverse-Preacher_Triceps_Hack_-_Slide_4.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1ybLW3pZQMzba39YgtxrN-5hXqCS8uWxo",
+     "name": "The_Reverse_Preacher_Hack_-_Slide_1 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1g6ByCkWWT9O7sAUWqbPvLFTSgB1LtqgO",
+     "name": "The_Reverse_Preacher_Hack_-_Slide_10.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1omsxLM-scJVnaQNLv9ICKmpTt9OFWy39",
+     "name": "The_Reverse_Preacher_Hack_-_Slide_3 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1c17yz6hxFPehXe8xZ7SVDFyW9MK5BP64",
+     "name": "The_Reverse_Preacher_Hack_-_Slide_4 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1u8KQqt6NvmM4yC26-DxF08EMDi9hqA7G",
+     "name": "The_Reverse_Preacher_Hack_-_Slide_5 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1PJ7r5Ti_Mzmm1f-fIoH-bpHdj4hWK6u-",
+     "name": "The_Reverse_Preacher_Hack_-_Slide_6 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "19_THOqrw5bguXgLuWRCqS5eSBdOwR0N3",
+     "name": "The_Ultimate_Triceps_Hack_-_Slide_1.png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1u5hfMPp9VmFUFOgI8lO8E-U4p26LOVzW",
+     "name": "The_Ultimate_Triceps_Hack_-_Slide_4 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "151xQ3inDnunOHo0SWZgpZlgVGEAFvSJ4",
+     "name": "The_Ultimate_Triceps_Hack_-_Slide_7 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1lE9VqdHCIgmVNK3fNcHdSaieJ1CyKvOC",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_1 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "14U7acTa5l6E6joO2XjvHxbkV0xBu34oF",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_1 (3).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1rN0yqWTlPzgEgiiQSLLIIV6yG0M8DFCX",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_1 (4).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1o_QQ-qykjQEXK2Io4kLRMjOm5Mzr90dS",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_1 (5).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1HeXf56ZW24K5p8-TmDF-vJByjTTjhou3",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_2 (3).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1rwOOePKDjMi-p2yNRdwNGmVfoX5I9vGu",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_2 (4).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "17-X2Y6HKtR1E88Hxqy_oSHgMENgNnXs6",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_2 (5).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1Tg9QD4Tcc4JY6ObQNWdiFeIKC44-waN4",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_2 (6).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1VUgLrBVsTbcDk4PE-qcJgh4o78krnVmf",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_2 (7).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1VBPPWfTDcCJA6QG58u9TGk0LCAWmNJx-",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_3 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1rcP-3MUQ15VKZUwo7TFQ8b2lKS0y_xp6",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_3 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1RuxYapNY7AG8FLncsn35LFlpv9rY6-1s",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_4 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1qknGwlu3LuGSM14NS9oC3yAleL5Go82q",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_4 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1TJ7PbH9ffU8Kh2zLfX7ld4tmdKAuZdMh",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_4 (3).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1Fq-x_C_Jc8lk89UM1oyb8v1JHCFQ7MVS",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_6 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1n_KBc2_9tPvvN2QRpMDJaewqNgEOLWk2",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_7 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1GIA71Faf-3zxEYe-T8Uk-44FQdD70YVe",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_7 (2).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1931O6XUsOuo9IPCLkoiVwx13KL1naYZj",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_7 (3).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1WiyI4HHrG-gvwvPW5P77Aw9OB4HkHv62",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_8 (1).png",
+     "mime": "image/png"
+    },
+    {
+     "id": "1wb3HWi1674PPMmdOFc4-aTjQJqq7W_-l",
+     "name": "Triceps_Biomechanics_Masterclass_-_Slide_8.png",
+     "mime": "image/png"
+    }
+   ],
    "pdfs": {
     "en": [],
     "hi": [],
@@ -1183,11 +1828,29 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Folder has no title yet (only a number)",
-    "Empty post — hidden in the app until something is added"
+    "No COVER image — using the first photo",
+    "Looks like a copy: \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9.png\" vs \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9 (1).png\"",
+    "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_1.png\" vs \"Reverse_Preacher_Masterclass_-_Slide_1 (1).png\"",
+    "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_10 (2).png\" vs \"Reverse_Preacher_Masterclass_-_Slide_10 (1).png\"",
+    "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_2 (2).png\" vs \"Reverse_Preacher_Masterclass_-_Slide_2 (1).png\"",
+    "Looks like a copy: \"Reverse_Preacher_Triceps_Hack_-_Slide_7 (2).png\" vs \"Reverse_Preacher_Triceps_Hack_-_Slide_7 (1).png\"",
+    "Looks like a copy: \"Reverse_Preacher_Triceps_Hack_-_Slide_8 (2).png\" vs \"Reverse_Preacher_Triceps_Hack_-_Slide_8 (1).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_1 (3).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_1 (2).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_1 (4).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_1 (2).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_1 (5).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_1 (2).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_2 (4).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_2 (3).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_2 (5).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_2 (3).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_2 (6).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_2 (3).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_2 (7).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_2 (3).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_3 (2).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_3 (1).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_4 (2).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_4 (1).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_4 (3).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_4 (1).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_7 (2).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_7 (1).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_7 (3).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_7 (1).png\"",
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_8.png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_8 (1).png\"",
+    "Folder has no title yet (only a number)"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1uPHt77eFTuzTmb4ysqhpgCDYR-jp53ub",
@@ -1199,7 +1862,158 @@
     "name": "Screenshot_2026-09-19-21-04-54-56_92460851df6f172a4592fca41cc2d2e6.jpg",
     "mime": "image/jpeg"
    },
-   "photos": [],
+   "photos": [
+    {
+     "id": "1Dguu-E3RxE39Ilkrr2AXl6dVlqQ4-BSb",
+     "name": "Screenshot_2026-09-19-20-57-09-10_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1Xw8HVdPpIqfRz_v2UzoqkEbvUtLHpeAg",
+     "name": "Screenshot_2026-09-19-20-57-14-62_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "15TxP8cvEWMIQMOR2hV8wV9-ADyF0eQ95",
+     "name": "Screenshot_2026-09-19-20-57-19-55_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1ZnEOiyDCnmf-L5Pen7gU2JIKYNu_Xg4t",
+     "name": "Screenshot_2026-09-19-20-57-25-21_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1l_t5gPRxyohkybUVV0V3qG_2ssu47MZm",
+     "name": "Screenshot_2026-09-19-20-57-36-13_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1HZKG91xhuVdnhS50X8FUeEA7ijOJiJLT",
+     "name": "Screenshot_2026-09-19-20-57-42-31_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1Tsbb61fUfFmja2lODziZGllxhILkFaXg",
+     "name": "Screenshot_2026-09-19-20-58-26-75_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "17V7SgVyPhadbDYiliVFleB5NGk_R0xP5",
+     "name": "Screenshot_2026-09-19-20-59-19-11_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1gl6e_bXZ_JcpnXFrXl_JfN0C_Zut9MW-",
+     "name": "Screenshot_2026-09-19-20-59-56-75_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1ETrFLecQRHYkB2-GMTLxWgEOcoZlViMS",
+     "name": "Screenshot_2026-09-19-21-01-05-81_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1Vsd4A5wZBe1_il-2n035i7T6HltmduOX",
+     "name": "Screenshot_2026-09-19-21-01-22-25_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1avaHDjummjOe8zAzKhikFkL2dz2f-6Ay",
+     "name": "Screenshot_2026-09-19-21-01-32-51_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1qOoXBMAPFYGkTp9UqmOxc7d3lrms3X0y",
+     "name": "Screenshot_2026-09-19-21-01-40-76_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1TSa01nI1PmYxUkI_JFILU56kUcFKTQft",
+     "name": "Screenshot_2026-09-19-21-02-06-04_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1_WePgAmlYf6I5tE616xRAfKAMMy172aK",
+     "name": "Screenshot_2026-09-19-21-02-13-99_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1SzJ3NdNTNsrThm49j0SjHJVZeCgmfF-v",
+     "name": "Screenshot_2026-09-19-21-02-20-03_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1OXEuLElyhbrT14Y59XaQH7FkN8DDp_jh",
+     "name": "Screenshot_2026-09-19-21-02-27-31_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "13juwisDzdy5-v0hBt6BvtN9YMHkVMG6o",
+     "name": "Screenshot_2026-09-19-21-02-33-76_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1yC3W6yfHQsJyD2f7VTZZq94d3sVY-YJx",
+     "name": "Screenshot_2026-09-19-21-02-49-24_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1gPlVZE-8Y33s2dmv8p6QeWKM3MbXon1k",
+     "name": "Screenshot_2026-09-19-21-03-11-04_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "15vd_SLXYzwnOgWyCVn6Ll51Mm_aBK6Kf",
+     "name": "Screenshot_2026-09-19-21-03-17-01_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1ehuC0SHSbYsl9y0KwTW2fiDVfSJddW-f",
+     "name": "Screenshot_2026-09-19-21-03-24-39_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "18fJwn1ENBPLaxlOHGjLX4zvTxkNPVDnz",
+     "name": "Screenshot_2026-09-19-21-03-42-46_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1phMZURtgSac5DOTH8UToTXcJJqbJrDef",
+     "name": "Screenshot_2026-09-19-21-04-18-70_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1KBFVdyIRI0aoTJDN7C-SqFuxHReIvHCj",
+     "name": "Screenshot_2026-09-19-21-04-35-54_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1g7zDSKBb1IE2XMDHwa0s_HX5N_46EPHh",
+     "name": "Screenshot_2026-09-19-21-04-46-91_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "12Agu-MbOXMmDYXP1SKVansD3IzqIkKMv",
+     "name": "Screenshot_2026-09-19-21-04-54-56_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "18p2G4Jf6YsCDCGww2SsGoTz_gp_EjKuo",
+     "name": "Screenshot_2026-09-19-21-05-13-09_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1J7VZ9x8X_6XjWvjJYDeAFBqu0nC9RL85",
+     "name": "Screenshot_2026-09-19-21-05-18-22_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    },
+    {
+     "id": "1wodnOEIHsR77ZfHulx1DE_7kw_sqlUjn",
+     "name": "Screenshot_2026-09-19-21-05-46-58_92460851df6f172a4592fca41cc2d2e6.jpg",
+     "mime": "image/jpeg"
+    }
+   ],
    "pdfs": {
     "en": [
      {

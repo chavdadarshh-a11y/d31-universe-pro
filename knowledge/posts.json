@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-18T07:49:50.009Z",
+ "generatedAt": "2026-11-18T12:27:43.547Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -869,9 +869,9 @@
    "title": "DUO The Duality of Movement Iron-Aether",
    "rawName": "504. DUO The Duality of Movement Iron-Aether",
    "cover": {
-    "id": "18AVtFO-eY3XKF5VHvQHLIN6WidZRVsOj",
-    "name": "DW709499.JPG.jpg",
-    "mime": "image/jpeg"
+    "id": "15pMGZ-NL0-zvt5gQr-6FFPrvG--BiMBC",
+    "name": "IMG_20260921_175440.png",
+    "mime": "image/png"
    },
    "photos": [
     {
@@ -1131,9 +1131,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No COVER image — using the first photo"
-   ],
+   "warnings": [],
    "empty": false
   },
   {

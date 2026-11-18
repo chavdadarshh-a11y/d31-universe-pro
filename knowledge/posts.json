@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-16T10:37:47.521Z",
+ "generatedAt": "2026-11-18T07:49:50.009Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1168,8 +1168,8 @@
    "title": "",
    "rawName": "506. ......",
    "cover": {
-    "id": "1YSNX5lKAcI-HSP9nHDimyDkozY4Ezmfj",
-    "name": "1792407070770.png",
+    "id": "1Sjd1NXM_gnaj1fAV4IJYFkzlFM0tr10W",
+    "name": "file_000000004bf08211a9f523df5504b23b.png",
     "mime": "image/png"
    },
    "photos": [
@@ -1821,14 +1821,78 @@
     "all": []
    },
    "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
+    "en": [
+     {
+      "id": "12tBpbZ5bm3c4SPJbbeXg8m2jhZCxMMK9",
+      "name": "Reverse-Preacher_Triceps_Hack.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
+      "id": "1rNPk1ahQu_o5Dj4rAX5Xf6nipef886fU",
+      "name": "The_Reverse-Preacher_Triceps_Hack.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "18GAv3Bcnbs-1UbomD7lDoUxu4539wIwa",
+      "name": "प्रीचर_कर्ल_मशीन_हैक (1).mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     },
+     {
+      "id": "15ZzqKSIIHL8a_wt7ViWjqKrKX7LAHlHC",
+      "name": "रिवर्स_ट्राइसेप्स_हैक.mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     }
+    ],
+    "gu": [
+     {
+      "id": "1ezg6N4FrWmntNBmvtp0l5a2qMEktoACM",
+      "name": "ઓવરહેડ_ટ્રાયસેપ્સ_એક્સટેન્શન (1).mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     },
+     {
+      "id": "1n8aS_A0OaklSbWu5Eej4FcfdhUePDe6k",
+      "name": "ટ્રાઇસેપ્સ_માસ્ટરક્લાસ.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     }
+    ],
+    "all": [
+     {
+      "id": "1NUCbzsUwBdO5R12Q8Y7G8twyBa8CoVp9",
+      "name": "IMG_1363.MOV",
+      "mime": "video/mp4"
+     },
+     {
+      "id": "13IV5XuGtzayamgkTIh6y8jbUAPJeX2Le",
+      "name": "IMG_1364.MOV",
+      "mime": "video/mp4"
+     },
+     {
+      "id": "1JDnqbdmJ1DGQhCO01F5Qj9FejQUEubXX",
+      "name": "IMG_1366.MOV",
+      "mime": "video/mp4"
+     },
+     {
+      "id": "1ZiWmdrM_q7sXUK_h6bjLS8pMmGdkjHlj",
+      "name": "lv_0_20261024160822.mp4",
+      "mime": "video/mp4"
+     },
+     {
+      "id": "1sqZSf8WPF1xIr3vylO6-O75h2jeoAzEg",
+      "name": "VID_20261018_160706_1.mp4",
+      "mime": "video/mp4"
+     }
+    ]
    },
    "meta": null,
    "warnings": [
-    "No COVER image — using the first photo",
     "Looks like a copy: \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9.png\" vs \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9 (1).png\"",
     "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_1.png\" vs \"Reverse_Preacher_Masterclass_-_Slide_1 (1).png\"",
     "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_10 (2).png\" vs \"Reverse_Preacher_Masterclass_-_Slide_10 (1).png\"",

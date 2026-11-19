@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-18T12:27:43.547Z",
+ "generatedAt": "2026-11-19T11:03:46.373Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1163,8 +1163,8 @@
   {
    "id": "1-ny5HmPVmOifhnFsx8t4UnAb84mgD6Z2",
    "number": 506,
-   "title": "",
-   "rawName": "506. ......",
+   "title": "OVERHEAD PRECHECHER",
+   "rawName": "506. OVERHEAD PRECHECHER",
    "cover": {
     "id": "1Sjd1NXM_gnaj1fAV4IJYFkzlFM0tr10W",
     "name": "file_000000004bf08211a9f523df5504b23b.png",
@@ -1909,8 +1909,7 @@
     "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_4 (3).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_4 (1).png\"",
     "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_7 (2).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_7 (1).png\"",
     "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_7 (3).png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_7 (1).png\"",
-    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_8.png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_8 (1).png\"",
-    "Folder has no title yet (only a number)"
+    "Looks like a copy: \"Triceps_Biomechanics_Masterclass_-_Slide_8.png\" vs \"Triceps_Biomechanics_Masterclass_-_Slide_8 (1).png\""
    ],
    "empty": false
   },

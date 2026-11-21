@@ -1,4 +1,4 @@
-# D31.UNIVERSE PRO
+# D31.UNIVERSE
 
 Darshan Chavda's fitness app. Train smart, move better. It's a mobile-first PWA in English, हिन्दी and ગુજરાતી.
 

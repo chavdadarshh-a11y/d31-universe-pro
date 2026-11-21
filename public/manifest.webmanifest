@@ -1,7 +1,7 @@
 {
   "name": "D31.UNIVERSE",
   "short_name": "D31",
-  "description": "Train with Darshan Chavda: workout logging, skill paths, D31 Knowledge, AI form check and live rep counter. English, Hindi, Gujarati.",
+  "description": "D31.UNIVERSE: AI fitness, movement analysis and recovery coach app by Darshan Chavda (English, Hindi, Gujarati).",
   "id": "./",
   "start_url": "./#/home",
   "scope": "./",

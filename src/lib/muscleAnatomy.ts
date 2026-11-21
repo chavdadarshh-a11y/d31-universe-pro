@@ -63,7 +63,9 @@ const TH_SIDE: Tpl[] = [
   { id: 'hamstrings', seg: 'thigh', view: 'side', poly: [[0.12, -0.3], [0.3, -0.5], [0.6, -0.56], [0.85, -0.46], [1.0, -0.6], [0.92, -0.96], [0.65, -1.0], [0.35, -0.98], [0.15, -0.86]], fiber: { kind: 'along' } },
   { id: 'vastus_lateralis', seg: 'thigh', view: 'side', poly: [[0.08, 0.1], [0.25, 0.2], [0.55, 0.26], [0.85, 0.36], [0.97, 0.3], [0.95, -0.06], [0.82, -0.36], [0.55, -0.46], [0.3, -0.36], [0.12, -0.16]], fiber: { kind: 'dir', d: [1, -0.25] } },
   { id: 'rectus_femoris', seg: 'thigh', view: 'side', poly: [[0.02, 0.26], [0.1, 0.7], [0.3, 0.96], [0.55, 0.93], [0.78, 0.72], [0.93, 0.46], [0.88, 0.3], [0.65, 0.26], [0.35, 0.21], [0.12, 0.16]], fiber: { kind: 'along' } },
-  { id: 'glute_max', seg: 'thigh', view: 'side', poly: [[-0.32, -0.2], [-0.2, -0.86], [0.0, -1.02], [0.2, -0.96], [0.32, -0.7], [0.26, -0.4], [0.08, -0.25], [-0.1, -0.1]], fiber: { kind: 'dir', d: [0.8, 0.6] } },
+  // full gluteus maximus seen from the side: from the iliac crest / sacrum (well above the hip joint) to the
+  // gluteal fold (~40 % down the thigh), covering the whole back half of the hip and bulging to the outline
+  { id: 'glute_max', seg: 'thigh', view: 'side', poly: [[-0.44, -0.16], [-0.34, -0.88], [-0.08, -1.1], [0.2, -1.08], [0.4, -0.84], [0.42, -0.5], [0.24, -0.26], [0.0, -0.12], [-0.22, -0.06]], fiber: { kind: 'dir', d: [0.8, 0.6] } },
 ]
 const TH_FRONT: Tpl[] = [
   { id: 'adductors', seg: 'thigh', view: 'front', poly: [[0.02, -0.36], [0.08, -0.96], [0.3, -1.0], [0.56, -0.8], [0.5, -0.5], [0.3, -0.4]], fiber: { kind: 'dir', d: [1, 0.35] } },
@@ -309,7 +311,7 @@ const LOWER_TEMPLATE = new Set<Fine>(['glute_max', 'glute_med', 'hamstrings', 'g
  * shows skin. A muscle whose outline is mostly on a shirt / tank top is listed as not drawn; the renderer also
  * clips the rest of the artwork off the garment (clothBottom).
  */
-export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark', skinFor?: (back: boolean) => (x: number, y: number) => number): FitResult {
+export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark', skinFor?: (back: boolean) => ((x: number, y: number) => number) & { lum?: (x: number, y: number) => number }): FitResult {
   const r = fitMusclesRaw(pose, mask, roles, face)
   const sh = pose.named.shM, hip = pose.named.hipM
   // upright bodies only (shoulders above hips); hips out of frame → one torso length below the shoulders
@@ -320,6 +322,21 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
   const back = (pose.ok ? artView(pose, face) : null) === 'back' || pose.view === 'back'
   if (!skinFor || !pose.ok || !sh || bottom <= sh.y + 1) return r
   const skinAt = skinFor(back)
+  // this person's bare skin is clearly lit (face, hands, arms) → a muscle that is almost all "too dark to tell"
+  // sits on black clothing (long sleeves, black tee), not on skin in shadow
+  let skinRef = 0
+  const ears = [pose.pts[7], pose.pts[8]].filter(Boolean)
+  const face0 = pose.pts[0] ? (ears.length ? { x: (pose.pts[0].x * 2 + ears.reduce((a, e) => a + e.x, 0) / ears.length) / 3, y: (pose.pts[0].y * 2 + ears.reduce((a, e) => a + e.y, 0) / ears.length) / 3 } : pose.pts[0]) : null
+  const faceR2 = (0.28 * (pose.torsoLen || 100)) ** 2
+  if (mask && skinAt.lum) {
+    const T0 = pose.torsoLen || 100, st = Math.max(2, T0 / 14), ys: number[] = []
+    for (let y = 0; y < pose.H; y += st) for (let x = 0; x < pose.W; x += st) {
+      if (maskAt(mask, { x, y }) < 0.5) continue
+      if (skinAt(x, y) === 1) ys.push(skinAt.lum(x, y))
+    }
+    ys.sort((a, b) => a - b)
+    skinRef = ys.length >= 5 ? ys[ys.length >> 1] : 0
+  }
   // a fleshy part that is mostly covered — or only a small sliver of it shows (pec tips at a neckline, an armpit
   // fragment) — is dropped; T = torso length
   const T = pose.torsoLen || Math.max(1, bottom - sh.y), minArea = 0.02 * T * T
@@ -327,7 +344,8 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
   for (const m of r.drawn) {
     // legs (not the glutes, which are almost always under shorts and are drawn over them): the same clothing
     // rule over the whole outline — quads on white shorts are not drawn, only the part on bare skin shows
-    const leg = (m.seg === 'thigh' || m.seg === 'shin') && m.id !== 'glute_max' && m.id !== 'glute_med'
+    // glutes are drawn over shorts on upright bodies; upside down (headstand) the fit is too loose for that
+    const leg = (m.seg === 'thigh' || m.seg === 'shin') && ((m.id !== 'glute_max' && m.id !== 'glute_med') || bottom > 1e8)
     if (m.seg !== 'torso' && m.seg !== 'upperArm' && m.seg !== 'forearm' && !leg) { drawn.push(m); continue }
     const keep: number[] = []
     m.polys.forEach((poly, i) => {
@@ -335,17 +353,29 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
       for (const p of poly) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y) }
       const st = Math.max(1, Math.max(x1 - x0, y1 - y0) / 24)
-      let n = 0, known = 0, skin = 0, below = 0
+      let n = 0, known = 0, skin = 0, below = 0, tot = 0, dark = 0, darkL = 0
       for (let y = y0; y <= y1; y += st) for (let x = x0; x <= x1; x += st) {
         if (!inPolygon(poly, x, y)) continue
+        tot++
+        // only the person counts (a weight plate or the wall behind a leg is not "skin")
+        if (mask && maskAt(mask, { x, y }) < 0.5) continue
+        // a hand / forearm hanging in front of the thigh is skin, but not the leg's skin
+        // (same for trunk muscles: the arm's own skin must not make a trunk muscle look "on skin")
+        if ((leg || m.seg === 'torso') && r.occluders.some((o) => inPolygon(o, x, y))) continue
+        // the face is skin but never a muscle's skin (a shoulder next to the head in a flag, a trap under a beard)
+        if (face0 && !back && (x - face0.x) ** 2 + (y - face0.y) ** 2 < faceR2) continue
         if (y >= bottom && !leg) { below++; continue }
-        n++; const v = skinAt(x, y); if (v >= 0) { known++; if (v === 1) skin++ }
+        n++; const v = skinAt(x, y); if (v >= 0) { known++; if (v === 1) skin++ } else if (skinAt.lum) { dark++; darkL += skinAt.lum(x, y) }
       }
       // too-dark cells (hair, deep shadow) say nothing either way; parts below the clothing line are kept as they are
-      if (n < 8) { keep.push(i); return }
+      // a big shape with almost nothing of it left on the person (off the body / behind the arm) is not drawn
+      if (n < 8) { if (tot < 16 || n + below >= 0.3 * tot) keep.push(i); return }
       // legs: mostly too dark to tell is almost always black tights / track pants — not drawn (cannot be verified)
-      if (known < 0.3 * n) { if (!leg) keep.push(i); return }
-      const frac = skin / known
+      // much darker than this person's lit skin (black sleeves / tee in daylight) → clothing, not shadow
+      // (not the upper trap: on a back view its top runs into dark hair, which is not a garment)
+      const darkIsCloth = m.id !== 'traps_upper' && skinRef > 60 && dark > 0 && darkL / dark < 0.3 * skinRef
+      if (known < 0.3 * n) { if (!leg && !darkIsCloth) keep.push(i); return }
+      const frac = skin / (darkIsCloth ? known + dark : known)
       if (frac < 0.5) return
       const shown = (n * frac + below) * st * st
       if (frac < 0.85 && shown < minArea) return
@@ -359,6 +389,18 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
     drawn.push({ ...m, polys: idx.map((i) => m.polys[i]), partFibers: pick(m.partFibers), partBands: pick(m.partBands), apo: pick(m.apo), fibers: m.partFibers ? idx.flatMap((i) => m.partFibers![i]) : m.fibers })
   }
   return { ...r, drawn, notDrawn, clothBottom: bottom > 1e8 ? bottom0 : bottom, clothBack: back }
+}
+/** share of a shape's area that is NOT covered by any occluder */
+function visibleShare(poly: P[], occ: P[][]): number {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
+  for (const p of poly) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y) }
+  const st = Math.max(1, Math.max(x1 - x0, y1 - y0) / 24)
+  let n = 0, vis = 0
+  for (let y = y0; y <= y1; y += st) for (let x = x0; x <= x1; x += st) {
+    if (!inPolygon(poly, x, y)) continue
+    n++; if (!occ.some((o) => inPolygon(o, x, y))) vis++
+  }
+  return n ? vis / n : 1
 }
 function inPolygon(poly: P[], x: number, y: number): boolean {
   let c = false
@@ -526,13 +568,28 @@ function fitTemplates(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine,
   if (view !== 'back') for (const seg of ['upperArm', 'forearm'] as const) for (const d of sidesFor(seg)) {
     const f = limbFrame(seg, d)
     if (!f) continue
-    const t0 = seg === 'upperArm' ? 0.12 : 0, t1 = seg === 'upperArm' ? 1.02 : 0.9
+    // forearm band runs on over the hand (a fist in front of the thigh is not leg skin)
+    const t0 = seg === 'upperArm' ? 0.12 : 0, t1 = seg === 'upperArm' ? 1.02 : 1.2
     const band: P[] = []
-    for (let i = 0; i <= 12; i++) band.push(f.map(t0 + ((t1 - t0) * i) / 12, 1))
-    for (let i = 12; i >= 0; i--) band.push(f.map(t0 + ((t1 - t0) * i) / 12, -1))
+    // a little wider than the measured arm: the soft mask edge and the heat glow must not leave a trunk-muscle
+    // sliver along the arm
+    for (let i = 0; i <= 12; i++) band.push(f.map(t0 + ((t1 - t0) * i) / 12, 1.2))
+    for (let i = 12; i >= 0; i--) band.push(f.map(t0 + ((t1 - t0) * i) / 12, -1.2))
     occluders.push(band)
   }
-  return { drawn: [...drawn.values()], notDrawn, occluders }
+  // a trunk muscle that is mostly behind the arm is not drawn (only a strip along the arm would be left)
+  const out: DrawnMuscle[] = []
+  for (const m of drawn.values()) {
+    if ((m.seg !== 'torso' && m.id !== 'glute_max' && m.id !== 'glute_med') || !occluders.length) { out.push(m); continue }
+    const keep = m.polys.map((q, i) => m.apo?.[i] || visibleShare(q, occluders) >= 0.45)
+    if (keep.every(Boolean)) { out.push(m); continue }
+    const idx = m.polys.map((_, i) => i).filter((i) => keep[i] && !m.apo?.[i])
+    if (!idx.length) { notDrawn.push({ id: m.id, role: m.role, reason: 'fit' }); continue }
+    const all = m.polys.map((_, i) => i).filter((i) => keep[i])
+    const pick = <T,>(a?: T[]) => (a ? all.map((i) => a[i]) : undefined)
+    out.push({ ...m, polys: all.map((i) => m.polys[i]), partFibers: pick(m.partFibers), partBands: pick(m.partBands), apo: pick(m.apo), fibers: m.partFibers ? all.flatMap((i) => m.partFibers![i]) : m.fibers })
+  }
+  return { drawn: out, notDrawn, occluders }
 }
 
 /**

@@ -14,7 +14,7 @@ const want = {
   'लैट पुलडाउन': ['lat-pulldown'], 'लेट पुल डाउन': ['lat-pulldown'], 'લેટ પુલડાઉન': ['lat-pulldown'], 'Lat Pulldown': ['lat-pulldown'],
   'seated row': ['seated-cable-row'], 'cable row': ['seated-cable-row'], 'pullup': ['pull-up'], 'chin up': ['chin-up'], 'dedlift': ['deadlift'],
   'bench': ['bench-press'], 'bicep curl': ['barbell-curl'], 'hammer curl': ['hammer-curl'], 'tricep pushdown': ['triceps-pushdown'],
-  'shoulder press': ['overhead-press'], 'rdl': ['romanian-deadlift'], 'leg press': ['leg-press'], 'hip thrust': ['hip-thrust'],
+  'shoulder press': ['overhead-press'], 'incline dumbbell press': ['incline-bench-press'], 'incline db press': ['incline-bench-press'], 'db press': ['dumbbell-bench-press'], 'arnold press': ['dumbbell-shoulder-press'], 'split squat': ['bulgarian-split-squat'], 'sl rdl': ['single-leg-rdl'], 'single leg rdl': ['single-leg-rdl'], 'ohp': ['overhead-press'], 'rdl': ['romanian-deadlift'], 'leg press': ['leg-press'], 'hip thrust': ['hip-thrust'],
 }
 for (const [q, [id, grip]] of Object.entries(want)) {
   const r = m.resolveExercise(q)

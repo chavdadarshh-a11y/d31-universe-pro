@@ -51,6 +51,11 @@ export function skinClass(R: number, G: number, B: number): 1 | 0 | -1 {
   const Cb = 128 - 0.168736 * R - 0.331264 * G + 0.5 * B, Cr = 128 + 0.5 * R - 0.418688 * G - 0.081312 * B
   // dark: only a clearly blue / green garment colour is decided (skin in shadow keeps Cr > Cb)
   if (Y < 30) return Cb > 140 || Cr < 118 ? 0 : -1
+  // saturated red / crimson / maroon fabric passes the Cr test; skin (even in red gym light) keeps green at
+  // ≥ ~40 % of red, a red shirt sits far below that
+  if (R > 40 && G < 0.3 * R) return 0
+  // near-white / grey / pale-pink fabric (white shorts, pattern prints): lit, but with almost no skin tint
+  if (Y > 90 && Math.hypot(Cb - 128, Cr - 128) < 13) return 0
   return Cr >= 132 && Cr <= 182 && Cb >= 72 && Cb <= 130 ? 1 : 0
 }
 /**
@@ -64,18 +69,32 @@ export function garmentBack(R: number, G: number, B: number): boolean {
   return Cr < 130 || (Math.abs(Cb - 128) < 6 && Math.abs(Cr - 128) < 6)
 }
 /** sampler over the photo (≤360 px grid): 1 skin, 0 clothing / non-skin, -1 too dark to tell (back: garmentBack) */
-export function skinSampler(src: CanvasImageSource & { width: number; height: number }, W: number, H: number, back = false): (x: number, y: number) => number {
+export function skinSampler(src: CanvasImageSource & { width: number; height: number }, W: number, H: number, back = false): ((x: number, y: number) => number) & { lum?: (x: number, y: number) => number } {
   const k = Math.max(1, Math.ceil(Math.max(W, H) / 360)), gw = Math.ceil(W / k), gh = Math.ceil(H / k)
   const cv = mkCanvas(gw, gh), x = cv.getContext('2d', { willReadFrequently: true })!
   x.imageSmoothingQuality = 'high'
   let d: Uint8ClampedArray
-  try { x.drawImage(src, 0, 0, gw, gh); d = x.getImageData(0, 0, gw, gh).data } catch { return () => -1 }
-  const g = new Int8Array(gw * gh)
-  for (let i = 0; i < g.length; i++) {
-    const R = d[i * 4], G = d[i * 4 + 1], B = d[i * 4 + 2], c = skinClass(R, G, B)
-    g[i] = c === 0 && back && !garmentBack(R, G, B) ? 1 : c
+  // each cell is read at 4×4 sub-pixels: its mean colour decides skin / garment, and a strongly mixed cell
+  // (a black-white-red print averages to a "skin" brown) says nothing (-1)
+  const S = 4
+  cv.width = gw * S; cv.height = gh * S
+  try { x.imageSmoothingQuality = 'high'; x.drawImage(src, 0, 0, gw * S, gh * S); d = x.getImageData(0, 0, gw * S, gh * S).data } catch { return () => -1 }
+  const g = new Int8Array(gw * gh), lumG = new Uint8Array(gw * gh)
+  for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
+    let R = 0, G = 0, B = 0, l = 0, l2 = 0
+    for (let yy = 0; yy < S; yy++) for (let xx = 0; xx < S; xx++) {
+      const j = ((gy * S + yy) * gw * S + gx * S + xx) * 4, r = d[j], gg = d[j + 1], b = d[j + 2], L = 0.299 * r + 0.587 * gg + 0.114 * b
+      R += r; G += gg; B += b; l += L; l2 += L * L
+    }
+    const n = S * S; R /= n; G /= n; B /= n
+    const sd = Math.sqrt(Math.max(0, l2 / n - (l / n) ** 2))
+    const c = skinClass(R, G, B)
+    g[gy * gw + gx] = c === 1 && sd > 38 ? -1 : c === 0 && back && !garmentBack(R, G, B) ? 1 : c
+    lumG[gy * gw + gx] = Math.round(l / n)
   }
-  return (px, py) => { const gx = Math.floor(px / k), gy = Math.floor(py / k); return gx < 0 || gy < 0 || gx >= gw || gy >= gh ? -1 : g[gy * gw + gx] }
+  const at = (px: number, py: number) => { const gx = Math.floor(px / k), gy = Math.floor(py / k); return gx < 0 || gy < 0 || gx >= gw || gy >= gh ? -1 : g[gy * gw + gx] }
+  // brightness of a cell (0…255), so the fitter can tell "dark skin in shadow" from "black sleeve on lit skin"
+  return Object.assign(at, { lum: (px: number, py: number) => { const gx = Math.floor(px / k), gy = Math.floor(py / k); return gx < 0 || gy < 0 || gx >= gw || gy >= gh ? -1 : lumG[gy * gw + gx] } })
 }
 
 /** person mask → alpha canvas (soft edge) */
@@ -192,7 +211,9 @@ export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: num
   c.lineCap = 'round'
   const fineLw = Math.max(0.8, Math.min(W, H) / 700)
   const byLayer = (a: DrawnMuscle, b: DrawnMuscle) => (a.layer ?? -1) - (b.layer ?? -1)
-  const trunk = muscles.filter((m) => m.seg === 'torso').sort(byLayer), limbs = muscles.filter((m) => m.seg !== 'torso' && !legs.includes(m)).sort(byLayer)
+  // glutes go with the trunk: an arm hanging in front of the hip hides them the same way
+  const isGlute = (m: DrawnMuscle) => m.id === 'glute_max' || m.id === 'glute_med'
+  const trunk = muscles.filter((m) => m.seg === 'torso' || isGlute(m)).sort(byLayer), limbs = muscles.filter((m) => m.seg !== 'torso' && !isGlute(m) && !legs.includes(m)).sort(byLayer)
   // legs get their own layer clipped to bare skin over the whole photo (shorts / tights are not skin)
   let legLayer: HTMLCanvasElement | null = null
   if (legs.length) {
@@ -204,8 +225,10 @@ export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: num
     lc.drawImage(skinCanvas(ctx, W, H, mask, { top: -1e9, bottom: 1e9 }, 48, H * 2, !!skin.clothBack, px), 0, 0)
     lc.globalCompositeOperation = 'destination-out'
     lc.fillStyle = '#000'
+    // arms in front of the thighs (deadlift, RDL hang) hide the leg muscles there
+    for (const o of occluders) { polyPath(lc, o); lc.fill() }
     // the glutes sit on top of the hamstrings / quads where they overlap
-    for (const m of limbs) if (m.id === 'glute_max' || m.id === 'glute_med') m.polys.forEach((q, i) => { if (!m.apo?.[i] && q.length >= 8) { polyPath(lc, q); lc.fill() } })
+    for (const m of trunk) if (isGlute(m)) m.polys.forEach((q, i) => { if (!m.apo?.[i] && q.length >= 8) { polyPath(lc, q); lc.fill() } })
     lc.globalCompositeOperation = 'source-over'
   }
   paint(c, trunk, fineLw)
@@ -225,6 +248,54 @@ export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: num
   if (legLayer) { c.globalCompositeOperation = 'destination-over'; c.drawImage(legLayer, 0, 0); c.globalCompositeOperation = 'source-over' }
   dropFragments(c, layer, W, H)
   ctx.drawImage(layer, 0, 0)
+  return paintedInfo(layer, W, H, muscles)
+}
+
+export type PaintGrid = { k: number; gw: number; gh: number; on: Uint8Array }
+/**
+ * What is really visible after all clipping: a muscle whose paint was clipped away (on clothing, behind the
+ * hair) gets no label, and a label leader points at the painted part (nearest painted cell to its centre),
+ * never at a bare shirt. Also returns the painted-cell grid so labels can be placed off the artwork.
+ */
+function paintedInfo(layer: HTMLCanvasElement, W: number, H: number, muscles: DrawnMuscle[]): { visible: DrawnMuscle[]; grid: PaintGrid | null } {
+  const k = Math.max(1, Math.ceil(Math.max(W, H) / 360)), gw = Math.ceil(W / k), gh = Math.ceil(H / k)
+  const sm = mkCanvas(gw, gh), sx = sm.getContext('2d', { willReadFrequently: true })!
+  sx.drawImage(layer, 0, 0, gw, gh)
+  let a: Uint8ClampedArray
+  try { a = sx.getImageData(0, 0, gw, gh).data } catch { return { visible: muscles, grid: null } }
+  const on = new Uint8Array(gw * gh)
+  for (let i = 0; i < on.length; i++) on[i] = a[i * 4 + 3] > 40 ? 1 : 0
+  const visible: DrawnMuscle[] = []
+  for (const m of muscles) {
+    const pts: { x: number; y: number }[] = []
+    let tot = 0
+    m.polys.forEach((q, pi) => {
+      if (m.apo?.[pi] || q.length < 3) return
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
+      for (const p of q) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y) }
+      for (let gy = Math.max(0, Math.floor(y0 / k)); gy <= Math.min(gh - 1, Math.ceil(y1 / k)); gy++) for (let gx = Math.max(0, Math.floor(x0 / k)); gx <= Math.min(gw - 1, Math.ceil(x1 / k)); gx++) {
+        const x = (gx + 0.5) * k, y = (gy + 0.5) * k
+        if (!inPoly(q, x, y)) continue
+        tot++
+        if (on[gy * gw + gx]) pts.push({ x, y })
+      }
+    })
+    // nothing (or only a sliver) of it is on the photo → not labelled
+    if (!tot || pts.length < Math.max(6, 0.12 * tot)) continue
+    const ce = pts.reduce((s, p) => ({ x: s.x + p.x / pts.length, y: s.y + p.y / pts.length }), { x: 0, y: 0 })
+    let best = pts[0], bd = 1e18
+    for (const p of pts) { const d = (p.x - ce.x) ** 2 + (p.y - ce.y) ** 2; if (d < bd) { bd = d; best = p } }
+    visible.push({ ...m, anchor: { x: best.x, y: best.y } })
+  }
+  return { visible, grid: { k, gw, gh, on } }
+}
+function inPoly(poly: P[], x: number, y: number): boolean {
+  let c = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j]
+    if (a.y > y !== b.y > y && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) c = !c
+  }
+  return c
 }
 
 /**
@@ -370,9 +441,16 @@ function paint(c: CanvasRenderingContext2D, muscles: DrawnMuscle[], fineLw: numb
 }
 
 type Box = { x: number; y: number; w: number; h: number }
+const hit = (a: Box, b: Box, g: number) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h + g && b.y < a.y + a.h + g
+/** share (0…1) of the box area that covers painted muscle */
+function paintIn(g: PaintGrid, b: Box): number {
+  let n = 0, on = 0
+  for (let gy = Math.max(0, Math.floor(b.y / g.k)); gy < Math.min(g.gh, Math.ceil((b.y + b.h) / g.k)); gy++) for (let gx = Math.max(0, Math.floor(b.x / g.k)); gx < Math.min(g.gw, Math.ceil((b.x + b.w) / g.k)); gx++) { n++; on += g.on[gy * g.gw + gx] }
+  return n ? on / n : 0
+}
 
 /** side labels "PRIMARY: BICEPS BRACHII" with leader lines; collision-avoiding per column */
-export function drawMuscleLabels(ctx: CanvasRenderingContext2D, W: number, _H: number, muscles: DrawnMuscle[], lang: Lang, centerX: number, zone: { top: number; bottom: number }, max = 6) {
+export function drawMuscleLabels(ctx: CanvasRenderingContext2D, W: number, _H: number, muscles: DrawnMuscle[], lang: Lang, centerX: number, zone: { top: number; bottom: number }, max = 6, grid: PaintGrid | null = null) {
   const fs = Math.round(Math.max(9, Math.min(17 * Math.max(1, Math.min(W, _H) / 700), W / 42)))
   ctx.font = `700 ${fs}px ${FONT_MONO}`
   const list = [...muscles].sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role)).slice(0, max)
@@ -403,7 +481,37 @@ export function drawMuscleLabels(ctx: CanvasRenderingContext2D, W: number, _H: n
     // pushed past the bottom: shift the whole column up
     const over = boxes.length ? boxes[boxes.length - 1].y + h - zone.bottom : 0
     if (over > 0) for (const b of boxes) b.y = Math.max(zone.top, b.y - over)
+    // a label box must not hide the artwork: when the stacked column covers painted muscle, re-place each box
+    // at the nearest free height (off the paint, not on another box), else keep the stacked spot
+    if (grid && boxes.some((b) => paintIn(grid, b) > 0)) {
+      const done: Box[] = []
+      col.forEach((it, i) => {
+        const b = boxes[i], want = Math.max(zone.top, Math.min(zone.bottom - h, it.m.anchor.y - h / 2))
+        let best = b.y, bestCost = paintIn(grid, b) * 40 + Math.abs(b.y - want) / h + (done.some((d) => hit(d, b, gap)) ? 1e6 : 0)
+        for (let ty = zone.top; ty <= zone.bottom - h; ty += h / 3) {
+          const cb = { ...b, y: ty }
+          if (done.some((d) => hit(d, cb, gap))) continue
+          const cost = paintIn(grid, cb) * 40 + Math.abs(ty - want) / h
+          if (cost < bestCost) { bestCost = cost; best = ty }
+        }
+        b.y = best; done.push(b)
+      })
+    }
     col.forEach((it, i) => placed.push({ it, b: boxes[i] }))
+  }
+  // still on the artwork: move that label to the other margin at the nearest free height
+  if (grid) for (const pl of placed) {
+    if (paintIn(grid, pl.b) < 0.04) continue
+    const others = placed.filter((q) => q !== pl).map((q) => q.b)
+    const x = pl.it.left ? W - pad - pl.it.w : pad, want = Math.max(zone.top, Math.min(zone.bottom - h, pl.it.m.anchor.y - h / 2))
+    let best: Box | null = null, bc = paintIn(grid, pl.b) * 40
+    for (let ty = zone.top; ty <= zone.bottom - h; ty += h / 3) {
+      const cb = { x, y: ty, w: pl.it.w, h }
+      if (others.some((d) => hit(d, cb, gap))) continue
+      const cost = paintIn(grid, cb) * 40 + Math.abs(ty - want) / h + 0.5
+      if (cost < bc) { bc = cost; best = cb }
+    }
+    if (best) { pl.b = best; pl.it = { ...pl.it, left: !pl.it.left } }
   }
   for (const { it, b } of placed) {
     const col = ROLE_COLOR[it.m.role]

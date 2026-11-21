@@ -38,6 +38,19 @@ function lev(a: string, b: string): number {
 }
 const sim = (a: string, b: string) => (a && b ? 1 - lev(a, b) / Math.max(a.length, b.length) : 0)
 
+const EXTRA_ALIASES: Record<string, string[]> = {
+  'incline-bench-press': ['incline dumbbell press', 'incline dumbbell bench press', 'incline dumbbell chest press', 'incline chest press', 'incline smith press', 'incline barbell press'],
+  'bench-press': ['decline press', 'decline bench press', 'flat bench press', 'barbell bench press'],
+  'dumbbell-bench-press': ['dumbbell press', 'dumbbell chest press', 'flat dumbbell press'],
+  'dumbbell-shoulder-press': ['arnold press', 'seated dumbbell press'],
+  'bulgarian-split-squat': ['split squat', 'rear foot elevated split squat'],
+  'chest-fly': ['cable fly', 'cable crossover', 'dumbbell fly', 'pec deck'],
+  'barbell-curl': ['dumbbell curl', 'ez bar curl', 'standing curl'],
+  'single-leg-rdl': ['sl rdl', 'single leg romanian deadlift', 'one leg rdl'],
+}
+// shorthand gym words → the full word before matching
+const SHORT: [RegExp, string][] = [[/\bdb\b/g, 'dumbbell'], [/\bbb\b/g, 'barbell'], [/\bdbs\b/g, 'dumbbells'], [/\bohp\b/g, 'overhead press']]
+
 type Cand = { id: string; text: string; c: string; tokens: string[] }
 let CANDS: Cand[] | null = null
 function cands(): Cand[] {
@@ -49,6 +62,9 @@ function cands(): Cand[] {
     const al = ALIASES[e.id]
     if (Array.isArray(al)) al.forEach((a) => add(e.id, a))
   }
+  // common gym names that are the same movement pattern as an exercise in the library (only ids that exist)
+  const ids = new Set(ANALYSIS_EXERCISES.map((e) => e.id))
+  for (const [id, names] of Object.entries(EXTRA_ALIASES)) if (ids.has(id)) names.forEach((a) => add(id, a))
   CANDS = out
   return out
 }
@@ -56,6 +72,7 @@ function cands(): Cand[] {
 /** split the query into the exercise words and a grip modifier */
 export function parseQuery(q: string): { base: string; full: string; grip?: Grip } {
   let s = ' ' + norm(q) + ' '
+  for (const [re, w] of SHORT) s = s.replace(re, w)
   let grip: Grip | undefined
   for (const [re, g] of GRIP_WORDS) if (re.test(s)) { grip = grip ?? g; s = s.replace(re, ' ') }
   const full = s.replace(/\bgrips?\b/g, ' ').replace(/\s+/g, ' ').trim()

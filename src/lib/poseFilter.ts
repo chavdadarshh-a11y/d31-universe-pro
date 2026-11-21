@@ -85,7 +85,8 @@ export function plausiblePose(lm0: Pt[], aspect = 1): boolean {
     if (rel(knee)) {
       if (hasTorso) {
         // knee sitting on the torso / chest — e.g. arm close-up where MediaPipe guesses legs
-        if (dist(knee, hip) < 0.35 * torso) return false
+        // (0.28: a tucked flag / foreshortened thigh can bring the knee to ~0.3 torso from the hip)
+        if (dist(knee, hip) < 0.28 * torso) return false
         if (dist(knee, sh) < 0.35 * torso) return false
         if (onSegment(knee, hip, sh, 0.35)) return false
         if (!ratioOk(dist(hip, knee), torso)) return false

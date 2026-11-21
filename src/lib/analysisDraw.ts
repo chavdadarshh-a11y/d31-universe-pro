@@ -7,7 +7,7 @@
 import type { Lang, MuscleId } from '../types'
 import { l3, metricLabel, type Mode, type P, type Pose, type Profile } from './formCheck'
 import type { DrawnMuscle, Mask, Role } from './muscleAnatomy'
-import { drawLegend, drawMuscleLabels, drawMuscleLayer } from './muscleDraw'
+import { drawLegend, drawMuscleLabels, drawMuscleLayer, type PaintGrid } from './muscleDraw'
 
 const BONES: [number, number][] = [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28], [27, 31], [28, 32]]
 const sub = (a: P, b: P): P => ({ x: a.x - b.x, y: a.y - b.y })
@@ -48,13 +48,15 @@ export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource
   ctx.drawImage(src, 0, 0, W, H)
   // the user's photo is always shown in its original full colour — no greyscale, no desaturation, no darkening
   let drawn: DrawnMuscle[] = []
+  let grid: PaintGrid | null = null
   if (pose.ok) {
     if (o.mode === 'technique') drawTechnique(ctx, pose, o)
     else if (o.mode === 'muscles') {
       const a = o.anatomy
       if (a?.mask && a.drawn.length) {
-        drawMuscleLayer(ctx, W, H, a.drawn, a.mask, a.occluders, { hairZone: a.hairZone, clothBottom: a.clothBottom, clothBack: a.clothBack })
-        drawn = a.drawn
+        const vis = drawMuscleLayer(ctx, W, H, a.drawn, a.mask, a.occluders, { hairZone: a.hairZone, clothBottom: a.clothBottom, clothBack: a.clothBack })
+        // only what is really painted is labelled / reported, with the leader on the painted part
+        drawn = vis.visible; grid = vis.grid
       }
     } else drawAngles(ctx, pose, o)
   }
@@ -62,7 +64,7 @@ export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource
   if (chrome) drawTitle(ctx, W, H, o.title, o.subtitle)
   if ((chrome || o.labels) && o.mode === 'muscles' && drawn.length) {
     const cx = pose.named.shM && pose.named.hipM ? (pose.named.shM.x + pose.named.hipM.x) / 2 : W / 2
-    drawMuscleLabels(ctx, W, H, drawn, o.lang, cx, chrome ? { top: H * 0.2, bottom: H * 0.76 } : { top: H * 0.03, bottom: H * 0.86 })
+    drawMuscleLabels(ctx, W, H, drawn, o.lang, cx, chrome ? { top: H * 0.2, bottom: H * 0.76 } : { top: H * 0.03, bottom: H * 0.86 }, 6, grid)
     if (o.anatomy?.roles.length) drawLegend(ctx, W, H, o.lang, o.anatomy.roles)
   }
   if (chrome) drawSpec(ctx, W, H, o.spec)

@@ -86,6 +86,11 @@ const FRONT: ArtMuscle[] = [
     // one strap per side, pubis → ribs, with the three tendinous intersections drawn as bands
     ra: T([[-3, 214], [-7, 215], [-11, 212]], [[-3, 80], [-16, 77], [-29, 82]], [[-3, 214], [-3, 150], [-3, 80]], [[-11, 212], [-20, 192], [-26, 165], [-28, 135], [-29, 105], [-29, 82]], { nf: 6, bands: [0.45, 0.65, 0.83] }),
   } },
+  { id: 'traps_upper', view: 'front', layer: 2.5, parts: {
+    // upper trapezius seen from the front: the slope from the side of the neck down to the lateral third of the
+    // clavicle (the face / beard above it is clipped by the renderer's hair zone + skin mask)
+    up: T([[-14, -42], [-18, -24], [-22, -8]], [[-86, 4], [-74, 0], [-62, -2]], [[-14, -42], [-30, -34], [-52, -22], [-72, -8], [-86, 4]], [[-22, -8], [-40, -6], [-62, -2]], { nf: 8 }),
+  } },
   { id: 'pec_major', view: 'front', layer: 3, parts: {
     // fan: broad origin along the sternum converging on a narrow tendon at the humerus; the lower border runs
     // almost straight from the 6th rib to the armpit (only a slight sag) — not a round plate
@@ -490,6 +495,9 @@ export function artView(pose: Pose, face?: 'skin' | 'dark'): 'front' | 'back' | 
     const v = facing > 0 ? 'back' : 'front'
     if ((v === 'back' && face === 'dark') || (v === 'front' && face === 'skin')) return v
   }
+  // back to the camera with the arms overhead (pull-up / chin-up hang): the shrugged shoulders read as a
+  // narrow "side" spread and MediaPipe's depth is flat, but the face area is clearly hair — that is a back view
+  if (pose.view === 'side' && (pose.spread ?? 0) >= 0.5 && face === 'dark' && facing > -0.1) return 'back'
   return null
 }
 export function fitArt(pose: Pose, mask: Mask, roles: Partial<Record<Fine, Role>>, isPrimitive: (p: P[]) => boolean, view: 'front' | 'back'): ArtFit {

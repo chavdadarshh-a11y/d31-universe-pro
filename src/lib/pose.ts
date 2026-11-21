@@ -3,7 +3,7 @@
  * Visual rule for D31: thin lines + small joint dots + angle pills. No glow, no blobs.
  */
 import type { NormalizedLandmark, PoseLandmarker as PL } from '@mediapipe/tasks-vision'
-import { angle, conf, evaluatePose, L, layoutLabels, R, reliable, type JointAngle, type PoseResult, type Pt } from './poseFilter'
+import { angle, conf, evaluatePose, L, layoutLabels, plausiblePose, R, reliable, type JointAngle, type PoseResult, type Pt } from './poseFilter'
 import { mergeFlip } from './poseTTA'
 
 // Self-hosted under the site (works offline once cached by the service worker); CDN as fallback.
@@ -72,12 +72,12 @@ export function pixelHash(c: HTMLCanvasElement): string {
 const photoCache = new Map<string, { lm: Pt[] | null; mask: RawMask | null }>()
 let detectChain: Promise<unknown> = Promise.resolve()
 
-export async function detectPhoto(base: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null; hash: string }> {
+export async function detectPhoto(base: HTMLCanvasElement, full?: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null; hash: string }> {
   const hash = pixelHash(base)
   const hit = photoCache.get(hash)
   if (hit) return { ...hit, hash }
   // one detection at a time — two quick taps can never interleave the photo and mirrored runs
-  const job = detectChain.then(() => detectPhotoNow(base))
+  const job = detectChain.then(() => detectPhotoNow(base).then((r) => zoomIn(r, full ?? base)))
   detectChain = job.catch(() => {})
   const res = await job
   photoCache.set(hash, res)
@@ -104,6 +104,116 @@ async function detectPhotoNow(base: HTMLCanvasElement): Promise<{ lm: Pt[] | nul
   try { return await detectOnce(base, 'IMAGE_NOSEG') } catch (e) { resetLandmarker('IMAGE_NOSEG'); throw e }
 }
 
+/** bounding box (normalised) of the person mask, null if there is no clear person */
+function maskBox(m: RawMask): { x0: number; y0: number; x1: number; y1: number } | null {
+  let x0 = m.w, y0 = m.h, x1 = -1, y1 = -1, n = 0
+  for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.data[y * m.w + x] > 0.5) { n++; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y }
+  if (n < 0.002 * m.w * m.h) return null
+  return { x0: x0 / m.w, y0: y0 / m.h, x1: (x1 + 1) / m.w, y1: (y1 + 1) / m.h }
+}
+/**
+ * Detection on a region of the photo — a crop (zoom in) or a region larger than the photo (black padding
+ * around it) — with the joints and the person mask mapped back to the whole photo. Region in normalised
+ * photo coordinates, may extend past 0…1.
+ */
+async function detectRegion(src: HTMLCanvasElement, x0: number, y0: number, x1: number, y1: number): Promise<{ lm: Pt[]; mask: RawMask | null } | null> {
+  const cw = x1 - x0, ch = y1 - y0, sw = cw * src.width, sh = ch * src.height
+  if (sw < 24 || sh < 24) return null
+  const k = Math.min(4, 1080 / Math.max(sw, sh))
+  const c = document.createElement('canvas')
+  c.width = Math.max(16, Math.round((sw * k) / 2) * 2); c.height = Math.max(16, Math.round((sh * k) / 2) * 2)
+  const x = c.getContext('2d')!
+  x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height); x.imageSmoothingQuality = 'high'
+  const kx = c.width / sw, ky = c.height / sh
+  x.drawImage(src, -x0 * src.width * kx, -y0 * src.height * ky, src.width * kx, src.height * ky)
+  let z: { lm: Pt[] | null; mask: RawMask | null }
+  try { z = await detectOnce(c, 'IMAGE') } catch { resetLandmarker('IMAGE'); return null }
+  if (!z.lm || z.lm.length < 33) return null
+  const lm = z.lm.map((p) => ({ ...p, x: x0 + p.x * cw, y: y0 + p.y * ch, z: p.z !== undefined ? p.z * cw : p.z }))
+  let mask: RawMask | null = null
+  if (z.mask) {
+    // the region's mask resampled into a full-frame mask (≤1600 px on the long side)
+    const fw0 = z.mask.w / cw, fh0 = z.mask.h / ch, kk = Math.min(1, 1600 / Math.max(fw0, fh0))
+    const fw = Math.max(1, Math.round(fw0 * kk)), fh = Math.max(1, Math.round(fh0 * kk))
+    const data = new Float32Array(fw * fh)
+    for (let yy = Math.max(0, Math.floor(y0 * fh)); yy < Math.min(fh, Math.ceil(y1 * fh)); yy++) for (let xx = Math.max(0, Math.floor(x0 * fw)); xx < Math.min(fw, Math.ceil(x1 * fw)); xx++) {
+      const u = ((xx + 0.5) / fw - x0) / cw, v = ((yy + 0.5) / fh - y0) / ch
+      if (u < 0 || v < 0 || u >= 1 || v >= 1) continue
+      data[yy * fw + xx] = z.mask.data[Math.floor(v * z.mask.h) * z.mask.w + Math.floor(u * z.mask.w)]
+    }
+    mask = { w: fw, h: fh, data }
+  }
+  return { lm, mask }
+}
+
+/**
+ * Anatomical sanity of a detection (0 = fine, higher = worse), using the person mask as ground truth:
+ * limbs must run over the body, an upright body has its knees / feet below the hips, and the torso has
+ * human proportions. Used to choose between detections — never to invent joints.
+ */
+export function poseSanity(lm: Pt[] | null, mask: RawMask | null, aspect: number): number {
+  if (!lm || lm.length < 33) return 99
+  const ok = (i: number) => reliable(lm[i])
+  if (![11, 12, 23, 24].every(ok)) return 50
+  let bad = 0
+  const P = (i: number) => ({ x: lm[i].x * aspect, y: lm[i].y })
+  const sh = { x: (P(11).x + P(12).x) / 2, y: (P(11).y + P(12).y) / 2 }, hp = { x: (P(23).x + P(24).x) / 2, y: (P(23).y + P(24).y) / 2 }
+  const T = Math.hypot(hp.x - sh.x, hp.y - sh.y), hw = Math.hypot(P(11).x - P(12).x, P(11).y - P(12).y) / 2
+  const ratio = T / (hw || 1e-6)
+  if (ratio < 2.2 || ratio > 4.8) bad += 2
+  const upright = hp.y - sh.y > 0.5 * T
+  if (upright) for (const i of [25, 26, 27, 28, 29, 30, 31, 32]) if (lm[i] && (lm[i].visibility ?? 0) >= 0.5 && lm[i].y < hp.y - 0.15 * T) bad += i <= 26 ? 1 : 2
+  if (mask) {
+    const inM = (x: number, y: number) => { const mx = Math.floor(x * mask.w), my = Math.floor(y * mask.h); return mx >= 0 && my >= 0 && mx < mask.w && my < mask.h && mask.data[my * mask.w + mx] > 0.5 }
+    for (const [a, b] of [[11, 13], [13, 15], [12, 14], [14, 16], [23, 25], [24, 26]]) {
+      if (!ok(a) || !ok(b)) continue
+      let n = 0
+      for (let k = 1; k <= 9; k++) { const t = k / 10; if (inM(lm[a].x + (lm[b].x - lm[a].x) * t, lm[a].y + (lm[b].y - lm[a].y) * t)) n++ }
+      if (n < 6) bad++
+    }
+  }
+  return bad
+}
+
+/**
+ * Second opinions, both deterministic:
+ *  - a person who fills the frame edge to edge (cropped limbs) is detected again with a black border around
+ *    the photo — MediaPipe then often finds the real arms / hips it mislabelled (e.g. feet put on a raised arm);
+ *  - a small person in a big frame is detected again zoomed in.
+ * The new result replaces the first only when it is anatomically saner (poseSanity) and complete.
+ */
+async function zoomIn(r: { lm: Pt[] | null; mask: RawMask | null }, src: HTMLCanvasElement): Promise<{ lm: Pt[] | null; mask: RawMask | null }> {
+  const aspect = src.width / (src.height || 1)
+  const implausible = (lm: Pt[] | null) => !lm || lm.length < 33 || !plausiblePose(lm, aspect)
+  let best = r, bestBad = poseSanity(r.lm, r.mask, aspect) + (implausible(r.lm) ? 20 : 0)
+  // padded second opinion: only for a clearly broken first result, and only if it is clearly better
+  if (bestBad >= 4) {
+    const z = await detectRegion(src, -0.25, -0.25, 1.25, 1.25)
+    if (z && !implausible(z.lm)) {
+      const bad = poseSanity(z.lm, z.mask ?? best.mask, aspect)
+      if (bad <= bestBad - 3) { best = { lm: z.lm, mask: z.mask ?? best.mask }; bestBad = bad }
+    }
+  }
+  let b = best.mask ? maskBox(best.mask) : null
+  if (!b && best.lm) {
+    const ok = best.lm.filter((p) => reliable(p))
+    if (ok.length >= 6) b = { x0: Math.min(...ok.map((p) => p.x)), y0: Math.min(...ok.map((p) => p.y)), x1: Math.max(...ok.map((p) => p.x)), y1: Math.max(...ok.map((p) => p.y)) }
+  }
+  if (b) {
+    const bw = b.x1 - b.x0, bh = b.y1 - b.y0
+    // zoomed second opinion: only when the person is clearly small in the frame
+    if (Math.max(bw, bh) <= 0.62 && bw * bh <= 0.22) {
+      const mx = 0.35 * Math.max(bw, bh / aspect), my = mx * aspect
+      const z = await detectRegion(src, Math.max(0, b.x0 - mx), Math.max(0, b.y0 - my), Math.min(1, b.x1 + mx), Math.min(1, b.y1 + my))
+      if (z && [11, 12, 23, 24].every((i) => reliable(z.lm[i])) && !implausible(z.lm)) {
+        const bad = poseSanity(z.lm, z.mask, aspect)
+        if (bad < bestBad) { best = { lm: z.lm, mask: z.mask ?? best.mask }; bestBad = bad }
+      }
+    }
+  }
+  return best
+}
+
 async function detectOnce(base: HTMLCanvasElement, mode: 'IMAGE' | 'IMAGE_NOSEG'): Promise<{ lm: Pt[] | null; mask: RawMask | null }> {
   const pl = await getLandmarker(mode)
   const r = pl.detect(base)
@@ -123,7 +233,12 @@ async function detectOnce(base: HTMLCanvasElement, mode: 'IMAGE' | 'IMAGE_NOSEG'
     const rf = pl.detect(f)
     rf.segmentationMasks?.forEach((x) => x.close())
     flip = (rf.landmarks[0] as Pt[] | undefined) ?? null
-  } catch { flip = null }
+  } catch {
+    // the mirrored run can abort the wasm instance too: it is dead now — drop it so the next detection
+    // (zoom-in / padded second opinion, the next photo) gets a fresh one instead of hanging on it
+    flip = null
+    resetLandmarker(mode)
+  }
   return { lm: mergeFlip(lm, flip, base.width, base.height), mask }
 }
 

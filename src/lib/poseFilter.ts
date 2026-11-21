@@ -62,9 +62,14 @@ const ratioOk = (a: number, b: number, max = 3) => a > 0 && b > 0 && a / b <= ma
  * that cannot exist (knee inside torso/head, absurd limb proportions, collapsed box).
  */
 /** aspect = image width / height, so the proportion checks use real (not squashed) distances */
-export function plausiblePose(lm: Pt[], aspect = 1): boolean {
-  if (aspect !== 1) lm = lm.map((p) => (p ? { ...p, x: p.x * aspect } : p))
-  const idx = [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28].filter((i) => reliable(lm[i]))
+export function plausiblePose(lm0: Pt[], aspect = 1): boolean {
+  // reliability (confidence + inside the photo) is judged on the ORIGINAL normalised landmarks; only the
+  // proportion checks use aspect-corrected distances (scaling x first wrongly put most joints of a landscape
+  // photo "out of frame", so every wide photo failed this check)
+  const okIdx = lm0.map((p) => reliable(p))
+  const lm = aspect !== 1 ? lm0.map((p) => (p ? { ...p, x: p.x * aspect } : p)) : lm0
+  const rel = (p?: Pt) => { const k = p ? lm.indexOf(p) : -1; return k >= 0 && okIdx[k] }
+  const idx = [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28].filter((i) => rel(lm[i]))
   if (idx.length < 3) return false
   const xs = idx.map((i) => lm[i].x)
   const ys = idx.map((i) => lm[i].y)
@@ -74,10 +79,10 @@ export function plausiblePose(lm: Pt[], aspect = 1): boolean {
 
   for (const s of [L, R]) {
     const sh = lm[s.sh], hip = lm[s.hip], knee = lm[s.knee], ank = lm[s.ank], el = lm[s.el], wr = lm[s.wr]
-    const hasTorso = reliable(sh) && reliable(hip)
+    const hasTorso = rel(sh) && rel(hip)
     const torso = hasTorso ? dist(sh, hip) : 0
     if (hasTorso && torso < 0.03) return false
-    if (reliable(knee)) {
+    if (rel(knee)) {
       if (hasTorso) {
         // knee sitting on the torso / chest — e.g. arm close-up where MediaPipe guesses legs
         if (dist(knee, hip) < 0.35 * torso) return false
@@ -85,11 +90,11 @@ export function plausiblePose(lm: Pt[], aspect = 1): boolean {
         if (onSegment(knee, hip, sh, 0.35)) return false
         if (!ratioOk(dist(hip, knee), torso)) return false
       }
-      if (reliable(lm[NOSE]) && hasTorso && dist(knee, lm[NOSE]) < 0.4 * torso) return false
-      if (reliable(hip) && reliable(ank) && !ratioOk(dist(knee, ank), dist(hip, knee))) return false
+      if (rel(lm[NOSE]) && hasTorso && dist(knee, lm[NOSE]) < 0.4 * torso) return false
+      if (rel(hip) && rel(ank) && !ratioOk(dist(knee, ank), dist(hip, knee))) return false
     }
-    if (reliable(hip) && reliable(lm[NOSE]) && hasTorso && dist(hip, lm[NOSE]) < 0.5 * torso) return false
-    if (reliable(sh) && reliable(el) && reliable(wr) && !ratioOk(dist(sh, el), dist(el, wr))) return false
+    if (rel(hip) && rel(lm[NOSE]) && hasTorso && dist(hip, lm[NOSE]) < 0.5 * torso) return false
+    if (rel(sh) && rel(el) && rel(wr) && !ratioOk(dist(sh, el), dist(el, wr))) return false
   }
   return true
 }

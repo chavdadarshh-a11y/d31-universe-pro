@@ -33,7 +33,7 @@ export type RenderOpts = {
   /** draw title + spec (off for the small thumbnail) */
   chrome?: boolean
   /** fitted anatomical muscles + the person mask they are clipped to (muscles mode) */
-  anatomy?: { drawn: DrawnMuscle[]; mask: Mask | null; roles: Role[]; occluders?: P[][]; hairZone?: { top: number; bottom: number }; clothBottom?: number }
+  anatomy?: { drawn: DrawnMuscle[]; mask: Mask | null; roles: Role[]; occluders?: P[][]; hairZone?: { top: number; bottom: number }; clothBottom?: number; clothBack?: boolean }
   /** black & white photo underneath */
   /** muscle labels + legend even without chrome (poster) */
   labels?: boolean
@@ -53,7 +53,7 @@ export function renderAnalysis(canvas: HTMLCanvasElement, src: CanvasImageSource
     else if (o.mode === 'muscles') {
       const a = o.anatomy
       if (a?.mask && a.drawn.length) {
-        drawMuscleLayer(ctx, W, H, a.drawn, a.mask, a.occluders, { hairZone: a.hairZone, clothBottom: a.clothBottom })
+        drawMuscleLayer(ctx, W, H, a.drawn, a.mask, a.occluders, { hairZone: a.hairZone, clothBottom: a.clothBottom, clothBack: a.clothBack })
         drawn = a.drawn
       }
     } else drawAngles(ctx, pose, o)

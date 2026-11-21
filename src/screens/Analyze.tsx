@@ -104,7 +104,7 @@ function useResult(rec: AnalysisRecord, lang: Lang, src: HTMLCanvasElement | HTM
   const evals = useMemo(() => (pose ? evaluateRules(pose, exId, lang) : { checks: [], skipped: [] }), [pose, exId, lang])
   const roles = useMemo(() => rolesFor(exId, rec.grip), [exId, rec.grip])
   const face = useMemo(() => (src && pose ? faceCue(src, pose) : undefined), [src, pose])
-  const skinAt = useMemo(() => (src && pose?.ok ? skinSampler(src, W, H) : undefined), [src, pose, W, H])
+  const skinAt = useMemo(() => (src && pose?.ok ? (back: boolean) => skinSampler(src, W, H, back) : undefined), [src, pose, W, H])
   const anatomy = useMemo<FitResult>(() => (pose ? fitMuscles(pose, scaleMask(raw, W, H), roles, face, skinAt) : { drawn: [], notDrawn: [], occluders: [] }), [pose, raw, W, H, roles, face, skinAt])
   return { pose, setup, muscles, roles, anatomy, mask: scaleMask(raw, W, H), face, ...evals }
 }
@@ -177,7 +177,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
       renderAnalysis(c, img, pose, {
         mode, lang, title: name || t('formCheck'), subtitle: t(MODE_SUB[mode]), profile: setup.profile, muscles,
         spec: pose.ok ? specRows(t, pose, name, l3(setup.profile.focus, lang), mode, muscles, lang, face) : [],
-        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone, clothBottom: anatomy.clothBottom },
+        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone, clothBottom: anatomy.clothBottom, clothBack: anatomy.clothBack },
       })
       // test hook: the exact outlines that were drawn (checked by the anti-primitive e2e test)
       ;(window as unknown as { __d31MuscleShapes?: unknown }).__d31MuscleShapes = mode === 'muscles' && maskS ? anatomy.drawn.map((m) => ({ id: m.id, role: m.role, polys: m.polys, apo: m.apo, prim: m.polys.map((q) => [primitiveScore(q), triangleLikeness(q), q.length]) })) : []
@@ -196,7 +196,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
       const ov = document.createElement('canvas')
       renderAnalysis(ov, img, pose, {
         mode, lang, title: '', subtitle: '', profile: setup.profile, muscles, spec: [], chrome: false, labels: true,
-        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone, clothBottom: anatomy.clothBottom },
+        anatomy: { drawn: anatomy.drawn, mask: maskS, roles: roleKinds, occluders: anatomy.occluders, hairZone: anatomy.hairZone, clothBottom: anatomy.clothBottom, clothBack: anatomy.clothBack },
       })
       const bm = await svgToImage(bodyMapRef.current?.querySelector('svg') ?? null)
       const poster = renderPoster({ overlay: ov, bodyMap: bm, hud, title: name || t('formCheck'), lang, t: (k) => t(k as never), date: fmtDate(rec.date, lang) })
@@ -445,12 +445,12 @@ function makeThumb(base: HTMLCanvasElement, lm: number[][] | undefined, exId: st
   // fit at full resolution (precise contour), then draw scaled down
   const full = buildPose(lmToPts(lm), base.width, base.height)
   const mk = scaleMask(mask, base.width, base.height)
-  const fit: Pick<FitResult, 'drawn' | 'occluders' | 'clothBottom'> = full.ok && mode === 'muscles' ? fitMuscles(full, mk, rolesFor(exId, grip), faceCue(base, full), skinSampler(base, base.width, base.height)) : { drawn: [], occluders: [] }
+  const fit: Pick<FitResult, 'drawn' | 'occluders' | 'clothBottom' | 'clothBack'> = full.ok && mode === 'muscles' ? fitMuscles(full, mk, rolesFor(exId, grip), faceCue(base, full), (back) => skinSampler(base, base.width, base.height, back)) : { drawn: [], occluders: [] }
   const sc = (p: { x: number; y: number }) => ({ x: p.x * k, y: p.y * k })
   const drawn = fit.drawn.map((m) => ({ ...m, anchor: sc(m.anchor), polys: m.polys.map((q) => q.map(sc)), fibers: m.fibers.map((q) => q.map(sc)), partFibers: m.partFibers?.map((g) => g.map((q) => q.map(sc))), partBands: m.partBands?.map((g) => g.map((q) => q.map(sc))) }))
   const pose = buildPose(lmToPts(lm), w, h)
   const setup = exerciseSetup(exId)
-  renderAnalysis(small, base, pose, { mode, lang, title: '', subtitle: '', profile: setup.profile, muscles: musclesFor(exId), spec: [], chrome: false, anatomy: { drawn, mask: scaleMask(mask, w, h), roles: [], occluders: fit.occluders.map((q) => q.map(sc)), clothBottom: fit.clothBottom ? fit.clothBottom * k : undefined } })
+  renderAnalysis(small, base, pose, { mode, lang, title: '', subtitle: '', profile: setup.profile, muscles: musclesFor(exId), spec: [], chrome: false, anatomy: { drawn, mask: scaleMask(mask, w, h), roles: [], occluders: fit.occluders.map((q) => q.map(sc)), clothBottom: fit.clothBottom ? fit.clothBottom * k : undefined, clothBack: fit.clothBack } })
   return small.toDataURL('image/jpeg', 0.72)
 }
 
@@ -541,7 +541,7 @@ function FormCheck({ initialEx }: { initialEx: string }) {
       const base = toCanvas(srcEl, 1080)
       // display / poster at the photo's own resolution (detection runs on the 1080 px copy; landmarks are normalised)
       const full = toCanvas(srcEl, 4096)
-      const det = await detectPhoto(base)
+      const det = await detectPhoto(base, full)
       const raw = det.lm
       const lm = raw?.map((p) => [+p.x.toFixed(4), +p.y.toFixed(4), +(Math.min(p.visibility ?? 0, p.presence ?? 1)).toFixed(3), +(p.z ?? 0).toFixed(4)])
       const pose = buildPose(lmToPts(lm), base.width, base.height)

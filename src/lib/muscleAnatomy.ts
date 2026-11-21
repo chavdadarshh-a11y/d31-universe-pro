@@ -29,8 +29,8 @@ const neg = (poly: TS[]): TS[] => poly.map(([t, s]) => [t, -s])
 // ---------------- template library ----------------
 const UA_SIDE: Tpl[] = [
   { id: 'triceps', seg: 'upperArm', view: 'side', poly: [[0.12, -0.2], [0.2, -0.75], [0.35, -1.0], [0.6, -0.98], [0.8, -0.8], [0.95, -0.45], [1.02, -0.2], [0.9, -0.3], [0.7, -0.36], [0.45, -0.3], [0.25, -0.16]], fiber: { kind: 'along' } },
-  { id: 'brachialis', seg: 'upperArm', view: 'side', poly: [[0.5, -0.06], [0.62, 0.05], [0.78, 0.0], [0.92, 0.1], [0.99, 0.0], [0.9, -0.26], [0.72, -0.33], [0.56, -0.26]], fiber: { kind: 'along' } },
-  { id: 'biceps', seg: 'upperArm', view: 'side', poly: [[0.24, 0.15], [0.3, 0.7], [0.42, 0.98], [0.6, 1.0], [0.78, 0.86], [0.9, 0.52], [0.98, 0.24], [0.93, 0.08], [0.75, 0.0], [0.5, -0.02], [0.32, 0.03]], fiber: { kind: 'along' } },
+  { id: 'brachialis', seg: 'upperArm', view: 'side', poly: [[0.45, -0.08], [0.6, -0.02], [0.8, -0.03], [0.95, 0.08], [1.0, -0.06], [0.92, -0.34], [0.75, -0.46], [0.58, -0.38]], fiber: { kind: 'along' } },
+  { id: 'biceps', seg: 'upperArm', view: 'side', poly: [[0.12, 0.05], [0.18, 0.55], [0.3, 0.9], [0.5, 1.02], [0.7, 0.95], [0.84, 0.7], [0.93, 0.36], [0.98, 0.12], [0.9, -0.04], [0.7, -0.1], [0.45, -0.1], [0.25, -0.04]], fiber: { kind: 'along' } },
   { id: 'delt_post', seg: 'upperArm', view: 'side', poly: [[-0.16, -0.1], [-0.12, -0.6], [0.02, -0.98], [0.2, -1.02], [0.34, -0.82], [0.44, -0.4], [0.3, -0.26], [0.1, -0.16]], fiber: { kind: 'fan', o: [0.46, -0.3] } },
   { id: 'delt_lat', seg: 'upperArm', view: 'side', poly: [[-0.22, -0.32], [-0.16, 0.3], [-0.02, 0.56], [0.2, 0.5], [0.38, 0.2], [0.47, -0.04], [0.36, -0.36], [0.14, -0.55], [-0.06, -0.6]], fiber: { kind: 'fan', o: [0.5, 0.0] } },
   { id: 'delt_ant', seg: 'upperArm', view: 'side', poly: [[-0.16, 0.1], [-0.12, 0.56], [0.02, 0.96], [0.18, 1.02], [0.32, 0.86], [0.44, 0.46], [0.38, 0.25], [0.2, 0.14], [0.0, 0.02]], fiber: { kind: 'fan', o: [0.46, 0.3] } },
@@ -265,7 +265,28 @@ function fiberLines(tpl: Tpl, poly: TS[]): TS[][] {
   const out: TS[][] = []
   const f = tpl.fiber
   const K = 9
-  if (f.kind === 'along') for (let k = 0; k <= K; k++) { const s = s0 + ((s1 - s0) * k) / K; out.push(Array.from({ length: 13 }, (_, i) => [t0 + ((t1 - t0) * i) / 12, s + Math.sin(i / 2) * 0.01] as TS)) }
+  if (f.kind === 'along') {
+    // shape-following fibres: iso-lines between the outline's two long borders, so they run origin → insertion,
+    // bulge with the belly and converge into the tendons (like the reference artwork), never straight hatching
+    const dense = densify(poly, 4)
+    const span = (t: number): [number, number] | null => {
+      let lo = Infinity, hi = -Infinity
+      for (let i = 0; i < dense.length; i++) {
+        const a = dense[i], b = dense[(i + 1) % dense.length]
+        if ((a[0] - t) * (b[0] - t) > 0 || a[0] === b[0]) continue
+        const s = a[1] + ((b[1] - a[1]) * (t - a[0])) / (b[0] - a[0])
+        lo = Math.min(lo, s); hi = Math.max(hi, s)
+      }
+      return lo < hi ? [lo, hi] : null
+    }
+    const N = 16, ts2 = Array.from({ length: N }, (_, i) => t0 + (t1 - t0) * (0.02 + (0.96 * i) / (N - 1)))
+    const spans = ts2.map(span)
+    for (let k = 1; k <= K; k++) {
+      const fr = k / (K + 1), line: TS[] = []
+      ts2.forEach((t, i) => { const sp = spans[i]; if (sp) line.push([t, sp[0] + (sp[1] - sp[0]) * fr]) })
+      if (line.length >= 4) out.push(line)
+    }
+  }
   else if (f.kind === 'fan') for (const p of densify(poly, 2)) out.push(Array.from({ length: 8 }, (_, i) => [f.o[0] + (p[0] - f.o[0]) * (i / 7) * 1.05, f.o[1] + (p[1] - f.o[1]) * (i / 7) * 1.05] as TS))
   else if (f.kind === 'dir') {
     const d = f.d, nrm = [-d[1], d[0]], c = [(t0 + t1) / 2, (s0 + s1) / 2], R = Math.max(t1 - t0, s1 - s0)
@@ -281,40 +302,60 @@ function fiberLines(tpl: Tpl, poly: TS[]): TS[][] {
  * Fit every wanted muscle onto the photo. Only segments whose joints are clearly visible, that are not badly
  * foreshortened, and whose contour is fitted from the segmentation mask are drawn.
  */
-export type FitResult = { drawn: DrawnMuscle[]; notDrawn: NotDrawn[]; occluders: P[][]; hairZone?: { top: number; bottom: number }; clothBottom?: number }
+export type FitResult = { drawn: DrawnMuscle[]; notDrawn: NotDrawn[]; occluders: P[][]; hairZone?: { top: number; bottom: number }; clothBottom?: number; clothBack?: boolean }
 const LOWER_TEMPLATE = new Set<Fine>(['glute_max', 'glute_med', 'hamstrings', 'gastrocnemius', 'soleus', 'tibialis'])
 /**
  * Clothing: upper-body muscles (trunk + arms, above the hips of an upright body) are only drawn where the photo
  * shows skin. A muscle whose outline is mostly on a shirt / tank top is listed as not drawn; the renderer also
  * clips the rest of the artwork off the garment (clothBottom).
  */
-export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark', skinAt?: (x: number, y: number) => number): FitResult {
+export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine, Role>>, face?: 'skin' | 'dark', skinFor?: (back: boolean) => (x: number, y: number) => number): FitResult {
   const r = fitMusclesRaw(pose, mask, roles, face)
   const sh = pose.named.shM, hip = pose.named.hipM
   // upright bodies only (shoulders above hips); hips out of frame → one torso length below the shoulders
   const bottom = hip ? hip.y : sh ? sh.y + (pose.torsoLen || 0) : 0
-  // back views are left alone: the clothing cue is for shirts / tank tops over the chest and arms, and coloured gym
-  // light on a bare back must never wipe out the lats
+  // back views use the stricter garment rule (cold / grey fabric only) so coloured light on a bare back keeps the lats
   const back = (pose.ok ? artView(pose, face) : null) === 'back' || pose.view === 'back'
-  if (!skinAt || !pose.ok || !sh || back || bottom <= sh.y + 1) return r
+  if (!skinFor || !pose.ok || !sh || bottom <= sh.y + 1) return r
+  const skinAt = skinFor(back)
+  // a fleshy part that is mostly covered — or only a small sliver of it shows (pec tips at a neckline, an armpit
+  // fragment) — is dropped; T = torso length
+  const T = pose.torsoLen || Math.max(1, bottom - sh.y), minArea = 0.02 * T * T
   const drawn: DrawnMuscle[] = [], notDrawn = [...r.notDrawn]
   for (const m of r.drawn) {
-    if (m.seg !== 'torso' && m.seg !== 'upperArm' && m.seg !== 'forearm') { drawn.push(m); continue }
-    let n = 0, known = 0, skin = 0
-    for (const poly of m.polys.filter((_, i) => !m.apo?.[i])) {
+    // legs (not the glutes, which are almost always under shorts and are drawn over them): the same clothing
+    // rule over the whole outline — quads on white shorts are not drawn, only the part on bare skin shows
+    const leg = (m.seg === 'thigh' || m.seg === 'shin') && m.id !== 'glute_max' && m.id !== 'glute_med'
+    if (m.seg !== 'torso' && m.seg !== 'upperArm' && m.seg !== 'forearm' && !leg) { drawn.push(m); continue }
+    const keep: number[] = []
+    m.polys.forEach((poly, i) => {
+      if (m.apo?.[i]) return
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
       for (const p of poly) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y) }
       const st = Math.max(1, Math.max(x1 - x0, y1 - y0) / 24)
+      let n = 0, known = 0, skin = 0, below = 0
       for (let y = y0; y <= y1; y += st) for (let x = x0; x <= x1; x += st) {
-        if (y >= bottom || !inPolygon(poly, x, y)) continue
+        if (!inPolygon(poly, x, y)) continue
+        if (y >= bottom && !leg) { below++; continue }
         n++; const v = skinAt(x, y); if (v >= 0) { known++; if (v === 1) skin++ }
       }
-    }
-    // too-dark cells (hair, deep shadow) say nothing either way; the renderer clips the garment part of a kept muscle
-    if (n >= 8 && known >= 0.3 * n && skin / known < 0.5) notDrawn.push({ id: m.id, role: m.role, reason: 'fit' })
-    else drawn.push(m)
+      // too-dark cells (hair, deep shadow) say nothing either way; parts below the clothing line are kept as they are
+      if (n < 8) { keep.push(i); return }
+      if (known < 0.3 * n) { keep.push(i); return }
+      const frac = skin / known
+      if (frac < 0.5) return
+      const shown = (n * frac + below) * st * st
+      if (frac < 0.85 && shown < minArea) return
+      keep.push(i)
+    })
+    if (!keep.length) { notDrawn.push({ id: m.id, role: m.role, reason: 'fit' }); continue }
+    if (keep.length === m.polys.filter((_, i) => !m.apo?.[i]).length) { drawn.push(m); continue }
+    // rebuild the muscle from the kept parts (tendon sheets go with it only while a fleshy part is still drawn)
+    const idx = m.polys.map((_, i) => i).filter((i) => keep.includes(i) || m.apo?.[i])
+    const pick = <T,>(a?: T[]) => (a ? idx.map((i) => a[i]) : undefined)
+    drawn.push({ ...m, polys: idx.map((i) => m.polys[i]), partFibers: pick(m.partFibers), partBands: pick(m.partBands), apo: pick(m.apo), fibers: m.partFibers ? idx.flatMap((i) => m.partFibers![i]) : m.fibers })
   }
-  return { ...r, drawn, notDrawn, clothBottom: bottom }
+  return { ...r, drawn, notDrawn, clothBottom: bottom, clothBack: back }
 }
 function inPolygon(poly: P[], x: number, y: number): boolean {
   let c = false
@@ -341,11 +382,17 @@ function fitMusclesRaw(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine
       // muscles the artwork doesn't cover in this view: only the lower-body outlines (glutes, hamstrings,
       // calves, shin) are still taken from the segment templates; the rest are listed as not visible
       const rest: Partial<Record<Fine, Role>> = {}, hidden: NotDrawn[] = []
+      // limb muscles the artwork could not fit (or doesn't cover in this view, e.g. triceps seen from the
+      // front with the arm overhead) get one more chance from the limb templates — those are measured on the
+      // person mask with their own inside / shape checks, so an unfittable limb is still not drawn
+      const limbTpl = (id: Fine) => TEMPLATES.some((t) => t.id === id && t.seg !== 'torso' && t.view === av)
+      const artFailed = new Set(art.notDrawn.map((n) => n.id))
       for (const id of Object.keys(roles) as Fine[]) {
-        if (art.covered.has(id)) continue
-        if (LOWER_TEMPLATE.has(id)) rest[id] = roles[id]
+        if (art.covered.has(id) && !(artFailed.has(id) && limbTpl(id))) continue
+        if (LOWER_TEMPLATE.has(id) || limbTpl(id)) rest[id] = roles[id]
         else hidden.push({ id, role: roles[id]!, reason: 'view' })
       }
+      for (const id of Object.keys(rest) as Fine[]) if (artFailed.has(id)) art.notDrawn = art.notDrawn.filter((n) => n.id !== id)
       // a square-on photo that formCheck called 'side' but the face cue says back/front: the remaining muscles use that view too
       const tpl = fitTemplates(pose.view === av ? pose : { ...pose, view: av }, mask, rest)
       const order = (m: DrawnMuscle) => m.layer ?? -1
@@ -388,7 +435,20 @@ function fitTemplates(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine,
       const ax = norm(sub(B, A))
       let n = { x: -ax.y, y: ax.x }
       let ok = true
-      if (view === 'side') { if (!pose.front) ok = false; else if (dot(n, pose.front) < 0) n = mul(n, -1) }
+      // arm with a clearly bent elbow: the anterior surface (biceps / brachialis on the upper arm, flexors on the
+      // forearm) is the side the elbow folds towards — more reliable than the trunk's facing (preacher / incline curl)
+      const fold = (seg === 'upperArm' || seg === 'forearm') ? (() => {
+        const sh = P[seg === 'upperArm' ? d.a : d.a - 2], el = P[seg === 'upperArm' ? d.b : d.a], wr = P[seg === 'upperArm' ? d.b + 2 : d.b]
+        if (!sh || !el || !wr) return null
+        const a1 = sub(sh, el), a2 = sub(wr, el), c = dot(a1, a2) / ((len(a1) * len(a2)) || 1)
+        if (c < Math.cos((135 * Math.PI) / 180)) return null // elbow straighter than 135°
+        return seg === 'upperArm' ? a2 : a1
+      })() : null
+      if (view === 'side') {
+        if (fold) { if (dot(n, fold) < 0) n = mul(n, -1) }
+        else if (!pose.front) ok = false
+        else if (dot(n, pose.front) < 0) n = mul(n, -1)
+      }
       else if (shM && hipM) {
         const axis = norm(sub(hipM, shM)), mm = lerp(A, B, 0.5), rel = sub(mm, shM)
         const lat = sub(rel, mul(axis, dot(rel, axis)))

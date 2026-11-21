@@ -19,3 +19,33 @@ if (IS_PREVIEW && typeof Storage !== 'undefined') {
   const del = proto.removeItem
   proto.removeItem = function (k: string) { return mine(k) ? set.call(this, P + k, GONE) : del.call(this, k) }
 }
+
+/**
+ * The live app's service worker (scope /d31-universe-pro/) also sees the first visit to /preview/ and stores
+ * that page as ITS offline index.html. Repair it from the preview: any live cache whose index.html is a preview
+ * page gets the real live page back (or the entry is dropped, so the live worker simply uses the network).
+ */
+if (IS_PREVIEW && typeof window !== 'undefined' && 'caches' in window) {
+  const base = import.meta.env.BASE_URL // …/preview/ (or /beta/ style sub-channel)
+  const liveBase = base.replace(/[^/]+\/$/, '')
+  const liveIndex = new URL(liveBase + 'index.html', location.origin).href
+  const repair = async () => {
+    try {
+      for (const k of await caches.keys()) {
+        if (k.startsWith('d31-preview-') || k === 'd31-offline-clips' || !k.startsWith('d31-')) continue
+        const c = await caches.open(k)
+        const hit = await c.match(liveIndex)
+        if (!hit) continue
+        const txt = await hit.clone().text()
+        if (!txt.includes(base + 'assets/')) continue
+        try {
+          const fresh = await fetch(liveIndex, { cache: 'no-store' })
+          const body = await fresh.clone().text()
+          if (fresh.ok && !body.includes(base + 'assets/')) await c.put(liveIndex, fresh)
+          else await c.delete(liveIndex)
+        } catch { await c.delete(liveIndex) }
+      }
+    } catch { /* storage unavailable — nothing to repair */ }
+  }
+  window.addEventListener('load', () => { void repair(); setTimeout(() => void repair(), 8000) })
+}

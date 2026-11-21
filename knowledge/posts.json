@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-21T17:44:18.721Z",
+ "generatedAt": "2026-11-21T18:44:47.615Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1139,7 +1139,11 @@
    "number": 505,
    "title": "NO RULES NO LIMIT",
    "rawName": "505. NO RULES NO LIMIT",
-   "cover": null,
+   "cover": {
+    "id": "1PnvUtimsyyvi7cFvYiQU6Yyouddrq_XS",
+    "name": "IMG_20261009_184331.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [],
@@ -1154,11 +1158,8 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
    "id": "1-ny5HmPVmOifhnFsx8t4UnAb84mgD6Z2",

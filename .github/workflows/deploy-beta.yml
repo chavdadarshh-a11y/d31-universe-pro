@@ -40,7 +40,10 @@ jobs:
         run: |
           sed -i "s/^const VERSION = '[^']*'/const VERSION = 'd31-beta-v4.5.0-${GITHUB_SHA::7}'/" dist/sw.js
           grep -m1 "const VERSION" dist/sw.js
-          sed -i 's#<head>#<head><meta name="robots" content="noindex">#' dist/index.html
+          # live root is the only indexable copy: beta pages say noindex (canonical still points to live)
+          sed -i 's#<meta name="robots" content="[^"]*"#<meta name="robots" content="noindex, nofollow"#' dist/index.html dist/privacy.html
+          grep -q 'content="noindex, nofollow"' dist/index.html || sed -i 's#<head>#<head><meta name="robots" content="noindex, nofollow">#' dist/index.html
+          grep -q 'content="noindex, nofollow"' dist/privacy.html || sed -i 's#<head>#<head><meta name="robots" content="noindex, nofollow">#' dist/privacy.html
           sed -i 's/"name": "D31.UNIVERSE"/"name": "D31.UNIVERSE BETA"/; s/"short_name": "D31"/"short_name": "D31 BETA"/' dist/manifest.webmanifest
           touch dist/.nojekyll
       - uses: peaceiris/actions-gh-pages@v4

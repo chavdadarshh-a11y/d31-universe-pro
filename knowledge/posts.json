@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-21T19:47:46.114Z",
+ "generatedAt": "2026-11-21T20:41:25.618Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -2339,7 +2339,11 @@
    "number": 513,
    "title": "FLAG riverfront",
    "rawName": "513. FLAG riverfront",
-   "cover": null,
+   "cover": {
+    "id": "1x1WVcvpL5qouKsNb0kGjDJnD3F6NCjCI",
+    "name": "513_Cover_Flag_Riverfront.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [],
@@ -2354,11 +2358,8 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
    "id": "1leI_-5G6GI8rEeQlvIcnvobo9h8QTICY",

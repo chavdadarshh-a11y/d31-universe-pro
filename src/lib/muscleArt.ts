@@ -421,7 +421,10 @@ function limbFrame(pose: Pose, m: Mask, frame: Exclude<Frame, 'trunk'>, side: 'L
   const bot = ts.map((t) => Math.min(cap, Math.max(lo, ray({ x: S.x + d.x * t, y: S.y + d.y * t }, n))))
   const interp = (arr: number[], t: number) => { const c = Math.max(ts[0], Math.min(ts[ts.length - 1], t)); let k = 0; while (k < ts.length - 2 && ts[k + 1] < c) k++; const f = (c - ts[k]) / (ts[k + 1] - ts[k]); return arr[k] + (arr[k + 1] - arr[k]) * f }
   const map = (v: V2, unit: 'T' | 'bone'): P => {
-    const dd = v[0] * (unit === 'T' ? Tl : Lb), t = dd / Lb, w = v[1] < 0 ? interp(top, t) : interp(bot, t)
+    // torso units along the arm assume a full-length humerus (≈0.62 T); an arm pointing at the camera is
+    // foreshortened, so the deltoid insertion (deltoid tuberosity, ~half way down) scales with the bone seen
+    const kT = frame === 'upperArm' && _view === 'front' && v[0] > 0 ? Math.min(Tl, Math.max(0.6 * Tl, Lb / 0.62)) : Tl
+    const dd = v[0] * (unit === 'T' ? kT : Lb), t = dd / Lb, w = v[1] < 0 ? interp(top, t) : interp(bot, t)
     return { x: S.x + u.x * dd + n.x * v[1] * w, y: S.y + u.y * dd + n.y * v[1] * w }
   }
   const outline = [...ts.map((t) => map([t, -1], 'bone')), ...ts.slice().reverse().map((t) => map([t, 1], 'bone'))]

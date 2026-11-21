@@ -65,7 +65,7 @@ const TH_SIDE: Tpl[] = [
   { id: 'rectus_femoris', seg: 'thigh', view: 'side', poly: [[0.02, 0.26], [0.12, 0.62], [0.32, 0.9], [0.55, 0.92], [0.75, 0.75], [0.88, 0.54], [0.98, 0.4], [0.82, 0.32], [0.6, 0.28], [0.35, 0.22], [0.12, 0.16]], fiber: { kind: 'along' } },
   // full gluteus maximus seen from the side: from the iliac crest / sacrum (well above the hip joint) to the
   // gluteal fold (~40 % down the thigh), covering the whole back half of the hip and bulging to the outline
-  { id: 'glute_max', seg: 'thigh', view: 'side', poly: [[-0.44, -0.16], [-0.34, -0.88], [-0.08, -1.1], [0.2, -1.08], [0.4, -0.84], [0.42, -0.5], [0.24, -0.26], [0.0, -0.12], [-0.22, -0.06]], fiber: { kind: 'dir', d: [0.8, 0.6] } },
+  { id: 'glute_max', seg: 'thigh', view: 'side', poly: [[-0.44, -0.16], [-0.36, -0.86], [-0.1, -1.1], [0.2, -1.08], [0.4, -0.86], [0.46, -0.56], [0.43, -0.3], [0.4, -0.02], [0.38, 0.26], [0.27, 0.2], [0.08, 0.12], [-0.18, 0.06], [-0.36, -0.04]], fiber: { kind: 'dir', d: [0.8, 0.6] } },
 ]
 const TH_FRONT: Tpl[] = [
   { id: 'adductors', seg: 'thigh', view: 'front', poly: [[0.02, -0.36], [0.08, -0.96], [0.3, -1.0], [0.56, -0.8], [0.5, -0.5], [0.3, -0.4]], fiber: { kind: 'dir', d: [1, 0.35] } },

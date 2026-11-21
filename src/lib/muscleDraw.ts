@@ -41,6 +41,26 @@ export function faceCue(src: CanvasImageSource & { width: number; height: number
   if (!cnt) return undefined
   lum /= cnt; skin /= cnt
   if (lum < 45 && skin < 0.15) return 'dark'
+  // hanging from a bar with the back to the camera, a turned head can put the face points on a cheek / beard
+  // profile: then the whole head is the better cue — mostly hair = back of the head
+  const overhead = !!(P[11] && P[12]) && [15, 16].every((i) => P[i] && P[i].y < Math.min(P[11].y, P[12].y))
+  if (overhead && P[7] && P[8]) {
+    const shw = Math.hypot(P[11].x - P[12].x, P[11].y - P[12].y)
+    const hc = { x: (P[7].x + P[8].x) / 2, y: (P[7].y + P[8].y) / 2 - 0.1 * shw }, hr = Math.max(3, 0.22 * shw)
+    const hn = Math.ceil(2 * hr), hcv = mkCanvas(hn, hn), hx = hcv.getContext('2d', { willReadFrequently: true })!
+    let drew = true
+    try { hx.drawImage(src, (hc.x - hr) * kx, (hc.y - hr) * ky, 2 * hr * kx, 2 * hr * ky, 0, 0, hn, hn) } catch { drew = false }
+    const hd = hx.getImageData(0, 0, hn, hn).data
+    let hcnt = 0, hdark = 0, hskin = 0
+    for (let yy = 0; yy < hn; yy++) for (let xx = 0; xx < hn; xx++) {
+      if ((xx + 0.5 - hr) ** 2 + (yy + 0.5 - hr) ** 2 > hr * hr) continue
+      const i = (yy * hn + xx) * 4, R = hd[i], G = hd[i + 1], B = hd[i + 2], l = 0.299 * R + 0.587 * G + 0.114 * B
+      hcnt++
+      if (l < 55) hdark++
+      else if (R > G && G > B && R - B > 12) hskin++
+    }
+    if (drew && hcnt && hdark / hcnt >= 0.65 && hskin / hcnt <= 0.2) return 'dark'
+  }
   if (skin >= 0.3 && lum >= 50) return 'skin'
   return undefined
 }
@@ -197,6 +217,45 @@ function skinCanvas(ctx: CanvasRenderingContext2D, W: number, H: number, mask: M
   return out
 }
 
+/** alpha ramp 0→1 over a band of bare skin next to clothing on the person (not along the body outline) */
+function hemFeather(skinC: HTMLCanvasElement, mask: Mask, W: number, H: number): HTMLCanvasElement | null {
+  let d: Uint8ClampedArray
+  try { d = skinC.getContext('2d')!.getImageData(0, 0, W, H).data } catch { return null }
+  const k = Math.max(1, Math.ceil(Math.max(W, H) / 360)), gw = Math.ceil(W / k), gh = Math.ceil(H / k)
+  const F = Math.max(3, Math.round((0.022 * Math.max(W, H)) / k))
+  const INF = 1e9, dist = new Float32Array(gw * gh)
+  let anyCloth = false
+  for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
+    const x = Math.min(W - 1, Math.round((gx + 0.5) * k)), y = Math.min(H - 1, Math.round((gy + 0.5) * k))
+    const onP = (mask.data[Math.min(mask.h - 1, Math.floor((y / H) * mask.h)) * mask.w + Math.min(mask.w - 1, Math.floor((x / W) * mask.w))] ?? 0) >= 0.5, sk = d[(y * W + x) * 4 + 3] >= 128
+    const cl = onP && !sk
+    dist[gy * gw + gx] = cl ? 0 : INF
+    if (cl) anyCloth = true
+  }
+  if (!anyCloth) return null
+  // two-pass chamfer distance (cells) to the nearest clothing cell
+  const D = 1, Dg = 1.414
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+    const i = y * gw + x; let v = dist[i]
+    if (x > 0) v = Math.min(v, dist[i - 1] + D)
+    if (y > 0) { v = Math.min(v, dist[i - gw] + D); if (x > 0) v = Math.min(v, dist[i - gw - 1] + Dg); if (x < gw - 1) v = Math.min(v, dist[i - gw + 1] + Dg) }
+    dist[i] = v
+  }
+  for (let y = gh - 1; y >= 0; y--) for (let x = gw - 1; x >= 0; x--) {
+    const i = y * gw + x; let v = dist[i]
+    if (x < gw - 1) v = Math.min(v, dist[i + 1] + D)
+    if (y < gh - 1) { v = Math.min(v, dist[i + gw] + D); if (x < gw - 1) v = Math.min(v, dist[i + gw + 1] + Dg); if (x > 0) v = Math.min(v, dist[i + gw - 1] + Dg) }
+    dist[i] = v
+  }
+  const gc = mkCanvas(gw, gh), g = gc.getContext('2d')!, img = g.createImageData(gw, gh)
+  for (let i = 0; i < dist.length; i++) { const t = Math.min(1, dist[i] / F); img.data[i * 4 + 3] = Math.round(255 * t * t * (3 - 2 * t)) }
+  g.putImageData(img, 0, 0)
+  const out = mkCanvas(W, H), o = out.getContext('2d')!
+  o.imageSmoothingEnabled = true
+  o.drawImage(gc, 0, 0, W, H)
+  return out
+}
+
 export type SkinOpts = { hairZone?: { top: number; bottom: number }; clothBottom?: number; clothBack?: boolean }
 export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: number, muscles: DrawnMuscle[], mask: Mask, occluders: P[][] = [], skin: SkinOpts = {}) {
   // read the photo before anything is painted on it
@@ -223,7 +282,12 @@ export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: num
       lc.lineJoin = 'round'; lc.lineCap = 'round'
       paint(lc, legs.sort(byLayer), fineLw)
       lc.globalCompositeOperation = 'destination-in'
-      lc.drawImage(skinCanvas(ctx, W, H, mask, { top: -1e9, bottom: 1e9 }, 48, H * 2, !!skin.clothBack, px), 0, 0)
+      const legSkin = skinCanvas(ctx, W, H, mask, { top: -1e9, bottom: 1e9 }, 48, H * 2, !!skin.clothBack, px)
+      lc.drawImage(legSkin, 0, 0)
+      // the muscle runs on under the hem: fade it out over a short band of skin next to the garment instead of
+      // ending in a hard straight cut (still nothing painted on the cloth itself)
+      const fe = hemFeather(legSkin, mask, W, H)
+      if (fe) lc.drawImage(fe, 0, 0)
       lc.globalCompositeOperation = 'destination-out'
       lc.fillStyle = '#000'
       // arms in front of the thighs (deadlift, RDL hang) hide the leg muscles there

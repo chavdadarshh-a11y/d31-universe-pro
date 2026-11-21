@@ -498,6 +498,9 @@ export function artView(pose: Pose, face?: 'skin' | 'dark'): 'front' | 'back' | 
   // back to the camera with the arms overhead (pull-up / chin-up hang): the shrugged shoulders read as a
   // narrow "side" spread and MediaPipe's depth is flat, but the face area is clearly hair — that is a back view
   if (pose.view === 'side' && (pose.spread ?? 0) >= 0.5 && face === 'dark' && facing > -0.1) return 'back'
+  // same hang read as "front" by the shoulder-depth classifier: only with both wrists above the shoulders
+  const P = pose.pts, overhead = !!(P[11] && P[12]) && [15, 16].every((i) => P[i] && P[i].y < Math.min(P[11].y, P[12].y))
+  if (pose.view === 'front' && overhead && face === 'dark' && facing > -0.1) return 'back'
   return null
 }
 export function fitArt(pose: Pose, mask: Mask, roles: Partial<Record<Fine, Role>>, isPrimitive: (p: P[]) => boolean, view: 'front' | 'back'): ArtFit {

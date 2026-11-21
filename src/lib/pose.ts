@@ -207,7 +207,7 @@ async function zoomIn(r: { lm: Pt[] | null; mask: RawMask | null }, src: HTMLCan
       const z = await detectRegion(src, Math.max(0, b.x0 - mx), Math.max(0, b.y0 - my), Math.min(1, b.x1 + mx), Math.min(1, b.y1 + my))
       if (z && [11, 12, 23, 24].every((i) => reliable(z.lm[i])) && !implausible(z.lm)) {
         const bad = poseSanity(z.lm, z.mask, aspect)
-        if (bad < bestBad) { best = { lm: z.lm, mask: z.mask ?? best.mask }; bestBad = bad }
+        if (bad <= bestBad - 3) { best = { lm: z.lm, mask: z.mask ?? best.mask }; bestBad = bad }
       }
     }
   }

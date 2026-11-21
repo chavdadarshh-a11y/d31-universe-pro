@@ -313,7 +313,9 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
   const r = fitMusclesRaw(pose, mask, roles, face)
   const sh = pose.named.shM, hip = pose.named.hipM
   // upright bodies only (shoulders above hips); hips out of frame → one torso length below the shoulders
-  const bottom = hip ? hip.y : sh ? sh.y + (pose.torsoLen || 0) : 0
+  // inverted / upside-down bodies (headstand, hang): the whole outline is checked — no "below the hips" zone
+  const bottom0 = hip ? hip.y : sh ? sh.y + (pose.torsoLen || 0) : 0
+  const bottom = sh && bottom0 <= sh.y + 1 && pose.torsoLen ? 1e9 : bottom0
   // back views use the stricter garment rule (cold / grey fabric only) so coloured light on a bare back keeps the lats
   const back = (pose.ok ? artView(pose, face) : null) === 'back' || pose.view === 'back'
   if (!skinFor || !pose.ok || !sh || bottom <= sh.y + 1) return r
@@ -341,7 +343,8 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
       }
       // too-dark cells (hair, deep shadow) say nothing either way; parts below the clothing line are kept as they are
       if (n < 8) { keep.push(i); return }
-      if (known < 0.3 * n) { keep.push(i); return }
+      // legs: mostly too dark to tell is almost always black tights / track pants — not drawn (cannot be verified)
+      if (known < 0.3 * n) { if (!leg) keep.push(i); return }
       const frac = skin / known
       if (frac < 0.5) return
       const shown = (n * frac + below) * st * st
@@ -355,7 +358,7 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
     const pick = <T,>(a?: T[]) => (a ? idx.map((i) => a[i]) : undefined)
     drawn.push({ ...m, polys: idx.map((i) => m.polys[i]), partFibers: pick(m.partFibers), partBands: pick(m.partBands), apo: pick(m.apo), fibers: m.partFibers ? idx.flatMap((i) => m.partFibers![i]) : m.fibers })
   }
-  return { ...r, drawn, notDrawn, clothBottom: bottom, clothBack: back }
+  return { ...r, drawn, notDrawn, clothBottom: bottom > 1e8 ? bottom0 : bottom, clothBack: back }
 }
 function inPolygon(poly: P[], x: number, y: number): boolean {
   let c = false

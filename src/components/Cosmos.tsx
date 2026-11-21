@@ -18,14 +18,18 @@ function LiveShiva() {
   const live = useSettings((s) => s.bgVideo && !s.reduceData)
   return (
     <div className={live ? 'shiva-pan live' : 'shiva-pan'}>
-      <img
-        className="shiva"
-        src={`${BASE}media/bg/shiva-bg-720.webp`}
-        srcSet={`${BASE}media/bg/shiva-bg-720.webp 720w, ${BASE}media/bg/shiva-bg-981.webp 981w`}
-        sizes="(min-width: 700px) 981px, 720px"
-        width={981} height={1603}
-        alt="" decoding="async" draggable={false}
-      />
+      {/* v4.5: Darshan's golden-galaxy Shiva (darkness baked in). AVIF first, WebP fallback; 1440 px / 2160 px tall. */}
+      <picture>
+        <source type="image/avif" srcSet={`${BASE}media/bg/shiva-v2-1440.avif 853w, ${BASE}media/bg/shiva-v2-2160.avif 1280w`} sizes="max(100vw, 60vh)" />
+        <img
+          className="shiva"
+          src={`${BASE}media/bg/shiva-v2-1440.webp`}
+          srcSet={`${BASE}media/bg/shiva-v2-1440.webp 853w, ${BASE}media/bg/shiva-v2-2160.webp 1280w`}
+          sizes="max(100vw, 60vh)"
+          width={1280} height={2160}
+          alt="" decoding="async" draggable={false}
+        />
+      </picture>
     </div>
   )
 }

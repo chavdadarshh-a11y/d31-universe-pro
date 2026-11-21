@@ -13,6 +13,8 @@ import { isLive } from './lib/env'
 import { Onboarding } from './screens/Onboarding'
 import { Home } from './screens/Home'
 import { Train } from './screens/Train'
+import { RunScreen } from './screens/Run'
+import { GameHub, GamePlay } from './screens/Game'
 import { ProgramDetail } from './screens/ProgramDetail'
 import { Builder } from './screens/Builder'
 import { Player } from './screens/Player'
@@ -167,6 +169,8 @@ export default function App() {
     case 'train':
       if (a === 'program' && b) screen = <ProgramDetail id={b} />
       else if (a === 'builder') screen = <Builder editId={b} />
+      else if (a === 'run') screen = <RunScreen />
+      else if (a === 'game') screen = b ? <GamePlay id={b} /> : <GameHub />
       else screen = <Train />
       break
     case 'player': screen = <Player />; showNav = false; break

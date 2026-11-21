@@ -367,6 +367,16 @@ export const EXERCISES: Exercise[] = [
     benefits: ['Burns lots of calories', 'Conditioning and stamina', 'Zero equipment'],
   },
   {
+    id: 'jumping-jack', name: 'Jumping Jack', nameHi: 'जंपिंग जैक', nameGu: 'જમ્પિંગ જેક',
+    category: 'cardio', equipment: ['none'], level: 1, layer: 'EXPRESSION', tracking: 'reps',
+    primary: ['calves', 'shoulders'], secondary: ['quads', 'glutes', 'adductors'],
+    summary: 'Classic full-body warm-up and conditioning jump.',
+    steps: ['Stand tall, feet together, arms by your sides.', 'Jump the feet wide while the arms swing up overhead.', 'Jump back to feet together, arms down.', 'Keep a steady rhythm.'],
+    cues: ['Land on the balls of the feet', 'Hands meet overhead', 'Soft knees'],
+    mistakes: ['Half arm swings', 'Landing flat-footed and stiff', 'Holding the breath'],
+    benefits: ['Raises the heart rate fast', 'Warms up shoulders and hips', 'Zero equipment'],
+  },
+  {
     id: 'jump-rope', name: 'Jump Rope', nameHi: 'रस्सी कूद', nameGu: 'દોરડા કૂદ',
     category: 'cardio', equipment: ['none'], level: 1, layer: 'EXPRESSION', tracking: 'time',
     primary: ['calves'], secondary: ['quads', 'shoulders', 'forearms'],

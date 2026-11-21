@@ -13,6 +13,7 @@ import { navigate } from '../lib/router'
 import { cloud } from '../lib/cloud'
 import { wTxt } from '../lib/units'
 import { DownloadButton } from '../components/DownloadButton'
+import { RomCard } from '../components/RomLevels'
 import { isClipSaved, removeClipOffline, saveClipOffline } from '../lib/offline'
 
 const clipUrls = (name: string) => ['mp4', 'webm'].map((x) => `${import.meta.env.BASE_URL}media/clips/${name}.${x}`).concat(`${import.meta.env.BASE_URL}media/clips/${name}-poster.webp`)
@@ -106,6 +107,8 @@ export function ExerciseDetail({ id }: { id: string }) {
           <p className="mt-1 text-[13px] text-muted"><span className="text-gold">{t('goalLbl')}:</span> {criterionText(ladder.steps[stepIdx].goal)} — {ladder.steps[stepIdx].tip}</p>
         </Card>
       )}
+
+      <RomCard ex={e} />
 
       <Card className="mt-3 p-4">
         <BodyMap primary={e.primary} secondary={e.secondary} frontLabel={t('front')} backLabel={t('backView')} />

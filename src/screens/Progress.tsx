@@ -14,8 +14,9 @@ import { wTxt, toW, wUnit, useUnits } from '../lib/units'
 import { DownloadButton } from '../components/DownloadButton'
 import type { Measurement } from '../types'
 import { IN_APP } from '../lib/appMode'
+import { RunsHistory } from './Run'
 
-type Tab = 'history' | 'charts' | 'body' | 'records' | 'photos'
+type Tab = 'history' | 'runs' | 'charts' | 'body' | 'records' | 'photos'
 
 export function Progress() {
   const t = useT()
@@ -41,11 +42,12 @@ export function Progress() {
         ))}
       </div>
       <Tabs value={tab} onChange={setTab} items={[
-        { id: 'history', label: t('history') }, { id: 'charts', label: t('charts') }, { id: 'body', label: t('body') },
+        { id: 'history', label: t('history') }, { id: 'runs', label: t('runsTab') }, { id: 'charts', label: t('charts') }, { id: 'body', label: t('body') },
         { id: 'records', label: t('records') }, { id: 'photos', label: t('photos') },
       ]} />
       <div className="mt-4">
         {tab === 'history' && <History />}
+        {tab === 'runs' && <RunsHistory />}
         {tab === 'charts' && <Charts />}
         {tab === 'body' && <Body />}
         {tab === 'records' && <Records />}

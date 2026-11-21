@@ -1,5 +1,6 @@
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
+import { SocialRow } from '../components/Social'
 import { Header } from '../components/ui'
 import { PASSES, TRIAL, POST_PASSES, postPassDuration, FOUNDING, REFERRAL, foundingPrice } from '../config/plans'
 
@@ -136,6 +137,7 @@ export function Legal({ doc }: { doc: string }) {
           </section>
         ))}
       </div>
+      <SocialRow className="mt-8 flex-wrap" />
     </div>
   )
 }

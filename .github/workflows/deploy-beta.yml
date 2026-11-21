@@ -1,0 +1,51 @@
+name: Deploy BETA (features-beta → gh-pages/beta/)
+# Beta only: builds branch features-beta into the /beta/ subfolder of gh-pages and keeps every other file
+# (the live app at the root and /preview/ stay exactly as they are). Own base path, own service-worker
+# cache channel ('d31-beta-…'), own localStorage copy — see src/lib/betaIsolation.ts.
+on:
+  push:
+    branches: [features-beta]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: beta-deploy
+  cancel-in-progress: true
+jobs:
+  beta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore binary assets (stored as base64 text)
+        run: |
+          cd binary-assets
+          find . -name '*.b64' | while read f; do t="../${f#./}"; t="${t%.b64}"; mkdir -p "$(dirname "$t")"; base64 -d "$f" > "$t"; done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/beta/
+          VITE_KNOWLEDGE_BASE: /${{ github.event.repository.name }}/
+          VITE_BETA: '1'
+      - name: Knowledge video previews (short muted loops, made from the public Drive videos)
+        run: |
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          curl -fsSL "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/knowledge/posts.json" -o /tmp/posts.json || cp public/knowledge/posts.json /tmp/posts.json
+          # reuse previews already on the beta site; only new videos are cut
+          node scripts/make-previews.mjs --posts /tmp/posts.json --out dist/knowledge/previews --reuse "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/beta/knowledge/previews/"
+      - name: Beta service-worker channel + no indexing
+        run: |
+          sed -i "s/^const VERSION = '[^']*'/const VERSION = 'd31-beta-v4.5.0-${GITHUB_SHA::7}'/" dist/sw.js
+          grep -m1 "const VERSION" dist/sw.js
+          sed -i 's#<head>#<head><meta name="robots" content="noindex">#' dist/index.html
+          sed -i 's/"name": "D31.UNIVERSE"/"name": "D31.UNIVERSE BETA"/; s/"short_name": "D31"/"short_name": "D31 BETA"/' dist/manifest.webmanifest
+          touch dist/.nojekyll
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: beta
+          keep_files: true

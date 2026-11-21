@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { ChevronRight, Crown, LogIn, LogOut, Trash2, Settings as Cog, UserCog, Images, BookOpen, PlayCircle, Camera, Users, Ghost, Download, Lock, UserPlus } from 'lucide-react'
+import { ChevronRight, Crown, LogIn, LogOut, Trash2, Settings as Cog, UserCog, Images, BookOpen, Users, Download, Lock, UserPlus } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
+import { SocialSection } from '../components/Social'
 import { Badge, Button, Card, Header, Label, Sheet } from '../components/ui'
 import { Onboarding } from './Onboarding'
 import { navigate, hashQuery } from '../lib/router'
-import { env, isLive } from '../lib/env'
+import { isLive } from '../lib/env'
 import { fmtDate } from '../lib/util'
 import { Avatar, AvatarPicker } from '../components/Avatar'
 import { deleteAccount, logOut, updateAccount, validEmail } from '../lib/accounts'
@@ -44,12 +45,6 @@ export function Profile() {
   const name = s.user?.name || s.profile.name || t('athlete')
   const totalSets = s.sessions.reduce((n, x) => n + x.exercises.reduce((m, e) => m + e.sets.length, 0), 0)
 
-  const socials = [
-    { url: env.socials.youtube, icon: <PlayCircle size={18} />, label: 'YouTube' },
-    { url: env.socials.instagram, icon: <Camera size={18} />, label: 'Instagram' },
-    { url: env.socials.snapchat, icon: <Ghost size={18} />, label: 'Snapchat' },
-    { url: env.socials.facebook, icon: <Users size={18} />, label: 'Facebook' },
-  ].filter((x) => x.url)
 
   const saveAcct = () => {
     setErr(null)
@@ -127,16 +122,7 @@ export function Profile() {
         <Row testid="delete-account" icon={<Trash2 size={18} />} label={s.user ? t('deleteAccount') : t('resetData')} onClick={() => { setConfirmText(''); setDel(true) }} danger />
       </Card>
 
-      {socials.length > 0 && (
-        <>
-          <div className="label mb-2 mt-6">{t('follow')}</div>
-          <div className="grid grid-cols-4 gap-2">
-            {socials.map((x) => (
-              <a key={x.label} href={x.url} target="_blank" rel="noreferrer" className="card flex flex-col items-center gap-1.5 py-3 text-muted hover:text-frost">{x.icon}<span className="text-[11px]">{x.label}</span></a>
-            ))}
-          </div>
-        </>
-      )}
+      <SocialSection className="mt-6" />
       <p className="mt-8 text-center font-mono text-[11px] text-dim">D31.UNIVERSE {isLive ? '' : `· ${t('demo')}`}</p>
 
       <Sheet open={edit} onClose={() => setEdit(false)} title={t('editProfile')}>

@@ -599,3 +599,46 @@ html.light .field,
 html.light .num {
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8), 0 0 12px rgba(255, 255, 255, 0.42);
 }
+
+/* ── v4.5 beta: GIF-like Knowledge previews, Run, Game mode, range levels ── */
+.kp-cover .kgif img, .kp-cover .kgif video { left: 0; transform: none; width: 100%; max-width: none; }
+.kp-cover > .kgif { left: 50%; width: 100vw; max-width: 480px; transform: translateX(-50%); }
+@keyframes kgif-pan { 0% { transform: scale(1.04) translate(-1.5%, 0); } 50% { transform: scale(1.14) translate(1.5%, -1.5%); } 100% { transform: scale(1.04) translate(-1.5%, 0); } }
+.kgif-pan { animation: kgif-pan 7s ease-in-out infinite; }
+@keyframes game-pop { 0% { transform: scale(1); } 35% { transform: scale(1.22); } 100% { transform: scale(1); } }
+.game-pop { animation: game-pop 0.28s cubic-bezier(.2,.9,.3,1.4); }
+@keyframes game-float { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -70px) scale(1.15); } }
+.game-float { position: absolute; left: 50%; animation: game-float 0.9s ease-out forwards; pointer-events: none; }
+@keyframes game-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+.game-shake { animation: game-shake 0.32s ease-in-out; }
+@keyframes game-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(247, 197, 72, 0); } 50% { box-shadow: 0 0 34px 6px rgba(247, 197, 72, 0.45); } }
+.game-glow { animation: game-glow 1.6s ease-in-out infinite; }
+@keyframes game-spin { to { transform: rotate(360deg); } }
+.game-spin { animation: game-spin 9s linear infinite; }
+@keyframes game-in { 0% { opacity: 0; transform: scale(0.6); } 60% { opacity: 1; transform: scale(1.06); } 100% { transform: scale(1); } }
+.game-in { animation: game-in 0.5s cubic-bezier(.2,.9,.3,1.2) both; }
+.game-grid { background-image: linear-gradient(rgba(34, 211, 238, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px); background-size: 22px 22px; }
+html.light .game-grid { background-image: linear-gradient(rgba(8, 145, 178, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(8, 145, 178, 0.08) 1px, transparent 1px); }
+.run-map { height: 220px; border-radius: 18px; overflow: hidden; background: #070b14; }
+.run-map .leaflet-container { height: 100%; width: 100%; background: #070b14; font: inherit; }
+html.light .run-map, html.light .run-map .leaflet-container { background: #e9eef6; }
+.run-map .leaflet-control-attribution { font-size: 8px; background: rgba(0, 0, 0, 0.45); color: #9aa6bd; }
+.run-map .leaflet-control-attribution a { color: #67e8f9; }
+.run-dark-tiles .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6); }
+
+/* ---- Social media (v4.5 beta) ---- */
+.soc-card{position:relative;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 12px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--soc) 16%,transparent),rgba(10,16,30,.55) 55%);border:1px solid color-mix(in srgb,var(--soc) 45%,rgba(255,255,255,.08));
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 8px 28px -12px color-mix(in srgb,var(--soc) 70%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .2s,box-shadow .2s}
+.soc-card::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.12) 50%,transparent 70%);transform:translateX(-100%);animation:soc-sheen 5.5s ease-in-out infinite;pointer-events:none}
+.soc-card:hover,.soc-card:active{transform:translateY(-1px) scale(.995);box-shadow:0 0 0 1px rgba(255,255,255,.05) inset,0 10px 34px -10px var(--soc)}
+.soc-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.06);box-shadow:0 0 22px -4px var(--soc);flex:none}
+.soc-cta{flex:none;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--soc),color-mix(in srgb,var(--soc) 55%,#22d3ee));box-shadow:0 0 16px -4px var(--soc)}
+.soc-badge{font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#f7c548;border:1px solid rgba(247,197,72,.35);border-radius:999px;padding:3px 8px;white-space:nowrap}
+.soc-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(10,16,30,.5);border:1px solid color-mix(in srgb,var(--soc) 40%,rgba(255,255,255,.08));box-shadow:0 0 14px -6px var(--soc);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+@keyframes soc-sheen{0%,70%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.soc-card::after{animation:none}}
+html.light .soc-card{background:linear-gradient(135deg,color-mix(in srgb,var(--soc) 12%,transparent),rgba(255,255,255,.42) 55%)}
+html.light .soc-icon{background:rgba(255,255,255,.55)}
+html.light .soc-pill{background:rgba(255,255,255,.45)}
+html.light .soc-badge{color:#a16207;border-color:rgba(161,98,7,.35)}

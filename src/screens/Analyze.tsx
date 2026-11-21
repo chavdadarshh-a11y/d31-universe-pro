@@ -16,6 +16,7 @@ import {
   type CheckResult, type Guess, type Mode, type Pose,
 } from '../lib/formCheck'
 import { renderAnalysis } from '../lib/analysisDraw'
+import { RomEstimate } from '../components/RomLevels'
 import { artView, fitMuscles, type FitResult, type Mask } from '../lib/muscleAnatomy'
 import { anchorDebug } from '../lib/muscleArt'
 import { fineName, roleWord, rolesFor, ROLE_ORDER } from '../lib/muscleRoles'
@@ -233,6 +234,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
         </div>
       )}
       {posterMsg && <p className="px-1 text-[12px] text-cyan" data-testid="poster-msg">{posterMsg}</p>}
+      {pose?.ok && rec.exId && <RomEstimate exId={rec.exId} metrics={pose.metrics} />}
       {mode === 'muscles' && pose?.ok && rec.exId && anatomy.drawn.length === 0 && (
         <div className="flex items-start gap-2 rounded-2xl border border-gold/25 bg-gold/[0.07] p-3 text-[13px] leading-snug text-gold" data-testid="no-muscles">
           <AlertTriangle size={15} className="mt-0.5 shrink-0" /> <span>{t('musclesNoneDrawn')}</span>

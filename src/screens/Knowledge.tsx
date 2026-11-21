@@ -14,6 +14,7 @@ import { navigate } from '../lib/router'
 import { knowledgeDownloadOk, useDownloadAccess } from '../lib/entitlements'
 import { getBlob, itemId, savedUrl, useDownloads, type DlType } from '../lib/downloads'
 import { openPlayer } from '../components/VideoPlayer'
+import { KPreview } from '../components/KPreview'
 import { PdfViewer } from '../components/PdfViewer'
 import { canSaveType, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
 import { IN_APP } from '../lib/appMode'
@@ -107,7 +108,7 @@ export function PostPanels({ posts }: { posts: KPost[] }) {
                     className={`kp dark-zone ${on ? 'is-active' : ''}`}
                     style={{ flexGrow: on ? 6.5 : small, ['--kc' as string]: kc }}
                   >
-                    <div className="kp-cover"><Cover p={p} w={900} /></div>
+                    <div className="kp-cover"><Cover p={p} w={900} />{on && hasVideo && <KPreview bare id={pick(p.videos, lang).files[0].id} className="absolute inset-0" />}</div>
                     <div className="kp-shade" />
                     <span className="kp-tag">#{p.number}</span>
                     <div className="kp-text">
@@ -197,11 +198,13 @@ function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: numbe
   )
 }
 
-function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked }: { f: KFile; icon: React.ReactNode; onOpen: () => void; type: DlType; post: number; ukey?: string; locked?: boolean; onLocked?: () => void }) {
+function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked, gif }: { f: KFile; icon: React.ReactNode; onOpen: () => void; type: DlType; post: number; ukey?: string; locked?: boolean; onLocked?: () => void; gif?: boolean }) {
   const t = useT()
   const bought = useUnlocked(ukey)
   return (
-    <Card className="flex items-center gap-3 p-3" data-testid={locked ? 'k-file-locked' : 'k-file'}>
+    <Card className="overflow-hidden" data-testid={locked ? 'k-file-locked' : 'k-file'}>
+    {gif && <KPreview id={f.id} locked={locked} label={f.lang ? LANG_LABEL[f.lang] : undefined} onClick={locked ? onLocked : onOpen} className="!rounded-none !border-0 !border-b" />}
+    <div className="flex items-center gap-3 p-3">
       <button onClick={locked ? onLocked : onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
         <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border ${locked ? 'border-gold/35 bg-gold/[0.08] text-gold' : 'border-cyan/25 bg-cyan/[0.07] text-cyan'}`}>{locked ? <Lock size={18} /> : icon}</span>
         <span className="min-w-0">
@@ -212,6 +215,7 @@ function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked }: { f: K
       {locked
         ? <button data-testid="k-unlock" onClick={onLocked} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/45 px-3 text-[12px] font-bold text-gold"><Lock size={13} /> {IN_APP ? t('locked') : t('ppOpenThis')}</button>
         : <SaveBtn f={f} type={type} post={post} ukey={ukey} />}
+    </div>
     </Card>
   )
 }
@@ -390,6 +394,16 @@ export function KnowledgePost({ id }: { id: string }) {
   const canOpenSaved = (key?: string) => access.state !== 'locked' || (UNLOCKS.allowDownload && isUnlocked(key))
   const langLocked = (tab === 'videos' || tab === 'pdfs') && !okLangs.includes(tab === 'videos' ? vids.used : pdfs.used) && !isPostOpen(p.number)
   const postOpen = isPostOpen(p.number)
+  const openVideo = async (f: KFile) => {
+    const open = vids.files.filter((x) => !gate('video', x, vids.used).locked)
+    const items = await Promise.all(open.map(async (x) => {
+      const xk = gate('video', x, vids.used).key
+      const local = canOpenSaved(xk) && dl.present[itemId('video', x.id)] ? await savedUrl(itemId('video', x.id)) : null
+      return { title: fileTitle(x.name), sub: `#${p.number} · ${LANG_LABEL[x.lang ?? vids.used]}${local ? ` · ${t('dlOffline')}` : ''}`, sources: (() => { const src = local ?? kStream(x.id); return src ? [{ src, type: 'video/mp4' }] : [] })(), embed: kPreview(x.id) }
+    }))
+    openPlayer({ items, index: Math.max(0, open.findIndex((x) => x.id === f.id)) })
+  }
+  const tapVideo = (f: KFile) => { const g = gate('video', f, vids.used); if (g.locked) { if (g.key) setUnlock({ key: g.key, title: fileTitle(f.name), post: p.number }) } else void openVideo(f) }
 
   return (
     <div data-testid="kpost">
@@ -447,6 +461,19 @@ export function KnowledgePost({ id }: { id: string }) {
                 </button>
               ))}
             </div>
+            {vids.files.length > 0 && (
+              <div data-testid="k-gif-strip">
+                <div className="mb-1.5 flex items-center gap-1.5 px-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.18em] text-cyan"><PlayCircle size={13} /> {t('kGifStrip')}</div>
+                <div className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4">
+                  {vids.files.map((f) => (
+                    <div key={f.id} className="w-[78%] shrink-0 snap-start">
+                      <KPreview id={f.id} locked={gate('video', f, vids.used).locked} label={LANG_LABEL[f.lang ?? vids.used]} onClick={() => tapVideo(f)} />
+                      <div className="mt-1 truncate px-0.5 text-[12px] font-semibold text-frost/90">{fileTitle(f.name)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <Card className="flex gap-3 p-4">
               <Languages size={18} className="mt-0.5 shrink-0 text-gold" />
               <div className="text-[13px] leading-snug text-muted">
@@ -469,15 +496,7 @@ export function KnowledgePost({ id }: { id: string }) {
         {tab === 'videos' && (vids.files.length ? (
           <>
             {vids.fallback && fallbackNote(vids.used)}
-            {vids.files.map((f) => { const g = gate('video', f, vids.used); return <FileRow key={f.id} f={f} type="video" post={p.number} ukey={g.key} locked={g.locked} onLocked={() => g.key && setUnlock({ key: g.key, title: fileTitle(f.name), post: p.number })} icon={<PlayCircle size={20} />} onOpen={async () => {
-              const open = vids.files.filter((x) => !gate('video', x, vids.used).locked)
-              const items = await Promise.all(open.map(async (x) => {
-                const xk = gate('video', x, vids.used).key
-                const local = canOpenSaved(xk) && dl.present[itemId('video', x.id)] ? await savedUrl(itemId('video', x.id)) : null
-                return { title: fileTitle(x.name), sub: `#${p.number} · ${LANG_LABEL[x.lang ?? vids.used]}${local ? ` · ${t('dlOffline')}` : ''}`, sources: (() => { const src = local ?? kStream(x.id); return src ? [{ src, type: 'video/mp4' }] : [] })(), embed: kPreview(x.id) }
-              }))
-              openPlayer({ items, index: Math.max(0, open.findIndex((x) => x.id === f.id)) })
-            }} /> })}
+            {vids.files.map((f) => { const g = gate('video', f, vids.used); return <FileRow key={f.id} gif f={f} type="video" post={p.number} ukey={g.key} locked={g.locked} onLocked={() => g.key && setUnlock({ key: g.key, title: fileTitle(f.name), post: p.number })} icon={<PlayCircle size={20} />} onOpen={() => void openVideo(f)} /> })}
           </>
         ) : <Empty icon={<Film size={26} />} text={t('kNoVideos')} />)}
 

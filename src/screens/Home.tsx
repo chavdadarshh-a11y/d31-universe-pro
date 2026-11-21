@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useApp, effectivePlan } from '../store/app'
 import { HERO_ROTATION } from '../data/gallery'
 import { useT } from '../i18n'
+import { SocialRow } from '../components/Social'
 import { Button, Badge } from '../components/ui'
 import { LogoMark, Wordmark } from '../components/Brand'
 import { HudTitle, Photo, mediaUrl, openClip } from '../components/hud'
@@ -123,7 +124,8 @@ export function Home() {
       {/* Darshan's posts — the main content of Today */}
       <HomeKnowledge />
 
-      <footer className="mt-8 flex items-center justify-center gap-2 pb-2 font-mono text-[9.5px] uppercase tracking-[0.3em] text-dim">
+      <SocialRow className="mt-8 flex-wrap" />
+      <footer className="mt-4 flex items-center justify-center gap-2 pb-2 font-mono text-[9.5px] uppercase tracking-[0.3em] text-dim">
         <span className="h-px w-8 bg-gradient-to-r from-transparent to-gold/50" />D31.UNIVERSE · {t('byDarshan')}<span className="h-px w-8 bg-gradient-to-l from-transparent to-gold/50" />
       </footer>
     </div>

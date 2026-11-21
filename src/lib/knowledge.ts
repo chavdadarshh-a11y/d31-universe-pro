@@ -17,7 +17,9 @@ export interface KPost {
 }
 export interface KManifest { version: number; generatedAt: string; posts: KPost[] }
 
-const URL_ = `${import.meta.env.BASE_URL}knowledge/posts.json`
+/** beta/preview builds read the live site's feed (always fresh from the Drive sync) */
+const KBASE = (import.meta.env.VITE_KNOWLEDGE_BASE as string | undefined) || import.meta.env.BASE_URL
+const URL_ = `${KBASE}knowledge/posts.json`
 const CACHE = 'd31-knowledge-cache'
 let mem: KManifest | null = null
 

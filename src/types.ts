@@ -62,7 +62,7 @@ export type Program = {
 export type CustomWorkout = { id: string; name: string; items: PlanItem[]; createdAt: string; note?: string }
 
 export type SetType = 'warmup' | 'working' | 'drop' | 'failure'
-export type LoggedSet = { reps: number; kg: number; secs?: number; rpe?: number; note?: string; type?: SetType; done: boolean }
+export type LoggedSet = { reps: number; kg: number; secs?: number; rpe?: number; note?: string; type?: SetType; done: boolean; /** range-of-motion level id (data/rom.ts) */ rom?: string }
 export type LoggedExercise = { exId: string; sets: LoggedSet[]; note?: string }
 export type WorkoutSession = {
   id: string

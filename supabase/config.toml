@@ -1,4 +1,4 @@
-# Minimal Supabase CLI config for D31.UNIVERSE PRO
+# Minimal Supabase CLI config for D31.UNIVERSE
 project_id = "d31-universe-pro"
 
 [auth]

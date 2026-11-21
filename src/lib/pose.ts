@@ -194,6 +194,31 @@ async function zoomIn(r: { lm: Pt[] | null; mask: RawMask | null }, src: HTMLCan
       if (bad <= bestBad - 3) { best = { lm: z.lm, mask: z.mask ?? best.mask }; bestBad = bad }
     }
   }
+  // a tiny figure (a poster, someone far behind) picked over the real, larger person: look again with that
+  // figure blacked out, and on the whole frame enlarged, and keep a clearly larger, complete, plausible person
+  const area = (m: RawMask | null) => { const q = m ? maskBox(m) : null; return q ? (q.x1 - q.x0) * (q.y1 - q.y0) : 0 }
+  const a0 = area(best.mask), b0 = best.mask ? maskBox(best.mask) : null
+  if (b0 && a0 < 0.03) {
+    const c = document.createElement('canvas')
+    c.width = src.width; c.height = src.height
+    const x = c.getContext('2d')!
+    x.drawImage(src, 0, 0)
+    x.fillStyle = '#000'
+    const px = 0.15 * (b0.x1 - b0.x0), py = 0.15 * (b0.y1 - b0.y0)
+    x.fillRect((b0.x0 - px) * c.width, (b0.y0 - py) * c.height, (b0.x1 - b0.x0 + 2 * px) * c.width, (b0.y1 - b0.y0 + 2 * py) * c.height)
+    const full = (z: { lm: Pt[]; mask: RawMask | null } | null): z is { lm: Pt[]; mask: RawMask } => !!z && !!z.mask && [11, 12, 23, 24].every((i) => reliable(z.lm[i])) && !implausible(z.lm)
+    const hid = await detectRegion(c, 0, 0, 1, 1)
+    const q = full(hid) && area(hid.mask) >= 3 * Math.max(a0, 1e-6) ? maskBox(hid.mask) : null
+    if (q) {
+      // the larger person found: detect again on the untouched photo, framed on that person
+      const mx = 0.12 * (q.x1 - q.x0), my = 0.12 * (q.y1 - q.y0)
+      const z = await detectRegion(src, Math.max(0, q.x0 - mx), Math.max(0, q.y0 - my), Math.min(1, q.x1 + mx), Math.min(1, q.y1 + my))
+      if (full(z) && area(z.mask) >= 3 * a0) {
+        const bad = poseSanity(z.lm, z.mask, aspect)
+        if (bad <= 3) { best = { lm: z.lm, mask: z.mask }; bestBad = bad }
+      }
+    }
+  }
   let b = best.mask ? maskBox(best.mask) : null
   if (!b && best.lm) {
     const ok = best.lm.filter((p) => reliable(p))

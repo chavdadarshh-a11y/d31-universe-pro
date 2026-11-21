@@ -203,52 +203,63 @@ export function drawMuscleLayer(ctx: CanvasRenderingContext2D, W: number, H: num
   let px: ImageData | undefined
   try { px = ctx.getImageData(0, 0, W, H) } catch { px = undefined }
   const keep = skin.hairZone || skin.clothBottom ? skinCanvas(ctx, W, H, mask, skin.hairZone ?? { top: -1e9, bottom: 1e9 }, 48, skin.clothBottom ?? -1, !!skin.clothBack, px) : null
-  const isLeg = (m: DrawnMuscle) => (m.seg === 'thigh' || m.seg === 'shin') && m.id !== 'glute_max' && m.id !== 'glute_med'
-  const legs = skin.clothBottom ? muscles.filter(isLeg) : []
-  const layer = mkCanvas(W, H)
-  const c = layer.getContext('2d')!
-  c.lineJoin = 'round'
-  c.lineCap = 'round'
-  const fineLw = Math.max(0.8, Math.min(W, H) / 700)
-  const byLayer = (a: DrawnMuscle, b: DrawnMuscle) => (a.layer ?? -1) - (b.layer ?? -1)
-  // glutes go with the trunk: an arm hanging in front of the hip hides them the same way
-  const isGlute = (m: DrawnMuscle) => m.id === 'glute_max' || m.id === 'glute_med'
-  const trunk = muscles.filter((m) => m.seg === 'torso' || isGlute(m)).sort(byLayer), limbs = muscles.filter((m) => m.seg !== 'torso' && !isGlute(m) && !legs.includes(m)).sort(byLayer)
-  // legs get their own layer clipped to bare skin over the whole photo (shorts / tights are not skin)
-  let legLayer: HTMLCanvasElement | null = null
-  if (legs.length) {
-    legLayer = mkCanvas(W, H)
-    const lc = legLayer.getContext('2d')!
-    lc.lineJoin = 'round'; lc.lineCap = 'round'
-    paint(lc, legs.sort(byLayer), fineLw)
-    lc.globalCompositeOperation = 'destination-in'
-    lc.drawImage(skinCanvas(ctx, W, H, mask, { top: -1e9, bottom: 1e9 }, 48, H * 2, !!skin.clothBack, px), 0, 0)
-    lc.globalCompositeOperation = 'destination-out'
-    lc.fillStyle = '#000'
-    // arms in front of the thighs (deadlift, RDL hang) hide the leg muscles there
-    for (const o of occluders) { polyPath(lc, o); lc.fill() }
-    // the glutes sit on top of the hamstrings / quads where they overlap
-    for (const m of trunk) if (isGlute(m)) m.polys.forEach((q, i) => { if (!m.apo?.[i] && q.length >= 8) { polyPath(lc, q); lc.fill() } })
-    lc.globalCompositeOperation = 'source-over'
-  }
-  paint(c, trunk, fineLw)
-  if (occluders.length) {
-    c.globalCompositeOperation = 'destination-out'
-    c.fillStyle = '#000'
-    for (const o of occluders) { polyPath(c, o); c.fill() }
+  const build = (list: DrawnMuscle[]) => {
+    const isLeg = (m: DrawnMuscle) => (m.seg === 'thigh' || m.seg === 'shin') && m.id !== 'glute_max' && m.id !== 'glute_med'
+    const legs = skin.clothBottom ? list.filter(isLeg) : []
+    const layer = mkCanvas(W, H)
+    const c = layer.getContext('2d')!
+    c.lineJoin = 'round'
+    c.lineCap = 'round'
+    const fineLw = Math.max(0.8, Math.min(W, H) / 700)
+    const byLayer = (a: DrawnMuscle, b: DrawnMuscle) => (a.layer ?? -1) - (b.layer ?? -1)
+    // glutes go with the trunk: an arm hanging in front of the hip hides them the same way
+    const isGlute = (m: DrawnMuscle) => m.id === 'glute_max' || m.id === 'glute_med'
+    const trunk = list.filter((m) => m.seg === 'torso' || isGlute(m)).sort(byLayer), limbs = list.filter((m) => m.seg !== 'torso' && !isGlute(m) && !legs.includes(m)).sort(byLayer)
+    // legs get their own layer clipped to bare skin over the whole photo (shorts / tights are not skin)
+    let legLayer: HTMLCanvasElement | null = null
+    if (legs.length) {
+      legLayer = mkCanvas(W, H)
+      const lc = legLayer.getContext('2d')!
+      lc.lineJoin = 'round'; lc.lineCap = 'round'
+      paint(lc, legs.sort(byLayer), fineLw)
+      lc.globalCompositeOperation = 'destination-in'
+      lc.drawImage(skinCanvas(ctx, W, H, mask, { top: -1e9, bottom: 1e9 }, 48, H * 2, !!skin.clothBack, px), 0, 0)
+      lc.globalCompositeOperation = 'destination-out'
+      lc.fillStyle = '#000'
+      // arms in front of the thighs (deadlift, RDL hang) hide the leg muscles there
+      for (const o of occluders) { polyPath(lc, o); lc.fill() }
+      // the glutes sit on top of the hamstrings / quads where they overlap
+      for (const m of trunk) if (isGlute(m)) m.polys.forEach((q, i) => { if (!m.apo?.[i] && q.length >= 8) { polyPath(lc, q); lc.fill() } })
+      lc.globalCompositeOperation = 'source-over'
+    }
+    paint(c, trunk, fineLw)
+    if (occluders.length) {
+      c.globalCompositeOperation = 'destination-out'
+      c.fillStyle = '#000'
+      for (const o of occluders) { polyPath(c, o); c.fill() }
+      c.globalCompositeOperation = 'source-over'
+    }
+    paint(c, limbs, fineLw)
+    // keep everything strictly on the person
+    c.globalCompositeOperation = 'destination-in'
+    c.imageSmoothingEnabled = true
+    if (keep) c.drawImage(keep, 0, 0)
+    else c.drawImage(maskCanvas(mask), 0, 0, W, H)
     c.globalCompositeOperation = 'source-over'
+    if (legLayer) { c.globalCompositeOperation = 'destination-over'; c.drawImage(legLayer, 0, 0); c.globalCompositeOperation = 'source-over' }
+    dropFragments(c, layer, W, H)
+    return layer
   }
-  paint(c, limbs, fineLw)
-  // keep everything strictly on the person
-  c.globalCompositeOperation = 'destination-in'
-  c.imageSmoothingEnabled = true
-  if (keep) c.drawImage(keep, 0, 0)
-  else c.drawImage(maskCanvas(mask), 0, 0, W, H)
-  c.globalCompositeOperation = 'source-over'
-  if (legLayer) { c.globalCompositeOperation = 'destination-over'; c.drawImage(legLayer, 0, 0); c.globalCompositeOperation = 'source-over' }
-  dropFragments(c, layer, W, H)
+  // a muscle that is mostly clipped away (on a sleeve, behind hair) would leave a sliver: paint again without it
+  let layer = build(muscles)
+  let info = paintedInfo(layer, W, H, muscles)
+  if (info.visible.length < muscles.length || info.visible.some((m) => m.polys.length !== muscles.find((o) => o.id === m.id && o.role === m.role)?.polys.length)) {
+    const kept = info.visible
+    layer = build(kept)
+    info = paintedInfo(layer, W, H, kept)
+  }
   ctx.drawImage(layer, 0, 0)
-  return paintedInfo(layer, W, H, muscles)
+  return info
 }
 
 export type PaintGrid = { k: number; gw: number; gh: number; on: Uint8Array }
@@ -269,23 +280,35 @@ function paintedInfo(layer: HTMLCanvasElement, W: number, H: number, muscles: Dr
   for (const m of muscles) {
     const pts: { x: number; y: number }[] = []
     let tot = 0
+    const keepP: boolean[] = []
     m.polys.forEach((q, pi) => {
-      if (m.apo?.[pi] || q.length < 3) return
-      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9
+      if (m.apo?.[pi] || q.length < 3) { keepP.push(true); return }
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, t = 0
+      const pp: { x: number; y: number }[] = []
       for (const p of q) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y) }
       for (let gy = Math.max(0, Math.floor(y0 / k)); gy <= Math.min(gh - 1, Math.ceil(y1 / k)); gy++) for (let gx = Math.max(0, Math.floor(x0 / k)); gx <= Math.min(gw - 1, Math.ceil(x1 / k)); gx++) {
         const x = (gx + 0.5) * k, y = (gy + 0.5) * k
         if (!inPoly(q, x, y)) continue
-        tot++
-        if (on[gy * gw + gx]) pts.push({ x, y })
+        t++
+        if (on[gy * gw + gx]) pp.push({ x, y })
       }
+      // each part on its own: a part that is mostly clipped away (a sliver on a sleeve) goes
+      const ok = t > 0 && pp.length >= Math.max(4, 0.3 * t)
+      keepP.push(ok)
+      if (ok) { tot += t; pts.push(...pp) }
     })
-    // nothing (or only a sliver) of it is on the photo → not labelled
-    if (!tot || pts.length < Math.max(6, 0.12 * tot)) continue
+    // nothing (or only a sliver) of it is on the photo → not drawn, not labelled
+    if (!tot || pts.length < 6) continue
     const ce = pts.reduce((s, p) => ({ x: s.x + p.x / pts.length, y: s.y + p.y / pts.length }), { x: 0, y: 0 })
     let best = pts[0], bd = 1e18
     for (const p of pts) { const d = (p.x - ce.x) ** 2 + (p.y - ce.y) ** 2; if (d < bd) { bd = d; best = p } }
-    visible.push({ ...m, anchor: { x: best.x, y: best.y } })
+    let mm: DrawnMuscle = { ...m, anchor: { x: best.x, y: best.y } }
+    if (keepP.some((v) => !v)) {
+      const idx = m.polys.map((_, i) => i).filter((i) => keepP[i])
+      const pick = <T,>(arr?: T[]) => (arr ? idx.map((i) => arr[i]) : undefined)
+      mm = { ...mm, polys: idx.map((i) => m.polys[i]), partFibers: pick(m.partFibers), partBands: pick(m.partBands), apo: pick(m.apo), fibers: m.partFibers ? idx.flatMap((i) => m.partFibers![i]) : m.fibers }
+    }
+    visible.push(mm)
   }
   return { visible, grid: { k, gw, gh, on } }
 }

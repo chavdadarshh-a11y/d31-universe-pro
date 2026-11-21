@@ -33,7 +33,7 @@ const UA_SIDE: Tpl[] = [
   { id: 'biceps', seg: 'upperArm', view: 'side', poly: [[0.12, 0.05], [0.18, 0.55], [0.3, 0.9], [0.5, 1.02], [0.7, 0.95], [0.84, 0.7], [0.93, 0.36], [0.98, 0.12], [0.9, -0.04], [0.7, -0.1], [0.45, -0.1], [0.25, -0.04]], fiber: { kind: 'along' } },
   { id: 'delt_post', seg: 'upperArm', view: 'side', poly: [[-0.16, -0.1], [-0.12, -0.6], [0.02, -0.98], [0.2, -1.02], [0.34, -0.82], [0.44, -0.4], [0.3, -0.26], [0.1, -0.16]], fiber: { kind: 'fan', o: [0.46, -0.3] } },
   { id: 'delt_lat', seg: 'upperArm', view: 'side', poly: [[-0.22, -0.32], [-0.16, 0.3], [-0.02, 0.56], [0.2, 0.5], [0.38, 0.2], [0.47, -0.04], [0.36, -0.36], [0.14, -0.55], [-0.06, -0.6]], fiber: { kind: 'fan', o: [0.5, 0.0] } },
-  { id: 'delt_ant', seg: 'upperArm', view: 'side', poly: [[-0.16, 0.1], [-0.12, 0.56], [0.02, 0.96], [0.18, 1.02], [0.32, 0.86], [0.44, 0.46], [0.38, 0.25], [0.2, 0.14], [0.0, 0.02]], fiber: { kind: 'fan', o: [0.46, 0.3] } },
+  { id: 'delt_ant', seg: 'upperArm', view: 'side', poly: [[-0.18, 0.06], [-0.17, 0.46], [-0.1, 0.8], [0.0, 0.98], [0.1, 0.95], [0.2, 0.74], [0.31, 0.46], [0.42, 0.24], [0.5, 0.1], [0.36, 0.05], [0.16, 0.02], [-0.02, 0.01]], fiber: { kind: 'fan', o: [0.5, 0.1] } },
 ]
 const UA_FRONT: Tpl[] = [
   { id: 'triceps', seg: 'upperArm', view: 'front', poly: [[0.16, -0.68], [0.3, -0.96], [0.5, -1.02], [0.7, -0.94], [0.86, -0.8], [1.0, -0.64], [0.88, -0.6], [0.66, -0.6], [0.42, -0.64]], fiber: { kind: 'along' } },
@@ -48,12 +48,12 @@ const UA_BACK: Tpl[] = [
   { id: 'delt_lat', seg: 'upperArm', view: 'back', poly: [[-0.22, 0.2], [-0.12, 0.8], [0.08, 1.02], [0.3, 0.94], [0.44, 0.52], [0.3, 0.42], [0.1, 0.4]], fiber: { kind: 'fan', o: [0.48, 0.5] } },
 ]
 const FA_SIDE: Tpl[] = [
-  { id: 'forearm_extensors', seg: 'forearm', view: 'side', poly: [[-0.04, -0.1], [0.04, -0.86], [0.2, -1.0], [0.45, -0.9], [0.68, -0.5], [0.8, -0.2], [0.6, -0.06], [0.3, 0.0]], fiber: { kind: 'along' } },
-  { id: 'forearm_flexors', seg: 'forearm', view: 'side', poly: [[-0.02, 0.1], [0.05, 0.8], [0.2, 1.0], [0.42, 0.86], [0.62, 0.46], [0.76, 0.2], [0.62, 0.05], [0.3, 0.0]], fiber: { kind: 'along' } },
+  { id: 'forearm_extensors', seg: 'forearm', view: 'side', poly: [[0.07, -0.12], [0.1, -0.84], [0.2, -1.0], [0.45, -0.9], [0.68, -0.5], [0.8, -0.2], [0.6, -0.04], [0.3, -0.03]], fiber: { kind: 'along' } },
+  { id: 'forearm_flexors', seg: 'forearm', view: 'side', poly: [[0.09, 0.12], [0.12, 0.78], [0.2, 1.0], [0.42, 0.86], [0.62, 0.46], [0.76, 0.2], [0.62, 0.05], [0.3, 0.0]], fiber: { kind: 'along' } },
 ]
 const FA_FRONT: Tpl[] = [
-  { id: 'forearm_extensors', seg: 'forearm', view: 'front', poly: [[-0.04, 0.1], [0.04, 0.86], [0.2, 1.0], [0.45, 0.9], [0.68, 0.5], [0.8, 0.2], [0.6, 0.06], [0.3, 0.0]], fiber: { kind: 'along' } },
-  { id: 'forearm_flexors', seg: 'forearm', view: 'front', poly: [[-0.02, -0.1], [0.05, -0.8], [0.2, -1.0], [0.42, -0.86], [0.62, -0.46], [0.76, -0.2], [0.62, -0.05], [0.3, 0.0]], fiber: { kind: 'along' } },
+  { id: 'forearm_extensors', seg: 'forearm', view: 'front', poly: [[0.07, 0.12], [0.1, 0.84], [0.2, 1.0], [0.45, 0.9], [0.68, 0.5], [0.8, 0.2], [0.6, 0.06], [0.3, 0.0]], fiber: { kind: 'along' } },
+  { id: 'forearm_flexors', seg: 'forearm', view: 'front', poly: [[0.09, -0.12], [0.12, -0.78], [0.2, -1.0], [0.42, -0.86], [0.62, -0.46], [0.76, -0.2], [0.62, -0.05], [0.3, 0.0]], fiber: { kind: 'along' } },
 ]
 const FA_BACK: Tpl[] = [
   { id: 'forearm_extensors', seg: 'forearm', view: 'back', poly: [[-0.04, -0.6], [0.02, 0.4], [0.18, 0.95], [0.42, 0.85], [0.7, 0.4], [0.8, 0.0], [0.62, -0.3], [0.3, -0.62]], fiber: { kind: 'along' } },
@@ -61,8 +61,8 @@ const FA_BACK: Tpl[] = [
 const TH_SIDE: Tpl[] = [
   { id: 'glute_med', seg: 'thigh', view: 'side', poly: [[-0.44, 0.1], [-0.46, -0.25], [-0.42, -0.6], [-0.34, -0.72], [-0.22, -0.5], [-0.12, -0.25], [-0.08, -0.12], [-0.16, 0.0], [-0.3, 0.1]], fiber: { kind: 'fan', o: [-0.08, -0.2] } },
   { id: 'hamstrings', seg: 'thigh', view: 'side', poly: [[0.12, -0.3], [0.3, -0.5], [0.6, -0.56], [0.85, -0.46], [1.0, -0.6], [0.92, -0.96], [0.65, -1.0], [0.35, -0.98], [0.15, -0.86]], fiber: { kind: 'along' } },
-  { id: 'vastus_lateralis', seg: 'thigh', view: 'side', poly: [[0.08, 0.1], [0.25, 0.2], [0.55, 0.26], [0.85, 0.36], [0.97, 0.3], [0.95, -0.06], [0.82, -0.36], [0.55, -0.46], [0.3, -0.36], [0.12, -0.16]], fiber: { kind: 'dir', d: [1, -0.25] } },
-  { id: 'rectus_femoris', seg: 'thigh', view: 'side', poly: [[0.02, 0.26], [0.1, 0.7], [0.3, 0.96], [0.55, 0.93], [0.78, 0.72], [0.93, 0.46], [0.88, 0.3], [0.65, 0.26], [0.35, 0.21], [0.12, 0.16]], fiber: { kind: 'along' } },
+  { id: 'vastus_lateralis', seg: 'thigh', view: 'side', poly: [[0.08, 0.1], [0.3, 0.2], [0.6, 0.25], [0.82, 0.3], [0.96, 0.35], [0.9, 0.14], [0.8, -0.12], [0.64, -0.38], [0.42, -0.47], [0.22, -0.36], [0.11, -0.15]], fiber: { kind: 'dir', d: [1, -0.25] } },
+  { id: 'rectus_femoris', seg: 'thigh', view: 'side', poly: [[0.02, 0.26], [0.12, 0.62], [0.32, 0.9], [0.55, 0.92], [0.75, 0.75], [0.88, 0.54], [0.98, 0.4], [0.82, 0.32], [0.6, 0.28], [0.35, 0.22], [0.12, 0.16]], fiber: { kind: 'along' } },
   // full gluteus maximus seen from the side: from the iliac crest / sacrum (well above the hip joint) to the
   // gluteal fold (~40 % down the thigh), covering the whole back half of the hip and bulging to the outline
   { id: 'glute_max', seg: 'thigh', view: 'side', poly: [[-0.44, -0.16], [-0.34, -0.88], [-0.08, -1.1], [0.2, -1.08], [0.4, -0.84], [0.42, -0.5], [0.24, -0.26], [0.0, -0.12], [-0.22, -0.06]], fiber: { kind: 'dir', d: [0.8, 0.6] } },
@@ -317,7 +317,9 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
   // upright bodies only (shoulders above hips); hips out of frame → one torso length below the shoulders
   // inverted / upside-down bodies (headstand, hang): the whole outline is checked — no "below the hips" zone
   const bottom0 = hip ? hip.y : sh ? sh.y + (pose.torsoLen || 0) : 0
-  const bottom = sh && bottom0 <= sh.y + 1 && pose.torsoLen ? 1e9 : bottom0
+  // also a body held sideways (human flag, plank): "below the hips" means nothing there
+  const tilted = !!(sh && hip) && Math.abs(hip.x - sh.x) > 0.8 * Math.abs(hip.y - sh.y)
+  const bottom = sh && (bottom0 <= sh.y + 1 || tilted) && pose.torsoLen ? 1e9 : bottom0
   // back views use the stricter garment rule (cold / grey fabric only) so coloured light on a bare back keeps the lats
   const back = (pose.ok ? artView(pose, face) : null) === 'back' || pose.view === 'back'
   if (!skinFor || !pose.ok || !sh || bottom <= sh.y + 1) return r
@@ -345,7 +347,7 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
     // legs (not the glutes, which are almost always under shorts and are drawn over them): the same clothing
     // rule over the whole outline — quads on white shorts are not drawn, only the part on bare skin shows
     // glutes are drawn over shorts on upright bodies; upside down (headstand) the fit is too loose for that
-    const leg = (m.seg === 'thigh' || m.seg === 'shin') && ((m.id !== 'glute_max' && m.id !== 'glute_med') || bottom > 1e8)
+    const leg = (m.seg === 'thigh' || m.seg === 'shin') && ((m.id !== 'glute_max' && m.id !== 'glute_med') || (bottom > 1e8 && !tilted))
     if (m.seg !== 'torso' && m.seg !== 'upperArm' && m.seg !== 'forearm' && !leg) { drawn.push(m); continue }
     const keep: number[] = []
     m.polys.forEach((poly, i) => {
@@ -373,7 +375,7 @@ export function fitMuscles(pose: Pose, mask: Mask | null, roles: Partial<Record<
       // legs: mostly too dark to tell is almost always black tights / track pants — not drawn (cannot be verified)
       // much darker than this person's lit skin (black sleeves / tee in daylight) → clothing, not shadow
       // (not the upper trap: on a back view its top runs into dark hair, which is not a garment)
-      const darkIsCloth = m.id !== 'traps_upper' && skinRef > 60 && dark > 0 && darkL / dark < 0.3 * skinRef
+      const darkIsCloth = m.id !== 'traps_upper' && skinRef > 60 && dark > 0 && darkL / dark < 0.4 * skinRef
       if (known < 0.3 * n) { if (!leg && !darkIsCloth) keep.push(i); return }
       const frac = skin / (darkIsCloth ? known + dark : known)
       if (frac < 0.5) return
@@ -533,6 +535,8 @@ function fitTemplates(pose: Pose, mask: Mask | null, roles: Partial<Record<Fine,
     const role = roles[tpl.id]
     if (!role) continue
     if (tpl.view !== 'all' && tpl.view !== view) continue
+    // a side-view front delt as a mere stabilizer: the shoulder cap can't be outlined from the side, skip it
+    if (tpl.id === 'delt_ant' && tpl.view === 'side' && role === 'stabilizer') { fitFail.add(tpl.id); continue }
     const frs: { f: Frame; mirror: boolean }[] = []
     if (tpl.seg === 'torso') {
       const f = torsoFrame()

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Beam } from '../components/Beam'
 import { createPortal } from 'react-dom'
-import { ArrowUpRight, Play, CheckCircle2, HardDriveDownload, BookOpen, ChevronLeft, ChevronRight, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
+import { CheckCircle2, HardDriveDownload, BookOpen, ChevronLeft, ChevronRight, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { KNOWLEDGE_LANGS, UNLOCKS, passesFor, unlockPrice } from '../config/plans'
 import { buyUnlock, isUnlocked, kindOf, unlockKey, useUnlocked, useUnlocks, type UnlockKind } from '../lib/unlocks'
@@ -15,6 +15,8 @@ import { knowledgeDownloadOk, useDownloadAccess } from '../lib/entitlements'
 import { getBlob, itemId, savedUrl, useDownloads, type DlType } from '../lib/downloads'
 import { openPlayer } from '../components/VideoPlayer'
 import { KPreview } from '../components/KPreview'
+import { Cover, CoverCard, useReveal } from '../components/PostCover'
+import { PostCascade } from '../components/PostCascade'
 import { PdfViewer } from '../components/PdfViewer'
 import { canSaveType, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
 import { IN_APP } from '../lib/appMode'
@@ -31,36 +33,6 @@ function counts(t: T, p: KPost, lang: KLang) {
   ].join(' • ')
 }
 
-/** The post's own cover: its COVER folder image; if that folder is empty, the first page of the post's own PDF
- *  (same post, never another post's file); then its first photo; then an honest number placeholder. */
-export function coverFile(p: KPost, lang: KLang = 'en'): { f: KFile; from: 'cover' | 'pdf' | 'photo' } | null {
-  if (p.cover) return { f: p.cover, from: 'cover' }
-  const pdf = pick(p.pdfs, lang).files[0] ?? p.pdfs.en[0] ?? p.pdfs.all[0] ?? p.pdfs.hi[0] ?? p.pdfs.gu[0]
-  if (pdf) return { f: pdf, from: 'pdf' }
-  if (p.photos[0]) return { f: p.photos[0], from: 'photo' }
-  return null
-}
-
-function Cover({ p, w = 800, className = '', lang = 'en' }: { p: KPost; w?: number; className?: string; lang?: KLang }) {
-  const [bad, setBad] = useState<string | null>(null)
-  const c = coverFile(p, lang)
-  if (c && bad !== c.f.id && c.from === 'pdf') // landscape PDF page: shown whole on a blurred copy of itself
-    return (
-      <div className={`ks-pdfcover relative h-full w-full overflow-hidden ${className}`} data-cover-from="pdf">
-        <img src={kImg(c.f.id, 480)} alt="" aria-hidden loading="lazy" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full scale-125 object-cover opacity-60 blur-xl" />
-        <img src={kImg(c.f.id, w)} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" data-cover-from="pdf" onError={() => setBad(c.f.id)} className="absolute inset-x-0 top-[16%] w-full object-contain shadow-[0_18px_40px_-12px_rgba(0,0,0,0.8)]" />
-      </div>
-    )
-  if (c && bad !== c.f.id)
-    return <img src={kImg(c.f.id, w)} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" data-cover-from={c.from} onError={() => setBad(c.f.id)} className={`h-full w-full object-cover $${className}`} />
-  // honest placeholder — no stock photo, no broken image
-  return (
-    <div className="relative grid h-full w-full place-items-center overflow-hidden bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.28),transparent_60%),radial-gradient(circle_at_80%_90%,rgba(247,197,72,0.22),transparent_55%),#070b14]">
-      <span className="readout text-[64px] font-extrabold leading-none text-transparent [-webkit-text-stroke:1.5px_rgba(165,243,252,0.55)]">{p.number}</span>
-    </div>
-  )
-}
-
 /** Post cards — used by the Knowledge screen and the Library "Learn" tab. */
 export function KnowledgeGrid({ query = '' }: { query?: string }) {
   const t = useT()
@@ -74,105 +46,42 @@ export function KnowledgeGrid({ query = '' }: { query?: string }) {
   if (!posts.length) return <Empty icon={<BookOpen size={28} />} text={q ? t('kNoMatch') : t('kNoPosts')} />
   return (
     <div data-testid="knowledge-grid">
-      <PostPanels posts={posts} jump />
+      {!q && <PostPanels posts={posts} jump />}
+      <div className="label mb-2 mt-5">{t('kAll')} · {posts.length}</div>
+      <PostList posts={posts} />
       <p className="pt-3 text-center font-mono text-[10.5px] text-dim">{t('kSynced', { x: new Date(data!.generatedAt).toLocaleString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { dateStyle: 'medium', timeStyle: 'short' }) })}</p>
     </div>
   )
 }
 
-const ACCENTS = ['#f7c548', '#22d3ee', '#a78bfa']
-
-/**
- * Knowledge posts as one smooth horizontal slider, ordered by post number (501, 502, …).
- * Swipe (snap), arrows, or tap a number chip to jump. Tap the centred card (or its round button) → the post opens;
- * tap a side card → it slides to the centre.
- */
-export function PostPanels({ posts: raw, jump = false }: { posts: KPost[]; jump?: boolean }) {
+/** Knowledge posts on Today / Library / Knowledge: the 3D cascade of horizontal cover cards (see PostCascade). */
+export function PostPanels({ posts, jump = false }: { posts: KPost[]; jump?: boolean }) {
   const t = useT()
   const lang = useApp((s) => s.lang) as KLang
-  const posts = useMemo(() => [...raw].sort((a, b) => a.number - b.number), [raw])
-  const [cur, setCur] = useState(0)
-  const scroller = useRef<HTMLDivElement>(null)
-  const chips = useRef<HTMLDivElement>(null)
-  const raf = useRef(0)
-  const onScroll = () => {
-    cancelAnimationFrame(raf.current)
-    raf.current = requestAnimationFrame(() => {
-      const el = scroller.current
-      if (!el) return
-      const mid = el.scrollLeft + el.clientWidth / 2
-      let best = 0, bd = Infinity
-      Array.from(el.children).forEach((c, i) => { const h = c as HTMLElement; const d = Math.abs(h.offsetLeft + h.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i } })
-      setCur(best)
-    })
-  }
-  useEffect(() => () => cancelAnimationFrame(raf.current), [])
-  useEffect(() => { // keep the active number chip in view
-    const c = chips.current?.children[cur] as HTMLElement | undefined
-    const box = chips.current
-    if (c && box) box.scrollTo({ left: c.offsetLeft - box.clientWidth / 2 + c.offsetWidth / 2, behavior: 'smooth' })
-  }, [cur])
-  const go = (i: number) => {
-    const el = scroller.current
-    const c = el?.children[Math.max(0, Math.min(posts.length - 1, i))] as HTMLElement | undefined
-    if (el && c) el.scrollTo({ left: c.offsetLeft - (el.clientWidth - c.offsetWidth) / 2, behavior: 'smooth' })
-  }
-  const open = (p: KPost) => navigate(`/knowledge/${p.number}`)
-  const p0 = posts[cur]
+  return <PostCascade posts={posts} lang={lang} jump={jump} sub={(p) => counts(t, p, lang)} labels={{ open: t('kOpenPost'), prev: '‹', next: '›', hint: t('ksHint') }} />
+}
 
+/** Every post as a clean horizontal 16:9 card, title below, tilting in as it scrolls into view. */
+export function PostList({ posts }: { posts: KPost[] }) {
+  const t = useT()
+  const lang = useApp((s) => s.lang) as KLang
   return (
-    <div data-testid="post-panels" className="ks">
-      <div ref={scroller} onScroll={onScroll} className="ks-track no-scrollbar" role="list" aria-label={t('knowledge')}>
-        {posts.map((p, i) => {
-          const on = i === cur
-          const kc = ACCENTS[i % ACCENTS.length]
-          const title = postTitle(p, lang)
-          const vids = pick(p.videos, lang).files
-          const pdfN = pick(p.pdfs, lang).files.length
-          return (
-            <div
-              key={p.id} role="listitem" tabIndex={0} data-testid={`kpost-${p.number}`} aria-current={on} aria-label={`#${p.number} ${title}`}
-              onClick={() => (on ? open(p) : go(i))}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (on) open(p); else go(i) } else if (e.key === 'ArrowRight') go(i + 1); else if (e.key === 'ArrowLeft') go(i - 1) }}
-              className={`ks-card dark-zone ${on ? 'is-on' : ''}`} style={{ ['--kc' as string]: kc }}
-            >
-              <div className="ks-cover"><Cover p={p} w={720} lang={lang} />{on && vids.length > 0 && <KPreview bare id={vids[0].id} className="absolute inset-0" />}</div>
-              <div className="ks-shade" />
-              <div className="ks-num"><span>#</span>{p.number}</div>
-              {pdfN > 0 && <span className="ks-chip"><FileText size={11} /> PDF {pdfN}</span>}
-              <div className="ks-text">
-                <div className="font-mono text-[9.5px] font-bold uppercase tracking-[0.3em]" style={{ color: kc }}>{t('knowledge')}</div>
-                <h3 className="kp-title ks-title mt-1.5" style={{ fontSize: title.length > 34 ? 19 : title.length > 20 ? 22 : 27 }}>{title}</h3>
-                <div className="ks-meta">{counts(t, p, lang)}</div>
-              </div>
-              <button
-                type="button" className="ks-btn" tabIndex={-1} data-testid={on ? 'kpost-open' : undefined}
-                aria-label={`${t('kOpenPost')} #${p.number}`}
-                onClick={(e) => { e.stopPropagation(); if (on) open(p); else go(i) }}
-              >
-                {vids.length ? <Play size={18} fill="currentColor" className="ml-0.5" /> : <ArrowUpRight size={20} />}
-              </button>
-            </div>
-          )
-        })}
-      </div>
-      <div className="ks-bar">
-        <button type="button" className="ks-arrow" aria-label="‹" disabled={cur === 0} onClick={() => go(cur - 1)}><ChevronLeft size={18} /></button>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline justify-between gap-2 font-mono text-[10.5px] uppercase tracking-[0.18em]">
-            <span className="truncate text-frost/90" data-testid="ks-current">#{p0?.number} · {p0 ? postTitle(p0, lang) : ''}</span>
-            <span className="shrink-0 text-dim">{cur + 1} / {posts.length}</span>
-          </div>
-          <div className="ks-progress"><i style={{ width: `${((cur + 1) / Math.max(1, posts.length)) * 100}%` }} /></div>
-        </div>
-        <button type="button" className="ks-arrow" aria-label="›" disabled={cur >= posts.length - 1} onClick={() => go(cur + 1)}><ChevronRight size={18} /></button>
-      </div>
-      {jump && posts.length > 1 && (
-        <div ref={chips} className="ks-chips no-scrollbar" data-testid="ks-chips">
-          {posts.map((p, i) => <button key={p.id} type="button" aria-current={i === cur} onClick={() => go(i)}>{p.number}</button>)}
-        </div>
-      )}
+    <div className="pl-grid" data-testid="post-list">
+      {[...posts].sort((a, b) => a.number - b.number).map((p) => <PostListItem key={p.id} p={p} lang={lang} sub={counts(t, p, lang)} openLabel={t('kOpenPost')} />)}
     </div>
+  )
+}
+function PostListItem({ p, lang, sub, openLabel }: { p: KPost; lang: KLang; sub: string; openLabel: string }) {
+  const ref = useReveal<HTMLButtonElement>()
+  return (
+    <button ref={ref} type="button" className="pl-item" data-testid={`klist-${p.number}`} aria-label={`${openLabel} #${p.number} ${postTitle(p, lang)}`} onClick={() => navigate(`/knowledge/${p.number}`)}>
+      <CoverCard p={p} lang={lang} w={640} />
+      <div className="mt-2 flex items-baseline gap-2 px-1 text-left">
+        <span className="pc-num text-[13px]">#{p.number}</span>
+        <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-frost">{postTitle(p, lang)}</span>
+      </div>
+      <div className="truncate px-1 text-left font-mono text-[10px] text-muted">{sub}</div>
+    </button>
   )
 }
 
@@ -445,13 +354,12 @@ export function KnowledgePost({ id }: { id: string }) {
   return (
     <div data-testid="kpost">
       <Header title={`#${p.number}`} sub={postTitle(p, appLang)} back="#/knowledge" />
-      <div className="dark-zone relative -mx-4 -mt-3 aspect-[16/11] overflow-hidden">
-        <Cover p={p} w={1200} lang={lang} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#04060c] via-[#04060c]/20 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-4">
+      <div className="pd-head" data-testid="kpost-head">
+        <div className="pc-card pd-card dark-zone"><Cover p={p} w={1200} lang={lang} eager /><i className="pc-sheen" aria-hidden /></div>
+        <div className="mt-3 px-0.5">
           <span className="font-mono text-[12px] font-bold tracking-[0.2em] text-cyan">D31 // KNOWLEDGE #{p.number}</span>
-          <h1 className="title-hud mt-1 text-[22px] leading-tight text-white">{postTitle(p, lang)}</h1>
-          <div className="mt-1.5 font-mono text-[11px] text-white/70">{counts(t, p, lang)}</div>
+          <h1 className="title-hud mt-1 text-[22px] leading-tight text-frost">{postTitle(p, lang)}</h1>
+          <div className="mt-1.5 font-mono text-[11px] text-muted">{counts(t, p, lang)}</div>
         </div>
       </div>
 

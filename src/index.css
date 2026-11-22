@@ -642,3 +642,50 @@ html.light .soc-card{background:linear-gradient(135deg,color-mix(in srgb,var(--s
 html.light .soc-icon{background:rgba(255,255,255,.55)}
 html.light .soc-pill{background:rgba(255,255,255,.45)}
 html.light .soc-badge{color:#a16207;border-color:rgba(161,98,7,.35)}
+
+/* ---- Knowledge horizontal slider (v4.5 beta) ---- */
+.ks { position: relative; }
+.ks-track { display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 6px 11% 14px; scroll-padding: 0 11%; touch-action: pan-x pan-y; }
+.ks-card { position: relative; flex: 0 0 78%; max-width: 360px; aspect-ratio: 4 / 5.2; scroll-snap-align: center; scroll-snap-stop: always; overflow: hidden; border-radius: 24px; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.09); background: #070b14; transform: scale(.92); opacity: .62; filter: saturate(.8);
+  transition: transform .45s cubic-bezier(.22, 1, .36, 1), opacity .45s, filter .45s, box-shadow .45s, border-color .45s; will-change: transform; }
+.ks-card.is-on { transform: none; opacity: 1; filter: none; border-color: color-mix(in srgb, var(--kc) 55%, transparent);
+  box-shadow: 0 26px 60px -28px rgba(34, 211, 238, .7), 0 0 0 1px rgba(247, 197, 72, .12), 0 0 34px -10px var(--kc); }
+.ks-card::before { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(135deg, rgba(247, 197, 72, .5), transparent 30%, transparent 70%, rgba(34, 211, 238, .5)); opacity: 0; transition: opacity .45s;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; padding: 1px; }
+.ks-card.is-on::before { opacity: 1; }
+.ks-cover { position: absolute; inset: 0; }
+.ks-cover > img, .ks-cover > div:not(.kgif):not(.ks-pdfcover), .ks-cover > .ks-pdfcover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ks-cover > .kgif { position: absolute; inset: 0; }
+.ks-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4, 6, 12, .55) 0%, rgba(4, 6, 12, 0) 24%, rgba(4, 6, 12, .05) 48%, rgba(4, 6, 12, .93) 100%); }
+.ks-num { position: absolute; top: 12px; left: 14px; z-index: 2; font-family: var(--font-display, var(--font-mono)); font-weight: 800; font-size: 30px; line-height: 1; letter-spacing: .02em;
+  color: #fff; text-shadow: 0 0 18px color-mix(in srgb, var(--kc) 80%, transparent), 0 2px 8px rgba(0, 0, 0, .8); }
+.ks-num span { font-size: 16px; color: var(--kc); margin-right: 2px; vertical-align: 6px; }
+.ks-chip { position: absolute; top: 14px; right: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; letter-spacing: .12em;
+  color: #f7c548; background: rgba(4, 6, 12, .55); border: 1px solid rgba(247, 197, 72, .4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.ks-text { position: absolute; left: 16px; right: 74px; bottom: 18px; z-index: 2; }
+.ks-title { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ks-meta { margin-top: 8px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .05em; color: rgba(255, 255, 255, .75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ks-btn { position: absolute; right: 14px; bottom: 18px; z-index: 2; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #05080f;
+  background: linear-gradient(135deg, #f7c548, #22d3ee); box-shadow: 0 0 22px -4px rgba(34, 211, 238, .8); transition: transform .2s; }
+.ks-btn:active { transform: scale(.9); }
+.ks-bar { display: flex; align-items: center; gap: 10px; margin-top: 2px; padding: 8px 10px; border-radius: 16px; background: rgba(8, 12, 22, .55); border: 1px solid rgba(255, 255, 255, .07); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.ks-arrow { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; color: #a5f3fc; border: 1px solid rgba(34, 211, 238, .3); background: rgba(34, 211, 238, .06); }
+.ks-arrow:disabled { opacity: .3; }
+.ks-progress { margin-top: 6px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.ks-progress i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #f7c548, #22d3ee); transition: width .35s cubic-bezier(.22, 1, .36, 1); }
+.ks-chips { display: flex; gap: 6px; overflow-x: auto; margin: 10px -16px 0; padding: 2px 16px 4px; scroll-behavior: smooth; }
+.ks-chips button { flex: none; min-width: 46px; padding: 6px 9px; border-radius: 11px; font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; color: rgba(230, 237, 246, .7);
+  background: rgba(8, 12, 22, .5); border: 1px solid rgba(255, 255, 255, .08); transition: color .25s, border-color .25s, background .25s, box-shadow .25s; }
+.ks-chips button[aria-current='true'] { color: #05080f; background: linear-gradient(135deg, #f7c548, #22d3ee); border-color: transparent; box-shadow: 0 0 16px -4px rgba(34, 211, 238, .8); }
+html.light .ks-card { border-color: rgba(255, 255, 255, .6); box-shadow: 0 14px 36px -22px rgba(15, 23, 42, .45); }
+html.light .ks-card.is-on { box-shadow: 0 22px 50px -24px rgba(14, 116, 144, .55), 0 0 0 1px rgba(247, 197, 72, .25); }
+html.light .ks-bar { background: rgba(255, 255, 255, .42); border-color: rgba(255, 255, 255, .7); box-shadow: 0 8px 24px -18px rgba(15, 23, 42, .4); }
+html.light .ks-arrow { color: #0e7490; border-color: rgba(14, 116, 144, .3); background: rgba(255, 255, 255, .5); }
+html.light .ks-progress { background: rgba(15, 23, 42, .1); }
+html.light .ks-chips button { color: #334155; background: rgba(255, 255, 255, .45); border-color: rgba(255, 255, 255, .75); }
+html.light .ks-chips button[aria-current='true'] { color: #05080f; }
+@media (min-width: 640px) { .ks-card { flex-basis: 340px; } .ks-track { padding-inline: calc(50% - 170px); scroll-padding: 0 calc(50% - 170px); } }
+@media (prefers-reduced-motion: reduce) { .ks-card, .ks-progress i { transition-duration: .01s !important; } .ks-track { scroll-behavior: auto; } }

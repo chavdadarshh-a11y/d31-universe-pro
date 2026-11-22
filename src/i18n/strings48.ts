@@ -171,6 +171,7 @@ export const en48 = {
   socYt: "Full videos, breakdowns & lives",
   socOfficial: "Official",
   socOpens: "Opens in the app or browser",
+  ksHint: "Swipe sideways · tap the centre card to open",
 }
 type K = keyof typeof en48
 export const hi48: Record<K, string> = {
@@ -345,6 +346,7 @@ export const hi48: Record<K, string> = {
   socYt: "पूरे वीडियो, ब्रेकडाउन और लाइव",
   socOfficial: "ऑफ़िशियल",
   socOpens: "ऐप या ब्राउज़र में खुलेगा",
+  ksHint: "साइड में स्वाइप करें · बीच वाले कार्ड पर टैप करके खोलें",
 }
 export const gu48: Record<K, string> = {
   newTag: "નવું",
@@ -518,4 +520,5 @@ export const gu48: Record<K, string> = {
   socYt: "પૂરા વીડિયો, બ્રેકડાઉન અને લાઇવ",
   socOfficial: "ઑફિશિયલ",
   socOpens: "ઍપ અથવા બ્રાઉઝરમાં ખુલશે",
+  ksHint: "બાજુમાં સ્વાઇપ કરો · વચ્ચેના કાર્ડ પર ટેપ કરીને ખોલો",
 }

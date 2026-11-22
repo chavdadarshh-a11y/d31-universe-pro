@@ -30,7 +30,7 @@ function HomeKnowledge() {
     <section data-testid="home-knowledge">
       <HudTitle tag="KNOWLEDGE" action={<button className="text-[11px] font-semibold text-cyan" onClick={() => navigate('/knowledge')}>{t('seeAll')}</button>}>{t('knowledge')}</HudTitle>
       <PostPanels posts={posts} />
-      <p className="mt-2 text-center text-[11px] text-dim">{t('kTapHint')}</p>
+      <p className="mt-2 text-center text-[11px] text-dim">{t('ksHint')}</p>
     </section>
   )
 }

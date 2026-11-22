@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-21T20:41:25.618Z",
+ "generatedAt": "2026-11-22T05:57:52.362Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -2313,7 +2313,11 @@
    "number": 512,
    "title": "1st barbell pullover",
    "rawName": "512. 1st barbell pullover",
-   "cover": null,
+   "cover": {
+    "id": "1rrvKeKlPK05CsMsncK2CxuVq1Fw-TiFy",
+    "name": "512_Cover_Barbell_Pullover.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [],
@@ -2328,11 +2332,8 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
    "id": "1zveKkSK0LaZ5pIXgrRvgc45nIDbWTtcP",
@@ -2366,7 +2367,11 @@
    "number": 514,
    "title": "Creative Triceps Workout on Bicep Machine",
    "rawName": "514. Creative Triceps Workout on Bicep Machine",
-   "cover": null,
+   "cover": {
+    "id": "1ao0Ln5504VFZwSDR7onlQkQWQiXVQXV0",
+    "name": "514_Cover_Creative_Triceps.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [],
@@ -2381,18 +2386,19 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
    "id": "1rVwUS2Q7ikPPEMbx_U2HbftlcrHKEG4u",
    "number": 515,
    "title": "Black and white",
    "rawName": "515. Black and white",
-   "cover": null,
+   "cover": {
+    "id": "1grdNEIz84-dvenSfoDWj23S0KQ53SO_d",
+    "name": "515_Cover_Black_And_White.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [],
@@ -2407,11 +2413,8 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
    "id": "1Sg84-3bk8C119KjtTyEt6IkdcJkE-scI",

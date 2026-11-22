@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T12:17:28.173Z",
+ "generatedAt": "2026-11-22T13:35:46.040Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -2541,14 +2541,43 @@
    "empty": false
   },
   {
-   "id": "1g1FmxsxFHJw61NDwdAEwA5Pl51XGcCyI",
+   "id": "14oZyw3oAaYFtYCjbS-2zkFDPSTw2N6v9",
    "number": 508,
-   "title": "",
-   "rawName": "508. ....",
-   "cover": null,
+   "title": "Monochrome Reflections in the Locker Room",
+   "rawName": "508. Monochrome Reflections in the Locker Room",
+   "cover": {
+    "id": "1vjjZSUCu9D8cClai4IPfOugSLylf5FEM",
+    "name": "Modern_Menswear_Anatomy_-_Slide_1.png",
+    "mime": "image/png"
+   },
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1lef7AbowBCAmpO9q7B3PcgjMqZhYF63M",
+      "name": "Avant_Garde_Menswear_Anatomy.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Of1ITz7Hd-7IEM_KkUj0jcNIWwePa7eV",
+      "name": "Modern_Menswear_Anatomy.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1BeyKPL6VS960JrbR2JAMWRgWJ_eNEKH4",
+      "name": "Sartorial_Deconstruction.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1RM1EoMJ7N8B1uiBbgfZ39-z3x-rBRM0J",
+      "name": "Streetwear_Deconstructed.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -2560,23 +2589,45 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Folder has no title yet (only a number)",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
-   "id": "14fiXpcIBpat15Z53TBwIw7B22L0dMT2A",
+   "id": "1CYSQ3gf8onf56ds21IIuJBrH5RZ9UoB6",
    "number": 509,
-   "title": "",
-   "rawName": "509. ....",
+   "title": "D31 Universe Biomechanical Curl Analysis",
+   "rawName": "509. D31 Universe Biomechanical Curl Analysis",
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
-    "hi": [],
+    "en": [
+     {
+      "id": "1fcsI7lL1WfnoflL0_KbcYRwdIKQiKLke",
+      "name": "Arm_Biomechanics_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1a2OHRIhUmh50AjpJzsZroU0k506YiAj9",
+      "name": "The_Biomechanical_Armory.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "14TAWJzw0590mzICttlazFxV214mTOTEC",
+      "name": "Biceps_Isolation_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "13HeYohAayLTlBylZvQG8nw7cCiL36CHa",
+      "name": "Reverse_Bicep_Isolation_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
     "gu": [],
     "all": []
    },
@@ -2588,21 +2639,50 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Folder has no title yet (only a number)",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
-   "id": "1h1-DNxlwJBhCOZPdU07PJ11mJ4rHHZYu",
+   "id": "1Mv463zYFyKKMCwhW08wdnKMQ2KYWtC82",
    "number": 510,
-   "title": "",
-   "rawName": "510. ...",
+   "title": "The V-Taper: Discipline in the Iron Sanctuary",
+   "rawName": "510. The V-Taper: Discipline in the Iron Sanctuary",
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1IGibLjOmFmjt8v4bGwH3ItbHCga2oyJL",
+      "name": "Back_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "17pbgeBijmqq5P3_omj-jYzincBcMDb2r",
+      "name": "Elite_Back_Deconstructed.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1k-LdjNBTDyos8rViBIdr_hCSa7ua3XKU",
+      "name": "Hypertrophy_Architecture.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "186OHerEs2JuisY8qHDkbLuoA4_0_7P2E",
+      "name": "The_Architected_Back.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "13i1mbqSmFiMH7qmL3lKDm8j943WZostM",
+      "name": "V_Taper_Architecture.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -2616,10 +2696,10 @@
    "meta": null,
    "warnings": [
     "No cover image",
-    "Folder has no title yet (only a number)",
-    "Empty post — hidden in the app until something is added"
+    "Duplicate hidden: \"Back_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Elite_Back_Deconstructed.pdf\" appears twice in PDF/en"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1IrjFeCsua3MjoqtY3XJejSdoJ5yCJ43m",
@@ -2811,144 +2891,10 @@
    "empty": false
   },
   {
-   "id": "1-pNNYC35_Vu1FdmLi_vNigjDxPNMh6sc",
-   "number": 512,
-   "title": "1st barbell pullover",
-   "rawName": "512. 1st barbell pullover",
-   "cover": {
-    "id": "1rrvKeKlPK05CsMsncK2CxuVq1Fw-TiFy",
-    "name": "512_Cover_Barbell_Pullover.jpg",
-    "mime": "image/jpeg"
-   },
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [],
-   "empty": false
-  },
-  {
-   "id": "1zveKkSK0LaZ5pIXgrRvgc45nIDbWTtcP",
-   "number": 513,
-   "title": "FLAG riverfront",
-   "rawName": "513. FLAG riverfront",
-   "cover": {
-    "id": "1x1WVcvpL5qouKsNb0kGjDJnD3F6NCjCI",
-    "name": "513_Cover_Flag_Riverfront.jpg",
-    "mime": "image/jpeg"
-   },
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [],
-   "empty": false
-  },
-  {
-   "id": "1leI_-5G6GI8rEeQlvIcnvobo9h8QTICY",
-   "number": 514,
-   "title": "Creative Triceps Workout on Bicep Machine",
-   "rawName": "514. Creative Triceps Workout on Bicep Machine",
-   "cover": {
-    "id": "1ao0Ln5504VFZwSDR7onlQkQWQiXVQXV0",
-    "name": "514_Cover_Creative_Triceps.jpg",
-    "mime": "image/jpeg"
-   },
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [],
-   "empty": false
-  },
-  {
-   "id": "1rVwUS2Q7ikPPEMbx_U2HbftlcrHKEG4u",
-   "number": 515,
-   "title": "Black and white",
-   "rawName": "515. Black and white",
-   "cover": {
-    "id": "1grdNEIz84-dvenSfoDWj23S0KQ53SO_d",
-    "name": "515_Cover_Black_And_White.jpg",
-    "mime": "image/jpeg"
-   },
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [],
-   "empty": false
-  },
-  {
-   "id": "1Sg84-3bk8C119KjtTyEt6IkdcJkE-scI",
-   "number": 516,
-   "title": "The Channeled Path: Alignment of Body and Spirit",
-   "rawName": "516. The Channeled Path: Alignment of Body and Spirit",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
    "id": "1ecVGi5L044uL59FnzSRBhjR0rBV7eY2c",
-   "number": 517,
+   "number": 512,
    "title": "Triceps Biomechanics Masterclass",
-   "rawName": "517. Triceps Biomechanics Masterclass",
+   "rawName": "512. Triceps Biomechanics Masterclass",
    "cover": {
     "id": "1z3XeRnIRezpEXnpI_hvgPwyDgdR2ZrRY",
     "name": "1792407084834.png",
@@ -2989,9 +2935,9 @@
   },
   {
    "id": "1_c08vFIduQ05B13YILRgk8ysevGMJQTh",
-   "number": 518,
+   "number": 513,
    "title": "The Science of Handstand Walking",
-   "rawName": "518. The Science of Handstand Walking",
+   "rawName": "513. The Science of Handstand Walking",
    "cover": null,
    "photos": [],
    "pdfs": {
@@ -3035,62 +2981,10 @@
    "empty": false
   },
   {
-   "id": "1oz5WzCZ_BnpOAEDXGEA-moSn6DmkbsyE",
-   "number": 519,
-   "title": "Cable plate pullover",
-   "rawName": "519. Cable plate pullover",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
-   "id": "1gRLiVF2qXem6hu6NecdPP01fvboau0wI",
-   "number": 520,
-   "title": "The Shadow Runner in Motion",
-   "rawName": "520. The Shadow Runner in Motion",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
    "id": "1y6APdEX5hRIAcHmfp8lZHgB-P7Xi-TK-",
-   "number": 521,
+   "number": 514,
    "title": "The Foundation: Elevation and Ankle Support Strategies",
-   "rawName": "521. The Foundation: Elevation and Ankle Support Strategies",
+   "rawName": "514. The Foundation: Elevation and Ankle Support Strategies",
    "cover": null,
    "photos": [],
    "pdfs": {
@@ -3162,88 +3056,10 @@
    "empty": false
   },
   {
-   "id": "1EUsEREuFhGleIwfr5F7fkLqAGNXXz-WT",
-   "number": 522,
-   "title": "The Weighted Descent",
-   "rawName": "522. The Weighted Descent",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
-   "id": "1L7lz4-CctEOrnoFMQcaiMD90PChImxx4",
-   "number": 523,
-   "title": "Strength and Gravity in Motion",
-   "rawName": "523. Strength and Gravity in Motion",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
-   "id": "15nmMrtX1wvrrVHIlyM4diuxwKYCIeXJ3",
-   "number": 524,
-   "title": "Mashine Green white",
-   "rawName": "524. Mashine Green white",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
    "id": "19nTotKZiaa3vakGChw-3AQeBmcKmU-RI",
-   "number": 525,
-   "title": "1.st Double arm biceps pose",
-   "rawName": "525. 1.st Double arm biceps pose",
+   "number": 515,
+   "title": "1st Double arm biceps pose",
+   "rawName": "515. 1st Double arm biceps pose",
    "cover": {
     "id": "1KYEHoK0QWxS19ATAdpcW4fNDZ8KI2VVD",
     "name": "DW703230.JPG.jpg",
@@ -3312,62 +3128,10 @@
    "empty": false
   },
   {
-   "id": "1SCyipUGbPM1ERuhSZScr2vLPt-iNhdmC",
-   "number": 526,
-   "title": "The Anatomy of a Weighted Lateral Lunge",
-   "rawName": "526. The Anatomy of a Weighted Lateral Lunge",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
-   "id": "17NHlh1t2Xb9CYVX2Wobs_-CqUJF2gIJm",
-   "number": 527,
-   "title": "2st barbell pullover",
-   "rawName": "527. 2st barbell pullover",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
-  },
-  {
    "id": "1eDkLw2_GfnCIE1SItrFjkY4SeQ3vMwnT",
-   "number": 528,
+   "number": 516,
    "title": "Geometric Equilibrium: Handstand in the Neon Gym",
-   "rawName": "528. Geometric Equilibrium: Handstand in the Neon Gym",
+   "rawName": "516. Geometric Equilibrium: Handstand in the Neon Gym",
    "cover": null,
    "photos": [],
    "pdfs": {
@@ -3401,6 +3165,585 @@
     "Duplicate hidden: \"Deficit_Biomechanics.pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"Deficit_Handstand_Biomechanics.pdf\" appears twice in PDF/en"
    ],
+   "empty": false
+  },
+  {
+   "id": "1hX9_asLlba3L_r9udzwIyaszXLASPPzf",
+   "number": 517,
+   "title": "The Zenith of Flexibility",
+   "rawName": "517. The Zenith of Flexibility",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1b5fxbSanMi7MyzbCzicGkbsRdVctlVyZ",
+      "name": "Front_Split_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1tuNx6AgkRre0cOYLHambUZgfCuyc5GCd",
+      "name": "Middle_Split_Mechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1VuqQFO-tKr8l037R7fa1_saksPSAlsiw",
+      "name": "Side_Split_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1yIzSnEV6sn7u5zto3Q0Djmuh0sL4GZub",
+      "name": "The_Geometry_of_Mobility (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "13rAoimDT9Ugrj8aDpLLSuENf0FNOkzuX",
+      "name": "The_Geometry_of_Mobility.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "No cover image",
+    "Duplicate hidden: \"Front_Split_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Middle_Split_Mechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Side_Split_Biomechanics.pdf\" appears twice in PDF/en",
+    "Looks like a copy: \"The_Geometry_of_Mobility.pdf\" vs \"The_Geometry_of_Mobility (1).pdf\""
+   ],
+   "empty": false
+  },
+  {
+   "id": "1K-Rex2h-3vNAUhVD7V_FOL8OgKyIgF4I",
+   "number": 518,
+   "title": "Strength in Motion: The Pull-Up Progression",
+   "rawName": "518. Strength in Motion: The Pull-Up Progression",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1_WkBWDUn2gkZEd9uNGnNZUHjzU4Inw_Y",
+      "name": "Muscle_Up_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1dkvGb7E5Pnl1gEjF6-O3rqXF3eFEN_zT",
+      "name": "Pull-up_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Nxcv5Gru5S-pgDq5eM6Io2FpnuTtnaEy",
+      "name": "Vertical_Pull_Biomechanics (3).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1L5NM0xLAEs6LD-vCP0zkZ27Jq6hofzsb",
+      "name": "Vertical_Pull_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
+    "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
+    "No cover image",
+    "Duplicate hidden: \"Muscle_Up_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Vertical_Pull_Biomechanics (3).pdf\" appears twice in PDF/en",
+    "Looks like a copy: \"Vertical_Pull_Biomechanics.pdf\" vs \"Vertical_Pull_Biomechanics (3).pdf\""
+   ],
+   "empty": false
+  },
+  {
+   "id": "1yOiahEwMdZP678lHujblogSicazILGXl",
+   "number": 519,
+   "title": "Neon Equilibrium: The Art of Inverted Strength",
+   "rawName": "519. Neon Equilibrium: The Art of Inverted Strength",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1weiGVZQGH702dpVCDCnJT2eucWCBWaab",
+      "name": "Inversion_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1glXcdCyq_09tSZaf1HrEJeifNaE14V1q",
+      "name": "Inverted_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Rf3TJ1dPOgLAdPkXWxO4gi8sm_RZGY8F",
+      "name": "Inverted_Hold_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1LhsMTQBpeDK9V5sXY3RfJ6DePTpXi3Ue",
+      "name": "Inverted_Isometric_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1oGG8YXBgnAwR15yL0CwMtc76yUEj7c2n",
+      "name": "The_Architecture_of_Inversion.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "No cover image",
+    "Duplicate hidden: \"Inversion_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Inverted_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Inverted_Hold_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Inverted_Isometric_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The_Architecture_of_Inversion.pdf\" appears twice in PDF/en"
+   ],
+   "empty": false
+  },
+  {
+   "id": "1D4PygDS7LxBuoD2RHfaL7nUbnAfZug_2",
+   "number": 520,
+   "title": "Hacking Gravity: The Power of the Nordic Curl",
+   "rawName": "520. Hacking Gravity: The Power of the Nordic Curl",
+   "cover": {
+    "id": "10V68bt4uOMnzAl8_JQw18uaWJ0k8G7MC",
+    "name": "Nordic_Hamstring_Mastery_-_Slide_1.png",
+    "mime": "image/png"
+   },
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1WZQsV6Za-SnVSjJHiZJprZyzGM66oOqy",
+      "name": "Nordic_Curl_Mastery.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1piRDlU2L15mIOgFFT7TBY5xWkATxm8mo",
+      "name": "Nordic_Hamstring_Mastery.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1EVIUZ9MdT4OwLJFNqSetXwdXA42tfkbe",
+      "name": "The_Kinetic_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "Duplicate hidden: \"Nordic_Curl_Mastery.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Nordic_Hamstring_Mastery.pdf\" appears twice in PDF/en"
+   ],
+   "empty": false
+  },
+  {
+   "id": "1DKceUCdjUuD906zxFj05B2QANdjL9dOm",
+   "number": 521,
+   "title": "One-Arm pole Handstand Balance",
+   "rawName": "521. One-Arm pole Handstand Balance",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1x1b-CL-_lloWsGHpS3uuVVTSYjRWl38l",
+      "name": "Pole_Handstand_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "No cover image",
+    "Duplicate hidden: \"Pole_Handstand_Blueprint.pdf\" appears twice in PDF/en"
+   ],
+   "empty": false
+  },
+  {
+   "id": "1d5FMSSW-r_dRDFFkO6AaD4WCLpfV7gyG",
+   "number": 522,
+   "title": "The Weighted Form of Resistance training",
+   "rawName": "522. The Weighted Form of Resistance training",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [],
+    "hi": [
+     {
+      "id": "1dgMYdvsUUFrRv8QH10d5D-PwmSjnF69H",
+      "name": "Vertical_Smith_Thrust_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "No cover image",
+    "Duplicate hidden: \"Vertical_Smith_Thrust_Blueprint.pdf\" appears twice in PDF/hi"
+   ],
+   "empty": false
+  },
+  {
+   "id": "1Y6u-0nencDN21ptc9u242WhPkMzJ5OwX",
+   "number": 523,
+   "title": "Neon Strength: The Zenith of Training",
+   "rawName": "523. Neon Strength: The Zenith of Training",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1t93t3jYsouHV2IqaKmEYblVgRTZNXHrd",
+      "name": "Hypertrophy_by_Design.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1ZgQnIzm79eM2CTWdiB_YOGRlRWLpt-lk",
+      "name": "Project_Aura (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1jaEmnU0JAPn4aHDYKaitwTyz4RqU7ySN",
+      "name": "Sensory_Performance_Architecture (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1T45Eznj_qwiG1DusnMiUKwqh1HV69G1z",
+      "name": "The_Cyber-Physical_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "1-DpIWPI6AI2_RSbVPfNpCbdcIPzCy-hK",
+      "name": "Elite_Performance_Science (1).pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1dAAb3HVW6A6tOa3C0wLB9abX8XUqb3sF",
+      "name": "Peak_Performance_Architecture (1).pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
+    "gu": [
+     {
+      "id": "1NC9PdVP8DwtD2ermgYW4pAx1jMBh7oG9",
+      "name": "Immersive_Performance_Engineering (1).pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "1Q5yLO7ilELPY67ZaCN8HWRH5H_LN8UiJ",
+      "name": "Precision_Body_Engineering (1).pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "No cover image",
+    "Duplicate hidden: \"Hypertrophy_by_Design.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Project_Aura (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Sensory_Performance_Architecture (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The_Cyber-Physical_Blueprint.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Elite_Performance_Science (1).pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Peak_Performance_Architecture (1).pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Immersive_Performance_Engineering (1).pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Precision_Body_Engineering (1).pdf\" appears twice in PDF/gu"
+   ],
+   "empty": false
+  },
+  {
+   "id": "1LENCAnAxEkN8P5txXYbCTbT5zMzBDn6B",
+   "number": 524,
+   "title": "The Architecture of the Barbell Squat",
+   "rawName": "524. The Architecture of the Barbell Squat",
+   "cover": {
+    "id": "1vSSiHI0NOrD25X0VLwSNS7a2BDJ0TZkd",
+    "name": "IMG_20260319_105557.jpg",
+    "mime": "image/jpeg"
+   },
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1n8622sxg3e8Vky4L5K8WwZ5v5C8uZNCP",
+      "name": "ATG_Squat_Biomechanics (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "13O9pLIXTAR7Lts9NdsXderGS2yOnRYHa",
+      "name": "Squat_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1FOD0RMJannGzlW0UN66_pWmjenqJMllx",
+      "name": "Squat_Biomechanics_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1XLlBL6JQIfUCEtynJgYxhpbgXwfyW5CT",
+      "name": "Squat_Kinematic_Diagnostic (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "19W1GADLjOKIZ6n5cP-zLt67A5IK2XjYs",
+      "name": "The_Squat_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "1lR4-EsgfMQ7GUl3214puxYRq5X16_6Qp",
+      "name": "Squat_Biomechanics_Decoded.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [],
+   "empty": false
+  },
+  {
+   "id": "1wCQMkx5MQNAAopoLZ5iofh9D4ylHjRAz",
+   "number": 525,
+   "title": "Biomechanical Frontiers: Front Lever Physics and Digital Architecture",
+   "rawName": "525. Biomechanical Frontiers: Front Lever Physics and Digital Architecture",
+   "cover": {
+    "id": "1R3U_itX6Z42E9u6DEqUUSL8JPmr2KdNB",
+    "name": "Front_Lever_Biomechanics_-_Slide_1.png",
+    "mime": "image/png"
+   },
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1AX0FEXHQD35fVSmK8YB0gM-DYD7kaoz1",
+      "name": "Front_Lever_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1F4aaX-6bUlOxW8ODTKC40jMRvkm_vCqe",
+      "name": "Human_Lever_Engineering.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [],
+   "empty": false
+  },
+  {
+   "id": "1zTRm03nZCFksz0Ig__vz4YcCGES8Twh5",
+   "number": 526,
+   "title": "The Unilateral Deadlift Strength Protocol",
+   "rawName": "526. The Unilateral Deadlift Strength Protocol",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [
+     {
+      "id": "1C2XCDRI4Z23YkiRzz1An8E16tDMv1VKv",
+      "name": "Landmine_RDL_Deconstructed.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1xZklqz5meJJtcqGI4v3zogHDJdT1IZzd",
+      "name": "Unilateral_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1T2BKqFR1HSYGtJKOzg6BkvNeHuKkHgtG",
+      "name": "Unilateral_Power_Mechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "Unsupported file skipped: Landmine_RDL_Anatomy.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
+    "Unsupported file skipped: Landmine_Single_Leg_Mastery.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
+    "No cover image"
+   ],
+   "empty": false
+  },
+  {
+   "id": "17NHlh1t2Xb9CYVX2Wobs_-CqUJF2gIJm",
+   "number": 527,
+   "title": "2st barbell pullover",
+   "rawName": "527. 2st barbell pullover",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "No cover image",
+    "Empty post — hidden in the app until something is added"
+   ],
+   "empty": true
+  },
+  {
+   "id": "1-pNNYC35_Vu1FdmLi_vNigjDxPNMh6sc",
+   "number": 528,
+   "title": "1st barbell pullover",
+   "rawName": "528. 1st barbell pullover",
+   "cover": {
+    "id": "1rrvKeKlPK05CsMsncK2CxuVq1Fw-TiFy",
+    "name": "512_Cover_Barbell_Pullover.jpg",
+    "mime": "image/jpeg"
+   },
+   "photos": [],
+   "pdfs": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [],
    "empty": false
   },
   {
@@ -3586,45 +3929,18 @@
    "empty": true
   },
   {
-   "id": "1hX9_asLlba3L_r9udzwIyaszXLASPPzf",
+   "id": "1zveKkSK0LaZ5pIXgrRvgc45nIDbWTtcP",
    "number": 536,
-   "title": "The Zenith of Flexibility",
-   "rawName": "536. The Zenith of Flexibility",
-   "cover": null,
+   "title": "FLAG riverfront",
+   "rawName": "536. FLAG riverfront",
+   "cover": {
+    "id": "1x1WVcvpL5qouKsNb0kGjDJnD3F6NCjCI",
+    "name": "513_Cover_Flag_Riverfront.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1b5fxbSanMi7MyzbCzicGkbsRdVctlVyZ",
-      "name": "Front_Split_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1tuNx6AgkRre0cOYLHambUZgfCuyc5GCd",
-      "name": "Middle_Split_Mechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1VuqQFO-tKr8l037R7fa1_saksPSAlsiw",
-      "name": "Side_Split_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1yIzSnEV6sn7u5zto3Q0Djmuh0sL4GZub",
-      "name": "The_Geometry_of_Mobility (1).pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "13rAoimDT9Ugrj8aDpLLSuENf0FNOkzuX",
-      "name": "The_Geometry_of_Mobility.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -3636,13 +3952,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Duplicate hidden: \"Front_Split_Biomechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Middle_Split_Mechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Side_Split_Biomechanics.pdf\" appears twice in PDF/en",
-    "Looks like a copy: \"The_Geometry_of_Mobility.pdf\" vs \"The_Geometry_of_Mobility (1).pdf\""
-   ],
+   "warnings": [],
    "empty": false
   },
   {
@@ -3672,39 +3982,18 @@
    "empty": true
   },
   {
-   "id": "1K-Rex2h-3vNAUhVD7V_FOL8OgKyIgF4I",
+   "id": "1leI_-5G6GI8rEeQlvIcnvobo9h8QTICY",
    "number": 538,
-   "title": "Strength in Motion: The Pull-Up Progression",
-   "rawName": "538. Strength in Motion: The Pull-Up Progression",
-   "cover": null,
+   "title": "Creative Triceps Workout on Bicep Machine",
+   "rawName": "538. Creative Triceps Workout on Bicep Machine",
+   "cover": {
+    "id": "1ao0Ln5504VFZwSDR7onlQkQWQiXVQXV0",
+    "name": "514_Cover_Creative_Triceps.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1_WkBWDUn2gkZEd9uNGnNZUHjzU4Inw_Y",
-      "name": "Muscle_Up_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1dkvGb7E5Pnl1gEjF6-O3rqXF3eFEN_zT",
-      "name": "Pull-up_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1Nxcv5Gru5S-pgDq5eM6Io2FpnuTtnaEy",
-      "name": "Vertical_Pull_Biomechanics (3).pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1L5NM0xLAEs6LD-vCP0zkZ27Jq6hofzsb",
-      "name": "Vertical_Pull_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -3716,14 +4005,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
-    "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
-    "No cover image",
-    "Duplicate hidden: \"Muscle_Up_Biomechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Vertical_Pull_Biomechanics (3).pdf\" appears twice in PDF/en",
-    "Looks like a copy: \"Vertical_Pull_Biomechanics.pdf\" vs \"Vertical_Pull_Biomechanics (3).pdf\""
-   ],
+   "warnings": [],
    "empty": false
   },
   {
@@ -3831,45 +4113,18 @@
    "empty": true
   },
   {
-   "id": "1yOiahEwMdZP678lHujblogSicazILGXl",
+   "id": "1rVwUS2Q7ikPPEMbx_U2HbftlcrHKEG4u",
    "number": 543,
-   "title": "Neon Equilibrium: The Art of Inverted Strength",
-   "rawName": "543. Neon Equilibrium: The Art of Inverted Strength",
-   "cover": null,
+   "title": "Black and white",
+   "rawName": "543. Black and white",
+   "cover": {
+    "id": "1grdNEIz84-dvenSfoDWj23S0KQ53SO_d",
+    "name": "515_Cover_Black_And_White.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1weiGVZQGH702dpVCDCnJT2eucWCBWaab",
-      "name": "Inversion_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1glXcdCyq_09tSZaf1HrEJeifNaE14V1q",
-      "name": "Inverted_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1Rf3TJ1dPOgLAdPkXWxO4gi8sm_RZGY8F",
-      "name": "Inverted_Hold_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1LhsMTQBpeDK9V5sXY3RfJ6DePTpXi3Ue",
-      "name": "Inverted_Isometric_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1oGG8YXBgnAwR15yL0CwMtc76yUEj7c2n",
-      "name": "The_Architecture_of_Inversion.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -3881,14 +4136,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Duplicate hidden: \"Inversion_Biomechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Inverted_Biomechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Inverted_Hold_Biomechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Inverted_Isometric_Biomechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"The_Architecture_of_Inversion.pdf\" appears twice in PDF/en"
-   ],
+   "warnings": [],
    "empty": false
   },
   {
@@ -4022,37 +4270,14 @@
    "empty": true
   },
   {
-   "id": "1D4PygDS7LxBuoD2RHfaL7nUbnAfZug_2",
+   "id": "1Sg84-3bk8C119KjtTyEt6IkdcJkE-scI",
    "number": 549,
-   "title": "Hacking Gravity: The Power of the Nordic Curl",
-   "rawName": "549. Hacking Gravity: The Power of the Nordic Curl",
-   "cover": {
-    "id": "10V68bt4uOMnzAl8_JQw18uaWJ0k8G7MC",
-    "name": "Nordic_Hamstring_Mastery_-_Slide_1.png",
-    "mime": "image/png"
-   },
+   "title": "The Channeled Path: Alignment of Body and Spirit",
+   "rawName": "549. The Channeled Path: Alignment of Body and Spirit",
+   "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1WZQsV6Za-SnVSjJHiZJprZyzGM66oOqy",
-      "name": "Nordic_Curl_Mastery.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1piRDlU2L15mIOgFFT7TBY5xWkATxm8mo",
-      "name": "Nordic_Hamstring_Mastery.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1EVIUZ9MdT4OwLJFNqSetXwdXA42tfkbe",
-      "name": "The_Kinetic_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -4065,10 +4290,10 @@
    },
    "meta": null,
    "warnings": [
-    "Duplicate hidden: \"Nordic_Curl_Mastery.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Nordic_Hamstring_Mastery.pdf\" appears twice in PDF/en"
+    "No cover image",
+    "Empty post — hidden in the app until something is added"
    ],
-   "empty": false
+   "empty": true
   },
   {
    "id": "1AhQleRRLbKkcb2pP_Y2ThsPkOox6LNSX",
@@ -4123,21 +4348,14 @@
    "empty": true
   },
   {
-   "id": "1DKceUCdjUuD906zxFj05B2QANdjL9dOm",
+   "id": "1oz5WzCZ_BnpOAEDXGEA-moSn6DmkbsyE",
    "number": 552,
-   "title": "One-Arm pole Handstand Balance",
-   "rawName": "552. One-Arm pole Handstand Balance",
+   "title": "Cable plate pullover",
+   "rawName": "552. Cable plate pullover",
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1x1b-CL-_lloWsGHpS3uuVVTSYjRWl38l",
-      "name": "Pole_Handstand_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -4151,9 +4369,9 @@
    "meta": null,
    "warnings": [
     "No cover image",
-    "Duplicate hidden: \"Pole_Handstand_Blueprint.pdf\" appears twice in PDF/en"
+    "Empty post — hidden in the app until something is added"
    ],
-   "empty": false
+   "empty": true
   },
   {
    "id": "1OGW5Xs_GaRCSpjueW3ugfOMwhZQ9xlVp",
@@ -4208,22 +4426,15 @@
    "empty": true
   },
   {
-   "id": "1d5FMSSW-r_dRDFFkO6AaD4WCLpfV7gyG",
+   "id": "1gRLiVF2qXem6hu6NecdPP01fvboau0wI",
    "number": 555,
-   "title": "The Weighted Form of Resistance training",
-   "rawName": "555. The Weighted Form of Resistance training",
+   "title": "The Shadow Runner in Motion",
+   "rawName": "555. The Shadow Runner in Motion",
    "cover": null,
    "photos": [],
    "pdfs": {
     "en": [],
-    "hi": [
-     {
-      "id": "1dgMYdvsUUFrRv8QH10d5D-PwmSjnF69H",
-      "name": "Vertical_Smith_Thrust_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "hi"
-     }
-    ],
+    "hi": [],
     "gu": [],
     "all": []
    },
@@ -4236,9 +4447,9 @@
    "meta": null,
    "warnings": [
     "No cover image",
-    "Duplicate hidden: \"Vertical_Smith_Thrust_Blueprint.pdf\" appears twice in PDF/hi"
+    "Empty post — hidden in the app until something is added"
    ],
-   "empty": false
+   "empty": true
   },
   {
    "id": "1lVQiiUuRx-Q_cI0gH2E6Wh9nkO10WVLp",
@@ -4293,67 +4504,16 @@
    "empty": true
   },
   {
-   "id": "1Y6u-0nencDN21ptc9u242WhPkMzJ5OwX",
+   "id": "1EUsEREuFhGleIwfr5F7fkLqAGNXXz-WT",
    "number": 558,
-   "title": "Neon Strength: The Zenith of Training",
-   "rawName": "558. Neon Strength: The Zenith of Training",
+   "title": "The Weighted Descent",
+   "rawName": "558. The Weighted Descent",
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1t93t3jYsouHV2IqaKmEYblVgRTZNXHrd",
-      "name": "Hypertrophy_by_Design.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1ZgQnIzm79eM2CTWdiB_YOGRlRWLpt-lk",
-      "name": "Project_Aura (1).pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1jaEmnU0JAPn4aHDYKaitwTyz4RqU7ySN",
-      "name": "Sensory_Performance_Architecture (1).pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1T45Eznj_qwiG1DusnMiUKwqh1HV69G1z",
-      "name": "The_Cyber-Physical_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
-    "hi": [
-     {
-      "id": "1-DpIWPI6AI2_RSbVPfNpCbdcIPzCy-hK",
-      "name": "Elite_Performance_Science (1).pdf",
-      "mime": "application/pdf",
-      "lang": "hi"
-     },
-     {
-      "id": "1dAAb3HVW6A6tOa3C0wLB9abX8XUqb3sF",
-      "name": "Peak_Performance_Architecture (1).pdf",
-      "mime": "application/pdf",
-      "lang": "hi"
-     }
-    ],
-    "gu": [
-     {
-      "id": "1NC9PdVP8DwtD2ermgYW4pAx1jMBh7oG9",
-      "name": "Immersive_Performance_Engineering (1).pdf",
-      "mime": "application/pdf",
-      "lang": "gu"
-     },
-     {
-      "id": "1Q5yLO7ilELPY67ZaCN8HWRH5H_LN8UiJ",
-      "name": "Precision_Body_Engineering (1).pdf",
-      "mime": "application/pdf",
-      "lang": "gu"
-     }
-    ],
+    "en": [],
+    "hi": [],
+    "gu": [],
     "all": []
    },
    "videos": {
@@ -4365,16 +4525,9 @@
    "meta": null,
    "warnings": [
     "No cover image",
-    "Duplicate hidden: \"Hypertrophy_by_Design.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Project_Aura (1).pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Sensory_Performance_Architecture (1).pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"The_Cyber-Physical_Blueprint.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Elite_Performance_Science (1).pdf\" appears twice in PDF/hi",
-    "Duplicate hidden: \"Peak_Performance_Architecture (1).pdf\" appears twice in PDF/hi",
-    "Duplicate hidden: \"Immersive_Performance_Engineering (1).pdf\" appears twice in PDF/gu",
-    "Duplicate hidden: \"Precision_Body_Engineering (1).pdf\" appears twice in PDF/gu"
+    "Empty post — hidden in the app until something is added"
    ],
-   "empty": false
+   "empty": true
   },
   {
    "id": "18awVW3dO0eDCyGRhzAfXZLwAoyd4uBF5",
@@ -4611,57 +4764,15 @@
    "empty": true
   },
   {
-   "id": "1LENCAnAxEkN8P5txXYbCTbT5zMzBDn6B",
+   "id": "1L7lz4-CctEOrnoFMQcaiMD90PChImxx4",
    "number": 568,
-   "title": "The Architecture of the Barbell Squat",
-   "rawName": "568. The Architecture of the Barbell Squat",
-   "cover": {
-    "id": "1vSSiHI0NOrD25X0VLwSNS7a2BDJ0TZkd",
-    "name": "IMG_20260319_105557.jpg",
-    "mime": "image/jpeg"
-   },
+   "title": "Strength and Gravity in Motion",
+   "rawName": "568. Strength and Gravity in Motion",
+   "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1n8622sxg3e8Vky4L5K8WwZ5v5C8uZNCP",
-      "name": "ATG_Squat_Biomechanics (1).pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "13O9pLIXTAR7Lts9NdsXderGS2yOnRYHa",
-      "name": "Squat_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1FOD0RMJannGzlW0UN66_pWmjenqJMllx",
-      "name": "Squat_Biomechanics_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1XLlBL6JQIfUCEtynJgYxhpbgXwfyW5CT",
-      "name": "Squat_Kinematic_Diagnostic (1).pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "19W1GADLjOKIZ6n5cP-zLt67A5IK2XjYs",
-      "name": "The_Squat_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
-    "hi": [
-     {
-      "id": "1lR4-EsgfMQ7GUl3214puxYRq5X16_6Qp",
-      "name": "Squat_Biomechanics_Decoded.pdf",
-      "mime": "application/pdf",
-      "lang": "hi"
-     }
-    ],
+    "en": [],
+    "hi": [],
     "gu": [],
     "all": []
    },
@@ -4672,35 +4783,21 @@
     "all": []
    },
    "meta": null,
-   "warnings": [],
-   "empty": false
+   "warnings": [
+    "No cover image",
+    "Empty post — hidden in the app until something is added"
+   ],
+   "empty": true
   },
   {
-   "id": "1wCQMkx5MQNAAopoLZ5iofh9D4ylHjRAz",
+   "id": "15nmMrtX1wvrrVHIlyM4diuxwKYCIeXJ3",
    "number": 569,
-   "title": "Biomechanical Frontiers: Front Lever Physics and Digital Architecture",
-   "rawName": "569. Biomechanical Frontiers: Front Lever Physics and Digital Architecture",
-   "cover": {
-    "id": "1R3U_itX6Z42E9u6DEqUUSL8JPmr2KdNB",
-    "name": "Front_Lever_Biomechanics_-_Slide_1.png",
-    "mime": "image/png"
-   },
+   "title": "Mashine Green white",
+   "rawName": "569. Mashine Green white",
+   "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1AX0FEXHQD35fVSmK8YB0gM-DYD7kaoz1",
-      "name": "Front_Lever_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1F4aaX-6bUlOxW8ODTKC40jMRvkm_vCqe",
-      "name": "Human_Lever_Engineering.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -4712,8 +4809,11 @@
     "all": []
    },
    "meta": null,
-   "warnings": [],
-   "empty": false
+   "warnings": [
+    "No cover image",
+    "Empty post — hidden in the app until something is added"
+   ],
+   "empty": true
   },
   {
    "id": "1ZfQ3fK13IscMaO63P6M77HV0U0W34R7Q",
@@ -4742,33 +4842,14 @@
    "empty": true
   },
   {
-   "id": "1zTRm03nZCFksz0Ig__vz4YcCGES8Twh5",
+   "id": "1SCyipUGbPM1ERuhSZScr2vLPt-iNhdmC",
    "number": 571,
-   "title": "The Unilateral Deadlift Strength Protocol",
-   "rawName": "571. The Unilateral Deadlift Strength Protocol",
+   "title": "The Anatomy of a Weighted Lateral Lunge",
+   "rawName": "571. The Anatomy of a Weighted Lateral Lunge",
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1C2XCDRI4Z23YkiRzz1An8E16tDMv1VKv",
-      "name": "Landmine_RDL_Deconstructed.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1xZklqz5meJJtcqGI4v3zogHDJdT1IZzd",
-      "name": "Unilateral_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1T2BKqFR1HSYGtJKOzg6BkvNeHuKkHgtG",
-      "name": "Unilateral_Power_Mechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -4781,11 +4862,10 @@
    },
    "meta": null,
    "warnings": [
-    "Unsupported file skipped: Landmine_RDL_Anatomy.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
-    "Unsupported file skipped: Landmine_Single_Leg_Mastery.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
-    "No cover image"
+    "No cover image",
+    "Empty post — hidden in the app until something is added"
    ],
-   "empty": false
+   "empty": true
   },
   {
    "id": "15-4pOhXQpPHRecSW9nH-a40vE1gh2jGJ",
@@ -5100,43 +5180,14 @@
    "empty": true
   },
   {
-   "id": "14oZyw3oAaYFtYCjbS-2zkFDPSTw2N6v9",
+   "id": "1g1FmxsxFHJw61NDwdAEwA5Pl51XGcCyI",
    "number": 584,
-   "title": "Monochrome Reflections in the Locker Room",
-   "rawName": "584. Monochrome Reflections in the Locker Room",
-   "cover": {
-    "id": "1vjjZSUCu9D8cClai4IPfOugSLylf5FEM",
-    "name": "Modern_Menswear_Anatomy_-_Slide_1.png",
-    "mime": "image/png"
-   },
+   "title": "",
+   "rawName": "584. ....",
+   "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1lef7AbowBCAmpO9q7B3PcgjMqZhYF63M",
-      "name": "Avant_Garde_Menswear_Anatomy.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1Of1ITz7Hd-7IEM_KkUj0jcNIWwePa7eV",
-      "name": "Modern_Menswear_Anatomy.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1BeyKPL6VS960JrbR2JAMWRgWJ_eNEKH4",
-      "name": "Sartorial_Deconstruction.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1RM1EoMJ7N8B1uiBbgfZ39-z3x-rBRM0J",
-      "name": "Streetwear_Deconstructed.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
+    "en": [],
     "hi": [],
     "gu": [],
     "all": []
@@ -5148,8 +5199,12 @@
     "all": []
    },
    "meta": null,
-   "warnings": [],
-   "empty": false
+   "warnings": [
+    "No cover image",
+    "Folder has no title yet (only a number)",
+    "Empty post — hidden in the app until something is added"
+   ],
+   "empty": true
   },
   {
    "id": "1j8uU-LpZNMAWtvHV-QGsmMjRRE1vGupZ",
@@ -5256,96 +5311,14 @@
    "empty": true
   },
   {
-   "id": "1CYSQ3gf8onf56ds21IIuJBrH5RZ9UoB6",
+   "id": "14fiXpcIBpat15Z53TBwIw7B22L0dMT2A",
    "number": 589,
-   "title": "D31 Universe Biomechanical Curl Analysis",
-   "rawName": "589. D31 Universe Biomechanical Curl Analysis",
+   "title": "",
+   "rawName": "589. ....",
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [
-     {
-      "id": "1fcsI7lL1WfnoflL0_KbcYRwdIKQiKLke",
-      "name": "Arm_Biomechanics_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1a2OHRIhUmh50AjpJzsZroU0k506YiAj9",
-      "name": "The_Biomechanical_Armory.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
-    "hi": [
-     {
-      "id": "14TAWJzw0590mzICttlazFxV214mTOTEC",
-      "name": "Biceps_Isolation_Masterclass.pdf",
-      "mime": "application/pdf",
-      "lang": "hi"
-     },
-     {
-      "id": "13HeYohAayLTlBylZvQG8nw7cCiL36CHa",
-      "name": "Reverse_Bicep_Isolation_Blueprint.pdf",
-      "mime": "application/pdf",
-      "lang": "hi"
-     }
-    ],
-    "gu": [],
-    "all": []
-   },
-   "videos": {
     "en": [],
-    "hi": [],
-    "gu": [],
-    "all": []
-   },
-   "meta": null,
-   "warnings": [
-    "No cover image"
-   ],
-   "empty": false
-  },
-  {
-   "id": "1Mv463zYFyKKMCwhW08wdnKMQ2KYWtC82",
-   "number": 590,
-   "title": "The V-Taper: Discipline in the Iron Sanctuary",
-   "rawName": "590. The V-Taper: Discipline in the Iron Sanctuary",
-   "cover": null,
-   "photos": [],
-   "pdfs": {
-    "en": [
-     {
-      "id": "1IGibLjOmFmjt8v4bGwH3ItbHCga2oyJL",
-      "name": "Back_Biomechanics.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "17pbgeBijmqq5P3_omj-jYzincBcMDb2r",
-      "name": "Elite_Back_Deconstructed.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "1k-LdjNBTDyos8rViBIdr_hCSa7ua3XKU",
-      "name": "Hypertrophy_Architecture.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "186OHerEs2JuisY8qHDkbLuoA4_0_7P2E",
-      "name": "The_Architected_Back.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     },
-     {
-      "id": "13i1mbqSmFiMH7qmL3lKDm8j943WZostM",
-      "name": "V_Taper_Architecture.pdf",
-      "mime": "application/pdf",
-      "lang": "en"
-     }
-    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -5359,10 +5332,37 @@
    "meta": null,
    "warnings": [
     "No cover image",
-    "Duplicate hidden: \"Back_Biomechanics.pdf\" appears twice in PDF/en",
-    "Duplicate hidden: \"Elite_Back_Deconstructed.pdf\" appears twice in PDF/en"
+    "Folder has no title yet (only a number)",
+    "Empty post — hidden in the app until something is added"
    ],
-   "empty": false
+   "empty": true
+  },
+  {
+   "id": "1h1-DNxlwJBhCOZPdU07PJ11mJ4rHHZYu",
+   "number": 590,
+   "title": "",
+   "rawName": "590. ....",
+   "cover": null,
+   "photos": [],
+   "pdfs": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "videos": {
+    "en": [],
+    "hi": [],
+    "gu": [],
+    "all": []
+   },
+   "meta": null,
+   "warnings": [
+    "No cover image",
+    "Folder has no title yet (only a number)",
+    "Empty post — hidden in the app until something is added"
+   ],
+   "empty": true
   },
   {
    "id": "1igW4tZcDXNQB2GFGSLAKnPwAatNbKu8D",

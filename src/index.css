@@ -761,3 +761,14 @@ html.light .sbx-glow { opacity: .7; }
   background: linear-gradient(180deg, rgba(3, 5, 10, .32) 0%, rgba(3, 5, 10, 0) 18%, rgba(3, 5, 10, 0) 50%, rgba(3, 5, 10, .9) 100%); }
 .pc-label-num { position: absolute; top: 10px; left: 14px; font-family: var(--font-mono); font-weight: 800; font-size: 12px; letter-spacing: .14em; color: #f7c548; text-shadow: 0 1px 6px rgba(0, 0, 0, .9); }
 .pc-label-title { position: absolute; left: 14px; right: 14px; bottom: 11px; color: #fffdf6; text-shadow: 0 2px 14px rgba(0, 0, 0, .8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* motion games: hub mini-art + squat demo figure (transform-only, cheap) */
+@keyframes mg-dash { to { stroke-dashoffset: -46; } }
+.mg-dash { stroke-dasharray: 8 6; animation: mg-dash 1.6s linear infinite; }
+@keyframes mg-bob { 0%, 100% { transform: translateY(-6px); } 50% { transform: translateY(14px); } }
+.mg-bob { animation: mg-bob 2.4s ease-in-out infinite; }
+@keyframes mg-fill { 0%, 100% { transform: scaleY(0.25); } 55% { transform: scaleY(1); } }
+.mg-fill { transform-origin: 50% 100%; transform-box: fill-box; animation: mg-fill 2.2s ease-in-out infinite; }
+@keyframes mg-squat { 0%, 100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(10px) scaleY(0.82); } }
+.mg-squat, .mg-squat-demo { transform-origin: 50% 100%; transform-box: fill-box; animation: mg-squat 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .mg-dash, .mg-bob, .mg-fill, .mg-squat, .mg-squat-demo { animation: none; } }

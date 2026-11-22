@@ -6,6 +6,7 @@ import { useSettings } from '../store/settings'
 import { useT, type T } from '../i18n'
 import { Button, Card, Header, Label } from '../components/ui'
 import { GameCam } from '../components/GameCam'
+import { MotionPlay, MotionTiles, isMotion } from './MotionGames'
 import { navigate } from '../lib/router'
 import { fmtClock, uid } from '../lib/util'
 import { sfx } from '../lib/sfx'
@@ -46,6 +47,9 @@ export function GameHub() {
           </div>
         </div>
       </div>
+
+      <Label className="mt-5">{t('mgSection')}</Label>
+      <MotionTiles />
 
       <Label className="mt-5">{t('gameChallenges')}</Label>
       <div className="mt-2 grid grid-cols-2 gap-2">
@@ -110,6 +114,7 @@ type Fx = { id: string; text: string; color: string }
 
 export function GamePlay({ id }: { id: string }) {
   const t = useT()
+  if (isMotion(id)) return <MotionPlay key={id} id={id} />
   const c = challenge(id)
   if (!c) return <div><Header title={t('gameTitle')} back="#/train/game" /><p className="text-muted">—</p></div>
   return <Play1 c={c} />

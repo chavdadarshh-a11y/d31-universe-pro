@@ -1,7 +1,7 @@
 {
   "name": "D31.UNIVERSE",
   "short_name": "D31",
-  "description": "D31.UNIVERSE: AI fitness, movement analysis and recovery coach app by Darshan Chavda (English, Hindi, Gujarati).",
+  "description": "D31.UNIVERSE is a human performance and biomechanics OS by Darshan Chavda. D = Darshan, 31 = Birth Date, UNIVERSE = The Human Body (Brahmand) built to accept any physical challenge.",
   "id": "./",
   "start_url": "./#/home",
   "scope": "./",

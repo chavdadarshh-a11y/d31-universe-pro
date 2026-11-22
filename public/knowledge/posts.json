@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T08:29:13.293Z",
+ "generatedAt": "2026-11-22T09:23:07.418Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1813,16 +1813,48 @@
     }
    ],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1Je29nCAHV3G-SVS19qFuuegITnCB-ao-",
+      "name": "Machine_Overhead_Triceps_Mechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1vuJ_vOqfuTWvk2Noi98m3WiytWqrIhir",
+      "name": "The_Reverse-Preacher_Triceps_Hack.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
-    "gu": [],
+    "gu": [
+     {
+      "id": "1_cG-5wKQ6P7-WfP77Gdza65fxwZ5SPgM",
+      "name": "Machine_Overhead_Triceps_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "videos": {
     "en": [
      {
-      "id": "12tBpbZ5bm3c4SPJbbeXg8m2jhZCxMMK9",
+      "id": "1HiID0TGbuJRsS_wODr3ZkC6587IjSCT_",
+      "name": "Anatomy_of_a_Perfect_Rep.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
+      "id": "19_xP8N_dQU23ihc8ggsqAX6TXTmX1rFb",
       "name": "Reverse-Preacher_Triceps_Hack.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
+      "id": "1eNLr8FQ4Y-v4syslHNER-FfqNbWxT7C0",
+      "name": "The_Reverse-Preacher_Triceps_Hack (1).mp4",
       "mime": "video/mp4",
       "lang": "en"
      },
@@ -1841,6 +1873,12 @@
       "lang": "hi"
      },
      {
+      "id": "1LlGFuDgxEoP17vyfVpmkvFOBUgc5yAbv",
+      "name": "प्रीचर_कर्ल_मशीन_हैक.mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     },
+     {
       "id": "1xPJ-S1yBJTnXS6FKtWYMOUdy7kdDCYhw",
       "name": "रिवर्स_ट्राइसेप्स_हैक.mp4",
       "mime": "video/mp4",
@@ -1851,6 +1889,12 @@
      {
       "id": "1ezg6N4FrWmntNBmvtp0l5a2qMEktoACM",
       "name": "ઓવરહેડ_ટ્રાયસેપ્સ_એક્સટેન્શન (1).mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     },
+     {
+      "id": "1wB2k-EVTK35IJpD8-XSOJXxxZd4JFkSu",
+      "name": "ઓવરહેડ_ટ્રાયસેપ્સ_એક્સટેન્શન.mp4",
       "mime": "video/mp4",
       "lang": "gu"
      },
@@ -1891,6 +1935,7 @@
    },
    "meta": null,
    "warnings": [
+    "Duplicate hidden: \"Reverse-Preacher_Triceps_Hack.mp4\" appears twice in Video/en",
     "Duplicate hidden: \"The_Reverse-Preacher_Triceps_Hack.mp4\" appears twice in Video/en",
     "Duplicate hidden: \"रिवर्स_ट्राइसेप्स_हैक.mp4\" appears twice in Video/hi",
     "Looks like a copy: \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9.png\" vs \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9 (1).png\"",
@@ -2639,26 +2684,41 @@
    "number": 517,
    "title": "Triceps Biomechanics Masterclass",
    "rawName": "517. Triceps Biomechanics Masterclass",
-   "cover": null,
+   "cover": {
+    "id": "1z3XeRnIRezpEXnpI_hvgPwyDgdR2ZrRY",
+    "name": "1792407084834.png",
+    "mime": "image/png"
+   },
    "photos": [],
    "pdfs": {
     "en": [],
     "hi": [],
-    "gu": [],
+    "gu": [
+     {
+      "id": "1xC-Ym_0dlshEk67_m3jYfS1Pnx9K9FaG",
+      "name": "Triceps_Biomechanics_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "videos": {
     "en": [],
     "hi": [],
-    "gu": [],
+    "gu": [
+     {
+      "id": "1BVwRr84R5ybobiLNoU6Ua4U8r1E6nT1v",
+      "name": "ટ્રાઇસેપ્સ_માસ્ટરક્લાસ.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
    "id": "1_c08vFIduQ05B13YILRgk8ysevGMJQTh",
@@ -2746,23 +2806,62 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1BKA2C5AWCi3TlDa_TbBcyUb7hJbSvt8T",
+      "name": "Biomechanical_Isolation_Diagnostic.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1JzLFecv3OLkf5zjTZ35pl1LZpvVN9QH1",
+      "name": "Sissy_Squat_Biomechanics (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1ZeyDpyq_KJiFl9T5KFyBHyplIhioZp7I",
+      "name": "Sissy_Squat_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1u3r09m-mqsqhNNPYEQ3BSxREdiKqkgnH",
+      "name": "Smith_Machine_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
-    "gu": [],
+    "gu": [
+     {
+      "id": "1lIvaGiZRiFAQGRSoKuMHzo4vnUWNM6Vf",
+      "name": "Biomechanical_Quad_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "videos": {
     "en": [],
     "hi": [],
-    "gu": [],
+    "gu": [
+     {
+      "id": "1IPGYLFo_Rw4JL5N-QCGy_Ln8Rgy6hsx3",
+      "name": "ધ_અલ્ટિમેટ_ક્વાડ_હાઇપરટ્રોફી_હેક.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "meta": null,
    "warnings": [
     "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "Looks like a copy: \"Sissy_Squat_Biomechanics.pdf\" vs \"Sissy_Squat_Biomechanics (1).pdf\""
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1EUsEREuFhGleIwfr5F7fkLqAGNXXz-WT",
@@ -2847,7 +2946,11 @@
    "number": 525,
    "title": "1.st Double arm biceps pose",
    "rawName": "525. 1.st Double arm biceps pose",
-   "cover": null,
+   "cover": {
+    "id": "1KYEHoK0QWxS19ATAdpcW4fNDZ8KI2VVD",
+    "name": "DW703230.JPG.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [
@@ -2907,9 +3010,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image"
-   ],
+   "warnings": [],
    "empty": false
   },
   {
@@ -2972,7 +3073,14 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1CZXVKxL0_TQtXRtRzudkS8P2B7I1kPvq",
+      "name": "Deficit_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -2985,10 +3093,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1caiY-WXJJkCIZcfpvp79A9XqJpj4Th3e",
@@ -3180,7 +3287,32 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1b5fxbSanMi7MyzbCzicGkbsRdVctlVyZ",
+      "name": "Front_Split_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1tuNx6AgkRre0cOYLHambUZgfCuyc5GCd",
+      "name": "Middle_Split_Mechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1VuqQFO-tKr8l037R7fa1_saksPSAlsiw",
+      "name": "Side_Split_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1yIzSnEV6sn7u5zto3Q0Djmuh0sL4GZub",
+      "name": "The_Geometry_of_Mobility (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3193,10 +3325,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1R-2lbxQgKEOqCiBdgyyppRVJFhuWPFai",
@@ -3232,7 +3363,26 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1_WkBWDUn2gkZEd9uNGnNZUHjzU4Inw_Y",
+      "name": "Muscle_Up_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Nxcv5Gru5S-pgDq5eM6Io2FpnuTtnaEy",
+      "name": "Vertical_Pull_Biomechanics (3).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1L5NM0xLAEs6LD-vCP0zkZ27Jq6hofzsb",
+      "name": "Vertical_Pull_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3245,10 +3395,11 @@
    },
    "meta": null,
    "warnings": [
+    "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
     "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "Looks like a copy: \"Vertical_Pull_Biomechanics.pdf\" vs \"Vertical_Pull_Biomechanics (3).pdf\""
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1vZKn9RJV1Akg6F6A91hgdt2HUvTd4P2M",
@@ -3362,7 +3513,26 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1weiGVZQGH702dpVCDCnJT2eucWCBWaab",
+      "name": "Inversion_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Rf3TJ1dPOgLAdPkXWxO4gi8sm_RZGY8F",
+      "name": "Inverted_Hold_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1LhsMTQBpeDK9V5sXY3RfJ6DePTpXi3Ue",
+      "name": "Inverted_Isometric_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3375,10 +3545,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1rVoiMDUnn29l69jv9bP9DoxK8MomqJp-",
@@ -3515,7 +3684,11 @@
    "number": 549,
    "title": "Hacking Gravity: The Power of the Nordic Curl",
    "rawName": "549. Hacking Gravity: The Power of the Nordic Curl",
-   "cover": null,
+   "cover": {
+    "id": "10V68bt4uOMnzAl8_JQw18uaWJ0k8G7MC",
+    "name": "Nordic_Hamstring_Mastery_-_Slide_1.png",
+    "mime": "image/png"
+   },
    "photos": [],
    "pdfs": {
     "en": [
@@ -3549,9 +3722,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image"
-   ],
+   "warnings": [],
    "empty": false
   },
   {
@@ -4033,7 +4204,11 @@
    "number": 568,
    "title": "The Architecture of the Barbell Squat",
    "rawName": "568. The Architecture of the Barbell Squat",
-   "cover": null,
+   "cover": {
+    "id": "1vSSiHI0NOrD25X0VLwSNS7a2BDJ0TZkd",
+    "name": "IMG_20260319_105557.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
     "en": [
@@ -4046,6 +4221,12 @@
      {
       "id": "1FOD0RMJannGzlW0UN66_pWmjenqJMllx",
       "name": "Squat_Biomechanics_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "19W1GADLjOKIZ6n5cP-zLt67A5IK2XjYs",
+      "name": "The_Squat_Blueprint.pdf",
       "mime": "application/pdf",
       "lang": "en"
      }
@@ -4061,9 +4242,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image"
-   ],
+   "warnings": [],
    "empty": false
   },
   {
@@ -4071,7 +4250,11 @@
    "number": 569,
    "title": "Biomechanical Frontiers: Front Lever Physics and Digital Architecture",
    "rawName": "569. Biomechanical Frontiers: Front Lever Physics and Digital Architecture",
-   "cover": null,
+   "cover": {
+    "id": "1R3U_itX6Z42E9u6DEqUUSL8JPmr2KdNB",
+    "name": "Front_Lever_Biomechanics_-_Slide_1.png",
+    "mime": "image/png"
+   },
    "photos": [],
    "pdfs": {
     "en": [
@@ -4099,9 +4282,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image"
-   ],
+   "warnings": [],
    "empty": false
   },
   {
@@ -4138,7 +4319,26 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1C2XCDRI4Z23YkiRzz1An8E16tDMv1VKv",
+      "name": "Landmine_RDL_Deconstructed.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1xZklqz5meJJtcqGI4v3zogHDJdT1IZzd",
+      "name": "Unilateral_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1T2BKqFR1HSYGtJKOzg6BkvNeHuKkHgtG",
+      "name": "Unilateral_Power_Mechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -4151,10 +4351,11 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "Unsupported file skipped: Landmine_RDL_Anatomy.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
+    "Unsupported file skipped: Landmine_Single_Leg_Mastery.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "15-4pOhXQpPHRecSW9nH-a40vE1gh2jGJ",
@@ -4473,13 +4674,35 @@
    "number": 584,
    "title": "Monochrome Reflections in the Locker Room",
    "rawName": "584. Monochrome Reflections in the Locker Room",
-   "cover": null,
+   "cover": {
+    "id": "1vjjZSUCu9D8cClai4IPfOugSLylf5FEM",
+    "name": "Modern_Menswear_Anatomy_-_Slide_1.png",
+    "mime": "image/png"
+   },
    "photos": [],
    "pdfs": {
     "en": [
      {
       "id": "1lef7AbowBCAmpO9q7B3PcgjMqZhYF63M",
       "name": "Avant_Garde_Menswear_Anatomy.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Of1ITz7Hd-7IEM_KkUj0jcNIWwePa7eV",
+      "name": "Modern_Menswear_Anatomy.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1BeyKPL6VS960JrbR2JAMWRgWJ_eNEKH4",
+      "name": "Sartorial_Deconstruction.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1RM1EoMJ7N8B1uiBbgfZ39-z3x-rBRM0J",
+      "name": "Streetwear_Deconstructed.pdf",
       "mime": "application/pdf",
       "lang": "en"
      }
@@ -4495,9 +4718,7 @@
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image"
-   ],
+   "warnings": [],
    "empty": false
   },
   {

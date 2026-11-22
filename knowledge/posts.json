@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T07:04:24.974Z",
+ "generatedAt": "2026-11-22T08:29:13.293Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -368,7 +368,6 @@
    },
    "meta": null,
    "warnings": [
-    "Non-image in COVER folder ignored: Scanned_20260824-0019.pdf (move it to PDF/<language>)",
     "Video inside PDF shown in Videos: फ्रंट_स्क्वाट_बायोमैकेनिक्स.mp4",
     "Video inside PDF shown in Videos: Mastering_the_Front_Squat.mp4",
     "Video inside PDF shown in Videos: ફ્રન્ટ_સ્ક્વોટનું_વિશ્લેષણ.mp4",
@@ -1828,7 +1827,7 @@
       "lang": "en"
      },
      {
-      "id": "1rNPk1ahQu_o5Dj4rAX5Xf6nipef886fU",
+      "id": "1U-xav4d-EpYmHbQIjw9wd1GoNxbwx0OA",
       "name": "The_Reverse-Preacher_Triceps_Hack.mp4",
       "mime": "video/mp4",
       "lang": "en"
@@ -1842,7 +1841,7 @@
       "lang": "hi"
      },
      {
-      "id": "15ZzqKSIIHL8a_wt7ViWjqKrKX7LAHlHC",
+      "id": "1xPJ-S1yBJTnXS6FKtWYMOUdy7kdDCYhw",
       "name": "रिवर्स_ट्राइसेप्स_हैक.mp4",
       "mime": "video/mp4",
       "lang": "hi"
@@ -1892,6 +1891,8 @@
    },
    "meta": null,
    "warnings": [
+    "Duplicate hidden: \"The_Reverse-Preacher_Triceps_Hack.mp4\" appears twice in Video/en",
+    "Duplicate hidden: \"रिवर्स_ट्राइसेप्स_हैक.mp4\" appears twice in Video/hi",
     "Looks like a copy: \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9.png\" vs \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9 (1).png\"",
     "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_1.png\" vs \"Reverse_Preacher_Masterclass_-_Slide_1 (1).png\"",
     "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_10 (2).png\" vs \"Reverse_Preacher_Masterclass_-_Slide_10 (1).png\"",
@@ -2079,8 +2080,26 @@
    "pdfs": {
     "en": [
      {
+      "id": "1aLEh9Cqt-o2XQYcBmB42lmB6uc2ne0oY",
+      "name": "Human_Flag_Biomechanics (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
       "id": "1ZvCQ_qgIo8az8TzJTomAeGIB16fjLfFE",
       "name": "Human_Flag_Biomechanics (2).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1gn78aqegXZtiaD5zU3scotZ2zeiSIGrp",
+      "name": "Human_Flag_Biomechanics (3).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1qpLowZgo64NaluPH-m72QuJ-PSMAFKm6",
+      "name": "Human_Flag_Biomechanics (4).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
@@ -2093,6 +2112,12 @@
      {
       "id": "1Lgfb-sQ8xBU5ogbawBaL7IccfL_ouPXu",
       "name": "Human_Flag_Biomechanics (8).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1r_RkMo4-NxDIhnkcqhuVmJKmXYObN3Kx",
+      "name": "Human_Flag_Biomechanics.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
@@ -2191,13 +2216,17 @@
    },
    "meta": null,
    "warnings": [
-    "Looks like a copy: \"Human_Flag_Biomechanics (5).pdf\" vs \"Human_Flag_Biomechanics (2).pdf\"",
-    "Looks like a copy: \"Human_Flag_Biomechanics (8).pdf\" vs \"Human_Flag_Biomechanics (2).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (2).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (3).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (4).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (5).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (8).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics.pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Blueprint (2).pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",
-    "Looks like a copy: \"Human_Flag_Biomechanics (6).pdf\" vs \"Human_Flag_Biomechanics (2).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (6).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Blueprint (3).pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Blueprint.pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",
-    "Looks like a copy: \"Human_Flag_Biomechanics (7).pdf\" vs \"Human_Flag_Biomechanics (2).pdf\""
+    "Looks like a copy: \"Human_Flag_Biomechanics (7).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\""
    ],
    "empty": false
   },
@@ -2288,9 +2317,9 @@
    "title": "1.2.3.Loop stretching",
    "rawName": "511. 1.2.3.Loop stretching",
    "cover": {
-    "id": "1d_5xcAHWdQia_1N5pCuBscCta4vuMy_o",
-    "name": "511_Cover_Loop_Stretching.jpg",
-    "mime": "image/jpeg"
+    "id": "1fVpNcbTaQPPKb-QB2ebRf9NRMkU0aLeK",
+    "name": "The_Neon_Protocol_-_Slide_9.png",
+    "mime": "image/png"
    },
    "photos": [],
    "pdfs": {
@@ -2821,23 +2850,67 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
-    "hi": [],
+    "en": [
+     {
+      "id": "1Hv3TnpyJ562BharLCgbxvX5U4jG5hGHf",
+      "name": "Engineering_Form.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1kd1gZHNnlJQ5qG8FF2OQJmgqvb8P_cyS",
+      "name": "Spatial_Paradox_Forensics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "15MrATSTP46STrA_pp5chc9qXeXozlM0N",
+      "name": "Strength_by_Design.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1f7vXBc1PJkwoK4tGQv3emNexKtJnJq4T",
+      "name": "Vertical_Symmetry.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1PgRSg9FbYZm9PYjEZCefyITReR4t4KW9",
+      "name": "Visual_Deconstruction.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "1dZSDN60HC719c8s_gg-d43tdYRZwryuZ",
+      "name": "Reflections_of_Power.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
     "gu": [],
     "all": []
    },
    "videos": {
-    "en": [],
+    "en": [
+     {
+      "id": "1HFJFQsighSEgIoch4SZ-SisMFCnoZNh4",
+      "name": "The_Anatomy_of_a_Selfie.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1SCyipUGbPM1ERuhSZScr2vLPt-iNhdmC",
@@ -3445,7 +3518,26 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1WZQsV6Za-SnVSjJHiZJprZyzGM66oOqy",
+      "name": "Nordic_Curl_Mastery.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1piRDlU2L15mIOgFFT7TBY5xWkATxm8mo",
+      "name": "Nordic_Hamstring_Mastery.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1EVIUZ9MdT4OwLJFNqSetXwdXA42tfkbe",
+      "name": "The_Kinetic_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3458,10 +3550,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1AhQleRRLbKkcb2pP_Y2ThsPkOox6LNSX",
@@ -3523,7 +3614,14 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1x1b-CL-_lloWsGHpS3uuVVTSYjRWl38l",
+      "name": "Pole_Handstand_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3536,10 +3634,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1OGW5Xs_GaRCSpjueW3ugfOMwhZQ9xlVp",
@@ -3939,7 +4036,20 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "13O9pLIXTAR7Lts9NdsXderGS2yOnRYHa",
+      "name": "Squat_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1FOD0RMJannGzlW0UN66_pWmjenqJMllx",
+      "name": "Squat_Biomechanics_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3952,10 +4062,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1wCQMkx5MQNAAopoLZ5iofh9D4ylHjRAz",
@@ -3965,7 +4074,20 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1AX0FEXHQD35fVSmK8YB0gM-DYD7kaoz1",
+      "name": "Front_Lever_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1F4aaX-6bUlOxW8ODTKC40jMRvkm_vCqe",
+      "name": "Human_Lever_Engineering.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3978,10 +4100,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1ZfQ3fK13IscMaO63P6M77HV0U0W34R7Q",
@@ -4355,7 +4476,14 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1lef7AbowBCAmpO9q7B3PcgjMqZhYF63M",
+      "name": "Avant_Garde_Menswear_Anatomy.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -4368,10 +4496,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1j8uU-LpZNMAWtvHV-QGsmMjRRE1vGupZ",

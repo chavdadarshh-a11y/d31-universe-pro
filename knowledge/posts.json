@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T10:23:03.268Z",
+ "generatedAt": "2026-11-22T11:18:54.584Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1089,50 +1089,86 @@
    "pdfs": {
     "en": [
      {
-      "id": "1e3LD2BJptcv-tPnFWeCPR1CyfSU1kjRW",
+      "id": "1FrbcG43Flu0IU6p7u1hom-fYCHML8kQY",
       "name": "Active Expansion (1).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1ZlDnH2Uvhq-mTVZc7CBPM6NOyP9OD5ck",
+      "id": "1tTPCsvlnqDEaffsPaAgteAhqk6GziIBz",
       "name": "Anchored Expansion (2).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1Xb1LeK8Q18lXTZwRb12asRPH_u6OeLqc",
+      "id": "1tvMJ0Y8K50I2n_hSECjEcsNnWofmX5pN",
       "name": "Hybrid Athlete Mastery.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1HHycdTe3uyaz4zhct1GtXJG_kUKj9emz",
+      "id": "1TD9I4dO-ZaCG4FJHO5D3WTJ9YOnOUw2H",
+      "name": "Hybrid Synergy Blueprint (3).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1jwloMbJmgNOVi4PMSIAbkrOv3hdofZel",
+      "name": "Hybrid Zen (3).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1YGql3Z-1XjUS0N3Wf08Uh11KuaHkoCkn",
+      "name": "Illuminated Yoga Bioenergetics (2).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1aZcHTnx8FooURocoy6Yko8st8wmsvR3q",
       "name": "Iron Aether (2).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1x4ti1ax2CFgwWX-H_DaZZQWl6o-DNZ1v",
+      "id": "1fMwKQfeZfZDozLTXiawRyEFRtAemCqFI",
       "name": "Luminous Alignment.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1vwZlL2jseqflrQKBi37YyUTIoLSAY1Uf",
+      "id": "1A6AxPSMoq5ewTz6plPK0flfkv4Ks2b-s",
       "name": "Movement Architecture (6).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1aCrPz6AELSYxpGHkvjyWwarEVMgwCifB",
+      "id": "1EkvWxsLsgBwbhfNeuBvisjs4xqfjmv3W",
       "name": "Movement Duality (2).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1TXWsHC3LoN5qg4FinfecIYoj62TqHVaC",
+      "name": "Sacred Geometry of Yogic Balance (3).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
       "id": "1T57tktqv0lqAy-wBWrBiGRRVGhbQPO1S",
       "name": "Tension and Intention (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1wB_5Zg6KPxN00n4TgrWvUy46koM0-42X",
+      "name": "Upavistha Konasana Anatomy and Energetics (6).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Fci3hUizc9_AT3wu792B5cpPE4iLlsRY",
+      "name": "Yoga Energy Alignment (3).pdf",
       "mime": "application/pdf",
       "lang": "en"
      }
@@ -1268,6 +1304,13 @@
    },
    "meta": null,
    "warnings": [
+    "Duplicate hidden: \"Active Expansion (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Anchored Expansion (2).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Hybrid Athlete Mastery.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Iron Aether (2).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Luminous Alignment.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Movement Architecture (6).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Movement Duality (2).pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"Tension and Intention (1).pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"The Modern Yogi.pdf\" appears twice in PDF/gu"
    ],
@@ -2007,7 +2050,7 @@
     ],
     "hi": [
      {
-      "id": "18GAv3Bcnbs-1UbomD7lDoUxu4539wIwa",
+      "id": "1QeILTirrK6Ie29PRFzxNWyE2CkbrQxnT",
       "name": "प्रीचर_कर्ल_मशीन_हैक (1).mp4",
       "mime": "video/mp4",
       "lang": "hi"
@@ -2027,7 +2070,7 @@
     ],
     "gu": [
      {
-      "id": "1ezg6N4FrWmntNBmvtp0l5a2qMEktoACM",
+      "id": "14JANP-_dVnN0xGVxjucqw3PRDeJPVV_S",
       "name": "ઓવરહેડ_ટ્રાયસેપ્સ_એક્સટેન્શન (1).mp4",
       "mime": "video/mp4",
       "lang": "gu"
@@ -2076,8 +2119,13 @@
    "meta": null,
    "warnings": [
     "Duplicate hidden: \"Reverse-Preacher_Triceps_Hack.mp4\" appears twice in Video/en",
+    "Duplicate hidden: \"Reverse-Preacher_Triceps_Hack.mp4\" appears twice in Video/en",
     "Duplicate hidden: \"The_Reverse-Preacher_Triceps_Hack.mp4\" appears twice in Video/en",
+    "Duplicate hidden: \"The_Reverse-Preacher_Triceps_Hack.mp4\" appears twice in Video/en",
+    "Duplicate hidden: \"प्रीचर_कर्ल_मशीन_हैक (1).mp4\" appears twice in Video/hi",
     "Duplicate hidden: \"रिवर्स_ट्राइसेप्स_हैक.mp4\" appears twice in Video/hi",
+    "Duplicate hidden: \"रिवर्स_ट्राइसेप्स_हैक.mp4\" appears twice in Video/hi",
+    "Duplicate hidden: \"ઓવરહેડ_ટ્રાયસેપ્સ_એક્સટેન્શન (1).mp4\" appears twice in Video/gu",
     "Looks like a copy: \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9.png\" vs \"Reverse_Bicep_Isolation_Blueprint_-_Slide_9 (1).png\"",
     "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_1.png\" vs \"Reverse_Preacher_Masterclass_-_Slide_1 (1).png\"",
     "Looks like a copy: \"Reverse_Preacher_Masterclass_-_Slide_10 (2).png\" vs \"Reverse_Preacher_Masterclass_-_Slide_10 (1).png\"",
@@ -2265,13 +2313,25 @@
    "pdfs": {
     "en": [
      {
+      "id": "1k6hoMshhI_YtKhPzU6nOpNrIGQ2ZGPRh",
+      "name": "Defying_Gravity.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "198GPBECEwAxPQj4xTw5O-PEW6sRLFI32",
+      "name": "Elite_Strength_Architecture.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
       "id": "1aLEh9Cqt-o2XQYcBmB42lmB6uc2ne0oY",
       "name": "Human_Flag_Biomechanics (1).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1ZvCQ_qgIo8az8TzJTomAeGIB16fjLfFE",
+      "id": "1vN-t5-Co6R2_Iywv_AHGHCLAb3-pZUlk",
       "name": "Human_Flag_Biomechanics (2).pdf",
       "mime": "application/pdf",
       "lang": "en"
@@ -2289,8 +2349,20 @@
       "lang": "en"
      },
      {
-      "id": "1RZis9yKMCAGV-bu-ZU-aImzuIRwaqX5M",
+      "id": "16yJfQFhAKLAk067ARhRLojW4ceahIUq3",
       "name": "Human_Flag_Biomechanics (5).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1k6h7LrR2-gpt8hNpPYstq2UZrjByMUMN",
+      "name": "Human_Flag_Biomechanics (6).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1_Hz-f84c-oodfLHM5sPSM_GjFJDvT3Ab",
+      "name": "Human_Flag_Biomechanics (7).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
@@ -2307,14 +2379,26 @@
       "lang": "en"
      },
      {
-      "id": "1n5lpjh_eoyQ-Kymv9EVYfVhKZU1jpo_5",
+      "id": "1ErxsmTFDxBnqXy2q7PoQan52tVJUWgPO",
       "name": "Human_Flag_Blueprint (1).pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1HRu0vKyYSsqJwSME3kIx0kjqKD3cmBd8",
+      "id": "1bAhc2MdUIOe1fXjOiElpGDapr6Pq7PMc",
       "name": "Human_Flag_Blueprint (2).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Qdfta_jNJWFUhJ7tss8zCYa9Dikc3cWO",
+      "name": "Human_Flag_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1P5DtS_QlTMlMv7_2-5SzDhP8LtxCAAJ7",
+      "name": "The_Physics_of_Calisthenics.pdf",
       "mime": "application/pdf",
       "lang": "en"
      }
@@ -2401,13 +2485,24 @@
    },
    "meta": null,
    "warnings": [
+    "Duplicate hidden: \"Human_Flag_Biomechanics (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Human_Flag_Biomechanics (2).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Human_Flag_Biomechanics (3).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Human_Flag_Biomechanics (4).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Human_Flag_Biomechanics (5).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Human_Flag_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Human_Flag_Blueprint (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Human_Flag_Blueprint (2).pdf\" appears twice in PDF/en",
     "Looks like a copy: \"Human_Flag_Biomechanics (2).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Biomechanics (3).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Biomechanics (4).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Biomechanics (5).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (6).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Biomechanics (7).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Biomechanics (8).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Biomechanics.pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Blueprint (2).pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",
+    "Looks like a copy: \"Human_Flag_Blueprint.pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Biomechanics (6).pdf\" vs \"Human_Flag_Biomechanics (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Blueprint (3).pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",
     "Looks like a copy: \"Human_Flag_Blueprint.pdf\" vs \"Human_Flag_Blueprint (1).pdf\"",
@@ -2857,7 +2952,9 @@
     "all": []
    },
    "meta": null,
-   "warnings": [],
+   "warnings": [
+    "Duplicate hidden: \"ટ્રાઇસેપ્સ_માસ્ટરક્લાસ.mp4\" appears twice in Video/gu"
+   ],
    "empty": false
   },
   {
@@ -3538,6 +3635,12 @@
       "lang": "en"
      },
      {
+      "id": "1dkvGb7E5Pnl1gEjF6-O3rqXF3eFEN_zT",
+      "name": "Pull-up_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
       "id": "1Nxcv5Gru5S-pgDq5eM6Io2FpnuTtnaEy",
       "name": "Vertical_Pull_Biomechanics (3).pdf",
       "mime": "application/pdf",
@@ -3563,7 +3666,9 @@
    "meta": null,
    "warnings": [
     "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
+    "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
     "No cover image",
+    "Duplicate hidden: \"Muscle_Up_Biomechanics.pdf\" appears twice in PDF/en",
     "Looks like a copy: \"Vertical_Pull_Biomechanics.pdf\" vs \"Vertical_Pull_Biomechanics (3).pdf\""
    ],
    "empty": false
@@ -4049,7 +4154,14 @@
    "photos": [],
    "pdfs": {
     "en": [],
-    "hi": [],
+    "hi": [
+     {
+      "id": "1dgMYdvsUUFrRv8QH10d5D-PwmSjnF69H",
+      "name": "Vertical_Smith_Thrust_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
     "gu": [],
     "all": []
    },
@@ -4061,10 +4173,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1lVQiiUuRx-Q_cI0gH2E6Wh9nkO10WVLp",
@@ -4152,8 +4263,34 @@
       "lang": "en"
      }
     ],
-    "hi": [],
-    "gu": [],
+    "hi": [
+     {
+      "id": "1-DpIWPI6AI2_RSbVPfNpCbdcIPzCy-hK",
+      "name": "Elite_Performance_Science (1).pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1dAAb3HVW6A6tOa3C0wLB9abX8XUqb3sF",
+      "name": "Peak_Performance_Architecture (1).pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
+    "gu": [
+     {
+      "id": "1NC9PdVP8DwtD2ermgYW4pAx1jMBh7oG9",
+      "name": "Immersive_Performance_Engineering (1).pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "1Q5yLO7ilELPY67ZaCN8HWRH5H_LN8UiJ",
+      "name": "Precision_Body_Engineering (1).pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "videos": {
@@ -4416,6 +4553,12 @@
    "pdfs": {
     "en": [
      {
+      "id": "1n8622sxg3e8Vky4L5K8WwZ5v5C8uZNCP",
+      "name": "ATG_Squat_Biomechanics (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
       "id": "13O9pLIXTAR7Lts9NdsXderGS2yOnRYHa",
       "name": "Squat_Biomechanics.pdf",
       "mime": "application/pdf",
@@ -4428,13 +4571,26 @@
       "lang": "en"
      },
      {
+      "id": "1XLlBL6JQIfUCEtynJgYxhpbgXwfyW5CT",
+      "name": "Squat_Kinematic_Diagnostic (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
       "id": "19W1GADLjOKIZ6n5cP-zLt67A5IK2XjYs",
       "name": "The_Squat_Blueprint.pdf",
       "mime": "application/pdf",
       "lang": "en"
      }
     ],
-    "hi": [],
+    "hi": [
+     {
+      "id": "1lR4-EsgfMQ7GUl3214puxYRq5X16_6Qp",
+      "name": "Squat_Biomechanics_Decoded.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
     "gu": [],
     "all": []
    },
@@ -5036,8 +5192,34 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
-    "hi": [],
+    "en": [
+     {
+      "id": "1fcsI7lL1WfnoflL0_KbcYRwdIKQiKLke",
+      "name": "Arm_Biomechanics_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1a2OHRIhUmh50AjpJzsZroU0k506YiAj9",
+      "name": "The_Biomechanical_Armory.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "14TAWJzw0590mzICttlazFxV214mTOTEC",
+      "name": "Biceps_Isolation_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "13HeYohAayLTlBylZvQG8nw7cCiL36CHa",
+      "name": "Reverse_Bicep_Isolation_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
     "gu": [],
     "all": []
    },
@@ -5049,10 +5231,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1Mv463zYFyKKMCwhW08wdnKMQ2KYWtC82",
@@ -5062,7 +5243,38 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1IGibLjOmFmjt8v4bGwH3ItbHCga2oyJL",
+      "name": "Back_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "17pbgeBijmqq5P3_omj-jYzincBcMDb2r",
+      "name": "Elite_Back_Deconstructed.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1k-LdjNBTDyos8rViBIdr_hCSa7ua3XKU",
+      "name": "Hypertrophy_Architecture.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "186OHerEs2JuisY8qHDkbLuoA4_0_7P2E",
+      "name": "The_Architected_Back.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "13i1mbqSmFiMH7qmL3lKDm8j943WZostM",
+      "name": "V_Taper_Architecture.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -5076,9 +5288,10 @@
    "meta": null,
    "warnings": [
     "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "Duplicate hidden: \"Back_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Elite_Back_Deconstructed.pdf\" appears twice in PDF/en"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1igW4tZcDXNQB2GFGSLAKnPwAatNbKu8D",

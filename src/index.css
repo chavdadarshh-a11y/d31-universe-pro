@@ -728,3 +728,36 @@ html.light .pc-arrow { color: #0e7490; border-color: rgba(14, 116, 144, .3); bac
 html.light .pc-slot .pc-card, html.light .pl-item .pc-card, html.light .pd-card { box-shadow: 0 22px 40px -26px rgba(15, 23, 42, .55); }
 html.light .pc-num { background: linear-gradient(90deg, #b7791f, #0e7490); -webkit-background-clip: text; background-clip: text; }
 @media (prefers-reduced-motion: reduce) { .pl-item .pc-card { transform: none; opacity: 1; filter: none; transition: none; } }
+
+/* ---- Shared search box: transparent glass pill + clockwise border light (v4.5 beta) ---- */
+.sbx { position: relative; display: flex; align-items: center; height: 46px; border-radius: 999px; background: transparent; isolation: isolate;
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); box-shadow: inset 0 0 0 1px rgba(165, 243, 252, 0.16); }
+.sbx-in { flex: 1; min-width: 0; height: 100%; padding: 0 2.6rem 0 2.55rem; border: 0; outline: 0; border-radius: 999px; background: transparent !important; color: var(--color-frost); font-size: 15px; -webkit-appearance: none; appearance: none; }
+.sbx-in::placeholder { color: var(--color-dim); }
+.sbx-in::-webkit-search-cancel-button { display: none; }
+.sbx-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-dim); pointer-events: none; z-index: 1; }
+.sbx-x { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: var(--color-muted); z-index: 1; }
+.sbx-x:active { background: rgba(255, 255, 255, .08); }
+/* the travelling light: a rotating conic square, cut to a 1.5 px ring by a mask → compositor-only rotation */
+.sbx-ring, .sbx-glow { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; z-index: 0;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.sbx-ring { padding: 1.5px; }
+.sbx-glow { inset: -5px; padding: 7px; filter: blur(5px); opacity: .85; }
+.sbx-ring i, .sbx-glow i { position: absolute; left: 50%; top: 50%; width: 112%; aspect-ratio: 1; translate: -50% -50%;
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 228deg, rgba(34, 211, 238, .0) 236deg, rgba(34, 211, 238, .75) 292deg, rgba(247, 197, 72, .95) 336deg, #fff6d6 356deg, transparent 360deg);
+  animation: sbx-spin 4s linear infinite; will-change: transform; }
+@keyframes sbx-spin { to { transform: rotate(360deg); } }
+.sbx:focus-within { box-shadow: inset 0 0 0 1px rgba(247, 197, 72, 0.3), 0 0 22px -10px rgba(247, 197, 72, .45); }
+.sbx:focus-within .sbx-glow { opacity: 1; }
+html.light .sbx { box-shadow: inset 0 0 0 1px rgba(8, 60, 100, 0.2); }
+html.light .sbx-ring i, html.light .sbx-glow i { background: conic-gradient(from 0deg, transparent 0deg, transparent 228deg, rgba(8, 145, 178, 0) 236deg, rgba(8, 145, 178, .85) 292deg, rgba(247, 197, 72, 1) 336deg, #fffbe6 356deg, transparent 360deg); }
+html.light .sbx-glow { opacity: .7; }
+@media (prefers-reduced-motion: reduce) {
+  .sbx-ring i, .sbx-glow i { animation: none; background: conic-gradient(from 200deg, rgba(34, 211, 238, .55), rgba(247, 197, 72, .65), rgba(34, 211, 238, .3), rgba(247, 197, 72, .5), rgba(34, 211, 238, .55)); }
+  .sbx-glow { opacity: .35; }
+}
+/* cover cards: name inside the card */
+.pc-label { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit; text-align: left;
+  background: linear-gradient(180deg, rgba(3, 5, 10, .55) 0%, rgba(3, 5, 10, 0) 26%, rgba(3, 5, 10, 0) 46%, rgba(3, 5, 10, .9) 100%); }
+.pc-label-num { position: absolute; top: 10px; left: 14px; font-family: var(--font-mono); font-weight: 800; font-size: 12px; letter-spacing: .14em; color: #f7c548; text-shadow: 0 1px 6px rgba(0, 0, 0, .9); }
+.pc-label-title { position: absolute; left: 14px; right: 14px; bottom: 11px; color: #fffdf6; text-shadow: 0 2px 14px rgba(0, 0, 0, .8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

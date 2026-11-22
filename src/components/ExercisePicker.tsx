@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Search, Plus, Sparkles } from 'lucide-react'
+import { Plus, Sparkles } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
+import { SearchBox } from './SearchBox'
 import { Button, Chip, Sheet } from './ui'
 import { allExercises, exName } from '../data/exercises'
 import { uid } from '../lib/util'
@@ -23,10 +24,7 @@ export function ExercisePicker({ open, onClose, onPick }: { open: boolean; onClo
   return (
     <>
       <Sheet open={open && !creating} onClose={onClose} title={t('addExercise')}>
-        <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
-          <input className="field pl-9" placeholder={t('searchPh')} value={q} onChange={(e) => setQ(e.target.value)} />
-        </div>
+        <SearchBox testid="picker-search" placeholder={t('searchPh')} value={q} onValue={setQ} />
         <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5">
           <Chip active={!cat} onClick={() => setCat(null)}>{t('all')}</Chip>
           {CATS.map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(cat === c ? null : c)}>{t(`cat_${c}`)}</Chip>)}

@@ -180,7 +180,7 @@ function Cascade({ posts, lang, jump, sub, labels }: Props) {
           const p = posts[mod(v, n)]
           return (
             <div key={v} data-v={v} ref={(el) => { if (el) cards.current.set(v, el); else cards.current.delete(v) }} className="pc-slot" data-testid={`kpost-${p.number}`} aria-hidden={v !== centre} aria-label={`#${p.number} ${postTitle(p, lang)}`}>
-              <CoverCard p={p} lang={lang} eager={Math.abs(v - centre) <= 1} />
+              <CoverCard p={p} lang={lang} eager={Math.abs(v - centre) <= 1} label={postTitle(p, lang)} />
               <i className="pc-shade" aria-hidden />
             </div>
           )
@@ -189,11 +189,8 @@ function Cascade({ posts, lang, jump, sub, labels }: Props) {
       <div className="pc-cap" aria-live="polite">
         <button type="button" className="pc-arrow" aria-label={labels.prev} onClick={() => goTo(Math.round(target.current) - 1)}><ChevronUp size={18} /></button>
         <button type="button" className="min-w-0 flex-1 text-left" onClick={() => open(p0)} data-testid="kpost-open" aria-label={`${labels.open} #${p0.number}`}>
-          <div className="flex items-baseline gap-2">
-            <span className="pc-num" data-testid="ks-current">#{p0.number}</span>
-            <span className="truncate text-[14px] font-semibold text-frost">{postTitle(p0, lang)}</span>
-          </div>
-          <div className="mt-0.5 flex items-center gap-2 font-mono text-[10px] text-muted"><span className="truncate">{sub(p0)}</span><span className="ml-auto shrink-0 text-dim">{mod(centre, n) + 1} / {n}</span></div>
+          <span className="sr-only" data-testid="ks-current">#{p0.number} {postTitle(p0, lang)}</span>
+          <div className="flex items-center gap-2 font-mono text-[10.5px] text-muted"><span className="truncate">{sub(p0)}</span><span className="ml-auto shrink-0 text-dim">{mod(centre, n) + 1} / {n}</span></div>
         </button>
         <span className="pc-go" aria-hidden><ArrowUpRight size={18} /></span>
         <button type="button" className="pc-arrow" aria-label={labels.next} onClick={() => goTo(Math.round(target.current) + 1)}><ChevronDown size={18} /></button>
@@ -227,14 +224,14 @@ function PostSwipe({ posts, lang, jump, sub, labels }: Props) {
       <div ref={track} onScroll={onScroll} className="pc-swipe no-scrollbar">
         {posts.map((p, i) => (
           <button type="button" key={p.id} data-testid={`kpost-${p.number}`} className="pc-swipe-item" aria-label={`#${p.number} ${postTitle(p, lang)}`} onClick={() => (i === cur ? open(p) : go(i))}>
-            <CoverCard p={p} lang={lang} />
+            <CoverCard p={p} lang={lang} label={postTitle(p, lang)} />
           </button>
         ))}
       </div>
       <div className="pc-cap">
         <button type="button" className="min-w-0 flex-1 text-left" onClick={() => open(p0)} data-testid="kpost-open" aria-label={`${labels.open} #${p0.number}`}>
-          <div className="flex items-baseline gap-2"><span className="pc-num" data-testid="ks-current">#{p0.number}</span><span className="truncate text-[14px] font-semibold text-frost">{postTitle(p0, lang)}</span></div>
-          <div className="mt-0.5 flex gap-2 font-mono text-[10px] text-muted"><span className="truncate">{sub(p0)}</span><span className="ml-auto text-dim">{cur + 1} / {posts.length}</span></div>
+          <span className="sr-only" data-testid="ks-current">#{p0.number} {postTitle(p0, lang)}</span>
+          <div className="flex gap-2 font-mono text-[10.5px] text-muted"><span className="truncate">{sub(p0)}</span><span className="ml-auto text-dim">{cur + 1} / {posts.length}</span></div>
         </button>
         <span className="pc-go" aria-hidden><ArrowUpRight size={18} /></span>
       </div>

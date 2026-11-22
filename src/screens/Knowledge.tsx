@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Beam } from '../components/Beam'
 import { createPortal } from 'react-dom'
-import { CheckCircle2, HardDriveDownload, BookOpen, ChevronLeft, ChevronRight, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
+import { CheckCircle2, HardDriveDownload, BookOpen, ChevronLeft, ChevronRight, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, X } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { KNOWLEDGE_LANGS, UNLOCKS, passesFor, unlockPrice } from '../config/plans'
 import { buyUnlock, isUnlocked, kindOf, unlockKey, useUnlocked, useUnlocks, type UnlockKind } from '../lib/unlocks'
@@ -17,6 +17,7 @@ import { openPlayer } from '../components/VideoPlayer'
 import { KPreview } from '../components/KPreview'
 import { Cover, CoverCard, useReveal } from '../components/PostCover'
 import { PostCascade } from '../components/PostCascade'
+import { SearchBox } from '../components/SearchBox'
 import { PdfViewer } from '../components/PdfViewer'
 import { canSaveType, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
 import { IN_APP } from '../lib/appMode'
@@ -75,12 +76,8 @@ function PostListItem({ p, lang, sub, openLabel }: { p: KPost; lang: KLang; sub:
   const ref = useReveal<HTMLButtonElement>()
   return (
     <button ref={ref} type="button" className="pl-item" data-testid={`klist-${p.number}`} aria-label={`${openLabel} #${p.number} ${postTitle(p, lang)}`} onClick={() => navigate(`/knowledge/${p.number}`)}>
-      <CoverCard p={p} lang={lang} w={640} />
-      <div className="mt-2 flex items-baseline gap-2 px-1 text-left">
-        <span className="pc-num text-[13px]">#{p.number}</span>
-        <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-frost">{postTitle(p, lang)}</span>
-      </div>
-      <div className="truncate px-1 text-left font-mono text-[10px] text-muted">{sub}</div>
+      <CoverCard p={p} lang={lang} w={640} label={postTitle(p, lang)} />
+      <span className="sr-only">{sub}</span>
     </button>
   )
 }
@@ -91,10 +88,7 @@ export function Knowledge() {
   return (
     <div>
       <Header title={t('knowledge')} sub={t('kSub')} back />
-      <div className="relative mb-3">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
-        <input className="field pl-9" placeholder={t('kSearchPh')} value={q} onChange={(e) => setQ(e.target.value)} type="search" />
-      </div>
+      <SearchBox wrapClass="mb-3" testid="k-search" placeholder={t('kSearchPh')} value={q} onValue={setQ} />
       <KnowledgeGrid query={q} />
     </div>
   )
@@ -355,12 +349,14 @@ export function KnowledgePost({ id }: { id: string }) {
     <div data-testid="kpost">
       <Header title={`#${p.number}`} sub={postTitle(p, appLang)} back="#/knowledge" />
       <div className="pd-head" data-testid="kpost-head">
-        <div className="pc-card pd-card dark-zone"><Cover p={p} w={1200} lang={lang} eager /><i className="pc-sheen" aria-hidden /></div>
-        <div className="mt-3 px-0.5">
-          <span className="font-mono text-[12px] font-bold tracking-[0.2em] text-cyan">D31 // KNOWLEDGE #{p.number}</span>
-          <h1 className="title-hud mt-1 text-[22px] leading-tight text-frost">{postTitle(p, lang)}</h1>
-          <div className="mt-1.5 font-mono text-[11px] text-muted">{counts(t, p, lang)}</div>
+        <div className="pc-card pd-card dark-zone">
+          <Cover p={p} w={1200} lang={lang} eager /><i className="pc-sheen" aria-hidden />
+          <div className="pc-label" data-testid="pc-label">
+            <span className="pc-label-num">D31 // KNOWLEDGE #{p.number}</span>
+            <h1 className="title-hud pc-label-title text-[21px] leading-tight">{postTitle(p, lang)}</h1>
+          </div>
         </div>
+        <div className="mt-2 px-0.5 font-mono text-[11px] text-muted">{counts(t, p, lang)}</div>
       </div>
 
       <div className="relative mt-3 flex items-center gap-2" data-testid="k-langs">

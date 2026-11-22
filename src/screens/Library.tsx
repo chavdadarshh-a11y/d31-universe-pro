@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Search, SlidersHorizontal, X, Plus } from 'lucide-react'
+import { SlidersHorizontal, X, Plus } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Chip, CHIP_COLORS, Empty, Header, Label, Sheet, Tabs } from '../components/ui'
@@ -12,6 +12,7 @@ import { CustomExerciseSheet } from '../components/ExercisePicker'
 import { ladderStatus } from '../lib/training'
 import { hashQuery } from '../lib/router'
 import { KnowledgeGrid } from './Knowledge'
+import { SearchBox } from '../components/SearchBox'
 import { navigate } from '../lib/router'
 import type { Category, Equipment, Exercise, MuscleId } from '../types'
 
@@ -94,10 +95,7 @@ export function Library() {
         </div>
       )}
       {(tab === 'ex' || tab === 'kn') && <div className="mt-3 flex gap-2">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
-          <input className="field pl-9" placeholder={t('searchPh')} value={q} onChange={(e) => setQ(e.target.value)} type="search" />
-        </div>
+        <SearchBox wrapClass="flex-1" testid="lib-search" placeholder={t('searchPh')} value={q} onValue={setQ} />
         {tab === 'ex' && (
           <button onClick={() => setFilters(true)} className="relative grid h-[46px] w-[46px] place-items-center rounded-xl border border-white/10 text-muted" aria-label={t('filters')}>
             <SlidersHorizontal size={18} />

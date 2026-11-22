@@ -33,11 +33,17 @@ export function Cover({ p, w = 800, className = '', lang = 'en', eager = false }
 }
 
 /** A clean horizontal 16:9 rounded cover card (no text on it). */
-export function CoverCard({ p, lang, w = 720, className = '', eager }: { p: KPost; lang: KLang; w?: number; className?: string; eager?: boolean }) {
+export function CoverCard({ p, lang, w = 720, className = '', eager, label, size = 20 }: { p: KPost; lang: KLang; w?: number; className?: string; eager?: boolean; label?: string; size?: number }) {
   return (
     <div className={`pc-card ${className}`}>
       <Cover p={p} w={w} lang={lang} eager={eager} />
       <i className="pc-sheen" aria-hidden />
+      {label !== undefined && (
+        <div className="pc-label dark-zone" data-testid="pc-label">
+          <span className="pc-label-num">#{p.number}</span>
+          <h3 className="kp-title pc-label-title" style={{ fontSize: label.length > 34 ? size - 4 : label.length > 20 ? size - 2 : size }}>{label}</h3>
+        </div>
+      )}
     </div>
   )
 }

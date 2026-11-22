@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Upload, Eye, CheckCircle2, AlertTriangle, Wrench, Target, ArrowRight, X, Camera, Square, RotateCcw, Save, Volume2, VolumeX, SwitchCamera, Zap, ChevronRight, Info, ScanLine } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
+import { SearchBox } from '../components/SearchBox'
 import { Badge, Button, Card, Chip, Header, Label, Sheet, Stepper, Tabs } from '../components/ui'
 import { BodyMap } from '../components/BodyMap'
 import { hashQuery } from '../lib/router'
@@ -418,8 +419,8 @@ function ExercisePickerField({ value, onPick, onText, placeholder }: { value: st
   }
   return (
     <div className="relative">
-      <input className="field" data-testid="ex-input" placeholder={placeholder ?? t('exSearchPh')} value={q} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
-        onChange={(e) => { setQ(e.target.value); setOpen(true); onText?.(e.target.value) }}
+      <SearchBox testid="ex-input" placeholder={placeholder ?? t('exSearchPh')} value={q} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onValue={(v) => { setQ(v); setOpen(true); onText?.(v) }}
         onKeyDown={(e) => { if (e.key === 'Enter' && resolved) { e.preventDefault(); choose(resolved.id) } }} />
       {q.trim() && (
         <p className={`mt-1 px-1 text-[11.5px] ${resolved ? 'text-cyan' : 'text-gold'}`} data-testid="ex-resolved">

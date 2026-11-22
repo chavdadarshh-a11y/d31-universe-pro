@@ -32,7 +32,9 @@ export function PostCascade(props: Props) {
  */
 function pose(o: number, h: number) {
   if (o >= 0) {
-    const y = -h * (0.5 * o - 0.06 * o * o) // rises, then bunches up at the back
+    // Waiting cards sit ABOVE the centre card (o = 1's bottom edge clears the centre's top edge), so the centre card
+    // and its title are never covered; later cards bunch up behind it.
+    const y = -h * (1.08 * Math.min(o, 1) + 0.3 * Math.max(o - 1, 0))
     const z = -150 * o
     const rx = 9 * Math.min(o, 2.2) // top leans back, away from the viewer
     return { tf: `translate3d(0,${y.toFixed(1)}px,${z.toFixed(1)}px) rotateX(${rx.toFixed(2)}deg)`, shade: clamp(0.16 + o * 0.2, 0, 0.78) * (o < 0.02 ? 0 : 1), op: clamp(3.3 - o, 0, 1), z: 100 - Math.round(o * 10) }
@@ -40,7 +42,8 @@ function pose(o: number, h: number) {
   const a = -o
   const y = h * (0.22 * a + 0.55 * a * a)
   const rx = -76 * clamp(a, 0, 1.2) // pivots on its bottom edge, top tipping toward the viewer
-  return { tf: `translate3d(0,${y.toFixed(1)}px,${(30 * a).toFixed(1)}px) rotateX(${rx.toFixed(2)}deg)`, shade: clamp(a * 0.62, 0, 0.7), op: clamp(1.75 - a, 0, 1), z: 120 + Math.round(a * 10) }
+  // the card that just left fades out completely, so nothing rests over the centre card's bottom (its title)
+  return { tf: `translate3d(0,${y.toFixed(1)}px,${(30 * a).toFixed(1)}px) rotateX(${rx.toFixed(2)}deg)`, shade: clamp(a * 0.62, 0, 0.7), op: clamp(1 - a * 1.15, 0, 1), z: 120 + Math.round(a * 10) }
 }
 
 function Cascade({ posts, lang, jump, sub, labels }: Props) {

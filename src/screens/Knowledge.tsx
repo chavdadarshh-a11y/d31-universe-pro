@@ -47,9 +47,13 @@ export function KnowledgeGrid({ query = '' }: { query?: string }) {
   if (!posts.length) return <Empty icon={<BookOpen size={28} />} text={q ? t('kNoMatch') : t('kNoPosts')} />
   return (
     <div data-testid="knowledge-grid">
-      {!q && <PostPanels posts={posts} jump />}
-      <div className="label mb-2 mt-5">{t('kAll')} · {posts.length}</div>
-      <PostList posts={posts} />
+      {/* One place per post: empty query → the cascade only; while searching → the matching cards (title inside). */}
+      {!q ? <PostPanels posts={posts} jump /> : (
+        <>
+          <div className="label mb-2 mt-1" data-testid="k-results">{t('kResults')} · {posts.length}</div>
+          <PostList posts={posts} />
+        </>
+      )}
       <p className="pt-3 text-center font-mono text-[10.5px] text-dim">{t('kSynced', { x: new Date(data!.generatedAt).toLocaleString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { dateStyle: 'medium', timeStyle: 'short' }) })}</p>
     </div>
   )

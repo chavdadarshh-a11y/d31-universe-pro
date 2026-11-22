@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T13:35:46.040Z",
+ "generatedAt": "2026-11-22T18:45:56.053Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -542,11 +542,16 @@
    "title": "HANDSTAND 🤸🏻",
    "rawName": "503. HANDSTAND 🤸🏻",
    "cover": {
-    "id": "1EAyebF2y0UJzC1AI7X-15ChrQioXGelm",
-    "name": "COVER.jpg",
-    "mime": "image/jpeg"
+    "id": "1qtsIiQsfvOyvm2kvrXrfPRDXr6rdJ8z5",
+    "name": "Handstand_Biomechanics_-_Slide_1 (2).png",
+    "mime": "image/png"
    },
    "photos": [
+    {
+     "id": "1EAyebF2y0UJzC1AI7X-15ChrQioXGelm",
+     "name": "COVER.jpg",
+     "mime": "image/jpeg"
+    },
     {
      "id": "1Y36ZVAKd1kST5N14Jh-wG38xsAxAA-rM",
      "name": "DW709404.JPG.jpg",

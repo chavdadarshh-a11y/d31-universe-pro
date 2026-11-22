@@ -1,4 +1,4 @@
--- D31.UNIVERSE PRO — application schema
+-- D31.UNIVERSE — application schema
 -- Every user table has RLS: a user can only see and change their own rows.
 -- Memberships/payments can only be written by the server (service role or SECURITY DEFINER functions).
 

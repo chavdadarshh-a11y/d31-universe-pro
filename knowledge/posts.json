@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T09:23:07.418Z",
+ "generatedAt": "2026-11-22T10:23:03.268Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -131,31 +131,55 @@
    "pdfs": {
     "en": [
      {
-      "id": "1kQqCoVZx-RApMjjpvL0nJz8Ykv5yc_PV",
+      "id": "1P-BJrfrTTGA4XuFUxyQ3Q7U7LC6GvGtU",
+      "name": "Anti-Extension_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1zkKVkbbLDRkaemXOJO725EvqR5S9Sumz",
       "name": "Asymmetric_Reverse_Crunch_Biomechanics.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1IuwylVewKYcgFfaNYqwOvtLs5WEtywHZ",
+      "id": "1Krzh7z6OGQpq6dE9-lcB9FnZp3Xcg097",
+      "name": "Asymmetrical_Tension_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1NGO3cCrYOWgBerBcbjmluexFRegwJeJR",
       "name": "Barbell_Bridge-Pullover_Biomechanics.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1696EU6WKuqZ-mjGL7x_v0LJX0Q9gwsUi",
+      "id": "1vYQSjoP5bsG5x6gkW5s2GWNC-y6yZIpZ",
+      "name": "Integrated_Hybrid_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "16dXqyfUkjSer682WP7sLsKMaJj05V2j_",
       "name": "Kinetic_Dragon_Flag_Analysis.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1eeN9dbBWcY8iKhx_HhgY63lFhNEdvvVn",
+      "id": "13AAPAkECHkdSGXWVQ3-GhAnmsLkuHnZ0",
       "name": "The_Architecture_of_Tension.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1Plh-uQZa32cRwBBtOmGtnOMceLYp9iDD",
+      "id": "1Rk9F_up3Eie9XGY9hE9a6R38N8V82fTU",
+      "name": "The_Biomechanical_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "10QpTdDYVT4U2AvlypS-5JUdVwDexH9zn",
       "name": "The_Tension_Bridge.pdf",
       "mime": "application/pdf",
       "lang": "en"
@@ -163,46 +187,94 @@
     ],
     "hi": [
      {
-      "id": "18qr1avokVG1cwWKiVtp52bLpJSyp2wH1",
+      "id": "14Y7STBKrA63acav1NYN5xpGOnRQPTy4f",
       "name": "Dragon_Flag_Biomechanics.pdf",
       "mime": "application/pdf",
       "lang": "hi"
      },
      {
-      "id": "1ekDlJ0oLwmccEIZMdtfhJe4RKHLytGb9",
+      "id": "1BGEKIo43Yx4uJ2Zq2ge-exGtKxOgiK8H",
       "name": "Elite_Core_Biomechanics (1).pdf",
       "mime": "application/pdf",
       "lang": "hi"
      },
      {
-      "id": "18b4-vEVE-5MSKIBHk4pameqks2uO8qzG",
+      "id": "12_Cy3emrFxX9wHvXELC0PF4nZ4iNH9LR",
+      "name": "Elite_Core_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "14FD3gK8rFJYtillyqpmqSIKfmic05wtM",
       "name": "Hybrid_Core_Crusher.pdf",
       "mime": "application/pdf",
       "lang": "hi"
      },
      {
-      "id": "190YseCTS__-Fi8dAbUwXJdAIvrNggaE5",
+      "id": "12Dlz43a7OOF5YyA1wQlil3DAnPZ5Uk70",
       "name": "Hybrid_Pullover_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1_yXLuoSIJY9zh_YBSKRW6hJwdqHNf98j",
+      "name": "Hybrid_Strength_Mastery.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1uPRsTIdxA5Oi7nlwHWR09VkOKV7iweWh",
+      "name": "Kinetic_Core_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1OJKCAGnh8UCV9CVtlA8vR1Onquk9xzFe",
+      "name": "Mastering_Integrated_Strength.pdf",
       "mime": "application/pdf",
       "lang": "hi"
      }
     ],
     "gu": [
      {
-      "id": "1t5kcR8yBypZM3rU4TiTQNIg21rlIX2fJ",
+      "id": "1GtGiCwwiyhIThB2KkuYPTD6I2-WUJF1i",
       "name": "Advanced_Core_Biomechanics.pdf",
       "mime": "application/pdf",
       "lang": "gu"
      },
      {
-      "id": "1xAXKuqr2Ab2lRgS8ujaPCSSXkzSM-Dei",
+      "id": "1Fg5j_RMCXSJILOg2-jH79CFemQ6Kb4QS",
       "name": "Advanced_Core_Blueprint.pdf",
       "mime": "application/pdf",
       "lang": "gu"
      },
      {
-      "id": "1Opox-FbwUGcz9V_6FR6LwPrQhu4FFR3n",
+      "id": "1SlefBmrH7GhfFgzOI8T4Pktk6tOovP2s",
       "name": "Biomechanical_Core_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "1cY4jVeTntvwuEuhMc0m9ly6VNeVb7zxy",
+      "name": "Biomechanical_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "1hRedeQh7mApJxErGHHS3K5wW1FLwTXoc",
+      "name": "Biomechanics_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "1TkXMteUqxdivIUHlck4dRF3uKRlEesTq",
+      "name": "Single-Leg_Bridge_Press_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "1TWL1tTJYWptBhucG3ck8BqxjlB7k2V7g",
+      "name": "The_Biomechanics_Blueprint.pdf",
       "mime": "application/pdf",
       "lang": "gu"
      }
@@ -237,7 +309,21 @@
     "all": []
    },
    "meta": null,
-   "warnings": [],
+   "warnings": [
+    "Duplicate hidden: \"Asymmetric_Reverse_Crunch_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Barbell_Bridge-Pullover_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Kinetic_Dragon_Flag_Analysis.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The_Architecture_of_Tension.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The_Tension_Bridge.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Dragon_Flag_Biomechanics.pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Elite_Core_Biomechanics (1).pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Hybrid_Core_Crusher.pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Hybrid_Pullover_Biomechanics.pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Advanced_Core_Biomechanics.pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Advanced_Core_Blueprint.pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Biomechanical_Core_Blueprint.pdf\" appears twice in PDF/gu",
+    "Looks like a copy: \"Elite_Core_Biomechanics.pdf\" vs \"Elite_Core_Biomechanics (1).pdf\""
+   ],
    "empty": false
   },
   {
@@ -328,9 +414,48 @@
     }
    ],
    "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
+    "en": [
+     {
+      "id": "1LXL2yQEgHcOqP3LUDna438UV_xsDFdR1",
+      "name": "Front_Squat_Biomechanics (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1AuXPUKjMhnFeXMxjp1JwJBFv-buTeGI_",
+      "name": "Front_Squat_Biomechanics (3).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1mTaRr_kt5BQBfLnWu1yYxq8_ROUs60TK",
+      "name": "Front_Squat_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1TU_1qV-KKukLYsuQCfYilSnqkrgxBuw_",
+      "name": "Front_Squat_Kinematics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "1OTvIC9em82YVwPg6Mf86ktS-DIrz1939",
+      "name": "Front_Squat_Biomechanics (2).pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
+    "gu": [
+     {
+      "id": "1sxJPc1M9UbM4aclC5rq88SqfTV566g-g",
+      "name": "Front_Squat_Biomechanics (4).pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "videos": {
@@ -373,7 +498,11 @@
     "Video inside PDF shown in Videos: ફ્રન્ટ_સ્ક્વોટનું_વિશ્લેષણ.mp4",
     "Duplicate hidden: \"Mastering_the_Front_Squat.mp4\" appears twice in Video/en",
     "Duplicate hidden: \"फ्रंट_स्क्वाट_बायोमैकेनिक्स.mp4\" appears twice in Video/hi",
-    "Duplicate hidden: \"ફ્રન્ટ_સ્ક્વોટનું_વિશ્લેષણ.mp4\" appears twice in Video/gu"
+    "Duplicate hidden: \"ફ્રન્ટ_સ્ક્વોટનું_વિશ્લેષણ.mp4\" appears twice in Video/gu",
+    "Looks like a copy: \"Front_Squat_Biomechanics (3).pdf\" vs \"Front_Squat_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Front_Squat_Biomechanics.pdf\" vs \"Front_Squat_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Front_Squat_Biomechanics (2).pdf\" vs \"Front_Squat_Biomechanics (1).pdf\"",
+    "Looks like a copy: \"Front_Squat_Biomechanics (4).pdf\" vs \"Front_Squat_Biomechanics (1).pdf\""
    ],
    "empty": false
   },
@@ -697,25 +826,25 @@
    "pdfs": {
     "en": [
      {
-      "id": "1L0e25F1DzVlnzgUY9OpeoLVn5JiyrV0Z",
+      "id": "1B6vubqgs5mOtWC9cYLK1utM1r00U6YYE",
       "name": "Biomechanical_Blueprint.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1dU2F0t2BlRL0ExtVsakABCOxYNcUJrtn",
+      "id": "1K9wq0UnBsURzsON_2DHpFhUd1_zjd6Fi",
       "name": "Inverted_Kinetic_Dynamics.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "13FEf73VufKYd_2-38ZAJsNDilP-CXjTR",
+      "id": "11WFYQQqxrAav8KLspFSJQm5ptpW8BmNy",
       "name": "Kinetic_Equilibrium.pdf",
       "mime": "application/pdf",
       "lang": "en"
      },
      {
-      "id": "1NVCadIG7dP9wp8DqKHuknAbiS9dsQfuj",
+      "id": "1UTDG-MZsgWRA0NOEUgL3UPvPoaCLSC_F",
       "name": "Straddle_Handstand_Kinematics.pdf",
       "mime": "application/pdf",
       "lang": "en"
@@ -723,13 +852,13 @@
     ],
     "hi": [
      {
-      "id": "1gRI6MCGzZ09wlyftFXb-EMW_6XEqp2ut",
+      "id": "1MOYwGh_5ZBOREH8mXzSnN9aa_GElur0y",
       "name": "Anatomy_of_Mastery.pdf",
       "mime": "application/pdf",
       "lang": "hi"
      },
      {
-      "id": "1vBdRMfJqjOkkziLVhPbCMYG7I5PyLnNc",
+      "id": "1YuiON-VEiI6cW5_Tw1nya386IgDiJQRC",
       "name": "Cyber_Athletic_Kinetics (1).pdf",
       "mime": "application/pdf",
       "lang": "hi"
@@ -749,7 +878,7 @@
     ],
     "gu": [
      {
-      "id": "1z7gEMaF_QslP7rF0_06re-97gHNy1DVr",
+      "id": "1JybI2PJYfKe79jAIPMKascH1KXwANhCo",
       "name": "Biomechanical_Mastery.pdf",
       "mime": "application/pdf",
       "lang": "gu"
@@ -761,7 +890,7 @@
       "lang": "gu"
      },
      {
-      "id": "1i5f1MxW1hEbOqRScdllHHYHXd7PgT1cq",
+      "id": "1CkIHKhQQwUOFH5ALZ-jhsHaHUlpwK6mQ",
       "name": "Kinetic_Geometry.pdf",
       "mime": "application/pdf",
       "lang": "gu"
@@ -835,6 +964,14 @@
    "meta": null,
    "warnings": [
     "\"હેન્ડસ્ટેન્ડ_વોકનું_વિજ્ઞાન__ઊંધા_કેવી_રીતે_ચલાય_.mp4\" is in the HI folder but its name is Gujarati — shown under GU",
+    "Duplicate hidden: \"Biomechanical_Blueprint.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Inverted_Kinetic_Dynamics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Kinetic_Equilibrium.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Straddle_Handstand_Kinematics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Anatomy_of_Mastery.pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Cyber_Athletic_Kinetics (1).pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Biomechanical_Mastery.pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Kinetic_Geometry.pdf\" appears twice in PDF/gu",
     "Duplicate hidden: \"एक_हाथ_के_हैंडस्टैंड_का_विज्ञान (1).mp4\" appears twice in Video/hi",
     "Duplicate hidden: \"हैंडस्टैंड_का_विज्ञान (1).mp4\" appears twice in Video/hi",
     "Duplicate hidden: \"हैंडस्टैंड_का_विज्ञान.mp4\" appears twice in Video/hi",
@@ -994,7 +1131,7 @@
       "lang": "en"
      },
      {
-      "id": "110UIyToNVqsVEsKkcWf9kX1qrfv_dUqU",
+      "id": "1T57tktqv0lqAy-wBWrBiGRRVGhbQPO1S",
       "name": "Tension and Intention (1).pdf",
       "mime": "application/pdf",
       "lang": "en"
@@ -1034,7 +1171,7 @@
       "lang": "gu"
      },
      {
-      "id": "1va8F0nUEN7t9eWv-SA1g9OSrU9kTb960",
+      "id": "1sKxemPTavGSmoWzBLFzjFD3sORbruGyj",
       "name": "The Modern Yogi.pdf",
       "mime": "application/pdf",
       "lang": "gu"
@@ -1130,7 +1267,10 @@
     "all": []
    },
    "meta": null,
-   "warnings": [],
+   "warnings": [
+    "Duplicate hidden: \"Tension and Intention (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The Modern Yogi.pdf\" appears twice in PDF/gu"
+   ],
    "empty": false
   },
   {
@@ -2729,22 +2869,43 @@
    "photos": [],
    "pdfs": {
     "en": [],
-    "hi": [],
-    "gu": [],
+    "hi": [
+     {
+      "id": "12TOBNIDiMXXRrmYonWPmwowy2VAsIpT-",
+      "name": "Handstand_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
+    "gu": [
+     {
+      "id": "1_5m5K65XgOOQ0MPCIG49LUf1hoBoaYhB",
+      "name": "Handstand_Biomechanics (1).pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "videos": {
     "en": [],
     "hi": [],
-    "gu": [],
+    "gu": [
+     {
+      "id": "1LuGokgnMB6_lT0XZDZGFg7FMXHglnaHT",
+      "name": "હેન્ડસ્ટેન્ડ_વોકનું_વિજ્ઞાન__ઊંધા_કેવી_રીતે_ચલાય_.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "meta": null,
    "warnings": [
     "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "Looks like a copy: \"Handstand_Biomechanics (1).pdf\" vs \"Handstand_Biomechanics.pdf\""
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "1oz5WzCZ_BnpOAEDXGEA-moSn6DmkbsyE",
@@ -3077,6 +3238,12 @@
      {
       "id": "1CZXVKxL0_TQtXRtRzudkS8P2B7I1kPvq",
       "name": "Deficit_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1Zoe4SSjJJCCQWL3aT7T43xfOCC1RTY9h",
+      "name": "Deficit_Handstand_Biomechanics.pdf",
       "mime": "application/pdf",
       "lang": "en"
      }
@@ -3521,6 +3688,12 @@
       "lang": "en"
      },
      {
+      "id": "1glXcdCyq_09tSZaf1HrEJeifNaE14V1q",
+      "name": "Inverted_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
       "id": "1Rf3TJ1dPOgLAdPkXWxO4gi8sm_RZGY8F",
       "name": "Inverted_Hold_Biomechanics.pdf",
       "mime": "application/pdf",
@@ -3529,6 +3702,12 @@
      {
       "id": "1LhsMTQBpeDK9V5sXY3RfJ6DePTpXi3Ue",
       "name": "Inverted_Isometric_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1oGG8YXBgnAwR15yL0CwMtc76yUEj7c2n",
+      "name": "The_Architecture_of_Inversion.pdf",
       "mime": "application/pdf",
       "lang": "en"
      }
@@ -3947,7 +4126,32 @@
    "cover": null,
    "photos": [],
    "pdfs": {
-    "en": [],
+    "en": [
+     {
+      "id": "1t93t3jYsouHV2IqaKmEYblVgRTZNXHrd",
+      "name": "Hypertrophy_by_Design.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1ZgQnIzm79eM2CTWdiB_YOGRlRWLpt-lk",
+      "name": "Project_Aura (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1jaEmnU0JAPn4aHDYKaitwTyz4RqU7ySN",
+      "name": "Sensory_Performance_Architecture (1).pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1T45Eznj_qwiG1DusnMiUKwqh1HV69G1z",
+      "name": "The_Cyber-Physical_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
     "hi": [],
     "gu": [],
     "all": []
@@ -3960,10 +4164,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
+    "No cover image"
    ],
-   "empty": true
+   "empty": false
   },
   {
    "id": "18awVW3dO0eDCyGRhzAfXZLwAoyd4uBF5",

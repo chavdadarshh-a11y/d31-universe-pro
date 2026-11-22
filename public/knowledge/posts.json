@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T05:57:52.362Z",
+ "generatedAt": "2026-11-22T07:04:24.974Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -2287,26 +2287,189 @@
    "number": 511,
    "title": "1.2.3.Loop stretching",
    "rawName": "511. 1.2.3.Loop stretching",
-   "cover": null,
+   "cover": {
+    "id": "1d_5xcAHWdQia_1N5pCuBscCta4vuMy_o",
+    "name": "511_Cover_Loop_Stretching.jpg",
+    "mime": "image/jpeg"
+   },
    "photos": [],
    "pdfs": {
-    "en": [],
-    "hi": [],
-    "gu": [],
+    "en": [
+     {
+      "id": "1RAQ1HS0bh2rbYQX2E4RIDjdj3xgoxx-F",
+      "name": "3D_Mobility_Mechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1HZXn4PyQTwkHE5RA-zM-gdbjBlMMmm00",
+      "name": "State_0_Biomechanical_Performance.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1AMhXaxd_X50_mzENP_fwwvxDhAGOWuYg",
+      "name": "The_Kinetic_Method.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1L92WjqJ5uR0mKTbPj9GB5yTGV3CWDkia",
+      "name": "The_Lumina_Method.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
+      "id": "1N1AHDg9wQZoHr2lCTrvit0YI1JpDW-Ll",
+      "name": "The_Neon_Protocol.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "1h7mGuMUItC890ohzaWMWAa3SfA2PUhED",
+      "name": "Advanced_Active_Mobility_Guide.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1e2yQO7NpFsP26lRN_ek8qCVUWzXaFTVA",
+      "name": "Neon_Biomechanics.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1G9N4ZFsZ0Gv2-oIxL1PuVjdcrkemA2rP",
+      "name": "Suspension_Mobility_Blueprint.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1k7rzvgFO8nTqPfsGNXJ1ZQdb61y3_gG0",
+      "name": "The_Art_of_Mobility.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     },
+     {
+      "id": "1CIqcXian8-d6RhYLdFsp7kifVSE-kTsL",
+      "name": "The_Neon_Flow_Protocol.pdf",
+      "mime": "application/pdf",
+      "lang": "hi"
+     }
+    ],
+    "gu": [
+     {
+      "id": "15IyrTJsB93C4KnovCd4OwS3zuDHU5RQg",
+      "name": "Functional_Fitness_Mastery.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "11nLPJSzS0E4EYPXASINgydsPuLOulfRJ",
+      "name": "Neon_Biomechanics_Protocol.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     },
+     {
+      "id": "1QUAG4FoS_gZG_m3pjiTIicK0l2Q-z3Ru",
+      "name": "Neon_Flow_Mobility_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "videos": {
-    "en": [],
-    "hi": [],
-    "gu": [],
+    "en": [
+     {
+      "id": "1C2JBoRHF14EuVNGNq3auP83ZjOsxD51D",
+      "name": "Decoding_Dynamic_Mobility.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
+      "id": "1zWBxUEUS-ecsMs8cx8hyNQueUfOjaU0L",
+      "name": "How_Suspension_Straps_Hack_Your_Stretch_Reflex.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
+      "id": "1jSGowNEfEAkVt8rZ-PvhtN1LHWB_n7BI",
+      "name": "Mechanics_of_Modern_Mobility.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
+      "id": "1ZVx39N1ZVAe04BZEAvGJjtnKkG7FAraa",
+      "name": "Supported_Mobility__The_Frame___Strap_Flexibility_Protocol.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
+      "id": "162JATr8g825zxz1JY1IYb1hQHKOsfm63",
+      "name": "Unlocking_Elite_Flexibility.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     }
+    ],
+    "hi": [
+     {
+      "id": "10bg79ywGx7pk5NsaG16Qt71ZDqDU8Ka-",
+      "name": "असिस्टेड_फ्लेक्सिबिलिटी.mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     },
+     {
+      "id": "1mbmTsvMZof9zT1ZPSjTnB4j7pZiaikYm",
+      "name": "आधुनिक_फंक्शनल_वर्कआउट.mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     },
+     {
+      "id": "17DqZ3whJitlKBwozN4T4p03ywN73Mv_a",
+      "name": "आधुनिक_मोबिलिटी_सत्र.mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     },
+     {
+      "id": "1FO9hWf63dPdgqAhl2PjOMyi57c1VV2DN",
+      "name": "गतिशील_वर्कआउट_का_विश्लेषण.mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     }
+    ],
+    "gu": [
+     {
+      "id": "1kMooLjT__3gTSAT3u4NO9Jk1kdzxodwr",
+      "name": "આસિસ્ટેડ_મોબિલિટી.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     },
+     {
+      "id": "12QPdh6lReOOcgmqTYHT36qTUPAbsLqlL",
+      "name": "ગતિશીલ_ગતિશીલતા_વિશ્લેષણ.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     },
+     {
+      "id": "143nGrBjKQf_FwyDEFt7a8pecN3MXHx2A",
+      "name": "ગતિશીલતાની_એનાટોમી.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     },
+     {
+      "id": "1huL3hKEAQN0mOoxy1LhvKn8h7ht4PMen",
+      "name": "ડાયનેમિક_મોબિલિટીનું_વિશ્લેષણ.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
+     }
+    ],
     "all": []
    },
    "meta": null,
-   "warnings": [
-    "No cover image",
-    "Empty post — hidden in the app until something is added"
-   ],
-   "empty": true
+   "warnings": [],
+   "empty": false
   },
   {
    "id": "1-pNNYC35_Vu1FdmLi_vNigjDxPNMh6sc",

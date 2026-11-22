@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T11:18:54.584Z",
+ "generatedAt": "2026-11-22T12:17:28.173Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -284,6 +284,12 @@
    "videos": {
     "en": [
      {
+      "id": "1A12Gan6I3vEBI2Bnx3BWnSTKw3eOhso1",
+      "name": "Movement_Detective.mp4",
+      "mime": "video/mp4",
+      "lang": "en"
+     },
+     {
       "id": "1lXRL6OVin1nJ_Bv-vwfB1zxORJbLY0Vz",
       "name": "The_Geometry_of_Core_Strength.mp4",
       "mime": "video/mp4",
@@ -291,6 +297,12 @@
      }
     ],
     "hi": [
+     {
+      "id": "1C-f5RfBc_DkWAe_Z7_19rme5jf04dNbo",
+      "name": "बायोमैकेनिकल_ऑटॉप्सी.mp4",
+      "mime": "video/mp4",
+      "lang": "hi"
+     },
      {
       "id": "1UFbRip5Lb6z9XNn6m5PtjWyEE3DnHhej",
       "name": "सिंगल-लेग_ब्रिज_विश्लेषण.mp4",
@@ -304,24 +316,42 @@
       "name": "આધાર_વગરની_લિફ્ટનું_વિશ્લેષણ.mp4",
       "mime": "video/mp4",
       "lang": "gu"
+     },
+     {
+      "id": "1VISvi0fxZRjasj2eP_4VIVc4NmP8Dm-X",
+      "name": "બાયોમિકેનિકલ_વિશ્લેષણ.mp4",
+      "mime": "video/mp4",
+      "lang": "gu"
      }
     ],
     "all": []
    },
    "meta": null,
    "warnings": [
+    "Duplicate hidden: \"Anti-Extension_Blueprint.pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"Asymmetric_Reverse_Crunch_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Asymmetrical_Tension_Biomechanics.pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"Barbell_Bridge-Pullover_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Integrated_Hybrid_Biomechanics.pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"Kinetic_Dragon_Flag_Analysis.pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"The_Architecture_of_Tension.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The_Biomechanical_Blueprint.pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"The_Tension_Bridge.pdf\" appears twice in PDF/en",
     "Duplicate hidden: \"Dragon_Flag_Biomechanics.pdf\" appears twice in PDF/hi",
     "Duplicate hidden: \"Elite_Core_Biomechanics (1).pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Elite_Core_Biomechanics.pdf\" appears twice in PDF/hi",
     "Duplicate hidden: \"Hybrid_Core_Crusher.pdf\" appears twice in PDF/hi",
     "Duplicate hidden: \"Hybrid_Pullover_Biomechanics.pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Hybrid_Strength_Mastery.pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Kinetic_Core_Blueprint.pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Mastering_Integrated_Strength.pdf\" appears twice in PDF/hi",
     "Duplicate hidden: \"Advanced_Core_Biomechanics.pdf\" appears twice in PDF/gu",
     "Duplicate hidden: \"Advanced_Core_Blueprint.pdf\" appears twice in PDF/gu",
     "Duplicate hidden: \"Biomechanical_Core_Blueprint.pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Biomechanical_Masterclass.pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Biomechanics_Blueprint.pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Single-Leg_Bridge_Press_Biomechanics.pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"The_Biomechanics_Blueprint.pdf\" appears twice in PDF/gu",
     "Looks like a copy: \"Elite_Core_Biomechanics.pdf\" vs \"Elite_Core_Biomechanics (1).pdf\""
    ],
    "empty": false
@@ -3072,6 +3102,12 @@
       "lang": "en"
      },
      {
+      "id": "1nlDQSKVyGtmWN-Qd0kQ9goFn2MG82ff8",
+      "name": "Biomechanical_Quad_Masterclass.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
+     },
+     {
       "id": "1JzLFecv3OLkf5zjTZ35pl1LZpvVN9QH1",
       "name": "Sissy_Squat_Biomechanics (1).pdf",
       "mime": "application/pdf",
@@ -3117,6 +3153,10 @@
    "meta": null,
    "warnings": [
     "No cover image",
+    "Duplicate hidden: \"Biomechanical_Isolation_Diagnostic.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Sissy_Squat_Biomechanics (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Sissy_Squat_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Smith_Machine_Biomechanics.pdf\" appears twice in PDF/en",
     "Looks like a copy: \"Sissy_Squat_Biomechanics.pdf\" vs \"Sissy_Squat_Biomechanics (1).pdf\""
    ],
    "empty": false
@@ -3357,7 +3397,9 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image"
+    "No cover image",
+    "Duplicate hidden: \"Deficit_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Deficit_Handstand_Biomechanics.pdf\" appears twice in PDF/en"
    ],
    "empty": false
   },
@@ -3575,6 +3617,12 @@
       "name": "The_Geometry_of_Mobility (1).pdf",
       "mime": "application/pdf",
       "lang": "en"
+     },
+     {
+      "id": "13rAoimDT9Ugrj8aDpLLSuENf0FNOkzuX",
+      "name": "The_Geometry_of_Mobility.pdf",
+      "mime": "application/pdf",
+      "lang": "en"
      }
     ],
     "hi": [],
@@ -3589,7 +3637,11 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image"
+    "No cover image",
+    "Duplicate hidden: \"Front_Split_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Middle_Split_Mechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Side_Split_Biomechanics.pdf\" appears twice in PDF/en",
+    "Looks like a copy: \"The_Geometry_of_Mobility.pdf\" vs \"The_Geometry_of_Mobility (1).pdf\""
    ],
    "empty": false
   },
@@ -3669,6 +3721,7 @@
     "Unsupported file skipped: Muscle_Up_Biomechanics.pptx (application/vnd.openxmlformats-officedocument.presentationml.presentation)",
     "No cover image",
     "Duplicate hidden: \"Muscle_Up_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Vertical_Pull_Biomechanics (3).pdf\" appears twice in PDF/en",
     "Looks like a copy: \"Vertical_Pull_Biomechanics.pdf\" vs \"Vertical_Pull_Biomechanics (3).pdf\""
    ],
    "empty": false
@@ -3829,7 +3882,12 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image"
+    "No cover image",
+    "Duplicate hidden: \"Inversion_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Inverted_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Inverted_Hold_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Inverted_Isometric_Biomechanics.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The_Architecture_of_Inversion.pdf\" appears twice in PDF/en"
    ],
    "empty": false
   },
@@ -4006,7 +4064,10 @@
     "all": []
    },
    "meta": null,
-   "warnings": [],
+   "warnings": [
+    "Duplicate hidden: \"Nordic_Curl_Mastery.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Nordic_Hamstring_Mastery.pdf\" appears twice in PDF/en"
+   ],
    "empty": false
   },
   {
@@ -4089,7 +4150,8 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image"
+    "No cover image",
+    "Duplicate hidden: \"Pole_Handstand_Blueprint.pdf\" appears twice in PDF/en"
    ],
    "empty": false
   },
@@ -4173,7 +4235,8 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image"
+    "No cover image",
+    "Duplicate hidden: \"Vertical_Smith_Thrust_Blueprint.pdf\" appears twice in PDF/hi"
    ],
    "empty": false
   },
@@ -4301,7 +4364,15 @@
    },
    "meta": null,
    "warnings": [
-    "No cover image"
+    "No cover image",
+    "Duplicate hidden: \"Hypertrophy_by_Design.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Project_Aura (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Sensory_Performance_Architecture (1).pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"The_Cyber-Physical_Blueprint.pdf\" appears twice in PDF/en",
+    "Duplicate hidden: \"Elite_Performance_Science (1).pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Peak_Performance_Architecture (1).pdf\" appears twice in PDF/hi",
+    "Duplicate hidden: \"Immersive_Performance_Engineering (1).pdf\" appears twice in PDF/gu",
+    "Duplicate hidden: \"Precision_Body_Engineering (1).pdf\" appears twice in PDF/gu"
    ],
    "empty": false
   },

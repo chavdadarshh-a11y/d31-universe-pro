@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-22T18:45:56.053Z",
+ "generatedAt": "2026-11-22T19:50:08.856Z",
  "source": {
   "rootId": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
   "via": "public-folder-view"
@@ -1357,11 +1357,17 @@
    "title": "NO RULES NO LIMIT",
    "rawName": "505. NO RULES NO LIMIT",
    "cover": {
-    "id": "1PnvUtimsyyvi7cFvYiQU6Yyouddrq_XS",
-    "name": "IMG_20261009_184331.jpg",
-    "mime": "image/jpeg"
+    "id": "1EZwznVOPQfWum54-VY7nCFAljuquTZPr",
+    "name": "Machine_Split_Squat_Masterclass_-_Slide_1.png",
+    "mime": "image/png"
    },
-   "photos": [],
+   "photos": [
+    {
+     "id": "1PnvUtimsyyvi7cFvYiQU6Yyouddrq_XS",
+     "name": "IMG_20261009_184331.jpg",
+     "mime": "image/jpeg"
+    }
+   ],
    "pdfs": {
     "en": [],
     "hi": [],

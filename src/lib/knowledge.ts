@@ -5,6 +5,7 @@
 import { env } from './env'
 import { useEffect, useState } from 'react'
 import type { Lang } from '../types'
+import { OPEN_LIMITS, OPEN_POSTS } from '../config/knowledgeOpen'
 
 export type KLang = 'en' | 'hi' | 'gu'
 export interface KFile { id: string; name: string; mime: string; size?: number; lang?: KLang }
@@ -14,6 +15,10 @@ export interface KPost {
   pdfs: Record<KLang | 'all', KFile[]>; videos: Record<KLang | 'all', KFile[]>
   meta: { title?: Partial<Record<KLang, string>>; description?: Partial<Record<KLang, string>> } | null
   warnings: string[]; empty: boolean
+  /** set by curate(): not one of OPEN_POSTS → cover only, "Coming soon", no files */
+  locked?: boolean
+  /** locked post whose cover is the first page of its own PDF (kept only as the cover image) */
+  coverFromPdf?: boolean
 }
 export interface KManifest { version: number; generatedAt: string; posts: KPost[] }
 
@@ -24,15 +29,44 @@ const CACHE = 'd31-knowledge-cache'
 let mem: KManifest | null = null
 
 function cached(): KManifest | null {
-  try { const s = localStorage.getItem(CACHE); return s ? (JSON.parse(s) as KManifest) : null } catch { return null }
+  try { const s = localStorage.getItem(CACHE); return s ? curate(JSON.parse(s) as KManifest) : null } catch { return null }
+}
+
+const LANGS3: KLang[] = ['en', 'hi', 'gu']
+/** "Front_Squat_Biomechanics (3).pdf" and "Front_Squat_Biomechanics.pdf" are the same file → one key */
+const copyKey = (f: KFile) => fileTitle(f.name).toLowerCase()
+const distinct = (fs: KFile[]) => { const seen = new Set<string>(); return fs.filter((f) => { const k = copyKey(f); if (seen.has(k)) return false; seen.add(k); return true }) }
+const emptyMap = (): Record<KLang | 'all', KFile[]> => ({ en: [], hi: [], gu: [], all: [] })
+/** Up to n real files per language; language-less files (shown in every language) fill the remaining places. */
+function limitMap(map: Record<KLang | 'all', KFile[]>, n: number) {
+  const out = emptyMap()
+  for (const l of LANGS3) out[l] = distinct([...(map[l] ?? []), ...(map.all ?? [])]).slice(0, n)
+  return out
+}
+export const isOpenPost = (n: number) => OPEN_POSTS.includes(n)
+/** Applies the OPEN_POSTS rule to the Drive feed (idempotent). */
+export function curate(m: KManifest): KManifest {
+  const posts = m.posts.map((p): KPost => {
+    if (p.empty) return p
+    if (!isOpenPost(p.number)) {
+      // keep only what the cover needs: its COVER image, else the first page of its own PDF, else its first photo
+      const pdf = p.pdfs.en[0] ?? p.pdfs.all[0] ?? p.pdfs.hi[0] ?? p.pdfs.gu[0]
+      const cover = p.cover ?? pdf ?? p.photos[0] ?? null
+      return { ...p, locked: true, cover, coverFromPdf: p.coverFromPdf ?? (!p.cover && !!pdf), photos: [], pdfs: emptyMap(), videos: emptyMap(), meta: p.meta ? { title: p.meta.title } : null }
+    }
+    const photos = distinct(p.photos.filter((f) => f.id !== p.cover?.id && !/^cover\./i.test(f.name))).slice(0, OPEN_LIMITS.photos)
+    return { ...p, locked: false, photos, videos: limitMap(p.videos, OPEN_LIMITS.videos), pdfs: limitMap(p.pdfs, OPEN_LIMITS.pdfs) }
+  })
+  return { ...m, posts }
 }
 
 export async function loadKnowledge(): Promise<KManifest> {
   const r = await fetch(URL_, { cache: 'no-cache' })
   if (!r.ok) throw new Error(String(r.status))
-  const m = (await r.json()) as KManifest
+  const raw = (await r.json()) as KManifest
+  const m = curate(raw)
   mem = m
-  try { localStorage.setItem(CACHE, JSON.stringify(m)) } catch { /* quota */ }
+  try { localStorage.setItem(CACHE, JSON.stringify(raw)) } catch { /* quota */ }
   return m
 }
 
@@ -47,7 +81,10 @@ export function useKnowledge() {
   return { data, error, loading: !data && !error }
 }
 
-export const visiblePosts = (m: KManifest | null) => (m?.posts ?? []).filter((p) => !p.empty)
+/** open posts first (OPEN_POSTS order), then the "Coming soon" ones by number */
+const rankPost = (p: KPost) => { const i = OPEN_POSTS.indexOf(p.number); return i >= 0 ? i - 1e6 : p.number }
+export const sortPosts = (ps: KPost[]) => [...ps].sort((a, b) => rankPost(a) - rankPost(b))
+export const visiblePosts = (m: KManifest | null) => sortPosts((m?.posts ?? []).filter((p) => !p.empty))
 
 // ---- media URLs (work for files shared "Anyone with the link") ----
 export const kImg = (id: string, w = 800) => `https://lh3.googleusercontent.com/d/${id}=w${w}`

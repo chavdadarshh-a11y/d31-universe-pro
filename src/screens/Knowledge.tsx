@@ -19,7 +19,7 @@ import { Cover, CoverCard, useReveal } from '../components/PostCover'
 import { PostCascade } from '../components/PostCascade'
 import { SearchBox } from '../components/SearchBox'
 import { PdfViewer } from '../components/PdfViewer'
-import { canSaveType, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
+import { canSaveType, sortPosts, isOpenPost, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
 import { IN_APP } from '../lib/appMode'
 import { PostPassBanner, PostPassButtons, Remain, showsPostPasses, useOpenUntil, useSlotCount } from '../components/PostPasses'
 
@@ -27,6 +27,7 @@ const LANG_LABEL: Record<KLang, string> = { en: 'English', hi: 'हिंदी'
 const plural = (t: T, n: number, one: StringKey, many: StringKey) => t(n === 1 ? one : many, { n })
 
 function counts(t: T, p: KPost, lang: KLang) {
+  if (p.locked) return t('libSoon')
   return [
     plural(t, pick(p.videos, lang).files.length, 'kVideo1', 'kVideoN'),
     plural(t, p.photos.length, 'kPhoto1', 'kPhotoN'),
@@ -72,7 +73,7 @@ export function PostList({ posts }: { posts: KPost[] }) {
   const lang = useApp((s) => s.lang) as KLang
   return (
     <div className="pl-grid" data-testid="post-list">
-      {[...posts].sort((a, b) => a.number - b.number).map((p) => <PostListItem key={p.id} p={p} lang={lang} sub={counts(t, p, lang)} openLabel={t('kOpenPost')} />)}
+      {sortPosts(posts).map((p) => <PostListItem key={p.id} p={p} lang={lang} sub={counts(t, p, lang)} openLabel={t('kOpenPost')} />)}
     </div>
   )
 }
@@ -322,6 +323,21 @@ export function KnowledgePost({ id }: { id: string }) {
 
   if (loading) return <div className="mt-20 grid place-items-center text-muted"><RefreshCw size={18} className="animate-spin" /></div>
   if (!p) return <div><Header title={t('knowledge')} back="#/knowledge" /><Empty icon={<BookOpen size={28} />} text={t('kNotFound')} /></div>
+  if (p.locked) return (
+    <div data-testid="kpost-soon">
+      <Header title={`#${p.number}`} sub={postTitle(p, appLang)} back="#/knowledge" />
+      <CoverCard p={p} lang={appLang} w={1000} eager label={postTitle(p, appLang)} />
+      <Card className="mt-3 flex items-start gap-3 p-4">
+        <Lock size={18} className="mt-0.5 shrink-0 text-gold" />
+        <div>
+          <div className="font-mono text-[12px] font-bold uppercase tracking-wider text-gold">{t('libSoon')}</div>
+          <p className="mt-1 text-[13.5px] leading-snug text-muted">{t('kSoonNote')}</p>
+        </div>
+      </Card>
+      <div className="mt-6"><Button variant="ghost" className="w-full" onClick={() => navigate('/knowledge')}>{t('kAll')}</Button></div>
+    </div>
+  )
+  const freeOpen = isOpenPost(p.number) // config/knowledgeOpen.ts: open to every user, every language
 
   const vids = pick(p.videos, lang)
   const pdfs = pick(p.pdfs, lang)
@@ -333,10 +349,10 @@ export function KnowledgePost({ id }: { id: string }) {
     const n = list.findIndex((x) => x.id === f.id)
     if (n < 0) return { key: undefined, locked: false }
     const key = unlockKey(p.number, kind, n)
-    return { key, locked: !okLangs.includes(f.lang ?? used) && !isUnlocked(key) && !isPostOpen(p.number) }
+    return { key, locked: !freeOpen && !okLangs.includes(f.lang ?? used) && !isUnlocked(key) && !isPostOpen(p.number) }
   }
   const canOpenSaved = (key?: string) => access.state !== 'locked' || (UNLOCKS.allowDownload && isUnlocked(key))
-  const langLocked = (tab === 'videos' || tab === 'pdfs') && !okLangs.includes(tab === 'videos' ? vids.used : pdfs.used) && !isPostOpen(p.number)
+  const langLocked = !freeOpen && (tab === 'videos' || tab === 'pdfs') && !okLangs.includes(tab === 'videos' ? vids.used : pdfs.used) && !isPostOpen(p.number)
   const postOpen = isPostOpen(p.number)
   const openVideo = async (f: KFile) => {
     const open = vids.files.filter((x) => !gate('video', x, vids.used).locked)
@@ -366,7 +382,7 @@ export function KnowledgePost({ id }: { id: string }) {
       <div className="relative mt-3 flex items-center gap-2" data-testid="k-langs">
         <Languages size={15} className="shrink-0 text-muted" />
         {(['en', 'hi', 'gu'] as KLang[]).map((l) => (
-          <button key={l} data-testid={`k-lang-${l}`} data-on={lang === l || undefined} onClick={() => setLang(l)} className={`relative z-[1] flex h-8 flex-1 items-center justify-center gap-1 rounded-lg border text-[12.5px] font-bold transition-colors duration-300 ${lang === l ? 'border-cyan/40 text-cyan' : 'border-white/10 text-muted'} ${available.includes(l) || !available.length ? '' : 'opacity-50'}`}>{!okLangs.includes(l) && !isPostOpen(p.number) && <Lock size={11} className="text-gold" />}{LANG_LABEL[l]}</button>
+          <button key={l} data-testid={`k-lang-${l}`} data-on={lang === l || undefined} onClick={() => setLang(l)} className={`relative z-[1] flex h-8 flex-1 items-center justify-center gap-1 rounded-lg border text-[12.5px] font-bold transition-colors duration-300 ${lang === l ? 'border-cyan/40 text-cyan' : 'border-white/10 text-muted'} ${available.includes(l) || !available.length ? '' : 'opacity-50'}`}>{!freeOpen && !okLangs.includes(l) && !isPostOpen(p.number) && <Lock size={11} className="text-gold" />}{LANG_LABEL[l]}</button>
         ))}
         <Beam dep={lang} />
       </div>

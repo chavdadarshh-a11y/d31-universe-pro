@@ -45,6 +45,7 @@ export function ExerciseDetail({ id }: { id: string }) {
     .slice(0, 5)
   const rec = computeRecords(s.sessions).find((r) => r.exId === e.id)
   const ladder = e.ladder ? LADDER_BY_ID[e.ladder] : undefined
+  const tx = (s.lang !== 'en' && e.tr?.[s.lang]) || e
   const stepIdx = ladder ? ladder.steps.findIndex((x) => x.exId === e.id) : -1
   const fmtDate = (d: string) => new Date(d).toLocaleDateString(s.lang === 'en' ? 'en-IN' : `${s.lang}-IN`, { day: 'numeric', month: 'short' })
   const levelLabel = t(e.level === 1 ? 'level_beginner' : e.level === 2 ? 'level_intermediate' : 'level_advanced')
@@ -83,7 +84,7 @@ export function ExerciseDetail({ id }: { id: string }) {
         <Badge tone="cyan">{e.layer}</Badge>
         {e.equipment.map((q) => <Badge key={q} tone="muted">{t(`eq_${q}`)}</Badge>)}
       </div>
-      <p className="mt-3 text-[15px] leading-relaxed text-frost/90">{e.summary}</p>
+      <p className="mt-3 text-[15px] leading-relaxed text-frost/90">{tx.summary}</p>
 
       <Card className="mt-4 p-4">
         <div className="mb-2 flex items-center gap-2"><History size={16} className="text-cyan" /><Label>{t('lastTime')}</Label>
@@ -134,9 +135,9 @@ export function ExerciseDetail({ id }: { id: string }) {
       {e.custom && (
         <Button variant="ghost" className="mt-2 w-full" onClick={() => { s.deleteCustomExercise(e.id); navigate('/library') }}><Trash2 size={15} /> {t('delete')}</Button>
       )}
-      {e.steps.length > 0 && <Section icon={<ListOrdered size={16} className="text-cyan" />} title={t('howTo')}>
+      {tx.steps.length > 0 && <Section icon={<ListOrdered size={16} className="text-cyan" />} title={t('howTo')}>
         <ol className="space-y-3">
-          {e.steps.map((x, i) => (
+          {tx.steps.map((x, i) => (
             <li key={i} className="flex gap-3">
               <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-cyan/12 font-mono text-[12px] font-bold text-cyan">{i + 1}</span>
               <span className="text-[14.5px] leading-relaxed">{x}</span>
@@ -144,14 +145,14 @@ export function ExerciseDetail({ id }: { id: string }) {
           ))}
         </ol>
       </Section>}
-      {e.cues.length > 0 && <Section icon={<Sparkles size={16} className="text-gold" />} title={t('cues')}>
-        <ul className="space-y-2">{e.cues.map((x, i) => <li key={i} className="rounded-xl bg-white/[0.04] px-3 py-2 text-[14px]">“{x}”</li>)}</ul>
+      {tx.cues.length > 0 && <Section icon={<Sparkles size={16} className="text-gold" />} title={t('cues')}>
+        <ul className="space-y-2">{tx.cues.map((x, i) => <li key={i} className="rounded-xl bg-white/[0.04] px-3 py-2 text-[14px]">“{x}”</li>)}</ul>
       </Section>}
-      {e.mistakes.length > 0 && <Section icon={<X size={16} className="text-bad" />} title={t('mistakes')}>
-        <ul className="space-y-2">{e.mistakes.map((x, i) => <li key={i} className="flex gap-2.5 text-[14px] leading-relaxed"><X size={16} className="mt-0.5 shrink-0 text-bad" />{x}</li>)}</ul>
+      {tx.mistakes.length > 0 && <Section icon={<X size={16} className="text-bad" />} title={t('mistakes')}>
+        <ul className="space-y-2">{tx.mistakes.map((x, i) => <li key={i} className="flex gap-2.5 text-[14px] leading-relaxed"><X size={16} className="mt-0.5 shrink-0 text-bad" />{x}</li>)}</ul>
       </Section>}
-      {e.benefits.length > 0 && <Section icon={<Check size={16} className="text-ok" />} title={t('benefits')}>
-        <ul className="space-y-2">{e.benefits.map((x, i) => <li key={i} className="flex gap-2.5 text-[14px] leading-relaxed"><Check size={16} className="mt-0.5 shrink-0 text-ok" />{x}</li>)}</ul>
+      {tx.benefits.length > 0 && <Section icon={<Check size={16} className="text-ok" />} title={t('benefits')}>
+        <ul className="space-y-2">{tx.benefits.map((x, i) => <li key={i} className="flex gap-2.5 text-[14px] leading-relaxed"><Check size={16} className="mt-0.5 shrink-0 text-ok" />{x}</li>)}</ul>
       </Section>}
 
       <Sheet open={addOpen} onClose={() => setAddOpen(false)} title={t('addToWorkout')}>

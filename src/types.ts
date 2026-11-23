@@ -36,7 +36,10 @@ export type Exercise = {
   ladder?: string
   /** User-created exercise (stored on the phone) */
   custom?: boolean
+  /** Optional Hindi / Gujarati text for the detail page (falls back to English) */
+  tr?: Partial<Record<'hi' | 'gu', ExerciseText>>
 }
+export type ExerciseText = { summary: string; steps: string[]; cues: string[]; mistakes: string[]; benefits: string[] }
 
 /** A template line. Every number is only a SUGGESTION — the logger lets the user add/remove sets and change everything. */
 export type PlanItem = { exId: string; sets: number; reps?: number; secs?: number; rest: number; target?: string; note?: string }

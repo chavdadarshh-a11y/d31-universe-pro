@@ -240,7 +240,7 @@ export const EX_ROM: Record<string, string> = {
   plank: 'plank', 'side-plank': 'plank', 'hollow-hold': 'hollow',
   'hanging-leg-raise': 'legraise', 'toes-to-bar': 'legraise',
   'dragon-flag': 'dragon', 'tuck-dragon-flag': 'dragon', 'dragon-flag-negative': 'dragon',
-  'tuck-front-lever': 'lever', 'adv-tuck-front-lever': 'lever', 'one-leg-front-lever': 'lever', 'straddle-front-lever': 'lever', 'full-front-lever': 'lever', 'front-lever-raise': 'lever',
+  'tuck-front-lever': 'lever', 'back-lever': 'lever', 'adv-tuck-front-lever': 'lever', 'one-leg-front-lever': 'lever', 'straddle-front-lever': 'lever', 'full-front-lever': 'lever', 'front-lever-raise': 'lever',
   'human-flag-progression': 'flag', 'vertical-flag': 'flag', 'straddle-human-flag': 'flag', 'full-human-flag': 'flag',
   'l-sit': 'lsit',
   'wall-handstand': 'handstand', 'chest-to-wall-handstand': 'handstand', 'freestanding-handstand': 'handstand',

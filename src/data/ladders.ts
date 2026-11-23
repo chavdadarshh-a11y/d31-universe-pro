@@ -9,7 +9,7 @@ export type Ladder = { id: string; name: string; media?: string; accent: string;
 
 export const LADDERS: Ladder[] = [
   {
-    id: 'front-lever', name: 'Front Lever', media: 'front-lever', accent: '#22d3ee',
+    id: 'front-lever', name: 'Front Lever', accent: '#22d3ee',
     summary: 'Straight-arm pulling: tuck → advanced tuck → one-leg → straddle → full. Move up only when the hold is clean: arms locked, shoulders depressed, body level.',
     steps: [
       { exId: 'pull-up', goal: { kind: 'reps', reps: 8, sets: 3 }, tip: 'Strict pull-ups from a dead hang first — the base for straight-arm work.' },

@@ -1,5 +1,5 @@
 /* D31.UNIVERSE service worker — app-shell caching so the app opens offline. */
-const VERSION = 'd31-v4.4.6'
+const VERSION = 'd31-v4.5.0'
 const OFFLINE = 'd31-offline-clips' // Platinum "save offline" clips — never deleted on update
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png',
   './media/bg/shiva-v2-1440.avif', './media/bg/shiva-v2-2160.avif', './media/bg/shiva-v2-1440.webp', './media/bg/shiva-v2-2160.webp']
@@ -37,7 +37,8 @@ self.addEventListener('fetch', (e) => {
     return
   }
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); return res }).catch(() => caches.match('./index.html')))
+    // revalidate the HTML with the server every time (no 10-minute HTTP cache), so a new release shows on refresh
+    e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); return res }).catch(() => caches.match('./index.html')))
     return
   }
   // hashed build assets: cache-first

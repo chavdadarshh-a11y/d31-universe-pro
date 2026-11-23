@@ -63,7 +63,7 @@ export const postPassDuration = (p: PostPassConfig) => p.hours % 24 === 0 && p.h
 export const PAY_METHODS = pricing.payMethods as ('upi' | 'card' | 'netbanking' | 'wallet')[]
 
 const founding = (pricing as { founding?: { name: string; cap: number; discountPct: number } }).founding
-/** THE FIRST 131 — 25% lifetime membership discount for the first 131 verified paid members. */
+/** THE FIRST 131 — 25% membership discount (while the subscription stays active) for the first 131 verified paid members. */
 export const FOUNDING = {
   name: founding?.name ?? 'THE FIRST 131',
   cap: founding?.cap ?? 131,

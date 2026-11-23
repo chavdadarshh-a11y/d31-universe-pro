@@ -15,7 +15,7 @@ const h = (exId: string, sets: number, target: string, rest = 60, note?: string)
 
 export const PROGRAMS: Program[] = [
   {
-    id: 'lever-lab', name: 'D31 Lever Lab', kind: 'skill', level: 'advanced', weeks: 10, daysPerWeek: 3, plan: 'pro', media: 'front-lever', ladder: 'front-lever',
+    id: 'lever-lab', name: 'D31 Lever Lab', kind: 'skill', level: 'advanced', weeks: 10, daysPerWeek: 3, plan: 'pro', media: 'back-lever', ladder: 'front-lever',
     goal: ['skills', 'strength'], equipment: ['bar'],
     description: 'Front lever built on straight-arm strength. Holds use YOUR current ladder step (tuck → adv. tuck → one-leg → straddle → full) — swap the exercise in the logger whenever you move up.',
     days: [

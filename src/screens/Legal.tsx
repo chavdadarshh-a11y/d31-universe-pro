@@ -1,5 +1,6 @@
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
+import { SocialRow } from '../components/Social'
 import { Header } from '../components/ui'
 import { PASSES, TRIAL, POST_PASSES, postPassDuration, FOUNDING, REFERRAL, foundingPrice } from '../config/plans'
 
@@ -12,7 +13,7 @@ const MEMBERSHIP_TERMS = `Tiers: Free, Pro, Golden and Platinum. Passes (one-tim
 /** Google Play app: no prices, payment methods or buying instructions (Play payments policy). */
 const MEMBERSHIP_TERMS_APP = `Tiers: Free, Pro, Golden and Platinum. A membership is linked to your D31 account and works on every device where you sign in with that account. Memberships never auto-renew. Every new account gets one free ${TRIAL.days}-day ${TRIAL.plan[0].toUpperCase()}${TRIAL.plan.slice(1)} trial (once per account). Knowledge PDFs: Free — samples (English); Pro — standard (English); Golden and Platinum — trilingual (English, Hindi, Gujarati). Offline downloads of Knowledge videos, PDFs and photos are included during valid Pro, Golden or Platinum access (Free is limited). After a membership ends there is a short grace period with full access, then saved downloads stay on the phone but lock.`
 const POST_PASS_TERMS = `Portal Pass credits: ${POST_PASSES.map((x) => { const d = postPassDuration(x); return `${x.name} ₹${x.priceInr} — ${x.posts} credit${x.posts === 1 ? '' : 's'}, ${d.n} ${d.unit} each`; }).join('; ')}. You choose which Knowledge posts to unlock. Each unlock starts its own timer. Unused purchased credits never expire and can open current or future posts. While a post is unlocked you get all three languages, videos, PDFs, photos, download and offline play. When the timer ends the post locks again and its in-app downloads are blocked. Offered to Free, Pro and Golden members; hidden for Platinum (all included vaults).`
-const FOUNDING_TERMS = `${FOUNDING.name} is a launch offer for the first ${FOUNDING.cap} verified paid members. Eligible members receive ${FOUNDING.discountPct}% off membership prices (not Portal Passes) for life while their eligible subscription stays active, including the published grace period, a Founding Member profile badge, and early access to selected upcoming features. Example founding prices (rounded to the nearest rupee): ` + PASSES.map((p) => {
+const FOUNDING_TERMS = `${FOUNDING.name} is a launch offer for the first ${FOUNDING.cap} verified paid members. Eligible members receive ${FOUNDING.discountPct}% off membership prices (not Portal Passes) as long as their eligible subscription stays active, including the published grace period, a Founding Member profile badge, and early access to selected upcoming features. Example founding prices (rounded to the nearest rupee): ` + PASSES.map((p) => {
   const label = p.plan === 'gold' ? 'Golden' : p.plan[0].toUpperCase() + p.plan.slice(1)
   const period = p.days === 365 ? 'year' : 'month'
   return `${label} ₹${foundingPrice(p.priceInr).toLocaleString('en-IN')} / ${period}`
@@ -136,6 +137,7 @@ export function Legal({ doc }: { doc: string }) {
           </section>
         ))}
       </div>
+      <SocialRow className="mt-8 flex-wrap" />
     </div>
   )
 }

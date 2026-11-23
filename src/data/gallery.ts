@@ -22,7 +22,7 @@ export const SHOOT: ShootPhoto[] = [
   { id: '041', cat: 'brand', title: "Lifestyle portrait", w: 810, h: 1080 },
   { id: '046', cat: 'brand', title: "Gym · with a friend", w: 868, h: 1200 },
   { id: '077', cat: 'brand', title: "Street portrait", w: 674, h: 1200 },
-  { id: '031', cat: 'skills', title: "Horizontal bar hold", w: 800, h: 1200 },
+  { id: '031', cat: 'skills', title: "Back lever", w: 800, h: 1200, exId: 'back-lever' },
   { id: '034', cat: 'skills', title: "Middle split", w: 1200, h: 1064, exId: 'middle-split' },
   { id: '067', cat: 'skills', title: "Human flag · stall bars", w: 675, h: 1200, exId: 'human-flag-progression' },
   { id: '068', cat: 'skills', title: "Freestanding handstand", w: 675, h: 1200, exId: 'freestanding-handstand' },

@@ -4,6 +4,7 @@ import { Moon, Sun, MonitorSmartphone, Languages, Ruler, Timer, Volume2, Vibrate
 import { useApp } from '../store/app'
 import { useSettings, resolvedTheme } from '../store/settings'
 import { useT, LANGS } from '../i18n'
+import { SocialSection } from '../components/Social'
 import { Button, Card, Header, Stepper } from '../components/ui'
 import { navigate } from '../lib/router'
 import { APP_VERSION, env, isLive } from '../lib/env'
@@ -149,6 +150,8 @@ export function Settings() {
           s.showToast(r.ok ? t('restoreOk', { n: r.sessions ?? 0 }) : `${t('restoreFail')} ${r.error ?? ''}`)
         }} />
       </Section>
+
+      <SocialSection className="mt-6" />
 
       <Section title={t('aboutLbl')}>
         <Row icon={<Info size={18} />} label="D31.UNIVERSE" sub={`${t('version')} ${APP_VERSION}${isLive ? '' : ` · ${t('demo')}`}`} />

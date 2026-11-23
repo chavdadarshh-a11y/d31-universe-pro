@@ -16,6 +16,7 @@ import { useNow } from '../lib/hooks'
 import { addExerciseToActive, computeRecords, finishWorkout, isStale, lastTime, patchActive, pauseActive, resumeActive, prevSetsOf, routineFromLog, startEmpty, type PRecord } from '../lib/workout'
 import { beatsRecord, summarizeSets, volumeOf, SET_TYPES } from '../lib/training'
 import type { ActiveWorkout, LoggedSet, SetType, WorkoutSession } from '../types'
+import { RomPicker, RomTag } from '../components/RomLevels'
 
 const TYPE_STYLE: Record<SetType, string> = {
   warmup: 'border-gold/50 bg-gold/10 text-gold',
@@ -301,6 +302,10 @@ export function Player() {
               <label><span className="label">{t('sec')}</span><div className="mt-1.5"><NumIn label={t('sec')} step="numeric" value={sheetSet.secs} onChange={(v) => patchSet(setSheet, { secs: Math.round(v) || undefined })} placeholder="—" /></div></label>
             </div>
             <div>
+              <Label>{t('romPick')}</Label>
+              <RomPicker exId={sheetEx.id} value={sheetSet.rom} onChange={(rom) => patchSet(setSheet, { rom })} />
+            </div>
+            <div>
               <Label>{t('rpe')}</Label>
               <p className="mt-0.5 text-[11.5px] text-dim">{t('rpeHint')}</p>
               <div className="no-scrollbar mt-2 flex gap-1.5 overflow-x-auto">
@@ -410,6 +415,10 @@ const ExerciseBlock = memo(function ExerciseBlock({ i, a, record, hold, onPatch,
         <button aria-label="Menu" onClick={onMenu} className="grid h-9 w-9 place-items-center rounded-xl border border-white/[0.07] text-muted"><MoreHorizontal size={18} /></button>
       </div>
 
+      <div className="flex items-center gap-2 px-3 pb-2" data-testid="rom-block">
+        <span className="label shrink-0 !text-[9px]">{t('romPick')}</span>
+        <RomPicker compact exId={l.exId} value={l.sets.find((x) => !x.done)?.rom ?? l.sets[l.sets.length - 1]?.rom} onChange={(rom) => l.sets.forEach((x, si) => { if (!x.done) onPatch(si, { rom }) })} />
+      </div>
       <div className="grid grid-cols-[34px_minmax(0,1fr)_64px_58px_42px] items-center gap-1.5 px-3 text-center">
         <span className="label !text-[9px]">{t('sets')}</span>
         <span className="label !text-[9px]">{t('previous')}</span>
@@ -443,9 +452,9 @@ const ExerciseBlock = memo(function ExerciseBlock({ i, a, record, hold, onPatch,
                   {pr && <Trophy size={13} className="pr-pop absolute -right-1.5 -top-1.5 rounded-full bg-[#0b0f18] p-[1px] text-gold" />}
                 </button>
               </div>
-              {(st.rpe || st.note) && (
+              {(st.rpe || st.note || st.rom) && (
                 <div className="ml-[40px] mt-0.5 truncate text-left text-[11px] text-muted">
-                  {st.rpe ? <span className="mr-2 font-semibold text-magenta">RPE {st.rpe}</span> : null}{st.note}
+                  {st.rom ? <span className="mr-2"><RomTag exId={l.exId} id={st.rom} /></span> : null}{st.rpe ? <span className="mr-2 font-semibold text-magenta">RPE {st.rpe}</span> : null}{st.note}
                 </div>
               )}
             </div>

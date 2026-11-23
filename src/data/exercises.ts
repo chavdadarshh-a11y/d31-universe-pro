@@ -283,7 +283,50 @@ export const EXERCISES: Exercise[] = [
     cues: ['Straight arms — press the bar down', 'Back flat to the floor', 'Shoulders depressed'],
     mistakes: ['Bending the arms', 'Rounded back with hips too low', 'Shrugged shoulders'],
     benefits: ['Massive lat and core strength', 'Straight-arm strength', 'Path to full front lever'],
-    ladder: 'front-lever', media: 'front-lever',
+    ladder: 'front-lever',
+  },
+  {
+    // Darshan's photo (public/media/back-lever.webp) — it used to sit on the front-lever cards by mistake.
+    id: 'back-lever', name: 'Back Lever', nameHi: 'बैक लीवर', nameGu: 'બેક લિવર',
+    category: 'calisthenics', equipment: ['bar'], level: 3, layer: 'EXPRESSION', tracking: 'time',
+    primary: ['lats', 'rear_delts', 'chest'], secondary: ['biceps', 'shoulders', 'lower_back', 'glutes', 'abs'],
+    summary: 'Straight-arm hold below the bar, face down, body one horizontal line — the back lever.',
+    steps: [
+      'Hang from the bar with straight arms (overhand grip, shoulder width).',
+      'Tuck the knees and rotate backwards through a skin-the-cat until your hips pass below the bar.',
+      'Lower slowly until your body is horizontal and facing the floor, arms locked behind you.',
+      'Extend into tuck, straddle or full as your strength allows; hold, then pull back up the way you came.',
+    ],
+    cues: ['Lock the elbows — straight arms', 'Squeeze glutes, ribs in, one straight line', 'Push the chest forward, shoulders down away from the ears', 'Point the toes; hips level with the shoulders'],
+    mistakes: ['Bending the elbows to cheat the angle', 'Hips piking up or sagging down', 'Rushing into full lever — biceps tendons need weeks of tuck work', 'Dropping in too fast from the top'],
+    benefits: ['Straight-arm strength for lats, chest and rear shoulders', 'Biceps tendon and shoulder extension resilience', 'Full-body tension for advanced skills', 'Builds toward planche and front lever work'],
+    media: 'back-lever',
+    tr: {
+      hi: {
+        summary: 'बार के नीचे सीधी बाहों से होल्ड, चेहरा ज़मीन की ओर, शरीर एक सीधी क्षैतिज लाइन — बैक लीवर.',
+        steps: [
+          'सीधी बाहों से बार पर लटकें (ओवरहैंड ग्रिप, कंधे जितनी चौड़ाई).',
+          'घुटने मोड़ें और स्किन-द-कैट से पीछे की ओर घूमें, जब तक कूल्हे बार के नीचे न आ जाएँ.',
+          'धीरे-धीरे नीचे आएँ जब तक शरीर क्षैतिज और चेहरा ज़मीन की ओर न हो, बाहें पीछे लॉक रहें.',
+          'ताक़त के हिसाब से टक, स्ट्रैडल या फुल में खोलें; होल्ड करें, फिर उसी रास्ते ऊपर लौटें.',
+        ],
+        cues: ['कोहनी लॉक — बाहें सीधी', 'ग्लूट्स टाइट, पसलियाँ अंदर, एक सीधी लाइन', 'छाती आगे, कंधे कानों से दूर नीचे', 'पंजे पॉइंट; कूल्हे कंधों की लाइन में'],
+        mistakes: ['एंगल पाने के लिए कोहनी मोड़ना', 'कूल्हे ऊपर उठना या नीचे लटकना', 'सीधे फुल लीवर पर जाना — बाइसेप्स टेंडन को हफ़्तों की टक प्रैक्टिस चाहिए', 'ऊपर से बहुत तेज़ी से नीचे गिरना'],
+        benefits: ['लैट्स, छाती और पीछे के कंधों की स्ट्रेट-आर्म ताक़त', 'बाइसेप्स टेंडन और कंधे की मज़बूती', 'एडवांस्ड स्किल्स के लिए फुल-बॉडी टेंशन', 'प्लांच और फ्रंट लीवर की तैयारी'],
+      },
+      gu: {
+        summary: 'બારની નીચે સીધા હાથે હોલ્ડ, ચહેરો જમીન તરફ, શરીર એક સીધી આડી લાઇન — બેક લિવર.',
+        steps: [
+          'સીધા હાથે બાર પર લટકો (ઓવરહેન્ડ ગ્રિપ, ખભા જેટલી પહોળાઈ).',
+          'ઘૂંટણ વાળો અને સ્કિન-ધ-કેટથી પાછળની તરફ ફરો, જ્યાં સુધી હિપ્સ બારની નીચે ન આવે.',
+          'ધીમે ધીમે નીચે આવો જ્યાં સુધી શરીર આડું અને ચહેરો જમીન તરફ ન થાય, હાથ પાછળ લૉક રાખો.',
+          'તાકાત મુજબ ટક, સ્ટ્રેડલ કે ફુલમાં ખોલો; હોલ્ડ કરો, પછી એ જ રસ્તે ઉપર પાછા આવો.',
+        ],
+        cues: ['કોણી લૉક — હાથ સીધા', 'ગ્લૂટ્સ ટાઇટ, પાંસળી અંદર, એક સીધી લાઇન', 'છાતી આગળ, ખભા કાનથી દૂર નીચે', 'પંજા પોઇન્ટ; હિપ્સ ખભાની લાઇનમાં'],
+        mistakes: ['એંગલ માટે કોણી વાળવી', 'હિપ્સ ઉપર ઊઠે કે નીચે લટકે', 'સીધા ફુલ લિવર પર જવું — બાઇસેપ્સ ટેન્ડનને અઠવાડિયાંની ટક પ્રેક્ટિસ જોઈએ', 'ઉપરથી બહુ ઝડપથી નીચે પડવું'],
+        benefits: ['લૅટ્સ, છાતી અને પાછળના ખભાની સ્ટ્રેટ-આર્મ તાકાત', 'બાઇસેપ્સ ટેન્ડન અને ખભાની મજબૂતી', 'એડવાન્સ્ડ સ્કિલ્સ માટે ફુલ-બોડી ટેન્શન', 'પ્લાન્ચ અને ફ્રન્ટ લિવરની તૈયારી'],
+      },
+    },
   },
   {
     id: 'human-flag-progression', name: 'Human Flag (Tuck)', nameHi: 'ह्यूमन फ्लैग', nameGu: 'હ્યુમન ફ્લેગ',
@@ -365,6 +408,16 @@ export const EXERCISES: Exercise[] = [
     cues: ['Land softly', 'Tight plank, no sagging', 'Steady rhythm'],
     mistakes: ['Sagging hips in the plank', 'Landing on locked knees', 'Going so fast form breaks'],
     benefits: ['Burns lots of calories', 'Conditioning and stamina', 'Zero equipment'],
+  },
+  {
+    id: 'jumping-jack', name: 'Jumping Jack', nameHi: 'जंपिंग जैक', nameGu: 'જમ્પિંગ જેક',
+    category: 'cardio', equipment: ['none'], level: 1, layer: 'EXPRESSION', tracking: 'reps',
+    primary: ['calves', 'shoulders'], secondary: ['quads', 'glutes', 'adductors'],
+    summary: 'Classic full-body warm-up and conditioning jump.',
+    steps: ['Stand tall, feet together, arms by your sides.', 'Jump the feet wide while the arms swing up overhead.', 'Jump back to feet together, arms down.', 'Keep a steady rhythm.'],
+    cues: ['Land on the balls of the feet', 'Hands meet overhead', 'Soft knees'],
+    mistakes: ['Half arm swings', 'Landing flat-footed and stiff', 'Holding the breath'],
+    benefits: ['Raises the heart rate fast', 'Warms up shoulders and hips', 'Zero equipment'],
   },
   {
     id: 'jump-rope', name: 'Jump Rope', nameHi: 'रस्सी कूद', nameGu: 'દોરડા કૂદ',
@@ -492,7 +545,7 @@ export const EXERCISES: Exercise[] = [
     cues: ['Flat back, not rounded', 'Straight arms', 'Shoulders depressed'],
     mistakes: ['Rounded back (it is still a tuck)', 'Hips dropping below the shoulders', 'Bent elbows'],
     benefits: ['Big jump in straight-arm strength', 'Core and lat power', 'Gateway to straddle'],
-    ladder: 'front-lever', media: 'front-lever',
+    ladder: 'front-lever',
   },
   {
     id: 'one-leg-front-lever', name: 'One-Leg Front Lever', nameHi: 'वन-लेग फ्रंट लीवर', nameGu: 'વન-લેગ ફ્રન્ટ લિવર',
@@ -503,7 +556,7 @@ export const EXERCISES: Exercise[] = [
     cues: ['Extended leg in line with the body', 'Squeeze glutes', 'Arms locked'],
     mistakes: ['Hips sagging when the leg extends', 'Bent arms', 'Only training one side'],
     benefits: ['Bridges adv. tuck to straddle', 'Hip and core tension', 'Balanced progression'],
-    ladder: 'front-lever', media: 'front-lever',
+    ladder: 'front-lever',
   },
   {
     id: 'straddle-front-lever', name: 'Straddle Front Lever', nameHi: 'स्ट्रैडल फ्रंट लीवर', nameGu: 'સ્ટ્રેડલ ફ્રન્ટ લિવર',
@@ -514,7 +567,7 @@ export const EXERCISES: Exercise[] = [
     cues: ['Body flat like a table', 'Press the bar to the hips', 'Legs wide and locked'],
     mistakes: ['Piking at the hips', 'Bent knees', 'Arching the lower back'],
     benefits: ['Near-full lever strength', 'Massive lat and core demand', 'Show-ready skill'],
-    ladder: 'front-lever', media: 'front-lever',
+    ladder: 'front-lever',
   },
   {
     id: 'full-front-lever', name: 'Full Front Lever', nameHi: 'फुल फ्रंट लीवर', nameGu: 'ફુલ ફ્રન્ટ લિવર',
@@ -525,7 +578,7 @@ export const EXERCISES: Exercise[] = [
     cues: ['One straight line', 'Glutes and legs squeezed', 'Shoulders pulled down'],
     mistakes: ['Hips piked or sagging', 'Bent elbows', 'Holding the breath for long holds'],
     benefits: ['Elite straight-arm strength', 'Total-body tension', 'Benchmark calisthenics skill'],
-    ladder: 'front-lever', media: 'front-lever',
+    ladder: 'front-lever',
   },
   {
     id: 'front-lever-raise', name: 'Tuck Front Lever Raise', nameHi: 'फ्रंट लीवर रेज़', nameGu: 'ફ્રન્ટ લિવર રેઝ',
@@ -536,7 +589,7 @@ export const EXERCISES: Exercise[] = [
     cues: ['Arms never bend', 'Slow lowering', 'Pause at the top'],
     mistakes: ['Kipping up', 'Bending the arms', 'Dropping fast'],
     benefits: ['Builds strength through the full range', 'Adds volume beyond holds', 'Lat and core power'],
-    ladder: 'front-lever', media: 'front-lever',
+    ladder: 'front-lever',
   },
   {
     id: 'band-nordic', name: 'Band-Assisted Nordic Curl', nameHi: 'बैंड नॉर्डिक कर्ल', nameGu: 'બેન્ડ નોર્ડિક કર્લ',

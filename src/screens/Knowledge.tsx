@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Beam } from '../components/Beam'
 import { createPortal } from 'react-dom'
-import { ArrowUpRight, Play, CheckCircle2, HardDriveDownload, BookOpen, ChevronLeft, ChevronRight, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, Search, X } from 'lucide-react'
+import { CheckCircle2, HardDriveDownload, BookOpen, ChevronLeft, ChevronRight, FileText, Film, Image as ImageIcon, Languages, Lock, PlayCircle, RefreshCw, X } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { KNOWLEDGE_LANGS, UNLOCKS, passesFor, unlockPrice } from '../config/plans'
 import { buyUnlock, isUnlocked, kindOf, unlockKey, useUnlocked, useUnlocks, type UnlockKind } from '../lib/unlocks'
@@ -14,6 +14,10 @@ import { navigate } from '../lib/router'
 import { knowledgeDownloadOk, useDownloadAccess } from '../lib/entitlements'
 import { getBlob, itemId, savedUrl, useDownloads, type DlType } from '../lib/downloads'
 import { openPlayer } from '../components/VideoPlayer'
+import { KPreview } from '../components/KPreview'
+import { Cover, CoverCard, useReveal } from '../components/PostCover'
+import { PostCascade } from '../components/PostCascade'
+import { SearchBox } from '../components/SearchBox'
 import { PdfViewer } from '../components/PdfViewer'
 import { canSaveType, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
 import { IN_APP } from '../lib/appMode'
@@ -30,18 +34,6 @@ function counts(t: T, p: KPost, lang: KLang) {
   ].join(' • ')
 }
 
-function Cover({ p, w = 800, className = '' }: { p: KPost; w?: number; className?: string }) {
-  const [bad, setBad] = useState(false)
-  if (p.cover && !bad)
-    return <img src={kImg(p.cover.id, w)} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setBad(true)} className={`h-full w-full object-cover ${className}`} />
-  // honest placeholder — no stock photo, no broken image
-  return (
-    <div className="relative grid h-full w-full place-items-center overflow-hidden bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.28),transparent_60%),radial-gradient(circle_at_80%_90%,rgba(247,197,72,0.22),transparent_55%),#070b14]">
-      <span className="readout text-[64px] font-extrabold leading-none text-transparent [-webkit-text-stroke:1.5px_rgba(165,243,252,0.55)]">{p.number}</span>
-    </div>
-  )
-}
-
 /** Post cards — used by the Knowledge screen and the Library "Learn" tab. */
 export function KnowledgeGrid({ query = '' }: { query?: string }) {
   const t = useT()
@@ -55,86 +47,42 @@ export function KnowledgeGrid({ query = '' }: { query?: string }) {
   if (!posts.length) return <Empty icon={<BookOpen size={28} />} text={q ? t('kNoMatch') : t('kNoPosts')} />
   return (
     <div data-testid="knowledge-grid">
-      <PostPanels posts={posts} />
+      {/* One place per post: empty query → the cascade only; while searching → the matching cards (title inside). */}
+      {!q ? <PostPanels posts={posts} jump /> : (
+        <>
+          <div className="label mb-2 mt-1" data-testid="k-results">{t('kResults')} · {posts.length}</div>
+          <PostList posts={posts} />
+        </>
+      )}
       <p className="pt-3 text-center font-mono text-[10.5px] text-dim">{t('kSynced', { x: new Date(data!.generatedAt).toLocaleString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { dateStyle: 'medium', timeStyle: 'short' }) })}</p>
     </div>
   )
 }
 
-const ACCENTS = ['#f7c548', '#22d3ee', '#a78bfa']
-
-/**
- * Knowledge posts as horizontal expanding panels (3 per page, swipe for more).
- * Tap a collapsed panel → it grows; tap the open panel or its round button → the post opens.
- */
-export function PostPanels({ posts }: { posts: KPost[] }) {
+/** Knowledge posts on Today / Library / Knowledge: the 3D cascade of horizontal cover cards (see PostCascade). */
+export function PostPanels({ posts, jump = false }: { posts: KPost[]; jump?: boolean }) {
   const t = useT()
   const lang = useApp((s) => s.lang) as KLang
-  const groups = useMemo(() => {
-    const g: KPost[][] = []
-    for (let i = 0; i < posts.length; i += 3) g.push(posts.slice(i, i + 3))
-    return g
-  }, [posts])
-  const [active, setActive] = useState<Record<number, number>>({})
-  const [page, setPage] = useState(0)
-  const scroller = useRef<HTMLDivElement>(null)
-  const onScroll = () => {
-    const el = scroller.current
-    if (el) setPage(Math.round(el.scrollLeft / Math.max(1, el.clientWidth)))
-  }
-  const goPage = (i: number) => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth, behavior: 'smooth' })
-  const open = (p: KPost) => navigate(`/knowledge/${p.number}`)
+  return <PostCascade posts={posts} lang={lang} jump={jump} sub={(p) => counts(t, p, lang)} labels={{ open: t('kOpenPost'), prev: '‹', next: '›', hint: t('ksHint') }} />
+}
 
+/** Every post as a clean horizontal 16:9 card, title below, tilting in as it scrolls into view. */
+export function PostList({ posts }: { posts: KPost[] }) {
+  const t = useT()
+  const lang = useApp((s) => s.lang) as KLang
   return (
-    <div data-testid="post-panels">
-      <div ref={scroller} onScroll={onScroll} className="no-scrollbar -mx-4 flex snap-x snap-mandatory overflow-x-auto">
-        {groups.map((g, gi) => {
-          const act = Math.min(active[gi] ?? 0, g.length - 1)
-          const small = g.length === 2 ? 2.4 : 1.5
-          return (
-            <div key={gi} className="kp-row w-full shrink-0 snap-center px-4" aria-label={`${gi + 1} / ${groups.length}`}>
-              {g.map((p, i) => {
-                const on = i === act
-                const kc = ACCENTS[(gi * 3 + i) % ACCENTS.length]
-                const title = postTitle(p, lang)
-                const hasVideo = pick(p.videos, lang).files.length > 0
-                return (
-                  <div
-                    key={p.id} role="button" tabIndex={0} data-testid={`kpost-${p.number}`} aria-expanded={on}
-                    aria-label={`#${p.number} ${title}`}
-                    onClick={() => (on ? open(p) : setActive({ ...active, [gi]: i }))}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (on) open(p); else setActive({ ...active, [gi]: i }) } }}
-                    className={`kp dark-zone ${on ? 'is-active' : ''}`}
-                    style={{ flexGrow: on ? 6.5 : small, ['--kc' as string]: kc }}
-                  >
-                    <div className="kp-cover"><Cover p={p} w={900} /></div>
-                    <div className="kp-shade" />
-                    <span className="kp-tag">#{p.number}</span>
-                    <div className="kp-text">
-                      <div className="font-mono text-[9.5px] font-bold uppercase tracking-[0.3em]" style={{ color: kc }}>{t('knowledge')}</div>
-                      <h3 className="kp-title mt-2" style={{ fontSize: title.length > 26 ? 23 : title.length > 14 ? 28 : 34 }}>{title}</h3>
-                    </div>
-                    <div className="kp-meta">{counts(t, p, lang)}</div>
-                    <button
-                      type="button" className="kp-btn" tabIndex={-1} data-testid={on ? 'kpost-open' : undefined}
-                      aria-label={on ? `${t('kOpenPost')} #${p.number}` : `#${p.number}`}
-                      onClick={(e) => { e.stopPropagation(); if (on) open(p); else setActive({ ...active, [gi]: i }) }}
-                    >
-                      {hasVideo ? <Play size={on ? 20 : 17} fill="currentColor" className="ml-0.5" /> : <ArrowUpRight size={on ? 22 : 18} />}
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })}
-      </div>
-      {groups.length > 1 && (
-        <div className="kp-dots" role="tablist">
-          {groups.map((_, i) => <button key={i} aria-label={`${i + 1} / ${groups.length}`} aria-current={i === page} onClick={() => goPage(i)} />)}
-        </div>
-      )}
+    <div className="pl-grid" data-testid="post-list">
+      {[...posts].sort((a, b) => a.number - b.number).map((p) => <PostListItem key={p.id} p={p} lang={lang} sub={counts(t, p, lang)} openLabel={t('kOpenPost')} />)}
     </div>
+  )
+}
+function PostListItem({ p, lang, sub, openLabel }: { p: KPost; lang: KLang; sub: string; openLabel: string }) {
+  const ref = useReveal<HTMLButtonElement>()
+  return (
+    <button ref={ref} type="button" className="pl-item" data-testid={`klist-${p.number}`} aria-label={`${openLabel} #${p.number} ${postTitle(p, lang)}`} onClick={() => navigate(`/knowledge/${p.number}`)}>
+      <CoverCard p={p} lang={lang} w={640} label={postTitle(p, lang)} />
+      <span className="sr-only">{sub}</span>
+    </button>
   )
 }
 
@@ -144,10 +92,7 @@ export function Knowledge() {
   return (
     <div>
       <Header title={t('knowledge')} sub={t('kSub')} back />
-      <div className="relative mb-3">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
-        <input className="field pl-9" placeholder={t('kSearchPh')} value={q} onChange={(e) => setQ(e.target.value)} type="search" />
-      </div>
+      <SearchBox wrapClass="mb-3" testid="k-search" placeholder={t('kSearchPh')} value={q} onValue={setQ} />
       <KnowledgeGrid query={q} />
     </div>
   )
@@ -197,11 +142,13 @@ function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: numbe
   )
 }
 
-function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked }: { f: KFile; icon: React.ReactNode; onOpen: () => void; type: DlType; post: number; ukey?: string; locked?: boolean; onLocked?: () => void }) {
+function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked, gif }: { f: KFile; icon: React.ReactNode; onOpen: () => void; type: DlType; post: number; ukey?: string; locked?: boolean; onLocked?: () => void; gif?: boolean }) {
   const t = useT()
   const bought = useUnlocked(ukey)
   return (
-    <Card className="flex items-center gap-3 p-3" data-testid={locked ? 'k-file-locked' : 'k-file'}>
+    <Card className="overflow-hidden" data-testid={locked ? 'k-file-locked' : 'k-file'}>
+    {gif && <KPreview id={f.id} locked={locked} label={f.lang ? LANG_LABEL[f.lang] : undefined} onClick={locked ? onLocked : onOpen} className="!rounded-none !border-0 !border-b" />}
+    <div className="flex items-center gap-3 p-3">
       <button onClick={locked ? onLocked : onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
         <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border ${locked ? 'border-gold/35 bg-gold/[0.08] text-gold' : 'border-cyan/25 bg-cyan/[0.07] text-cyan'}`}>{locked ? <Lock size={18} /> : icon}</span>
         <span className="min-w-0">
@@ -212,6 +159,7 @@ function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked }: { f: K
       {locked
         ? <button data-testid="k-unlock" onClick={onLocked} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/45 px-3 text-[12px] font-bold text-gold"><Lock size={13} /> {IN_APP ? t('locked') : t('ppOpenThis')}</button>
         : <SaveBtn f={f} type={type} post={post} ukey={ukey} />}
+    </div>
     </Card>
   )
 }
@@ -390,18 +338,29 @@ export function KnowledgePost({ id }: { id: string }) {
   const canOpenSaved = (key?: string) => access.state !== 'locked' || (UNLOCKS.allowDownload && isUnlocked(key))
   const langLocked = (tab === 'videos' || tab === 'pdfs') && !okLangs.includes(tab === 'videos' ? vids.used : pdfs.used) && !isPostOpen(p.number)
   const postOpen = isPostOpen(p.number)
+  const openVideo = async (f: KFile) => {
+    const open = vids.files.filter((x) => !gate('video', x, vids.used).locked)
+    const items = await Promise.all(open.map(async (x) => {
+      const xk = gate('video', x, vids.used).key
+      const local = canOpenSaved(xk) && dl.present[itemId('video', x.id)] ? await savedUrl(itemId('video', x.id)) : null
+      return { title: fileTitle(x.name), sub: `#${p.number} · ${LANG_LABEL[x.lang ?? vids.used]}${local ? ` · ${t('dlOffline')}` : ''}`, sources: (() => { const src = local ?? kStream(x.id); return src ? [{ src, type: 'video/mp4' }] : [] })(), embed: kPreview(x.id) }
+    }))
+    openPlayer({ items, index: Math.max(0, open.findIndex((x) => x.id === f.id)) })
+  }
+  const tapVideo = (f: KFile) => { const g = gate('video', f, vids.used); if (g.locked) { if (g.key) setUnlock({ key: g.key, title: fileTitle(f.name), post: p.number }) } else void openVideo(f) }
 
   return (
     <div data-testid="kpost">
       <Header title={`#${p.number}`} sub={postTitle(p, appLang)} back="#/knowledge" />
-      <div className="dark-zone relative -mx-4 -mt-3 aspect-[16/11] overflow-hidden">
-        <Cover p={p} w={1200} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#04060c] via-[#04060c]/20 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          <span className="font-mono text-[12px] font-bold tracking-[0.2em] text-cyan">D31 // KNOWLEDGE #{p.number}</span>
-          <h1 className="title-hud mt-1 text-[22px] leading-tight text-white">{postTitle(p, lang)}</h1>
-          <div className="mt-1.5 font-mono text-[11px] text-white/70">{counts(t, p, lang)}</div>
+      <div className="pd-head" data-testid="kpost-head">
+        <div className="pc-card pd-card dark-zone">
+          <Cover p={p} w={1200} lang={lang} eager /><i className="pc-sheen" aria-hidden />
+          <div className="pc-label" data-testid="pc-label">
+            <span className="pc-label-num">D31 // KNOWLEDGE #{p.number}</span>
+            <h1 className="title-hud pc-label-title text-[21px] leading-tight">{postTitle(p, lang)}</h1>
+          </div>
         </div>
+        <div className="mt-2 px-0.5 font-mono text-[11px] text-muted">{counts(t, p, lang)}</div>
       </div>
 
       <div className="relative mt-3 flex items-center gap-2" data-testid="k-langs">
@@ -447,6 +406,19 @@ export function KnowledgePost({ id }: { id: string }) {
                 </button>
               ))}
             </div>
+            {vids.files.length > 0 && (
+              <div data-testid="k-gif-strip">
+                <div className="mb-1.5 flex items-center gap-1.5 px-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.18em] text-cyan"><PlayCircle size={13} /> {t('kGifStrip')}</div>
+                <div className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4">
+                  {vids.files.map((f) => (
+                    <div key={f.id} className="w-[78%] shrink-0 snap-start">
+                      <KPreview id={f.id} locked={gate('video', f, vids.used).locked} label={LANG_LABEL[f.lang ?? vids.used]} onClick={() => tapVideo(f)} />
+                      <div className="mt-1 truncate px-0.5 text-[12px] font-semibold text-frost/90">{fileTitle(f.name)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <Card className="flex gap-3 p-4">
               <Languages size={18} className="mt-0.5 shrink-0 text-gold" />
               <div className="text-[13px] leading-snug text-muted">
@@ -469,15 +441,7 @@ export function KnowledgePost({ id }: { id: string }) {
         {tab === 'videos' && (vids.files.length ? (
           <>
             {vids.fallback && fallbackNote(vids.used)}
-            {vids.files.map((f) => { const g = gate('video', f, vids.used); return <FileRow key={f.id} f={f} type="video" post={p.number} ukey={g.key} locked={g.locked} onLocked={() => g.key && setUnlock({ key: g.key, title: fileTitle(f.name), post: p.number })} icon={<PlayCircle size={20} />} onOpen={async () => {
-              const open = vids.files.filter((x) => !gate('video', x, vids.used).locked)
-              const items = await Promise.all(open.map(async (x) => {
-                const xk = gate('video', x, vids.used).key
-                const local = canOpenSaved(xk) && dl.present[itemId('video', x.id)] ? await savedUrl(itemId('video', x.id)) : null
-                return { title: fileTitle(x.name), sub: `#${p.number} · ${LANG_LABEL[x.lang ?? vids.used]}${local ? ` · ${t('dlOffline')}` : ''}`, sources: (() => { const src = local ?? kStream(x.id); return src ? [{ src, type: 'video/mp4' }] : [] })(), embed: kPreview(x.id) }
-              }))
-              openPlayer({ items, index: Math.max(0, open.findIndex((x) => x.id === f.id)) })
-            }} /> })}
+            {vids.files.map((f) => { const g = gate('video', f, vids.used); return <FileRow key={f.id} gif f={f} type="video" post={p.number} ukey={g.key} locked={g.locked} onLocked={() => g.key && setUnlock({ key: g.key, title: fileTitle(f.name), post: p.number })} icon={<PlayCircle size={20} />} onOpen={() => void openVideo(f)} /> })}
           </>
         ) : <Empty icon={<Film size={26} />} text={t('kNoVideos')} />)}
 

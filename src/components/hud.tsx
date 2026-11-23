@@ -64,12 +64,12 @@ export function ClipViewer() {
 
 /** Focal points so object-cover keeps the athlete in frame. */
 const FOCUS: Record<string, string> = {
-  'front-lever': '50% 56%', 'sl-rdl': '58% 45%', 'pull-up': '50% 35%', nordic: '35% 70%',
+  'front-lever': '50% 56%', 'back-lever': '50% 56%', 'sl-rdl': '58% 45%', 'pull-up': '50% 35%', nordic: '35% 70%',
   'shoot/023': '50% 66%', 'shoot/019': '55% 62%', 'shoot/079': '50% 45%', 'shoot/072': '50% 72%', 'shoot/057': '50% 42%',
   'shoot/056': '50% 45%', 'shoot/064': '50% 38%', 'shoot/059': '50% 55%', 'shoot/090': '50% 40%', 'shoot/048': '45% 45%',
   'shoot/089': '50% 55%', 'shoot/034': '50% 72%', 'shoot/030': '50% 50%', 'shoot/032': '50% 55%', 'shoot/080': '50% 40%', 'shoot/055': '50% 60%',
 }
-const LEGACY_ASPECT: Record<string, number> = { 'front-lever': 0.667 }
+const LEGACY_ASPECT: Record<string, number> = { 'front-lever': 0.667, 'back-lever': 0.667 }
 const aspectOf = (name: string) => {
   if (name.startsWith('shoot/')) { const p = SHOOT_BY_ID[name.slice(6)]; return p ? p.w / p.h : 1 }
   return LEGACY_ASPECT[name] ?? 1.6

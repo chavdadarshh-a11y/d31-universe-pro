@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Search, SlidersHorizontal, X, Plus } from 'lucide-react'
+import { SlidersHorizontal, X, Plus, Lock } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Chip, CHIP_COLORS, Empty, Header, Label, Sheet, Tabs } from '../components/ui'
@@ -12,19 +12,21 @@ import { CustomExerciseSheet } from '../components/ExercisePicker'
 import { ladderStatus } from '../lib/training'
 import { hashQuery } from '../lib/router'
 import { KnowledgeGrid } from './Knowledge'
+import { SearchBox } from '../components/SearchBox'
 import { navigate } from '../lib/router'
+import { libLocked } from '../config/library'
 import type { Category, Equipment, Exercise, MuscleId } from '../types'
 
 const MUSCLES: MuscleId[] = ['chest', 'shoulders', 'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'traps', 'lats', 'upper_back', 'lower_back', 'glutes', 'quads', 'hamstrings', 'adductors', 'calves', 'rear_delts']
-const CATS: Category[] = ['strength', 'calisthenics', 'mobility', 'cardio']
+const CATS: Category[] = ['calisthenics', 'strength', 'mobility', 'cardio']
 const EQUIP: Equipment[] = ['none', 'dumbbell', 'barbell', 'bar', 'bench', 'kettlebell', 'cable']
 
-// your own exercises first, then the ones with Darshan's video clips, then the rest (stable sort)
-const rank = (e: Exercise) => (e.custom ? 0 : e.clip ? 1 : 2)
+// open exercises first (your own, then Darshan's clips, then the rest), then the "coming soon" ones (stable sort)
+const rank = (e: Exercise) => (libLocked(e) ? 10 : 0) + (e.custom ? 0 : e.clip ? 1 : 2)
 
 
-function Thumb({ e }: { e: Exercise }) {
-  if (e.clip) return <ClipThumb name={e.clip} title={e.name} exId={e.id} className="h-[76px] w-[56px] shrink-0" />
+function Thumb({ e, still = false }: { e: Exercise; still?: boolean }) {
+  if (e.clip && !still) return <ClipThumb name={e.clip} title={e.name} exId={e.id} className="h-[76px] w-[56px] shrink-0" />
   if (e.media) return <div className="relative h-[76px] w-[56px] shrink-0 overflow-hidden rounded-xl border border-gold/30"><Photo name={e.media} small alt="" /></div>
   const backOnly = (m: MuscleId) => BACK_IDS.has(m) && !FRONT_IDS.has(m)
   const frontOnly = (m: MuscleId) => FRONT_IDS.has(m) && !BACK_IDS.has(m)
@@ -65,6 +67,7 @@ export function Library() {
     [ql, cat, muscle, equip, level, lang, customs],
   )
   const nFilters = [muscle, equip, level].filter((x) => x !== null).length
+  const nSoon = list.filter(libLocked).length
   const levelLabel = (l: 1 | 2 | 3) => t(l === 1 ? 'level_beginner' : l === 2 ? 'level_intermediate' : 'level_advanced')
 
   return (
@@ -94,10 +97,7 @@ export function Library() {
         </div>
       )}
       {(tab === 'ex' || tab === 'kn') && <div className="mt-3 flex gap-2">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim" />
-          <input className="field pl-9" placeholder={t('searchPh')} value={q} onChange={(e) => setQ(e.target.value)} type="search" />
-        </div>
+        <SearchBox wrapClass="flex-1" testid="lib-search" placeholder={t('searchPh')} value={q} onValue={setQ} />
         {tab === 'ex' && (
           <button onClick={() => setFilters(true)} className="relative grid h-[46px] w-[46px] place-items-center rounded-xl border border-white/10 text-muted" aria-label={t('filters')}>
             <SlidersHorizontal size={18} />
@@ -120,13 +120,27 @@ export function Library() {
             </div>
           )}
           <div className="mb-2 mt-4 flex items-center justify-between">
-            <span className="label">{t('results', { n: list.length })}</span>
+            <span className="label" data-testid="lib-count">{nSoon ? t('libCount', { n: list.length - nSoon, m: nSoon }) : t('results', { n: list.length })}</span>
             <button onClick={() => setCreate(true)} className="flex items-center gap-1 text-[12px] font-semibold text-gold"><Plus size={14} /> {t('createExercise')}</button>
           </div>
+          {nSoon > 0 && <p className="mb-2 text-[12px] leading-snug text-dim" data-testid="lib-soon-note">{t('libSoonNote')}</p>}
           {list.length === 0 && <Empty text={t('noResults')} />}
           <div className="space-y-2">
-            {list.map((e) => (
-              <Card key={e.id} onClick={() => navigate(`/library/${e.id}`)} className="flex items-center gap-3 p-2.5 pr-4">
+            {list.map((e) => libLocked(e) ? (
+              <div key={e.id} className="card relative flex select-none items-center gap-3 overflow-hidden p-2.5 pr-4" aria-disabled="true" data-testid={`lib-soon-${e.id}`} data-locked="1">
+                <div className="pointer-events-none flex min-w-0 flex-1 items-center gap-3 opacity-70 blur-[3.5px]" aria-hidden>
+                  <Thumb e={e} still />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[15px] font-semibold">{exName(e, lang)}</div>
+                    <div className="mt-0.5 truncate text-[12.5px] text-muted">{e.primary.map((m) => t(`m_${m}`)).join(' · ')}</div>
+                    <div className="mt-1.5 flex gap-1.5"><Badge tone="muted">{t(`cat_${e.category}`)}</Badge><Badge tone="muted">{levelLabel(e.level)}</Badge></div>
+                  </div>
+                </div>
+                <span className="sr-only">{exName(e, lang)} · {t('libSoon')}</span>
+                <span className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-full border border-gold/45 bg-[#0b1220]/85 px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase tracking-wider text-gold"><Lock size={11} /> {t('libSoon')}</span>
+              </div>
+            ) : (
+              <Card key={e.id} onClick={() => navigate(`/library/${e.id}`)} className="flex items-center gap-3 p-2.5 pr-4" data-testid={`lib-ex-${e.id}`}>
                 <Thumb e={e} />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[15px] font-semibold">{exName(e, lang)}</div>

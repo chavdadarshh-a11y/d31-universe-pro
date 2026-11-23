@@ -82,7 +82,7 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
       {step === 0 && (
         <div className="flex flex-1 flex-col">
           <div className="card hud-full scanlines holo-sweep relative flex min-h-[420px] flex-1 flex-col items-center justify-end overflow-hidden px-5 pb-7 text-center">
-            <Photo name="front-lever" alt={t('photoOf', { x: 'Front Lever' })} eager />
+            <Photo name="back-lever" alt={t('photoOf', { x: 'Back Lever' })} eager />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.35)_0%,rgba(4,6,12,0.1)_35%,rgba(4,6,12,0.95)_80%)]" />
             <div className="relative z-[2] flex flex-col items-center">
               <span className="rounded-2xl shadow-[0_0_30px_-4px_rgba(247,197,72,0.7)]"><LogoMark size={64} /></span>

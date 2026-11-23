@@ -36,7 +36,10 @@ export type Exercise = {
   ladder?: string
   /** User-created exercise (stored on the phone) */
   custom?: boolean
+  /** Optional Hindi / Gujarati text for the detail page (falls back to English) */
+  tr?: Partial<Record<'hi' | 'gu', ExerciseText>>
 }
+export type ExerciseText = { summary: string; steps: string[]; cues: string[]; mistakes: string[]; benefits: string[] }
 
 /** A template line. Every number is only a SUGGESTION — the logger lets the user add/remove sets and change everything. */
 export type PlanItem = { exId: string; sets: number; reps?: number; secs?: number; rest: number; target?: string; note?: string }
@@ -62,7 +65,7 @@ export type Program = {
 export type CustomWorkout = { id: string; name: string; items: PlanItem[]; createdAt: string; note?: string }
 
 export type SetType = 'warmup' | 'working' | 'drop' | 'failure'
-export type LoggedSet = { reps: number; kg: number; secs?: number; rpe?: number; note?: string; type?: SetType; done: boolean }
+export type LoggedSet = { reps: number; kg: number; secs?: number; rpe?: number; note?: string; type?: SetType; done: boolean; /** range-of-motion level id (data/rom.ts) */ rom?: string }
 export type LoggedExercise = { exId: string; sets: LoggedSet[]; note?: string }
 export type WorkoutSession = {
   id: string

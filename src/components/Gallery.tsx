@@ -8,6 +8,7 @@ import { mediaUrl } from './hud'
 import { SHOOT, SHOOT_CATS, shootName, type ShootCat, type ShootPhoto } from '../data/gallery'
 import { exOf, exName } from '../data/exercises'
 import { navigate } from '../lib/router'
+import { libLocked } from '../config/library'
 
 function Tile({ p, onOpen }: { p: ShootPhoto; onOpen: () => void }) {
   const [loaded, setLoaded] = useState(false)
@@ -59,7 +60,7 @@ export function Viewer({ list, index, onIndex, onClose }: { list: ShootPhoto[]; 
           <div className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-gold/90">{t(`gcat_${p.cat}`)}</div>
           <div className="title-hud mt-0.5 truncate text-[14px]">{p.title}</div>
         </div>
-        {p.exId && (
+        {p.exId && !libLocked(exOf(p.exId)) && (
           <button onClick={() => { onClose(); navigate(`/library/${p.exId}`) }} className="flex shrink-0 items-center gap-1 rounded-xl border border-cyan/40 bg-cyan/10 px-3 py-2 text-[12px] font-semibold text-cyan">
             {exName(exOf(p.exId), lang)} <ArrowUpRight size={14} />
           </button>

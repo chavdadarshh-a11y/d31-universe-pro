@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Play, Pencil, Trash2, Dumbbell, CalendarDays, CheckCircle2, Zap } from 'lucide-react'
+import { Plus, Play, Pencil, Trash2, Dumbbell, CalendarDays, CheckCircle2, Zap, Footprints, Gamepad2 } from 'lucide-react'
 import { useApp, effectivePlan } from '../store/app'
 import { useT } from '../i18n'
 import { Badge, Button, Card, Chip, Confirm, Empty, Header, LockTag, Tabs } from '../components/ui'
@@ -35,6 +35,17 @@ export function Train() {
         </span>
         <Play size={18} className="text-gold" fill="currentColor" />
       </button>
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        {([['run', '/train/run', Footprints, '#22d3ee', 'runTitle', 'runCard'], ['game', '/train/game', Gamepad2, '#f472d0', 'gameTitle', 'gameCard']] as const).map(([id, to, Icon, c, title, sub]) => (
+          <button key={id} data-testid={`train-${id}`} onClick={() => navigate(to)} className="card holo-sweep relative overflow-hidden p-3 text-left" style={{ borderColor: `${c}55` }}>
+            <span className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${c}, transparent)`, boxShadow: `0 0 12px ${c}` }} />
+            <span className="grid h-10 w-10 place-items-center rounded-xl border" style={{ borderColor: `${c}66`, background: `${c}14`, color: c }}><Icon size={19} strokeWidth={2.3} /></span>
+            <span className="title-hud mt-2 block text-[13.5px]" style={{ color: c }}>{t(title)}</span>
+            <span className="mt-0.5 block text-[11.5px] leading-snug text-muted">{t(sub)}</span>
+            <span className="absolute right-2 top-2 rounded bg-[linear-gradient(90deg,#22d3ee,#a78bfa)] px-1 font-mono text-[8.5px] font-bold text-[#04060c]">{t('newTag')}</span>
+          </button>
+        ))}
+      </div>
       <Tabs value={tab} onChange={setTab} items={[{ id: 'programs', label: t('programs') }, { id: 'mine', label: t('routines') }]} />
 
       {tab === 'programs' && (

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Upload, Eye, CheckCircle2, AlertTriangle, Wrench, Target, ArrowRight, X, Camera, Square, RotateCcw, Save, Volume2, VolumeX, SwitchCamera, Zap, ChevronRight, Info, ScanLine } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
+import { SearchBox } from '../components/SearchBox'
 import { Badge, Button, Card, Chip, Header, Label, Sheet, Stepper, Tabs } from '../components/ui'
 import { BodyMap } from '../components/BodyMap'
 import { hashQuery } from '../lib/router'
@@ -16,6 +17,7 @@ import {
   type CheckResult, type Guess, type Mode, type Pose,
 } from '../lib/formCheck'
 import { renderAnalysis } from '../lib/analysisDraw'
+import { RomEstimate } from '../components/RomLevels'
 import { artView, fitMuscles, type FitResult, type Mask } from '../lib/muscleAnatomy'
 import { anchorDebug } from '../lib/muscleArt'
 import { fineName, roleWord, rolesFor, ROLE_ORDER } from '../lib/muscleRoles'
@@ -233,6 +235,7 @@ function ResultView({ rec, src, mask, onChangeEx, guesses }: { rec: AnalysisReco
         </div>
       )}
       {posterMsg && <p className="px-1 text-[12px] text-cyan" data-testid="poster-msg">{posterMsg}</p>}
+      {pose?.ok && rec.exId && <RomEstimate exId={rec.exId} metrics={pose.metrics} />}
       {mode === 'muscles' && pose?.ok && rec.exId && anatomy.drawn.length === 0 && (
         <div className="flex items-start gap-2 rounded-2xl border border-gold/25 bg-gold/[0.07] p-3 text-[13px] leading-snug text-gold" data-testid="no-muscles">
           <AlertTriangle size={15} className="mt-0.5 shrink-0" /> <span>{t('musclesNoneDrawn')}</span>
@@ -416,8 +419,8 @@ function ExercisePickerField({ value, onPick, onText, placeholder }: { value: st
   }
   return (
     <div className="relative">
-      <input className="field" data-testid="ex-input" placeholder={placeholder ?? t('exSearchPh')} value={q} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
-        onChange={(e) => { setQ(e.target.value); setOpen(true); onText?.(e.target.value) }}
+      <SearchBox testid="ex-input" placeholder={placeholder ?? t('exSearchPh')} value={q} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onValue={(v) => { setQ(v); setOpen(true); onText?.(v) }}
         onKeyDown={(e) => { if (e.key === 'Enter' && resolved) { e.preventDefault(); choose(resolved.id) } }} />
       {q.trim() && (
         <p className={`mt-1 px-1 text-[11.5px] ${resolved ? 'text-cyan' : 'text-gold'}`} data-testid="ex-resolved">

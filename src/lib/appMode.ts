@@ -13,6 +13,8 @@
  *     web tab normal. display-mode standalone alone is NOT used (installed web PWA keeps buying).
  *  ?src=web clears the flags (support/debug).
  */
+import { PRICES_ON } from '../config/prices'
+
 export const TWA_PACKAGE = 'com.d31universe.pro'
 const KEY = 'd31-app-store-mode'
 
@@ -46,6 +48,14 @@ function detect(): boolean {
   return false
 }
 
-/** true inside the Google Play app: hide every price / purchase surface. */
-export const IN_APP = detect()
-if (typeof document !== 'undefined') document.documentElement.dataset.appStore = IN_APP ? '1' : '0'
+/** true inside the Google Play app (TWA). */
+export const IN_TWA = detect()
+/**
+ * true → hide every price / purchase surface: inside the Google Play app, OR while prices are switched off
+ * for everyone (src/config/prices.ts → PRICES_ON). Every screen keys off this one value.
+ */
+export const IN_APP = IN_TWA || !PRICES_ON
+if (typeof document !== 'undefined') {
+  document.documentElement.dataset.appStore = IN_TWA ? '1' : '0'
+  document.documentElement.dataset.prices = IN_APP ? 'off' : 'on'
+}

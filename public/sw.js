@@ -1,14 +1,18 @@
 /* D31.UNIVERSE service worker — app-shell caching so the app opens offline. */
-const VERSION = 'd31-v4.4.6'
+const VERSION = 'd31-v4.5.0'
 const OFFLINE = 'd31-offline-clips' // Platinum "save offline" clips — never deleted on update
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png']
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png',
+  './media/bg/shiva-v2-1440.avif', './media/bg/shiva-v2-2160.avif', './media/bg/shiva-v2-1440.webp', './media/bg/shiva-v2-2160.webp']
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()))
 })
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== OFFLINE).map((k) => caches.delete(k)))).then(() => self.clients.claim()))
+  // only this channel's old caches are removed: live ('d31-v…'), beta ('d31-beta-…') and preview ('d31-preview-…') share the origin
+  const chan = (k) => (k.startsWith('d31-beta-') ? 'beta' : k.startsWith('d31-preview-') ? 'preview' : 'live')
+  const mine = (k) => chan(k) === chan(VERSION)
+  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => mine(k) && k !== VERSION && k !== OFFLINE).map((k) => caches.delete(k)))).then(() => self.clients.claim()))
 })
 
 self.addEventListener('fetch', (e) => {
@@ -33,7 +37,8 @@ self.addEventListener('fetch', (e) => {
     return
   }
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); return res }).catch(() => caches.match('./index.html')))
+    // revalidate the HTML with the server every time (no 10-minute HTTP cache), so a new release shows on refresh
+    e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); return res }).catch(() => caches.match('./index.html')))
     return
   }
   // hashed build assets: cache-first

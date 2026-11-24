@@ -1,6 +1,7 @@
 /** Referral link (?ref=CODE), attach on signup, stats. Wallet rewards are granted server-side on first paid purchase. */
 import { create } from 'zustand'
 import { supabase } from './supabase'
+import { APP_URL } from '../config/site'
 import { useApp } from '../store/app'
 import { REFERRAL } from '../config/plans'
 
@@ -30,7 +31,7 @@ export function pendingReferral(): string | null {
 }
 
 export function referralUrl(code: string) {
-  const base = `${window.location.origin}${window.location.pathname || '/'}`
+  const base = APP_URL.startsWith('http') ? APP_URL : `${window.location.origin}${window.location.pathname || '/'}` // config/site.ts
   return `${base.replace(/\/$/, '')}/?ref=${encodeURIComponent(code)}`
 }
 

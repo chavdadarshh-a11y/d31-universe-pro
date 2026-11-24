@@ -27,15 +27,15 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          VITE_BASE: /${{ github.event.repository.name }}/beta/
-          VITE_KNOWLEDGE_BASE: /${{ github.event.repository.name }}/
+          VITE_SUBPATH: beta   # site.config.json siteUrl + beta/ (the knowledge feed stays at the site root)
           VITE_BETA: '1'
       - name: Knowledge video previews (short muted loops, made from the public Drive videos)
         run: |
           sudo apt-get install -y -qq ffmpeg > /dev/null
-          curl -fsSL "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/knowledge/posts.json" -o /tmp/posts.json || cp public/knowledge/posts.json /tmp/posts.json
+          SITE=$(node -p "require('./site.config.json').siteUrl")
+          curl -fsSL "${SITE}knowledge/posts.json" -o /tmp/posts.json || cp public/knowledge/posts.json /tmp/posts.json
           # reuse previews already on the beta site; only new videos are cut
-          node scripts/make-previews.mjs --posts /tmp/posts.json --out dist/knowledge/previews --reuse "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/beta/knowledge/previews/"
+          node scripts/make-previews.mjs --posts /tmp/posts.json --out dist/knowledge/previews --reuse "${SITE}beta/knowledge/previews/"
       - name: Beta service-worker channel + no indexing
         run: |
           sed -i "s/^const VERSION = '[^']*'/const VERSION = 'd31-beta-v4.5.0-${GITHUB_SHA::7}'/" dist/sw.js

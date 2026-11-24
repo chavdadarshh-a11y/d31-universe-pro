@@ -3,6 +3,7 @@
  * scripts/sync-knowledge.mjs (GitHub Action, every 30 min) writes knowledge/posts.json; the app reads it.
  */
 import { env } from './env'
+import { SITE_PATH } from '../config/site'
 import { useEffect, useState } from 'react'
 import type { Lang } from '../types'
 import { OPEN_LIMITS, OPEN_POSTS } from '../config/knowledgeOpen'
@@ -23,7 +24,7 @@ export interface KPost {
 export interface KManifest { version: number; generatedAt: string; posts: KPost[] }
 
 /** beta/preview builds read the live site's feed (always fresh from the Drive sync) */
-const KBASE = (import.meta.env.VITE_KNOWLEDGE_BASE as string | undefined) || import.meta.env.BASE_URL
+const KBASE = (import.meta.env.VITE_KNOWLEDGE_BASE as string | undefined) || SITE_PATH
 const URL_ = `${KBASE}knowledge/posts.json`
 const CACHE = 'd31-knowledge-cache'
 let mem: KManifest | null = null

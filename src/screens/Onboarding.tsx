@@ -10,6 +10,7 @@ import type { Equipment, Goal, Level, Profile } from '../types'
 import { PROGRAMS } from '../data/programs'
 import { cloud } from '../lib/cloud'
 import { useUnits } from '../lib/units'
+import { useSettings } from '../store/settings'
 
 const GOALS: Goal[] = ['muscle', 'fatloss', 'strength', 'skills', 'mobility']
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced']
@@ -44,6 +45,7 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
   const [step, setStep] = useState(editing || user || hashQuery().get('guest') === '1' ? 1 : 0)
   const total = 5
   const u = useUnits()
+  const setSettings = useSettings((st) => st.set)
 
   const finish = () => {
     if (!editing) {
@@ -92,22 +94,39 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
               <p className="mt-2 max-w-xs text-[14px] text-frost/80">{t('obWelcomeSub')}</p>
             </div>
           </div>
-          <div className="label mb-3 mt-6">{t('obLanguage')}</div>
+          <div className="card mt-4 p-4">
+            <div className="label mb-3">{t('obLanguage')}</div>
+            <div className="flex items-center justify-between pt-1">
+            <span className="label">{t('weightUnit')}</span>
+            <div className="flex gap-1.5">
+              {(['kg', 'lb'] as const).map((unit) => (
+                <button
+                  key={unit}
+                  type="button"
+                  onClick={() => setSettings({ weightUnit: unit })}
+                  className={`rounded-lg border px-2.5 py-1 font-mono text-[11px] font-bold uppercase ${u.w === unit ? 'border-cyan/60 bg-cyan/15 text-cyan' : 'border-white/10 text-muted'}`}
+                >
+                  {unit === 'kg' ? 'KG' : 'LBS'}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="grid grid-cols-3 gap-2">
-            {LANGS.map((l) => (
-              <button key={l.id} onClick={() => setLang(l.id)} className={`h-14 rounded-2xl border text-[15px] font-semibold ${lang === l.id ? 'border-gold/60 bg-gold/10 text-gold' : 'border-white/10 bg-white/[0.03] text-muted'}`}>
-                {l.native}
-              </button>
-            ))}
+              {LANGS.map((l) => (
+                <button key={l.id} onClick={() => setLang(l.id)} className={`h-12 rounded-2xl border text-[15px] font-semibold ${lang === l.id ? 'border-gold/60 bg-gold/10 text-gold' : 'border-white/10 bg-white/[0.03] text-muted'}`}>
+                  {l.native}
+                </button>
+              ))}
+            </div>
+            <Button size="lg" className="mt-4 w-full" data-testid="ob-create" onClick={() => navigate('/auth?mode=up')}>{t('createAccount')}</Button>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Button variant="outline" data-testid="ob-login" onClick={() => navigate('/auth?mode=in')}>{t('signIn')}</Button>
+              <Button variant="ghost" data-testid="ob-guest" onClick={() => setStep(1)}>{t('guest')}</Button>
+            </div>
+            <p className="mt-3 text-center text-[11px] leading-relaxed text-dim">
+              <a href="#/legal/terms" className="underline">{t('terms')}</a> · <a href="#/legal/privacy" className="underline">{t('privacy')}</a> · <a href="#/legal/disclaimer" className="underline">{t('disclaimer')}</a>
+            </p>
           </div>
-          <Button size="lg" className="mt-5 w-full" data-testid="ob-create" onClick={() => navigate('/auth?mode=up')}>{t('createAccount')}</Button>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Button variant="outline" data-testid="ob-login" onClick={() => navigate('/auth?mode=in')}>{t('signIn')}</Button>
-            <Button variant="ghost" data-testid="ob-guest" onClick={() => setStep(1)}>{t('guest')}</Button>
-          </div>
-          <p className="mt-4 text-center text-[11px] leading-relaxed text-dim">
-            <a href="#/legal/terms" className="underline">{t('terms')}</a> · <a href="#/legal/privacy" className="underline">{t('privacy')}</a> · <a href="#/legal/disclaimer" className="underline">{t('disclaimer')}</a>
-          </p>
         </div>
       )}
 
@@ -146,8 +165,8 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
           </div>
           <div className="grid grid-cols-3 gap-2">
             <label><span className="label">{t('age')}</span><div className="mt-1.5"><Stepper value={profile.age} onChange={(v) => setProfile({ age: v })} min={13} max={90} /></div></label>
-            <label><span className="label">{t('height')} ({u.l})</span><div className="mt-1.5"><Stepper value={u.toL(profile.heightCm)} onChange={(v) => setProfile({ heightCm: Math.round(u.fromL(v)) })} min={u.l === 'in' ? 47 : 120} max={u.l === 'in' ? 91 : 230} /></div></label>
-            <label><span className="label">{t('weight')} ({u.w})</span><div className="mt-1.5"><Stepper value={u.toW(profile.weightKg)} onChange={(v) => setProfile({ weightKg: Math.round(u.fromW(v) * 10) / 10 })} step={u.w === 'lb' ? 1 : 0.5} min={u.w === 'lb' ? 66 : 30} max={u.w === 'lb' ? 550 : 250} /></div></label>
+            <label><span className="label">{t('height').replace(/\s*\([^)]*\)\s*$/, '')} ({u.l})</span><div className="mt-1.5"><Stepper value={u.toL(profile.heightCm)} onChange={(v) => setProfile({ heightCm: Math.round(u.fromL(v)) })} min={u.l === 'in' ? 47 : 120} max={u.l === 'in' ? 91 : 230} /></div></label>
+            <label><span className="label">{t('weight').replace(/\s*\([^)]*\)\s*$/, '')} ({u.w})</span><div className="mt-1.5"><Stepper value={u.toW(profile.weightKg)} onChange={(v) => setProfile({ weightKg: Math.round(u.fromW(v) * 10) / 10 })} step={u.w === 'lb' ? 1 : 0.5} min={u.w === 'lb' ? 66 : 30} max={u.w === 'lb' ? 550 : 250} /></div></label>
           </div>
           <div>
             <span className="label">{t('activity')}</span>

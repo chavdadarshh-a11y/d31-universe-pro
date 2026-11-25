@@ -1,4 +1,5 @@
-import { toW, fromW, wUnit, wTxt } from '../lib/units'
+import { toW, fromW, wUnit, wTxt, useUnits } from '../lib/units'
+import { useSettings } from '../store/settings'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, X, Plus, Timer, Trophy, MoreHorizontal, Copy, Trash2, ArrowUp, ArrowDown, Info, StickyNote, History, Save, Play, Pause } from 'lucide-react'
@@ -102,6 +103,8 @@ function HoldCell({ end, onFinish }: { end: number; onFinish: () => void }) {
 
 export function Player() {
   const t = useT()
+  const u = useUnits()
+  const setSettings = useSettings((st) => st.set)
   const a = useApp((s) => s.active)
   const lang = useApp((s) => s.lang)
   const voice = useApp((s) => s.voice)
@@ -219,12 +222,21 @@ export function Player() {
             </div>
             {a.pausedAt && <div className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-gold">{t('timerPaused')}</div>}
           </div>
+          <button
+            type="button"
+            data-testid="player-unit-toggle"
+            aria-label="Toggle KG / LBS"
+            onClick={() => setSettings({ weightUnit: u.w === 'kg' ? 'lb' : 'kg' })}
+            className="mr-1 rounded-lg border border-cyan/35 bg-cyan/10 px-2 py-1.5 font-mono text-[10.5px] font-bold uppercase tracking-wider text-cyan"
+          >
+            {u.w === 'kg' ? 'KG' : 'LBS'}
+          </button>
           <Button size="sm" data-testid="player-done" onClick={onDone}>{t('done')}</Button>
         </div>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.07]"><div className="bg-neon-static h-full rounded-full transition-all" style={{ width: `${(doneSets / Math.max(1, totalSets)) * 100}%` }} /></div>
         <div className="mt-2 grid grid-cols-3 text-center">
           <div><div className="readout text-[15px] font-bold text-cyan">{doneSets}<span className="text-dim">/{totalSets}</span></div><div className="label !text-[9px]">{t('setsLogged')}</div></div>
-          <div><div className="readout-gold text-[15px] font-bold">{Math.round(toW(vol)).toLocaleString('en-IN')}<span className="ml-0.5 text-[10px] text-dim">{wUnit()}</span></div><div className="label !text-[9px]">{t('liveVolume')}</div></div>
+          <div><div className="readout-gold text-[15px] font-bold">{Math.round(toW(vol)).toLocaleString('en-IN')}<span className="ml-0.5 text-[10px] text-dim">{u.w === 'lb' ? 'lbs' : 'kg'}</span></div><div className="label !text-[9px]">{t('liveVolume')}</div></div>
           <div><div className="readout text-[15px] font-bold text-violet">{a.log.length}</div><div className="label !text-[9px]">{t('exercises')}</div></div>
         </div>
       </div>

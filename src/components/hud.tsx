@@ -44,7 +44,7 @@ export function ClipThumb({ name, title, exId, className = '', badge = true }: {
       aria-label={`▶ ${title}`}
       data-clip={name}
       onClick={(e) => { e.stopPropagation(); e.preventDefault(); openClip({ name, title, exId }) }}
-      className={`clip-ring group relative block overflow-hidden rounded-xl bg-[#070b14] ${className}`}
+      className={`clip-ring group relative block overflow-hidden rounded-xl bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.22),transparent_65%),radial-gradient(circle_at_80%_85%,rgba(247,197,72,0.18),transparent_60%),#0a101d] ${className}`}
     >
       <ClipPlayer name={name} alt={title} className="transition-transform duration-500 group-active:scale-[1.04]" />
       <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(4,6,12,0.75))]" />

@@ -103,7 +103,7 @@ export function Settings() {
         </div>
         <div className="px-4 py-3.5">
           <div className="mb-2.5 flex items-center gap-2 text-[14.5px]"><Ruler size={16} className="text-cyan/80" /> {t('weightUnit')}</div>
-          <Seg testid="wunit" value={st.weightUnit} onChange={(v) => st.set({ weightUnit: v })} items={[{ id: 'kg', label: 'kg' }, { id: 'lb', label: 'lb' }]} />
+          <Seg testid="wunit" value={st.weightUnit} onChange={(v) => st.set({ weightUnit: v })} items={[{ id: 'kg', label: 'KG' }, { id: 'lb', label: 'LBS' }]} />
         </div>
         <div className="px-4 py-3.5">
           <div className="mb-2.5 flex items-center gap-2 text-[14.5px]"><Ruler size={16} className="text-cyan/80" /> {t('lengthUnit')}</div>

@@ -63,7 +63,7 @@ export function Train() {
                 <Card key={p.id} onClick={() => navigate(`/train/program/${p.id}`)} className="relative overflow-hidden">
                   {p.media && (
                     <div className="scanlines relative h-[150px]">
-                      <Photo smart name={p.media} small alt="" />
+                      <Photo name={p.media} small alt="" />
                       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.1),rgba(4,6,12,0.92))]" />
                     </div>
                   )}

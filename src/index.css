@@ -20,8 +20,8 @@
   --font-sans: "Inter", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-sans-serif, system-ui, sans-serif;
   --font-ui: "Space Grotesk", "Inter", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Orbitron", "Space Grotesk", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-sans-serif, system-ui, sans-serif;
-  --font-brand: "Orbitron", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-brand: "Orbitron", "Space Grotesk", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @layer base {
@@ -134,6 +134,16 @@
   .pb-nav-resume { padding-bottom: calc(168px + env(safe-area-inset-bottom)); }
   html[lang='hi'] .label, html[lang='gu'] .label { font-family: var(--font-sans); letter-spacing: 0.02em; font-size: 12px; text-transform: none; }
   html[lang='hi'] .title-hud, html[lang='gu'] .title-hud { font-family: var(--font-ui); letter-spacing: 0; text-transform: none; }
+  html[lang='hi'] .font-mono, html[lang='gu'] .font-mono,
+  html[lang='hi'] .font-brand, html[lang='gu'] .font-brand,
+  html[lang='hi'] .font-display, html[lang='gu'] .font-display,
+  html[lang='hi'] .soc-badge, html[lang='gu'] .soc-badge,
+  html[lang='hi'] .readout, html[lang='gu'] .readout,
+  html[lang='hi'] .readout-gold, html[lang='gu'] .readout-gold {
+    font-family: var(--font-sans);
+    letter-spacing: 0.01em;
+    text-transform: none;
+  }
 }
 
 /* ── Cosmos background layers ── */
@@ -247,8 +257,8 @@ html.light .vignette { background: radial-gradient(130% 90% at 50% 40%, transpar
 
 /* sharper background: lighter veil, darker edges (vignette) so text stays readable */
 .shiva-veil { background:
-  radial-gradient(110% 65% at 50% 34%, rgba(3, 5, 11, 0.16), rgba(3, 5, 11, 0.44) 72%),
-  linear-gradient(180deg, rgba(3, 5, 11, 0.42) 0%, rgba(3, 5, 11, 0.2) 28%, rgba(3, 5, 11, 0.38) 68%, rgba(3, 5, 11, 0.74) 100%); }
+  radial-gradient(110% 65% at 50% 34%, rgba(3, 5, 11, 0.34), rgba(3, 5, 11, 0.58) 72%),
+  linear-gradient(180deg, rgba(3, 5, 11, 0.52) 0%, rgba(3, 5, 11, 0.34) 28%, rgba(3, 5, 11, 0.48) 68%, rgba(3, 5, 11, 0.80) 100%); }
 /* LIGHT mode: the SAME live Shiva background under a frosted daylight veil; cards are white glass with dark text */
 html.light .cosmos { background: radial-gradient(120% 80% at 50% -10%, #0b1630 0%, #060a16 45%, #03050b 100%); }
 html.light .shiva-veil { background:
@@ -634,7 +644,7 @@ html.light .run-map, html.light .run-map .leaflet-container { background: #e9eef
 .soc-card:hover,.soc-card:active{transform:translateY(-1px) scale(.995);box-shadow:0 0 0 1px rgba(255,255,255,.05) inset,0 10px 34px -10px var(--soc)}
 .soc-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.06);box-shadow:0 0 22px -4px var(--soc);flex:none}
 .soc-cta{flex:none;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--soc),color-mix(in srgb,var(--soc) 55%,#22d3ee));box-shadow:0 0 16px -4px var(--soc)}
-.soc-badge{font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#f7c548;border:1px solid rgba(247,197,72,.35);border-radius:999px;padding:3px 8px;white-space:nowrap}
+.soc-badge{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#f7c548;border:1px solid rgba(247,197,72,.35);border-radius:999px;padding:3px 8px;white-space:nowrap}
 .soc-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(10,16,30,.5);border:1px solid color-mix(in srgb,var(--soc) 40%,rgba(255,255,255,.08));box-shadow:0 0 14px -6px var(--soc);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 @keyframes soc-sheen{0%,70%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 @media (prefers-reduced-motion:reduce){.soc-card::after{animation:none}}
@@ -759,7 +769,7 @@ html.light .sbx-glow { opacity: .7; }
 /* cover cards: name inside the card */
 .pc-label { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit; text-align: left;
   background: linear-gradient(180deg, rgba(3, 5, 10, .32) 0%, rgba(3, 5, 10, 0) 18%, rgba(3, 5, 10, 0) 50%, rgba(3, 5, 10, .9) 100%); }
-.pc-label-num { position: absolute; top: 10px; left: 14px; font-family: var(--font-mono); font-weight: 800; font-size: 12px; letter-spacing: .14em; color: #f7c548; text-shadow: 0 1px 6px rgba(0, 0, 0, .9); }
+.pc-label-num { position: absolute; top: 10px; left: 14px; font-family: var(--font-mono); font-weight: 800; font-size: 11.5px; letter-spacing: .12em; color: #f7c548; background: rgba(4, 6, 12, 0.80); border: 1px solid rgba(247, 197, 72, 0.45); border-radius: 999px; padding: 2px 8px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .pc-label-title { position: absolute; left: 14px; right: 14px; bottom: 11px; color: #fffdf6; text-shadow: 0 2px 14px rgba(0, 0, 0, .8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* motion games: hub mini-art + squat demo figure (transform-only, cheap) */

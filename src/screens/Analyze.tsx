@@ -793,7 +793,7 @@ function LiveReps() {
   const mirror = facing === 'user'
 
   return (
-    <div className="glass-panel p-4">
+    <div className="glass-panel mb-6 p-4">
       <div className="flex items-center gap-2">
         <Chip active={kind === 'squat'} onClick={() => !running && setKind('squat')}>{t('camSquat')}</Chip>
         <Chip active={kind === 'pushup'} onClick={() => !running && setKind('pushup')}>{t('camPushup')}</Chip>

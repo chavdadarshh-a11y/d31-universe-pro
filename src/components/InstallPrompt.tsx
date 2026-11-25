@@ -38,7 +38,7 @@ export function InstallPrompt() {
   const set = useSettings((s) => s.set)
   if (!ok || dismissed) return null
   return (
-    <div className="neon-border fixed inset-x-3 top-[calc(env(safe-area-inset-top)+10px)] z-[55] mx-auto flex max-w-[480px] items-center gap-3 rounded-2xl bg-[#0b1420]/95 px-3 py-2.5 backdrop-blur-xl">
+    <div className="neon-border relative z-[5] mt-2 flex items-center gap-3 rounded-2xl bg-[#0b1420]/95 px-3 py-2.5 backdrop-blur-xl">
       <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="" className="h-9 w-9 rounded-xl" />
       <div className="min-w-0 flex-1"><div className="text-[13.5px] font-bold">{t('installTitle')}</div><div className="text-[11.5px] text-muted">{t('installSub')}</div></div>
       <button onClick={() => void promptInstall()} className="flex h-9 items-center gap-1.5 rounded-xl bg-cyan px-3 text-[13px] font-bold text-[#041016]"><Download size={14} /> {t('install')}</button>

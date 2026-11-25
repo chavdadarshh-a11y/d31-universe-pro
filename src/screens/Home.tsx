@@ -28,7 +28,7 @@ function HomeKnowledge() {
   if (!posts.length) return null
   return (
     <section data-testid="home-knowledge">
-      <HudTitle tag="KNOWLEDGE" action={<button className="text-[11px] font-semibold text-cyan" onClick={() => navigate('/knowledge')}>{t('seeAll')}</button>}>{t('knowledge')}</HudTitle>
+      <HudTitle action={<button className="text-[11px] font-semibold text-cyan" onClick={() => navigate('/knowledge')}>{t('seeAll')}</button>}>{t('knowledge')}</HudTitle>
       <PostPanels posts={posts} />
       <p className="mt-2 text-center text-[11px] text-dim">{t('ksHint')}</p>
     </section>
@@ -75,7 +75,7 @@ export function Home() {
 
       {/* HERO */}
       <section className="card hud-full neon-shadow relative mt-4 overflow-hidden !rounded-[24px]">
-        <div className="dark-zone scanlines holo-sweep relative h-[300px]">
+        <div className="dark-zone scanlines holo-sweep relative min-h-[320px]">
           <HeroRotator first={program?.media} alt={t('photoOf', { x: program?.name ?? 'D31' })} />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,12,0.55)_0%,rgba(4,6,12,0.05)_32%,rgba(4,6,12,0.35)_58%,rgba(4,6,12,0.97)_100%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,6,12,0.55),transparent_55%)]" />
@@ -92,7 +92,7 @@ export function Home() {
                   <span className="truncate text-[12px] text-muted">{program.name} · ~{estimateMinutes(day.items)} {t('min')}</span>
                 </div>
                 <h2 className="mt-1 truncate text-[22px] font-bold leading-tight">{day.name}</h2>
-                <div className="no-scrollbar mt-2 flex gap-1.5 overflow-x-auto">
+                <div className="mt-2 flex flex-wrap gap-1.5">
                   {day.items.map((it, k) => { const ex = exOf(it.exId); return ex.clip ? (
                     <button key={k} onClick={() => openClip({ name: ex.clip!, title: exName(ex, s.lang), exId: ex.id })} className="shrink-0 rounded-lg border border-gold/50 bg-[#04060c]/75 px-2 py-1 text-[11.5px] text-frost backdrop-blur shadow-[0_0_12px_-4px_rgba(247,197,72,0.7)]">
                       <span className="text-gold">▶</span> {exName(ex, s.lang)} <span className="text-cyan/80">{it.sets}×{it.target ?? it.reps ?? `${it.secs}s`}</span>

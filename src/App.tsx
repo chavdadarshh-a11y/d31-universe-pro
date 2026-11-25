@@ -174,7 +174,15 @@ export default function App() {
       else screen = <Train />
       break
     case 'player': screen = <Player />; showNav = false; break
-    case 'analyze': screen = <Suspense fallback={<div className="p-8 text-center text-muted">…</div>}><Analyze /></Suspense>; break
+    case 'analyze': screen = (
+      <Suspense fallback={
+        <div className="space-y-3 pt-4">
+          <div className="h-8 w-40 animate-pulse rounded-xl bg-white/[0.06]" />
+          <div className="h-11 w-full animate-pulse rounded-2xl bg-white/[0.05]" />
+          <div className="h-64 w-full animate-pulse rounded-[22px] border border-white/10 bg-white/[0.04]" />
+        </div>
+      }><Analyze /></Suspense>
+    ); break
     case 'library': screen = a ? <ExerciseDetail id={a} /> : <Library />; break
     case 'progress': screen = <Progress />; break
     case 'fuel': screen = <Fuel />; break
@@ -202,13 +210,13 @@ export default function App() {
           <span>{t('demoBanner')}</span>
         </div>
       )}
+      {showNav && <InstallPrompt />}
       <main className={showNav ? (hasActive ? 'pb-nav-resume' : 'pb-nav') : 'pb-8'}>
         <div key={`${window.location.hash}|${units}|${accountKey}`} className="rise">{screen}</div>
       </main>
       {showNav && root !== 'player' && <ResumeBar />}
       {showNav && <BottomNav current={navId} />}
       <ClipViewer />
-      {showNav && <InstallPrompt />}
       <Toast />
       <NeonInputs />
     </div>

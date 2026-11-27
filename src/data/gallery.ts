@@ -143,6 +143,9 @@ export const EX_CLIPS: Record<string, string> = {
   'back-squat': 'back-squat', 'bulgarian-split-squat': 'bulgarian-split-squat', 'hip-thrust': 'hip-thrust',
   'lat-pulldown': 'lat-pulldown', 'preacher-curl': 'preacher-curl', 'overhead-press': 'overhead-press',
   'triceps-pushdown': 'triceps-pushdown', headstand: 'headstand',
+  'hanging-knee-raise': 'hanging-knee-raise', 'pec-deck': 'pec-deck', 'battle-ropes': 'battle-ropes',
+  'seated-cable-row': 'seated-cable-row', 'dumbbell-bench-press': 'dumbbell-bench-press',
+  'face-pull': 'face-pull', 'barbell-row': 'barbell-row', 'pull-up': 'pull-up',
 }
 
 /** Today hero rotation (sharp, full-body, no overlays). */

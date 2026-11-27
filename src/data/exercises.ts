@@ -141,6 +141,26 @@ export const EXERCISES: Exercise[] = [
     benefits: ['Upper-body pushing strength', 'Chest growth', 'Strong triceps'],
   },
   {
+    id: 'dumbbell-bench-press', name: 'Dumbbell Bench Press', nameHi: 'डम्बल बेंच प्रेस', nameGu: 'ડમ્બેલ બેન્ચ પ્રેસ',
+    category: 'strength', equipment: ['dumbbell', 'bench'], level: 2, layer: 'FORCE', tracking: 'reps',
+    primary: ['chest'], secondary: ['triceps', 'shoulders'],
+    summary: 'A dumbbell press on the bench — each arm works on its own, with a deeper stretch than a barbell.',
+    steps: ['Lie on the bench, feet planted, a dumbbell in each hand over mid-chest.', 'Squeeze the shoulder blades together and down.', 'Lower the bells to the sides of your chest with elbows about 45–60°.', 'Press up until the arms are straight, without banging the bells together.'],
+    cues: ['Wrists stacked over elbows', 'Shoulder blades stay on the bench', 'Control the lowering'],
+    mistakes: ['Flaring the elbows to 90°', 'Arching the lower back off the bench', 'Cutting the stretch at the bottom'],
+    benefits: ['Chest strength with a long range of motion', 'Shoulder-friendly pressing', 'Left-right balance'],
+  },
+  {
+    id: 'pec-deck', name: 'Pec Deck', nameHi: 'पेक डेक', nameGu: 'પેક ડેક',
+    category: 'strength', equipment: ['cable'], level: 1, layer: 'FORCE', tracking: 'reps',
+    primary: ['chest'], secondary: ['shoulders'],
+    summary: 'Machine chest fly — arms travel in an arc to squeeze the chest with a stable back and seat.',
+    steps: ['Sit tall with the back against the pad, handles at about chest height.', 'A slight bend in the elbows, chest up.', 'Bring the handles together in a wide arc until you feel the chest squeeze.', 'Return slowly until the chest is stretched, without letting the arms go behind the line of the torso.'],
+    cues: ['Soft elbows, not a press', 'Chest up, shoulders down', 'Pause the squeeze'],
+    mistakes: ['Locking the elbows', 'Shrugging the shoulders', 'Using momentum to slam the pads'],
+    benefits: ['Chest isolation', 'A controlled stretch and squeeze', 'Easy to load without balancing free weights'],
+  },
+  {
     id: 'overhead-press', name: 'Overhead Press', nameHi: 'ओवरहेड प्रेस', nameGu: 'ઓવરહેડ પ્રેસ',
     category: 'strength', equipment: ['barbell', 'dumbbell'], level: 2, layer: 'FORCE', tracking: 'reps',
     primary: ['shoulders'], secondary: ['triceps', 'traps', 'abs'],
@@ -241,6 +261,16 @@ export const EXERCISES: Exercise[] = [
     cues: ['No swinging', 'Curl the pelvis', 'Slow lowering'],
     mistakes: ['Using momentum', 'Arching the back', 'Bending knees to cheat (unless regressing)'],
     benefits: ['Lower-ab strength', 'Grip endurance', 'L-sit and toes-to-bar carryover'],
+  },
+  {
+    id: 'hanging-knee-raise', name: 'Hanging Knee Raise', nameHi: 'हैंगिंग नी रेज़', nameGu: 'હેંગિંગ ની રેઝ',
+    category: 'calisthenics', equipment: ['bar'], level: 1, layer: 'CONTROL', tracking: 'reps',
+    primary: ['abs'], secondary: ['obliques', 'forearms', 'lats'],
+    summary: 'Hang from a bar and lift the knees toward the chest. The standard first step before straight-leg raises.',
+    steps: ['Hang from a bar with active shoulders and a still body.', 'Brace the midsection and lift the knees toward the chest.', 'Curl the pelvis slightly up at the top.', 'Lower the legs slowly to a hang, without swinging.'],
+    cues: ['No swinging', 'Knees up, then a small pelvic curl', 'Slow lowering'],
+    mistakes: ['Kipping or swinging the legs', 'Only lifting the thighs and leaving the pelvis still', 'Shrugging the shoulders up to the ears'],
+    benefits: ['Lower-ab and hip-flexor strength', 'Grip endurance', 'A clean progression to hanging leg raises'],
   },
   {
     id: 'dragon-flag', name: 'Dragon Flag', nameHi: 'ड्रैगन फ्लैग', nameGu: 'ડ્રેગન ફ્લેગ',
@@ -429,6 +459,16 @@ export const EXERCISES: Exercise[] = [
     mistakes: ['Jumping too high', 'Big arm circles', 'Landing on heels'],
     benefits: ['Heart health', 'Coordination', 'Fat loss support'],
   },
+  {
+    id: 'battle-ropes', name: 'Battle Ropes', nameHi: 'बैटल रोप्स', nameGu: 'બેટલ રોપ્સ',
+    category: 'cardio', equipment: ['none'], level: 1, layer: 'EXPRESSION', tracking: 'time',
+    primary: ['shoulders'], secondary: ['abs', 'lats', 'forearms', 'quads'],
+    summary: 'Wave heavy ropes in a steady rhythm for high-effort cardio and shoulder endurance.',
+    steps: ['Stand in a short athletic stance, one rope end in each hand.', 'Keep the core tight and the knees soft.', 'Drive the arms up and down (or alternately) so the ropes make even waves.', 'Breathe and hold the rhythm for the work interval.'],
+    cues: ['Waves come from the arms and shoulders, not a wild torso', 'Stay in the stance', 'Even rhythm'],
+    mistakes: ['Standing too upright and still', 'Huge, messy slams with no rhythm', 'Holding the breath'],
+    benefits: ['Conditioning', 'Shoulder and grip endurance', 'A hard finish that does not load the spine'],
+  },
   // ───────────── v3 · D31 skill & strength library (from Darshan's training topics) ─────────────
   {
     id: 'dead-hang', name: 'Active Dead Hang', nameHi: 'एक्टिव डेड हैंग', nameGu: 'એક્ટિવ ડેડ હેંગ',
@@ -525,6 +565,17 @@ export const EXERCISES: Exercise[] = [
     cues: ['Brace — torso does not move', 'Elbows back, not out', 'Pause at the ribs'],
     mistakes: ['Torso rising every rep', 'Rounded lower back', 'Jerking the weight'],
     benefits: ['Upper-back thickness', 'Posture', 'Supports heavy pressing and pulling'],
+  },
+
+  {
+    id: 'seated-cable-row', name: 'Seated Cable Row', nameHi: 'सीटेड केबल रो', nameGu: 'સીટેડ કેબલ રો',
+    category: 'strength', equipment: ['cable', 'bench'], level: 1, layer: 'FORCE', tracking: 'reps',
+    primary: ['upper_back', 'lats'], secondary: ['biceps', 'rear_delts', 'forearms'],
+    summary: 'A seated horizontal pull on a cable — thick upper back with a fixed path.',
+    steps: ['Sit tall with the feet planted and a slight bend in the knees.', 'Grip the handle, arms long, chest up, shoulders down.', 'Row the handle to the lower ribs, driving the elbows back.', 'Pause, then return slowly until the arms are straight without rounding the back.'],
+    cues: ['Chest up, torso still', 'Elbows back, not out', 'Shoulders down at the finish'],
+    mistakes: ['Rocking the torso to move the weight', 'Shrugging the shoulders to the ears', 'Rounding the upper back on the stretch'],
+    benefits: ['Upper-back thickness', 'Posture', 'A stable alternative to a barbell row'],
   },
   {
     id: 'face-pull', name: 'Face Pull', nameHi: 'फेस पुल', nameGu: 'ફેસ પુલ',

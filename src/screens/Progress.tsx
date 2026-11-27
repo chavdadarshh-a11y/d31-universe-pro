@@ -255,6 +255,7 @@ function Photos() {
         <Button onClick={() => input.current?.click()}><Camera size={16} /> {t('addPhoto')}</Button>
         <Button variant="outline" disabled={pair.length !== 2} onClick={() => setCompare(true)}><Columns2 size={16} /> {t('compare')}</Button>
       </div>
+      <button type="button" data-testid="progress-search" onClick={() => navigate('/analyze/search')} className="mt-2 text-[12.5px] font-semibold text-cyan">{t('aiSearchOpen')} →</button>
       <p className="mt-2 text-[12px] text-dim">{s.photos.length >= 2 ? t('pickTwo') : t('photoPrivate')}</p>
       {s.photos.length === 0 ? (
         <div className="mt-3"><Empty icon={<Camera size={28} />} text={t('noPhotos')} /></div>

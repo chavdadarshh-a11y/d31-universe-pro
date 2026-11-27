@@ -84,6 +84,7 @@ export function ShootGallery() {
   return (
     <div className="mt-3">
       <p className="text-[13px] leading-snug text-muted">{t('gallerySub')} <span className="font-mono text-cyan">{t('photosN', { n: SHOOT.length })}</span></p>
+      <button type="button" data-testid="shoot-search" onClick={() => navigate('/analyze/search')} className="mt-2 text-[12.5px] font-semibold text-cyan">{t('aiSearchOpen')} →</button>
       <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4">
         <Chip active={!cat} onClick={() => setCat(null)}>{t('all')} · {SHOOT.length}</Chip>
         {SHOOT_CATS.map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(cat === c ? null : c)}>{t(`gcat_${c}`)} · {SHOOT.filter((p) => p.cat === c).length}</Chip>)}

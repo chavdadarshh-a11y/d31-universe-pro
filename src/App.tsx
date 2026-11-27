@@ -45,6 +45,9 @@ import { ClipViewer, GradDefs } from './components/hud'
 import { EndWorkoutSheet, SessionClock } from './components/EndWorkout'
 
 const Analyze = lazy(() => import('./screens/Analyze'))
+const VideoMoments = lazy(() => import('./screens/VideoMoments'))
+const AskImage = lazy(() => import('./screens/AskImage'))
+const MediaSearch = lazy(() => import('./screens/MediaSearch'))
 
 const NAV = [
   { id: 'home', icon: HomeIcon, key: 'navHome' },
@@ -177,15 +180,18 @@ export default function App() {
       else screen = <Train />
       break
     case 'player': screen = <Player />; showNav = false; break
-    case 'analyze': screen = (
-      <Suspense fallback={
+    case 'analyze': {
+      const fallback = (
         <div className="space-y-3 pt-4">
           <div className="h-8 w-40 animate-pulse rounded-xl bg-white/[0.06]" />
           <div className="h-11 w-full animate-pulse rounded-2xl bg-white/[0.05]" />
           <div className="h-64 w-full animate-pulse rounded-[22px] border border-white/10 bg-white/[0.04]" />
         </div>
-      }><Analyze /></Suspense>
-    ); break
+      )
+      const page = a === 'moments' ? <VideoMoments /> : a === 'ask' ? <AskImage /> : a === 'search' ? <MediaSearch /> : <Analyze />
+      screen = <Suspense fallback={fallback}>{page}</Suspense>
+      break
+    }
     case 'library': screen = a ? <ExerciseDetail id={a} /> : <Library />; break
     case 'progress': screen = <Progress />; break
     case 'fuel': screen = <Fuel />; break

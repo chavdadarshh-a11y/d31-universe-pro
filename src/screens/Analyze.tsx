@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Upload, Eye, CheckCircle2, AlertTriangle, Wrench, Target, ArrowRight, X, Camera, Square, RotateCcw, Save, Volume2, VolumeX, SwitchCamera, Zap, ChevronRight, Info, ScanLine } from 'lucide-react'
+import { Upload, Eye, Film, Images, Search, CheckCircle2, AlertTriangle, Wrench, Target, ArrowRight, X, Camera, Square, RotateCcw, Save, Volume2, VolumeX, SwitchCamera, Zap, ChevronRight, Info, ScanLine } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useT } from '../i18n'
 import { SearchBox } from '../components/SearchBox'
 import { Badge, Button, Card, Chip, Header, Label, Sheet, Stepper, Tabs } from '../components/ui'
+import { OfflineAiPack } from '../components/OfflineAiPack'
 import { BodyMap } from '../components/BodyMap'
-import { hashQuery } from '../lib/router'
+import { hashQuery, navigate } from '../lib/router'
 import { runAnalysis, HEADER_KEYS, D31_ANALYSIS_HEADERS } from '../lib/analyze'
 import { isLive } from '../lib/env'
 import { fmtDate, speak, uid } from '../lib/util'
@@ -41,8 +42,23 @@ export default function Analyze() {
   return (
     <div>
       <Header title={t('navAnalyze')} />
+      <p className="mb-2 text-[11.5px] uppercase tracking-[0.16em] text-gold/80">{t('aiTools')}</p>
+      <div className="mb-3 grid grid-cols-3 gap-2">
+        {([
+          ['moments', '/analyze/moments', Film, 'aiMoments', 'aiMomentsSub', 'analyze-ai-moments'],
+          ['ask', '/analyze/ask', Images, 'aiAsk', 'aiAskSub', 'analyze-ai-ask'],
+          ['search', '/analyze/search', Search, 'aiSearch', 'aiSearchSub', 'analyze-ai-search'],
+        ] as const).map(([, to, Icon, title, sub, tid]) => (
+          <button key={tid} type="button" data-testid={tid} onClick={() => navigate(to)} className="card holo-sweep p-2.5 text-left">
+            <span className="grid h-8 w-8 place-items-center rounded-lg border border-cyan/40 bg-cyan/10 text-cyan"><Icon size={15} /></span>
+            <span className="title-hud mt-1.5 block text-[11.5px] leading-tight text-frost">{t(title)}</span>
+            <span className="mt-0.5 block text-[10px] leading-snug text-muted">{t(sub)}</span>
+          </button>
+        ))}
+      </div>
       <Tabs value={tab} onChange={setTab} items={[{ id: 'form', label: t('formCheck') }, { id: 'live', label: t('liveReps') }]} />
       <div className="mt-4">{tab === 'form' ? <FormCheck initialEx={q.get('ex') ?? ''} /> : <LiveReps />}</div>
+      <OfflineAiPack className="mt-4" />
     </div>
   )
 }

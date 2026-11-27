@@ -18,6 +18,7 @@ import { addExerciseToActive, computeRecords, finishWorkout, isStale, lastTime, 
 import { beatsRecord, summarizeSets, volumeOf, SET_TYPES } from '../lib/training'
 import type { ActiveWorkout, LoggedSet, SetType, WorkoutSession } from '../types'
 import { RomPicker, RomTag } from '../components/RomLevels'
+import { AudioScribe } from '../components/AudioScribe'
 
 const TYPE_STYLE: Record<SetType, string> = {
   warmup: 'border-gold/50 bg-gold/10 text-gold',
@@ -131,6 +132,7 @@ export function Player() {
           <Button onClick={() => startEmpty(t('emptyWorkout'))}><Play size={15} fill="currentColor" /> {t('emptyWorkout')}</Button>
           <Button variant="outline" onClick={() => navigate('/train')}>{t('choose')}</Button>
         </div>
+        <div className="mx-auto mt-2 max-w-sm text-left"><AudioScribe /></div>
       </div>
     )
   }
@@ -274,6 +276,7 @@ export function Player() {
         ))}
       </div>
 
+      <AudioScribe />
       <Button variant="outline" className="mt-4 w-full" onClick={() => setPicker(true)}><Plus size={16} /> {t('addExercise')}</Button>
       <Button className="mt-2 w-full" data-testid="player-finish" onClick={onDone}><Check size={16} /> {t('finish')}</Button>
       <Button variant="ghost" className="mt-2 w-full !text-bad" onClick={() => setMenu(true)}><X size={15} /> {t('endWorkout')}</Button>

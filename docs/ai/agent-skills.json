@@ -1,0 +1,65 @@
+{
+  "name": "d31-coach-core",
+  "description": "D31.UNIVERSE Coach Core tools for a future on-device Gemma-4 / LiteRT-LM build. The web app and the current TWA do not run these models.",
+  "tools": [
+    {
+      "name": "log_set",
+      "description": "Save one set into the open Workout Player after the user confirms. Use when they said something like “Squat 120 kg 5 reps”.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "exercise_id": { "type": "string", "description": "Library exercise id, e.g. back-squat" },
+          "exercise_name": { "type": "string", "description": "Spoken or typed name, if the id is not known yet" },
+          "reps": { "type": "integer", "minimum": 0 },
+          "kg": { "type": "number", "minimum": 0, "description": "Weight already converted to kilograms" },
+          "secs": { "type": "integer", "minimum": 0, "description": "Hold time in seconds, for timed moves" },
+          "note": { "type": "string" },
+          "confirmed": { "type": "boolean", "description": "Must be true before the set is written" }
+        },
+        "required": ["confirmed"]
+      }
+    },
+    {
+      "name": "adjust_program",
+      "description": "Propose a change to the next session in the user’s current program. Do not silently overwrite their plan; show the change and wait for confirmation.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "program_id": { "type": "string" },
+          "day_index": { "type": "integer", "minimum": 0 },
+          "reason": { "type": "string" },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "exercise_id": { "type": "string" },
+                "action": { "type": "string", "enum": ["add", "remove", "set_reps", "set_kg", "set_rest"] },
+                "reps": { "type": "integer" },
+                "kg": { "type": "number" },
+                "rest_sec": { "type": "integer" }
+              },
+              "required": ["action"]
+            }
+          }
+        },
+        "required": ["reason", "changes"]
+      }
+    },
+    {
+      "name": "find_moment",
+      "description": "Jump a locally analysed lift video to a timestamp (deepest squat, form break, lockout, deepest push-up, or a given rep). The video must already have been read on-device; this tool does not upload it.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["deepest-squat", "form-break", "deepest-pushup", "lockout", "reps"]
+          },
+          "query": { "type": "string", "description": "The user’s original phrase, in en/hi/gu or Hinglish" }
+        },
+        "required": ["kind"]
+      }
+    }
+  ]
+}

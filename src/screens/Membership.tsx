@@ -21,6 +21,7 @@ import { ActiveUnlockList, PostPassButtons, UpgradeNudge, WalletPayToggle, shows
 import { foundingDiscountActive, spotsLeft, useFoundingCount, useIsFounding } from '../lib/founding'
 import { useWallet } from '../lib/wallet'
 import { REFERRAL } from '../config/plans'
+import { isOnWaitlist, joinWaitlist, type WaitPlan } from '../lib/waitlist'
 
 const plusDays = (d: number) => new Date(Date.now() + d * 86400000).toISOString()
 const progCount = (p: PlanId) => PROGRAMS.filter((x) => x.plan === p).length
@@ -51,6 +52,67 @@ function rows(t: (k: StringKey, v?: Record<string, string | number>) => string):
     { label: t('cmp_early'), cells: [false, false, t('cmp_early_sel'), true] },
     { label: t('cmp_backup'), cells: by('download.backup') },
   ]
+}
+
+
+function WaitlistTiers({ active }: { active: PlanId }) {
+  const t = useT()
+  const user = useApp((s) => s.user)
+  const toast = useApp((s) => s.showToast)
+  const [on, setOn] = useState<Partial<Record<WaitPlan, boolean>>>({
+    pro: isOnWaitlist('pro'), gold: isOnWaitlist('gold'), platinum: isOnWaitlist('platinum'),
+  })
+  const [busy, setBusy] = useState<WaitPlan | null>(null)
+  const bits: Record<PlanId, string[]> = {
+    free: [t('cmp_library'), t('cmp_logging'), t('cmp_tracking'), t('cmp_counter'), t('aiChecksN', { n: PLAN_BY_ID.free.analyses })],
+    pro: [t('cmp_programs'), t('aiChecksN', { n: PLAN_BY_ID.pro.analyses }), t('cmp_photos'), t('cmp_knowledgeDl'), t('cmp_offline')],
+    gold: [t('cmp_platinumPaths'), t('aiChecksN', { n: PLAN_BY_ID.gold.analyses }), t('cmp_pdfs'), t('cmp_langs'), t('cmp_support_std')],
+    platinum: [t('aiChecksN', { n: PLAN_BY_ID.platinum.analyses }), t('cmp_support_vip'), t('cmp_early')],
+  }
+  const join = async (id: WaitPlan) => {
+    if (on[id]) return
+    if (!user) { toast(t('waitlistSignIn')); navigate('/auth?next=/membership'); return }
+    setBusy(id)
+    const r = await joinWaitlist(id)
+    setBusy(null)
+    setOn((s) => ({ ...s, [id]: true }))
+    toast(r.already ? t('waitlistJoined') : t('waitlistThanks', { p: t(`plan_${id}`) }))
+  }
+  return (
+    <div className="mt-5" data-testid="plan-compare">
+      <h2 className="label">{t('plansCompareTitle')}</h2>
+      <p className="mt-1 text-[12.5px] leading-snug text-muted">{t('plansCompareSub')}</p>
+      <div className="mt-3 space-y-3">
+        {PLANS.map((p) => {
+          const current = active === p.id
+          const paid = p.id !== 'free'
+          const joined = paid && on[p.id as WaitPlan]
+          return (
+            <div key={p.id} data-testid={`plan-card-${p.id}`} className={`card relative overflow-hidden p-4 ${p.id === 'platinum' ? 'platinum-card' : p.id === 'gold' ? 'gold-card' : ''}`}>
+              <span className="absolute inset-x-0 top-0 h-[3px]" style={{ background: p.accent }} />
+              <div className="flex items-center gap-2">
+                <h3 className={`text-[18px] font-extrabold ${p.id === 'platinum' ? 'text-platinum' : ''}`} style={p.id === 'platinum' ? undefined : { color: p.accent }}>{t(`plan_${p.id}`)}</h3>
+                {current && <Badge tone="ok">{t('current')}</Badge>}
+                {paid && <Badge tone="gold">{t('comingSoonCta')}</Badge>}
+              </div>
+              <div className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.16em] text-muted">{t(`posRole_${p.id}` as StringKey)}</div>
+              <p className="mt-0.5 text-[12.5px] leading-snug text-muted">{t(`posLine_${p.id}` as StringKey)}</p>
+              <ul className="mt-2 space-y-1">
+                {bits[p.id].map((line) => (
+                  <li key={line} className="flex items-start gap-1.5 text-[12.5px] leading-snug"><Check size={13} className="mt-0.5 shrink-0 text-cyan" /> <span>{line}</span></li>
+                ))}
+              </ul>
+              {paid && (
+                <Button className="mt-3 w-full" size="sm" variant={joined ? 'ghost' : 'outline'} disabled={!!busy || !!joined} onClick={() => void join(p.id as WaitPlan)} data-testid={`waitlist-${p.id}`}>
+                  {busy === p.id ? '…' : joined ? t('waitlistJoined') : t('joinWaitlist')}
+                </Button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 export function Membership() {
@@ -276,6 +338,8 @@ export function Membership() {
         {!IN_APP && walletBal > 0 && <span className="font-mono text-[12px] font-bold text-gold">{t('walletBal', { n: walletBal })}</span>}
       </button>
       </>}
+
+      {IN_APP && <WaitlistTiers active={plan} />}
 
       {/* comparison */}
       <h2 className="label mt-5 scroll-mt-[5.5rem]">{t('features')}</h2>

@@ -165,5 +165,35 @@ ok(rew.ok === true, `first paid purchase rewards both wallets (got ${JSON.string
 ok((await as(A, () => db.query('select public.wallet_balance() n'))).rows[0].n === 25, 'referrer A received ₹25')
 ok((await as(B, () => db.query('select public.wallet_balance() n'))).rows[0].n === 25, 'friend B received ₹25')
 
+
+// v4.5.1 page views, waitlist, owner stats
+async function asAnon(fn) {
+  await db.exec(`set role anon; select set_config('request.jwt.claim.sub', '', false);`)
+  try { return await fn() } finally { await db.exec(`reset role;`) }
+}
+
+const anonOk = await asAnon(() => db.exec(`insert into public.page_views (visitor_id, path, referrer, device, language) values ('v1', '/home', '', 'phone', 'en')`))
+ok(true, 'anon can insert a page view without email')
+let anonEmailBlocked = false
+try { await asAnon(() => db.exec(`insert into public.page_views (visitor_id, path, email) values ('v2', '/home', 'sneak@x.in')`)) } catch { anonEmailBlocked = true }
+ok(anonEmailBlocked, 'anon cannot attach an email to a page view')
+
+await as(A, () => db.exec(`insert into public.page_views (visitor_id, path, user_id, email, device, language) values ('vA', '/membership', '${A}', 'a@x.in', 'computer', 'en')`))
+const seenViewsB = await as(B, () => db.query('select count(*)::int c from public.page_views'))
+ok(seenViewsB.rows[0].c === 0, 'RLS: user B cannot read page views')
+
+const forbidden = await as(A, () => db.query('select public.owner_site_stats() r'))
+ok(forbidden.rows[0].r.ok === false && forbidden.rows[0].r.reason === 'forbidden', 'non-owner cannot read owner stats')
+
+await db.exec(`insert into public.owner_emails (email) values ('a@x.in') on conflict do nothing`)
+const stats = await as(A, () => db.query('select public.owner_site_stats() r'))
+ok(stats.rows[0].r.ok === true && stats.rows[0].r.page_views >= 2, `owner can read stats (views=${stats.rows[0].r?.page_views})`)
+ok(stats.rows[0].r.unique_visitors >= 1, 'owner stats include unique visitors')
+ok(Array.isArray(stats.rows[0].r.users), 'owner stats include signed-up users')
+
+await as(A, () => db.exec(`insert into public.plan_waitlist (plan, email, user_id, visitor_id) values ('gold', 'a@x.in', '${A}', 'vA')`))
+const seenWaitB = await as(B, () => db.query('select count(*)::int c from public.plan_waitlist'))
+ok(seenWaitB.rows[0].c === 0, 'RLS: user B cannot read the waitlist')
+
 console.log(failures ? `\n${failures} check(s) failed` : '\nAll database checks passed')
 process.exit(failures ? 1 : 0)

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Beam } from '../components/Beam'
-import { Moon, Sun, MonitorSmartphone, Languages, Ruler, Timer, Volume2, Vibrate, Bell, Film, Shield, Download, Upload, Info, Mail, FileText, AlertTriangle, Receipt, Smartphone, Mic, Users, Ticket } from 'lucide-react'
+import { Moon, Sun, MonitorSmartphone, Languages, Ruler, Timer, Volume2, Vibrate, Bell, Film, Shield, Download, Upload, Info, Mail, FileText, AlertTriangle, Receipt, Smartphone, Mic, Users, Ticket, BarChart3 } from 'lucide-react'
 import { useApp } from '../store/app'
 import { useSettings, resolvedTheme } from '../store/settings'
 import { useT, LANGS } from '../i18n'
@@ -13,6 +13,7 @@ import { askNotificationPermission, notify } from '../lib/reminders'
 import { useInstallable, promptInstall } from '../components/InstallPrompt'
 import { cloud } from '../lib/cloud'
 import { IN_APP } from '../lib/appMode'
+import { isOwner } from '../lib/owner'
 import { Switch } from '../components/Switch'
 
 /** All on/off switches use the v4.1 pill switch. */
@@ -155,6 +156,7 @@ export function Settings() {
 
       <Section title={t('aboutLbl')}>
         <Row icon={<Info size={18} />} label="D31.UNIVERSE" sub={`${t('version')} ${APP_VERSION}${isLive ? '' : ` · ${t('demo')}`}`} />
+        {isOwner(s.user) && <Row icon={<BarChart3 size={18} />} label={t('ownerStats')} sub={t('statsSub')} onClick={() => navigate('/stats')} />}
         <Row icon={<Smartphone size={18} />} label={t('installApp')} sub={installable ? undefined : t('installHint')} onClick={installable ? () => void promptInstall() : undefined} />
         <Row icon={<Shield size={18} />} label={t('privacy')} onClick={() => navigate('/legal/privacy')} />
         <Row icon={<FileText size={18} />} label={t('terms')} onClick={() => navigate('/legal/terms')} />

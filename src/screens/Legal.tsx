@@ -23,7 +23,7 @@ const REFERRAL_TERMS = `Each member gets a personal referral link (?ref=CODE). W
 import { env } from '../lib/env'
 import { IN_APP } from '../lib/appMode'
 
-const UPDATED = '15 November 2026'
+const UPDATED = '28 November 2026'
 
 /**
  * Plain-language legal pages. They are a solid starting point written for an Indian
@@ -42,6 +42,7 @@ function docs(biz: string, email: string): Record<string, { title: string; body:
         ['Guest mode & on-device accounts', 'If you use the app as a guest, or with an account created on this phone (demo mode), your data stays in your browser storage on this device only. Passwords of on-device accounts are salted and hashed and never leave the phone. Clearing browser data deletes it.'],
         ['D31 Knowledge', 'Knowledge posts, photos, PDFs and videos are loaded from D31’s public Google Drive folder. Opening them contacts Google’s servers, which may log your IP address like any website.'],
         ['Storage & security', 'Signed-in data is stored with Supabase (row-level security: only you can read your rows). Progress photos are kept in a private storage bucket.'],
+        ['Site use (analytics)', 'We record basic site-use data so the owner can see how many people opened the app and which pages they used: a random visitor id stored on your device, the page opened, the time, the referrer, the device type (phone, tablet or computer), the language, and, if you are signed in, your account id and email. Anonymous visitors are not identified by name — only counts. This is not used for advertising. You can use the app without an account.'],
         ['Your rights', `You can export a JSON backup from Settings → Privacy & data, and delete your account and all its data yourself from Profile → Delete account (cloud accounts are deleted on our server too). To exercise any right, ${contact}. We respond within 30 days.`],
         ['Children', 'D31 is not intended for children under 13. Users aged 13–17 should use the app with a parent or guardian’s consent.'],
         ['Changes', 'If we change this policy we will update the date above and notify you in the app.'],

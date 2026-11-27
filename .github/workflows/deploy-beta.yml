@@ -29,6 +29,10 @@ jobs:
         env:
           VITE_SUBPATH: beta   # site.config.json siteUrl + beta/ (the knowledge feed stays at the site root)
           VITE_BETA: '1'
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GOATCOUNTER: ${{ secrets.VITE_GOATCOUNTER }}
+          VITE_OWNER_EMAILS: ${{ secrets.VITE_OWNER_EMAILS }}
       - name: Knowledge video previews (reuse the ones already cut for the site; never blocks a deploy)
         continue-on-error: true
         run: |

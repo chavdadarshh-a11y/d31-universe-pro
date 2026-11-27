@@ -33,12 +33,14 @@ import { Knowledge, KnowledgePost } from './screens/Knowledge'
 import { NotFound } from './screens/NotFound'
 import { NeonInputs } from './components/NeonInputs'
 import { Downloads } from './screens/Downloads'
+import { Stats } from './screens/Stats'
 import { useDownloads, onWifi, persistStorage } from './lib/downloads'
 import { trustedNow } from './lib/plans'
 import { downloadAccess } from './lib/entitlements'
 import { InstallPrompt } from './components/InstallPrompt'
 import { useSettings, applyTheme } from './store/settings'
 import { useReminders } from './lib/reminders'
+import { mountGoatCounter, trackPageView } from './lib/analytics'
 import { ClipViewer, GradDefs } from './components/hud'
 import { EndWorkoutSheet, SessionClock } from './components/EndWorkout'
 
@@ -156,6 +158,7 @@ export default function App() {
     return () => mq.removeEventListener('change', on)
   }, [theme])
   useReminders()
+  useEffect(() => { mountGoatCounter(); void trackPageView() }, [root, a, b])
 
   useEffect(() => {
     if (onboarded && !root) navigate('/home')
@@ -194,6 +197,7 @@ export default function App() {
     case 'auth': screen = <Auth />; showNav = false; break
     case 'settings': screen = <Settings />; break
     case 'downloads': screen = <Downloads />; break
+    case 'stats': screen = <Stats />; showNav = true; break
     case 'knowledge': screen = a ? <KnowledgePost id={decodeURIComponent(a)} /> : <Knowledge />; break
     case 'home': case undefined: case '': screen = <Home />; break
     default: screen = <NotFound />

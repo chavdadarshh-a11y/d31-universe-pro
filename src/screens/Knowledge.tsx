@@ -19,7 +19,7 @@ import { Cover, CoverCard, useReveal } from '../components/PostCover'
 import { PostCascade } from '../components/PostCascade'
 import { SearchBox } from '../components/SearchBox'
 import { PdfViewer } from '../components/PdfViewer'
-import { canSaveType, sortPosts, isOpenPost, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
+import { canSaveType, sortPosts, isViewablePost, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
 import { IN_APP } from '../lib/appMode'
 import { PostPassBanner, PostPassButtons, Remain, showsPostPasses, useOpenUntil, useSlotCount } from '../components/PostPasses'
 
@@ -113,7 +113,7 @@ function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: numbe
   const toast = useApp((s) => s.showToast)
   if (!ok)
     return (
-      <button data-testid="k-dl-locked" onClick={() => (IN_APP ? toast(t('memberOnly')) : navigate('/membership'))} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/40 px-3 text-[12px] font-bold text-gold" title={t('kPlatinumOnly')}>
+      <button data-testid="k-dl-locked" onClick={() => (IN_APP ? toast(t('memberOnly')) : navigate('/membership'))} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-gold/40 px-3 text-[12px] font-bold text-gold" title={t('dlNeedsPlan', { p: t('plan_pro') })}>
         <Lock size={13} /> {t('plan_pro')}
       </button>
     )
@@ -331,13 +331,13 @@ export function KnowledgePost({ id }: { id: string }) {
         <Lock size={18} className="mt-0.5 shrink-0 text-gold" />
         <div>
           <div className="font-mono text-[12px] font-bold uppercase tracking-wider text-gold">{t('libSoon')}</div>
-          <p className="mt-1 text-[13.5px] leading-snug text-muted">{t('kSoonNote')}</p>
+          <p className="mt-1 text-[13.5px] leading-snug text-muted">{t('kSoonEmpty')}</p>
         </div>
       </Card>
       <div className="mt-6"><Button variant="ghost" className="w-full" onClick={() => navigate('/knowledge')}>{t('kAll')}</Button></div>
     </div>
   )
-  const freeOpen = isOpenPost(p.number) // config/knowledgeOpen.ts: open to every user, every language
+  const freeOpen = isViewablePost(p.number) // view all real files when VIEW_ALL_OPEN, else only OPEN_POSTS
 
   const vids = pick(p.videos, lang)
   const pdfs = pick(p.pdfs, lang)

@@ -7,6 +7,7 @@ import { SITE_PATH } from '../config/site'
 import { useEffect, useState } from 'react'
 import type { Lang } from '../types'
 import { OPEN_LIMITS, OPEN_POSTS } from '../config/knowledgeOpen'
+import { VIEW_ALL_OPEN } from '../config/access'
 
 export type KLang = 'en' | 'hi' | 'gu'
 export interface KFile { id: string; name: string; mime: string; size?: number; lang?: KLang }
@@ -16,7 +17,7 @@ export interface KPost {
   pdfs: Record<KLang | 'all', KFile[]>; videos: Record<KLang | 'all', KFile[]>
   meta: { title?: Partial<Record<KLang, string>>; description?: Partial<Record<KLang, string>> } | null
   warnings: string[]; empty: boolean
-  /** set by curate(): not one of OPEN_POSTS → cover only, "Coming soon", no files */
+  /** set by curate(): no real files, or (when VIEW_ALL_OPEN is false) not one of OPEN_POSTS → cover only, "Coming soon" */
   locked?: boolean
   /** locked post whose cover is the first page of its own PDF (kept only as the cover image) */
   coverFromPdf?: boolean
@@ -45,18 +46,32 @@ function limitMap(map: Record<KLang | 'all', KFile[]>, n: number) {
   return out
 }
 export const isOpenPost = (n: number) => OPEN_POSTS.includes(n)
-/** Applies the OPEN_POSTS rule to the Drive feed (idempotent). */
+/** True when every visitor may browse this post's real files (VIEW_ALL_OPEN, or it is one of OPEN_POSTS). */
+export const isViewablePost = (n: number) => VIEW_ALL_OPEN || isOpenPost(n)
+function hasFiles(p: KPost) {
+  const n = (m: Record<string, KFile[]>) => Object.values(m).reduce((a, xs) => a + xs.length, 0)
+  return !p.empty && !!(p.cover || p.photos.length || n(p.pdfs) || n(p.videos))
+}
+/** Applies the open-post / view-all rule to the Drive feed (idempotent). */
 export function curate(m: KManifest): KManifest {
   const posts = m.posts.map((p): KPost => {
-    if (p.empty) return p
-    if (!isOpenPost(p.number)) {
+    if (!hasFiles(p)) {
+      const pdf = p.pdfs.en[0] ?? p.pdfs.all[0] ?? p.pdfs.hi[0] ?? p.pdfs.gu[0]
+      const cover = p.cover ?? pdf ?? p.photos[0] ?? null
+      // keep feed-empty posts empty (hidden). A numbered post with no files yet stays visible as Coming soon.
+      return { ...p, locked: true, cover, coverFromPdf: p.coverFromPdf ?? (!p.cover && !!pdf), photos: [], pdfs: emptyMap(), videos: emptyMap(), meta: p.meta ? { title: p.meta.title } : null }
+    }
+    if (!isViewablePost(p.number)) {
       // keep only what the cover needs: its COVER image, else the first page of its own PDF, else its first photo
       const pdf = p.pdfs.en[0] ?? p.pdfs.all[0] ?? p.pdfs.hi[0] ?? p.pdfs.gu[0]
       const cover = p.cover ?? pdf ?? p.photos[0] ?? null
       return { ...p, locked: true, cover, coverFromPdf: p.coverFromPdf ?? (!p.cover && !!pdf), photos: [], pdfs: emptyMap(), videos: emptyMap(), meta: p.meta ? { title: p.meta.title } : null }
     }
-    const photos = distinct(p.photos.filter((f) => f.id !== p.cover?.id && !/^cover\./i.test(f.name))).slice(0, OPEN_LIMITS.photos)
-    return { ...p, locked: false, photos, videos: limitMap(p.videos, OPEN_LIMITS.videos), pdfs: limitMap(p.pdfs, OPEN_LIMITS.pdfs) }
+    if (!VIEW_ALL_OPEN) {
+      const photos = distinct(p.photos.filter((f) => f.id !== p.cover?.id && !/^cover\./i.test(f.name))).slice(0, OPEN_LIMITS.photos)
+      return { ...p, locked: false, photos, videos: limitMap(p.videos, OPEN_LIMITS.videos), pdfs: limitMap(p.pdfs, OPEN_LIMITS.pdfs) }
+    }
+    return { ...p, locked: false }
   })
   return { ...m, posts }
 }

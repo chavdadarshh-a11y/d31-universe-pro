@@ -5,6 +5,7 @@ import { useApp, effectivePlan, type Membership } from '../store/app'
 import { hasPlan, passStatus, PLAN_BY_ID } from './plans'
 import { isPostOpen as postIsOpen } from './postPasses'
 import type { PlanId } from '../types'
+import { DOWNLOAD_LOCK } from '../config/access'
 
 export type Feature =
   | 'programs.pro' // Pro programs & skill paths
@@ -30,6 +31,7 @@ export const FEATURE_PLAN: Record<Feature, PlanId> = {
 }
 
 export function can(feature: Feature, plan: PlanId): boolean {
+  if (!DOWNLOAD_LOCK && feature.startsWith('download.') && feature !== 'download.backup') return true
   return hasPlan(plan, FEATURE_PLAN[feature])
 }
 
@@ -77,6 +79,7 @@ export { postPassDuration, type PostPassConfig } from '../config/plans'
 
 /** Knowledge download / offline play is allowed during a valid Pro+ membership, or while a Portal unlock for that post is active. */
 export function knowledgeDownloadOk(postNumber: number | undefined, plan: PlanId): boolean {
+  if (!DOWNLOAD_LOCK) return true
   if (hasPlan(plan, FEATURE_PLAN['downloads.inApp'])) return true
   if (postNumber && postIsOpen(postNumber)) return true
   return false

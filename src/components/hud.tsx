@@ -36,8 +36,11 @@ type ClipReq = { name: string; title: string; exId?: string }
 /** Open the fullscreen clip viewer from anywhere. */
 export const openClip = (c: ClipReq) => window.dispatchEvent(new CustomEvent<ClipReq>('d31-clip', { detail: c }))
 
-/** Highlighted, auto-looping clip tile (GIF-like): neon ring + CLIP badge; tap → fullscreen. */
-export function ClipThumb({ name, title, exId, className = '', badge = true }: { name: string; title: string; exId?: string; className?: string; badge?: boolean }) {
+/** Card / list thumbnail. Uses the small looping GIF when present; falls back to the poster, or to the looping video if `mode="video"` (large previews). Detail pages keep ClipPlayer. */
+export function ClipThumb({ name, title, exId, className = '', badge = true, mode = 'gif' }: { name: string; title: string; exId?: string; className?: string; badge?: boolean; mode?: 'gif' | 'video' }) {
+  const still = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const gif = `${BASE}media/clips/${name}.gif`
+  const poster = `${BASE}media/clips/${name}-poster.webp`
   return (
     <button
       type="button"
@@ -46,7 +49,18 @@ export function ClipThumb({ name, title, exId, className = '', badge = true }: {
       onClick={(e) => { e.stopPropagation(); e.preventDefault(); openClip({ name, title, exId }) }}
       className={`clip-ring group relative block overflow-hidden rounded-xl bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.22),transparent_65%),radial-gradient(circle_at_80%_85%,rgba(247,197,72,0.18),transparent_60%),#0a101d] ${className}`}
     >
-      <ClipPlayer name={name} alt={title} className="transition-transform duration-500 group-active:scale-[1.04]" />
+      {mode === 'video' && !still ? (
+        <ClipPlayer name={name} alt={title} className="transition-transform duration-500 group-active:scale-[1.04]" />
+      ) : (
+        <img
+          src={still ? poster : gif}
+          alt={title}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition-transform duration-500 group-active:scale-[1.04]"
+          onError={(e) => { const el = e.currentTarget; if (!el.dataset.fb) { el.dataset.fb = '1'; el.src = poster } }}
+        />
+      )}
       <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(4,6,12,0.75))]" />
       {badge && (
         <span className="clip-badge pointer-events-none absolute bottom-1 left-1 flex items-center gap-[3px] rounded-[5px] px-1 py-[1px] font-mono text-[8px] font-bold uppercase tracking-[0.14em]">

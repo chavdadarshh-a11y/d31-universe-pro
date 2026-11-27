@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "note": "Drive folders already wired into the app. The recurring run should list each folder recursively (all subfolders) and download only files whose ids are not already in the manifest.",
+  "folders": [
+    {
+      "id": "1hJrHl2D4fPUxAhCrUG3ZMrHCBgieTpf3",
+      "name": "1Plus 10R Video",
+      "role": "clips",
+      "description": "Darshan's phone and gym videos used for exercise clips and GIFs."
+    },
+    {
+      "id": "1FQQD40JeblZuc6gWtavGmXRDEV3q__TT",
+      "name": "Background d31",
+      "role": "shoot",
+      "description": "Shoot / gallery stills. 116 of 118 already imported; 2 skipped (private family photo, app screenshot)."
+    },
+    {
+      "id": "1JpV8qaI29rtwQ-aINWhRQ7R6-fkMp5md",
+      "name": "D31 KNOWLEDGE",
+      "role": "knowledge",
+      "description": "Public knowledge posts. Already synced by scripts/sync-knowledge.mjs from the public folder view — do not re-import as shoot/clips.",
+      "syncScript": "scripts/sync-knowledge.mjs"
+    }
+  ]
+}

@@ -362,7 +362,7 @@ export function Player() {
           const ex = exOf(info)
           return (
             <>
-              {ex.clip ? <ClipThumb name={ex.clip} title={exName(ex, lang)} exId={ex.id} className="-mx-1 mb-4 h-64" /> : ex.media && <div className="relative -mx-1 mb-4 h-44 overflow-hidden rounded-2xl"><Photo name={ex.media} alt={t('photoOf', { x: ex.name })} /></div>}
+              {ex.clip ? <ClipThumb name={ex.clip} title={exName(ex, lang)} exId={ex.id} mode="video" className="-mx-1 mb-4 h-64" /> : ex.media && <div className="relative -mx-1 mb-4 h-44 overflow-hidden rounded-2xl"><Photo name={ex.media} alt={t('photoOf', { x: ex.name })} /></div>}
               <BodyMap primary={ex.primary} secondary={ex.secondary} frontLabel={t('front')} backLabel={t('backView')} />
               {ex.steps.length > 0 && <><Label className="mt-4">{t('howTo')}</Label>
                 <ol className="mt-2 space-y-2">{ex.steps.map((x, i) => <li key={i} className="flex gap-3 text-[14px]"><span className="font-mono text-cyan">{i + 1}</span>{x}</li>)}</ol></>}

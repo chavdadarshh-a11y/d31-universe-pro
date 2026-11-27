@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react'
 import { navigate } from '../lib/router'
-import { postTitle, type KLang, type KPost } from '../lib/knowledge'
+import { postTitle, sortPosts, type KLang, type KPost } from '../lib/knowledge'
 import { CoverCard } from './PostCover'
 
 const STEP_MS = 1800 // a new card lands in the centre about every 1.8 s
@@ -14,7 +14,7 @@ type Props = { posts: KPost[]; lang: KLang; jump?: boolean; sub: (p: KPost) => s
 
 /** Knowledge posts: a vertical 3D "waterfall" of clean horizontal cards (reduced motion → plain horizontal swipe). */
 export function PostCascade(props: Props) {
-  const posts = useMemo(() => [...props.posts].sort((a, b) => a.number - b.number), [props.posts])
+  const posts = useMemo(() => sortPosts(props.posts), [props.posts]) // open posts first, then "Coming soon"
   const [rm, setRm] = useState(reducedMotion)
   useEffect(() => {
     const q = matchMedia('(prefers-reduced-motion: reduce)')

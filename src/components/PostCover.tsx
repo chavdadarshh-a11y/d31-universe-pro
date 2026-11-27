@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import { Lock } from 'lucide-react'
 import { kImg, pick, type KFile, type KLang, type KPost } from '../lib/knowledge'
+import { useT } from '../i18n'
 
 /** The post's own cover: its COVER folder image; if that folder is empty, the first page of the post's own PDF
  *  (same post, never another post's file); then its first photo; then an honest number placeholder. */
 export function coverFile(p: KPost, lang: KLang = 'en'): { f: KFile; from: 'cover' | 'pdf' | 'photo' } | null {
-  if (p.cover) return { f: p.cover, from: 'cover' }
+  if (p.cover) return { f: p.cover, from: p.coverFromPdf ? 'pdf' : 'cover' }
   const pdf = pick(p.pdfs, lang).files[0] ?? p.pdfs.en[0] ?? p.pdfs.all[0] ?? p.pdfs.hi[0] ?? p.pdfs.gu[0]
   if (pdf) return { f: pdf, from: 'pdf' }
   if (p.photos[0]) return { f: p.photos[0], from: 'photo' }
@@ -34,10 +36,12 @@ export function Cover({ p, w = 800, className = '', lang = 'en', eager = false }
 
 /** A clean horizontal 16:9 rounded cover card (no text on it). */
 export function CoverCard({ p, lang, w = 720, className = '', eager, label, size = 20 }: { p: KPost; lang: KLang; w?: number; className?: string; eager?: boolean; label?: string; size?: number }) {
+  const t = useT()
   return (
-    <div className={`pc-card ${className}`}>
-      <Cover p={p} w={w} lang={lang} eager={eager} />
+    <div className={`pc-card ${p.locked ? 'pc-locked' : ''} ${className}`} data-locked={p.locked ? '1' : undefined}>
+      <Cover p={p} w={w} lang={lang} eager={eager} className={p.locked ? 'pc-soon-blur' : ''} />
       <i className="pc-sheen" aria-hidden />
+      {p.locked && <span className="pc-soon" data-testid="pc-soon"><Lock size={12} /> {t('libSoon')}</span>}
       {label !== undefined && (
         <div className="pc-label dark-zone" data-testid="pc-label">
           <span className="pc-label-num">#{p.number}</span>

@@ -18,5 +18,8 @@ ok(/IN_APP = IN_TWA \|\| !PRICES_ON/.test(rd('src/lib/appMode.ts')), 'price-free
 const i18n = fs.readdirSync(new URL('../src/i18n/', import.meta.url)).map((f) => rd(`src/i18n/${f}`)).join('\n')
 ok(!/for life|जीवन भर 25|આજીવન 25/.test(i18n), 'no "for life" membership offer copy')
 for (const k of ['libSoon', 'libCount']) ok((rd('src/i18n/strings50.ts').match(new RegExp(`${k}:`, 'g')) ?? []).length === 3, `${k} in en/hi/gu`)
+const ko = rd('src/config/knowledgeOpen.ts')
+ok(/OPEN_POSTS: number\[\] = \[\d+, \d+, \d+\]/.test(ko) && /videos: 3, pdfs: 3, photos: 3/.test(ko), 'Knowledge: 3 open posts, 3 videos / 3 PDFs per language, 3 photos')
+ok(/gameTitle: "FUN MODE"/.test(rd('src/i18n/strings48.ts')) && !/GAME MODE|गेम मोड|ગેમ મોડ/.test(rd('src/i18n/strings48.ts')), 'Game mode renamed to Fun mode (en/hi/gu)')
 console.log(failed ? `\n${failed} failed` : '\nAll v4.5 checks passed')
 process.exit(failed ? 1 : 0)

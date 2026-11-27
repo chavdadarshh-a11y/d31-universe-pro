@@ -33,7 +33,7 @@ function d31Site(): Plugin {
       const robots = IS_MAIN ? `User-agent: *\nAllow: /\n\nSitemap: ${APP_URL}sitemap.xml\n` : 'User-agent: *\nDisallow: /\n'
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots })
       if (IS_MAIN) {
-        const day = new Date().toISOString().slice(0, 10)
+        const day = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
         const url = (loc: string, pr: string) => `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${day}</lastmod>\n    <priority>${pr}</priority>\n  </url>\n`
         this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${url(APP_URL, '1.0')}${url(`${APP_URL}privacy.html`, '0.3')}</urlset>\n` })
       }

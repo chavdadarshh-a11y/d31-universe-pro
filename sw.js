@@ -1,5 +1,5 @@
 /* D31.UNIVERSE service worker — app-shell caching so the app opens offline. */
-const VERSION = 'd31-v4.5.0-92d86d9'
+const VERSION = 'd31-v4.5.0-0b5e51a'
 const OFFLINE = 'd31-offline-clips' // Platinum "save offline" clips — never deleted on update
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png',
   './media/bg/shiva-v2-1440.avif', './media/bg/shiva-v2-2160.avif', './media/bg/shiva-v2-1440.webp', './media/bg/shiva-v2-2160.webp']

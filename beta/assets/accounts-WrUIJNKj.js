@@ -1,0 +1,1 @@
+export{g as adoptSupabaseUser}from"./boot-ptM-t6cq.js";

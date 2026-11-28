@@ -1,0 +1,1 @@
+var e={supabaseUrl:``,supabaseAnonKey:``,googleClientId:``,googleApiKey:``,supportEmail:`dpchavda22@gmail.com`,businessName:`D31.UNIVERSE by Darshan Chavda`,socials:{youtube:``,instagram:``,snapchat:``,facebook:``}},t=!!(e.supabaseUrl&&e.supabaseAnonKey),n=`4.5.0-beta`;export{e as n,t as r,n as t};

@@ -1,0 +1,1 @@
+var e={siteUrl:`https://chavdadarshh-a11y.github.io/d31-universe-pro/`,appUrl:`https://chavdadarshh-a11y.github.io/d31-universe-pro/beta/`,sitePath:`/d31-universe-pro/`};e.siteUrl;var t=e.appUrl,n=e.sitePath;export{n,t};

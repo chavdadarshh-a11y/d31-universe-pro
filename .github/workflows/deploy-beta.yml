@@ -14,6 +14,7 @@ concurrency:
 jobs:
   beta:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Restore binary assets (stored as base64 text)
@@ -30,6 +31,7 @@ jobs:
         env:
           NODE_OPTIONS: --experimental-strip-types
       - run: npm run build
+        timeout-minutes: 8
         env:
           VITE_SUBPATH: beta   # site.config.json siteUrl + beta/ (the knowledge feed stays at the site root)
           VITE_BETA: '1'

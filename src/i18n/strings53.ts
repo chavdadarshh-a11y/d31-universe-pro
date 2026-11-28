@@ -62,6 +62,7 @@ export const en53 = {
   setupTitle: 'Make the plan yours (1 min)',
   setupSub: 'Pick goal, level and equipment. Optional: you can use everything right now.',
   setupBtn: 'Set up',
+  googleSoon: 'Google login is coming soon — for now, sign in with email.',
 }
 
 type K = keyof typeof en53
@@ -128,6 +129,7 @@ export const hi53: Record<K, string> = {
   setupTitle: 'प्लान को अपना बनाएँ (1 मिनट)',
   setupSub: 'लक्ष्य, लेवल और इक्विपमेंट चुनें. ज़रूरी नहीं: सब कुछ अभी इस्तेमाल कर सकते हैं.',
   setupBtn: 'सेट करें',
+  googleSoon: 'Google login jaldi aa raha hai, abhi email se login karo',
 }
 
 export const gu53: Record<K, string> = {
@@ -193,4 +195,5 @@ export const gu53: Record<K, string> = {
   setupTitle: 'પ્લાનને તમારો બનાવો (1 મિનિટ)',
   setupSub: 'લક્ષ્ય, લેવલ અને ઇક્વિપમેન્ટ પસંદ કરો. ફરજિયાત નથી: બધું હમણાં જ વાપરી શકો છો.',
   setupBtn: 'સેટ કરો',
+  googleSoon: 'Google login jaldi aave che, atyare email thi login karo',
 }

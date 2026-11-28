@@ -278,8 +278,8 @@ const vis = feed.posts.filter((x) => !x.empty).map((x) => x.number).sort((a, b) 
   ok('one tap "Workout done" → streak 1 and Done today', (await tid(p, 'streak-n').innerText()) === '1' && (await tid(p, 'done-today').count()) === 1)
   ok('soft login sheet appears after saving the streak', (await tid(p, 'login-sheet').count()) === 1)
   const soon = await tid(p, 'login-soon').count()
-  const live = (await tid(p, 'ls-google').count()) + (await tid(p, 'ls-email').count()) // Google button only when VITE_GOOGLE_AUTH=1; email link whenever Supabase is on
-  ok('login sheet: Google + email link when Supabase is on, otherwise a clear "coming soon"', soon === 1 || live >= 1, soon ? 'coming soon (Supabase not configured)' : 'live login')
+  const live = await tid(p, 'ls-google').count()
+  ok('login sheet: Google + email link when Supabase is on, otherwise a clear "coming soon"', soon === 1 || live === 1, soon ? 'coming soon (Supabase not configured)' : 'live login')
   await p.screenshot({ path: `${SHOTS}/02-login-sheet.png` })
   await tid(p, 'login-later').click(); await p.waitForTimeout(500)
   ok('login sheet is dismissible', (await tid(p, 'login-sheet').count()) === 0)
@@ -361,6 +361,36 @@ const vis = feed.posts.filter((x) => !x.empty).map((x) => x.number).sort((a, b) 
     ok('iPhone Safari: reminder explains Home Screen + iOS 16.4 (no broken button)', /16\.4/.test(note) && (await tid(p, 'reminder-btn').count()) === 0, note.slice(0, 90))
     await ctx.close()
   }
+}
+
+
+// ── auth screen: previous login UI, flashlight, autofill attrs ──
+{
+  const { ctx, p } = await newPage()
+  await p.goto(BASE + '#/auth?mode=up', { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {})
+  await p.waitForTimeout(800)
+  await tid(p, 'tab-signup').click().catch(() => {}); await p.waitForTimeout(300)
+  ok('Create account tab shows Continue with Google', (await tid(p, 'google-btn').count()) === 1)
+  const nameAttr = await tid(p, 'su-name').evaluate((el) => ({ type: el.type, name: el.getAttribute('name'), ac: el.getAttribute('autocomplete') }))
+  ok('name field: type=text, name=name, autocomplete=name', nameAttr.type === 'text' && nameAttr.name === 'name' && nameAttr.ac === 'name', JSON.stringify(nameAttr))
+  const emailAttr = await tid(p, 'su-email').evaluate((el) => ({ type: el.type, ac: el.getAttribute('autocomplete') }))
+  ok('email field: type=email, autocomplete=email', emailAttr.type === 'email' && emailAttr.ac === 'email', JSON.stringify(emailAttr))
+  const pwUp = await tid(p, 'su-password').getAttribute('autocomplete')
+  ok('Create account password autocomplete is new-password', pwUp === 'new-password', pwUp)
+  await tid(p, 'su-email').tap(); await p.waitForTimeout(500)
+  ok('Create account: flashlight beam on focused email', (await p.locator('[data-testid="neon-beam"]').count()) === 1)
+  await p.screenshot({ path: `${OUT}/09-auth-signup-email-focus.png` })
+  await tid(p, 'google-btn').click(); await p.waitForTimeout(500)
+  const toast = await p.evaluate(() => document.querySelector('[role="status"]')?.textContent || '')
+  ok('Google tap (unconfigured) shows a coming-soon toast, no broken redirect', /jaldi|coming soon/i.test(toast), toast)
+  await tid(p, 'tab-login').click(); await p.waitForTimeout(300)
+  ok('Sign in tab shows Continue with Google', (await tid(p, 'google-btn').count()) === 1)
+  const pwIn = await tid(p, 'su-password').getAttribute('autocomplete')
+  ok('Sign in password autocomplete is current-password', pwIn === 'current-password', pwIn)
+  await tid(p, 'su-email').tap(); await p.waitForTimeout(500)
+  ok('Sign in: flashlight beam on focused email', (await p.locator('[data-testid="neon-beam"]').count()) === 1)
+  await p.screenshot({ path: `${OUT}/10-auth-signin-email-focus.png` })
+  await ctx.close()
 }
 
 await browser.close()

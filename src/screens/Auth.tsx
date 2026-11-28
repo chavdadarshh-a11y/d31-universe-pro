@@ -92,7 +92,7 @@ export function Auth() {
 
   const google = async () => {
     setRememberPref(remember)
-    if (!isLive || !supabase) return setMsg(t('googleLaunchNote'))
+    if (!env.googleAuth || !isLive || !supabase) { showToast(t('googleSoon')); return }
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}` } })
     if (error) setMsg(error.message)
   }
@@ -129,12 +129,10 @@ export function Auth() {
         <button data-testid="tab-login" onClick={() => { setMode('in'); setMsg(null) }} className={`h-10 rounded-xl text-[13.5px] font-bold ${mode === 'in' ? 'bg-neon-static text-[#05080f]' : 'text-muted'}`}>{t('signIn')}</button>
       </div>
       <form className="mt-4 space-y-3" method="post" action="#" autoComplete="on" onSubmit={submit} noValidate data-testid="auth-form">
-        {env.googleAuth && (<>
         <GoogleButton onClick={google} label={t('googleContinue')} />
         <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-dim"><span className="h-px flex-1 bg-white/10" />{t('orEmail')}<span className="h-px flex-1 bg-white/10" /></div>
-        </>)}
-        {mode === 'up' && <label className="block" htmlFor="d31-name"><span className="label">{t('obName')}</span><input id="d31-name" name="name" data-testid="su-name" className="field mt-1.5" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></label>}
-        <label className="block" htmlFor="d31-email"><span className="label">{t('email')}</span><input id="d31-email" name="email" data-testid="su-email" className="field mt-1.5" type="email" inputMode="email" autoComplete="username" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
+        {mode === 'up' && <label className="block" htmlFor="d31-name"><span className="label">{t('obName')}</span><input id="d31-name" name="name" type="text" autoComplete="name" autoCapitalize="words" data-testid="su-name" className="field mt-1.5" value={name} onChange={(e) => setName(e.target.value)} /></label>}
+        <label className="block" htmlFor="d31-email"><span className="label">{t('email')}</span><input id="d31-email" name="email" data-testid="su-email" className="field mt-1.5" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
         {isLive && supabase && <button type="button" data-testid="magic-link" disabled={busy} onClick={() => void magic()} className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-gold/40 bg-gold/[0.07] text-[14px] font-semibold text-gold"><Mail size={16} /> {t('magicLink')}</button>}
         <label className="block" htmlFor="d31-password"><span className="label">{t('password')}</span>
           <span className="relative mt-1.5 block">

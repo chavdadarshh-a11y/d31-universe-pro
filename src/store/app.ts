@@ -29,6 +29,8 @@ export type AppState = {
   foods: FoodEntry[]
   water: Record<string, number>
   checkins: CheckIn[]
+  /** Days (YYYY-MM-DD) the user tapped "Workout done" on Today. Counted in the streak with logged sessions. */
+  doneDays: string[]
   analyses: AnalysisRecord[]
   active: ActiveWorkout | null
   membership: Membership
@@ -54,6 +56,8 @@ export type AppState = {
   deleteFood: (id: string) => void
   addWater: (delta: number) => void
   saveCheckin: (c: CheckIn) => void
+  markDone: (day?: string) => void
+  unmarkDone: (day?: string) => void
   addAnalysis: (a: AnalysisRecord) => void
   saveCustom: (w: CustomWorkout) => void
   deleteCustom: (id: string) => void
@@ -91,6 +95,7 @@ const initial = {
   foods: [],
   water: {},
   checkins: [],
+  doneDays: [] as string[],
   analyses: [],
   active: null,
   membership: { plan: 'free' as PlanId, source: 'none' as const },
@@ -141,6 +146,8 @@ export const useApp = create<AppState>()(
         set({ water: w })
       },
       saveCheckin: (c) => set({ checkins: [c, ...get().checkins.filter((x) => x.date !== c.date)] }),
+      markDone: (day = dayKey()) => { if (!get().doneDays.includes(day)) set({ doneDays: [...get().doneDays, day].sort() }) },
+      unmarkDone: (day = dayKey()) => set({ doneDays: get().doneDays.filter((d) => d !== day) }),
       addAnalysis: (a) => set({ analyses: [a, ...get().analyses].slice(0, 30) }),
       saveCustom: (w) => set({ customWorkouts: [w, ...get().customWorkouts.filter((x) => x.id !== w.id)] }),
       deleteCustom: (id) => set({ customWorkouts: get().customWorkouts.filter((x) => x.id !== id) }),
@@ -185,7 +192,7 @@ export const useApp = create<AppState>()(
       // a saved profile missing fields (older builds, partial imports) must never leave height/weight undefined
       merge: (persisted, current) => {
         const st = (persisted ?? {}) as Partial<AppState>
-        return { ...current, ...st, profile: repairBody({ ...defaultProfile, ...(st.profile ?? {}) }, defaultProfile, false) }
+        return { ...current, ...st, doneDays: Array.isArray(st.doneDays) ? st.doneDays : [], profile: repairBody({ ...defaultProfile, ...(st.profile ?? {}) }, defaultProfile, false) }
       },
       partialize: (s) => {
         const { toast: _t, set: _s, ...rest } = s

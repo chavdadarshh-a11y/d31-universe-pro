@@ -176,6 +176,7 @@ export function finishWorkout(): { session: WorkoutSession; newPRs: PRecord[] } 
   }
   useApp.setState({ sessions: [session, ...st.sessions], active: null, programDay })
   void cloud.session(session)
+  setTimeout(() => void import('./loginAsk').then((m) => m.askLogin('progress')), 1200)
   const after = computeRecords([session, ...st.sessions])
   const newPRs = after.filter((r) => {
     const b = before.get(r.exId)

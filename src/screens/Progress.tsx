@@ -32,7 +32,7 @@ export function Progress() {
         {[
           [t('totalWorkouts'), String(s.sessions.length)],
           [t('totalVolume'), totalVolume >= 10000 && wUnit() === 'kg' ? `${fmtNum(totalVolume / 1000)}t` : `${fmtNum(toW(totalVolume))}${wUnit()}`],
-          [t('streak'), String(computeStreak(s.sessions))],
+          [t('streak'), String(computeStreak(s.sessions, new Date(), s.doneDays ?? []))],
         ].map(([k, v], i) => (
           <div key={k} className="card relative overflow-hidden p-3">
             <span aria-hidden className="absolute inset-x-0 top-0 h-[2px]" style={{ background: ['linear-gradient(90deg,#22d3ee,#a78bfa)', 'linear-gradient(90deg,#a78bfa,#f472d0)', 'linear-gradient(90deg,#fb923c,#f5b942)'][i] }} />

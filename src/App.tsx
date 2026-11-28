@@ -38,6 +38,7 @@ import { useDownloads, onWifi, persistStorage } from './lib/downloads'
 import { trustedNow } from './lib/plans'
 import { downloadAccess } from './lib/entitlements'
 import { InstallPrompt } from './components/InstallPrompt'
+import { LoginSheet } from './components/LoginSheet'
 import { useSettings, applyTheme } from './store/settings'
 import { useReminders } from './lib/reminders'
 import { mountGoatCounter, trackPageView } from './lib/analytics'
@@ -119,7 +120,6 @@ function Toast() {
 export default function App() {
   const parts = useRoute()
   const hasActive = useApp((s) => !!s.active)
-  const onboarded = useApp((s) => s.onboarded)
   const lang = useApp((s) => s.lang)
   const [root, a, b] = parts
   const t = useT()
@@ -163,11 +163,12 @@ export default function App() {
   useReminders()
   useEffect(() => { mountGoatCounter(); void trackPageView() }, [root, a, b])
 
+  // guest-first: a visitor from Google lands straight in the app (no account, no setup wall)
   useEffect(() => {
-    if (onboarded && !root) navigate('/home')
-  }, [onboarded, root])
+    if (!root) navigate('/home')
+  }, [root])
 
-  if (!onboarded && root !== 'legal' && root !== 'auth') return (<><Cosmos /><GradDefs /><Onboarding key={accountKey} /><Toast /><NeonInputs /></>)
+  if (root === 'setup') return (<><Cosmos /><GradDefs /><Onboarding key={accountKey} start={1} onDone={() => navigate('/home')} /><Toast /><NeonInputs /><LoginSheet /></>)
 
   let screen: React.ReactNode
   let showNav = true
@@ -198,7 +199,7 @@ export default function App() {
     case 'profile': screen = <Profile />; break
     case 'membership': screen = <Membership />; break
     case 'referral': screen = <Referral />; break
-    case 'legal': screen = <Legal doc={a ?? 'privacy'} />; showNav = onboarded; break
+    case 'legal': screen = <Legal doc={a ?? 'privacy'} />; break
     case 'path': screen = <PathDetail id={a ?? ''} />; break
     case 'auth': screen = <Auth />; showNav = false; break
     case 'settings': screen = <Settings />; break
@@ -229,6 +230,7 @@ export default function App() {
       <ClipViewer />
       <Toast />
       <NeonInputs />
+      <LoginSheet />
     </div>
   )
 }

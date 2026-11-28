@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "preview": "vite preview",
     "seed:sql": "node scripts/gen-seed.mjs",
-    "test": "node scripts/test-logic.ts && node scripts/test-pose.ts && node scripts/test-migrations.mjs && node scripts/test-anatomy.ts && node scripts/test-exmatch.mjs && node scripts/test-motion.ts && node scripts/test-v45.mjs && node scripts/test-access.mjs && node scripts/test-ai-tools.ts && node scripts/test-units-order.ts",
+    "test": "node scripts/test-logic.ts && node scripts/test-pose.ts && node scripts/test-migrations.mjs && node scripts/test-anatomy.ts && node scripts/test-exmatch.mjs && node scripts/test-motion.ts && node scripts/test-v45.mjs && node scripts/test-access.mjs && node scripts/test-ai-tools.ts && node scripts/test-units-order.ts && node scripts/test-habits.ts",
     "qa": "node scripts/qa/smoke.mjs",
     "test:anatomy": "node scripts/test-anatomy.ts",
     "test:exmatch": "node scripts/test-exmatch.mjs"

@@ -36,8 +36,9 @@ export function setVolume(s: LoggedSet) {
 }
 
 /** Current streak: consecutive days (ending today or yesterday) with ≥1 workout */
-export function computeStreak(sessions: WorkoutSession[], now = new Date()): number {
-  const days = new Set(sessions.map((s) => dayKey(s.startedAt)))
+/** Consecutive days (ending today, or yesterday if today is not done yet) with a logged workout or a one-tap "Workout done". */
+export function computeStreak(sessions: WorkoutSession[], now = new Date(), doneDays: string[] = []): number {
+  const days = new Set([...sessions.map((s) => dayKey(s.startedAt)), ...doneDays])
   let streak = 0
   const d = new Date(now)
   if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1)

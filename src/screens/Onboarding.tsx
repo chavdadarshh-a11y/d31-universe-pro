@@ -39,10 +39,10 @@ export function pickProgram(goal: Goal, equipment: Equipment[]): string {
   return hasGym && goal === 'strength' ? 'strength-5x5' : 'foundation'
 }
 
-export function Onboarding({ editing = false, onDone }: { editing?: boolean; onDone?: () => void }) {
+export function Onboarding({ editing = false, onDone, start }: { editing?: boolean; onDone?: () => void; start?: number }) {
   const t = useT()
   const { lang, setLang, profile, setProfile, completeOnboarding, set, user } = useApp()
-  const [step, setStep] = useState(editing || user || hashQuery().get('guest') === '1' ? 1 : 0)
+  const [step, setStep] = useState(start ?? (editing || user || hashQuery().get('guest') === '1' ? 1 : 0))
   const total = 5
   const u = useUnits()
   const setSettings = useSettings((st) => st.set)
@@ -53,6 +53,7 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
       if (PROGRAMS.some((p) => p.id === id)) set({ activeProgramId: id })
       completeOnboarding()
       navigate('/home')
+      setTimeout(() => void import('../lib/loginAsk').then((m) => m.askLogin('plan')), 700)
     }
     void cloud.profile()
     onDone?.()
@@ -69,7 +70,7 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
     <div className={`mx-auto flex max-w-lg flex-col px-5 ${editing ? '' : 'min-h-dvh'} pb-8 pt-[calc(env(safe-area-inset-top)+16px)]`}>
       {step > 0 && (
         <div className="mb-6 flex items-center gap-3">
-          <button aria-label={t('back')} onClick={() => setStep(step - 1)} className="-ml-2 grid h-9 w-9 place-items-center rounded-xl text-muted hover:bg-white/5" disabled={editing && step === 1}>
+          <button aria-label={t('back')} onClick={() => (start && step <= start ? navigate('/home') : setStep(step - 1))} className="-ml-2 grid h-9 w-9 place-items-center rounded-xl text-muted hover:bg-white/5" disabled={editing && step === 1}>
             {!(editing && step === 1) && <ChevronLeft size={22} />}
           </button>
           <div className="flex flex-1 gap-1.5">

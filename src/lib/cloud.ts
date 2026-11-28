@@ -53,6 +53,26 @@ export const cloud = {
     )
     if (error) warn('checkin', error.message)
   },
+  /** One-tap "Workout done" on Today (one row per day). */
+  workoutDone: async (day: string, minutes?: number, focus?: string) => {
+    const userId = uidOf()
+    if (!supabase || !userId) return
+    const { error } = await supabase.from('workout_done').upsert({ user_id: userId, day, minutes: minutes ?? null, focus: focus ?? null }, { onConflict: 'user_id,day' })
+    if (error) warn('workout_done', error.message)
+  },
+  undoWorkoutDone: async (day: string) => {
+    const userId = uidOf()
+    if (!supabase || !userId) return
+    const { error } = await supabase.from('workout_done').delete().eq('user_id', userId).eq('day', day)
+    if (error) warn('workout_done delete', error.message)
+  },
+  /** Reminder time + best streak, so a new phone gets them after login. */
+  habits: async (h: { reminder_enabled: boolean; reminder_time: string; reminder_days: number[]; best_streak: number }) => {
+    const userId = uidOf()
+    if (!supabase || !userId) return
+    const { error } = await supabase.from('user_habits').upsert({ user_id: userId, ...h, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    if (error) warn('user_habits', error.message)
+  },
   custom: (w: CustomWorkout) => upsert('custom_workouts', { id: w.id, name: w.name, items: w.items, created_at: w.createdAt }),
   deleteCustom: (id: string) => remove('custom_workouts', id),
   profile: async () => {
@@ -91,12 +111,13 @@ export async function pullAll() {
   const st = useApp.getState()
   if (!supabase || !st.user) return
   try {
-    const [w, m, f, c, cw] = await Promise.all([
+    const [w, m, f, c, cw, wd] = await Promise.all([
       supabase.from('workouts').select('*').order('started_at', { ascending: false }).limit(500),
       supabase.from('body_measurements').select('*').order('date'),
       supabase.from('nutrition_logs').select('*').order('date', { ascending: false }).limit(500),
       supabase.from('recovery_checkins').select('*').order('date', { ascending: false }).limit(60),
       supabase.from('custom_workouts').select('*'),
+      supabase.from('workout_done').select('day').order('day', { ascending: false }).limit(400),
     ])
     const merge = <T extends { id: string }>(local: T[], remote: T[]) => {
       const map = new Map(local.map((x) => [x.id, x]))
@@ -127,7 +148,17 @@ export async function pullAll() {
       foods: merge(cur.foods, foods),
       checkins: [...checkMap.values()].sort((a, b) => b.date.localeCompare(a.date)),
       customWorkouts: merge(cur.customWorkouts, customs),
+      doneDays: [...new Set([...(cur.doneDays ?? []), ...((wd.data ?? []) as { day: string }[]).map((r) => String(r.day).slice(0, 10))])].sort(),
     })
+    const remoteDays = new Set(((wd.data ?? []) as { day: string }[]).map((r) => String(r.day).slice(0, 10)))
+    if (!wd.error) for (const d of cur.doneDays ?? []) if (!remoteDays.has(d)) void cloud.workoutDone(d)
+    // reminder chosen on another phone → use it here too (only when this phone has none on)
+    const hb = await supabase.from('user_habits').select('reminder_enabled,reminder_time,reminder_days').maybeSingle()
+    if (!hb.error && hb.data) {
+      const { useSettings } = await import('../store/settings')
+      const r = useSettings.getState().reminder
+      if (!r.enabled && hb.data.reminder_enabled) useSettings.getState().set({ reminder: { enabled: true, time: String(hb.data.reminder_time || r.time), days: Array.isArray(hb.data.reminder_days) && hb.data.reminder_days.length ? hb.data.reminder_days : r.days } })
+    }
     // push local-only rows created while signed out
     const remoteIds = new Set(sessions.map((s) => s.id))
     for (const s of cur.sessions) if (!remoteIds.has(s.id)) void cloud.session(s)

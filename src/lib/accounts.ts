@@ -11,6 +11,19 @@ import { ACCOUNTS_KEY, GUEST_KEY, SESSION_KEY, currentAccountId, dataKeyFor } fr
 import { supabase } from './supabase'
 import { isLive } from './env'
 import { uid } from './util'
+import { mergeGuestState } from './guestMerge'
+
+/** Guest data captured before switching to an account (null when an account was already active). */
+function guestSnapshot(): Record<string, unknown> | null {
+  if (currentAccountId()) return null
+  try { return (JSON.parse(localStorage.getItem(GUEST_KEY) || 'null') as { state?: Record<string, unknown> } | null)?.state ?? null } catch { return null }
+}
+/** Add what the guest did on this phone to the account that just logged in (union, nothing deleted). */
+function mergeGuest(g: Record<string, unknown> | null) {
+  if (!g) return
+  const cur = useApp.getState() as unknown as Record<string, unknown>
+  useApp.setState(mergeGuestState(cur, g) as never)
+}
 
 export type StoredAccount = AccountUser & { provider: 'local' | 'supabase'; salt?: string; hash?: string; createdAt: string }
 
@@ -77,7 +90,9 @@ export async function logInLocal(email: string, password: string): Promise<{ ok:
   if (!validEmail(email)) return { ok: false, error: 'email' }
   const acc = listAccounts().find((a) => a.email === norm(email) && a.provider === 'local')
   if (!acc || !acc.salt || (await hashPw(password, acc.salt)) !== acc.hash) return { ok: false, error: 'login' }
+  const g = guestSnapshot()
   await switchTo(acc.id)
+  mergeGuest(g)
   useApp.setState({ user: publicUser(acc) })
   return { ok: true }
 }
@@ -96,7 +111,9 @@ export async function adoptSupabaseUser(u: { id: string; email?: string; user_me
     acc = { id: u.id, email: norm(u.email ?? ''), name: String(md.full_name ?? md.name ?? ''), avatar: typeof md.avatar_url === 'string' ? md.avatar_url : undefined, provider: 'supabase', createdAt: new Date().toISOString() }
     saveAccounts([...all, acc])
   }
+  const g = guestSnapshot()
   if (currentAccountId() !== acc.id) await switchTo(acc.id, { carryGuest: !all.length })
+  mergeGuest(g)
   useApp.setState({ user: publicUser(acc) })
 }
 

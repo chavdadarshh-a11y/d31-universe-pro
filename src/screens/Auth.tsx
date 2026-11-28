@@ -18,7 +18,6 @@ import { useEffect } from 'react'
 export function Auth() {
   const t = useT()
   const user = useApp((s) => s.user)
-  const onboarded = useApp((s) => s.onboarded)
   const showToast = useApp((s) => s.showToast)
   const q = hashQuery()
   const [mode, setMode] = useState<'in' | 'up'>(q.get('mode') === 'signup' || q.get('mode') === 'up' ? 'up' : 'in')
@@ -98,6 +97,17 @@ export function Auth() {
     if (error) setMsg(error.message)
   }
 
+  /** Passwordless: Supabase emails a one-time login link (new email → new account). */
+  const magic = async () => {
+    setMsg(null)
+    if (!supabase) return
+    if (!validEmail(email)) return setMsg(t('errEmail'))
+    setBusy(true)
+    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`, shouldCreateUser: true, data: name.trim() ? { full_name: name.trim() } : undefined } })
+    setBusy(false)
+    setMsg(error ? error.message : t('lsLinkSent'))
+  }
+
   const forgot = async () => {
     setMsg(null)
     if (!isLive || !supabase) return setMsg(t('localForgot'))
@@ -108,7 +118,7 @@ export function Auth() {
 
   return (
     <div>
-      <Header title={t('authTitle')} back={onboarded} />
+      <Header title={t('authTitle')} back />
       <div className="mt-2 flex flex-col items-center text-center">
         <LogoMark size={64} />
         <h1 className="title-hud mt-4 text-[22px]">{mode === 'up' ? t('createAccount') : t('welcomeBack')}</h1>
@@ -123,6 +133,7 @@ export function Auth() {
         <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-dim"><span className="h-px flex-1 bg-white/10" />{t('orEmail')}<span className="h-px flex-1 bg-white/10" /></div>
         {mode === 'up' && <label className="block" htmlFor="d31-name"><span className="label">{t('obName')}</span><input id="d31-name" name="name" data-testid="su-name" className="field mt-1.5" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></label>}
         <label className="block" htmlFor="d31-email"><span className="label">{t('email')}</span><input id="d31-email" name="email" data-testid="su-email" className="field mt-1.5" type="email" inputMode="email" autoComplete="username" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
+        {isLive && supabase && <button type="button" data-testid="magic-link" disabled={busy} onClick={() => void magic()} className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-gold/40 bg-gold/[0.07] text-[14px] font-semibold text-gold"><Mail size={16} /> {t('magicLink')}</button>}
         <label className="block" htmlFor="d31-password"><span className="label">{t('password')}</span>
           <span className="relative mt-1.5 block">
             <input id="d31-password" name="password" data-testid="su-password" className="field pr-11" type={show ? 'text' : 'password'} autoComplete={mode === 'in' ? 'current-password' : 'new-password'} minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('min6')} />
@@ -139,7 +150,7 @@ export function Auth() {
         </Button>
         {mode === 'in' && <button type="button" className="w-full py-1 text-[13px] text-cyan" onClick={forgot}>{t('forgotPw')}</button>}
         {!isLive && <p className="flex items-start gap-2 rounded-xl border border-white/[0.07] px-3 py-2 text-[11.5px] leading-snug text-muted"><Mail size={13} className="mt-0.5 shrink-0" /> {t('localAccountNote')}</p>}
-        <Button type="button" variant="ghost" className="w-full" onClick={() => (onboarded ? goBack('/home') : navigate('/?guest=1'))} data-testid="auth-guest">{t('guest')}</Button>
+        <Button type="button" variant="ghost" className="w-full" onClick={() => goBack('/home')} data-testid="auth-guest">{t('guest')}</Button>
       </form>
     </div>
   )

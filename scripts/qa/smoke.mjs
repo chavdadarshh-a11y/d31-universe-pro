@@ -9,6 +9,11 @@
 //  • posts: Today cascade 1/N = lowest number, strictly ascending; detail ‹ › goes 501 → 502 → 503, no wrap at the ends;
 //    tab counts equal rows; PDF covers load in EN / HI / GU
 //  • HTTP: every PDF cover thumbnail and the knowledge feed answer 200
+//  • guest-first habit loop: a brand-new visitor lands on Today with no login / setup wall; Train, Library,
+//    Analyze, Progress open as guest; 10–15 min plan; one-tap Workout done → streak 1 (real), survives reload;
+//    soft login sheet (dismissible, "coming soon" without Supabase); share card canvas renders; newest post
+//    card = highest post number; reminder row honest note; install prompt after 3 visits (Android event +
+//    iPhone steps), "not now" hides it; EN / HI / GU have no raw string keys on Today
 import fs from 'node:fs'
 const PW = process.env.PW || '/workspace/build/pw/node_modules/playwright-core/index.mjs'
 const { chromium } = await import(PW).catch(() => import('playwright-core')).catch(() => import('playwright'))
@@ -237,6 +242,125 @@ const vis = feed.posts.filter((x) => !x.empty).map((x) => x.number).sort((a, b) 
     await sleep(50)
   }
   ok(`PDF cover thumbnails HTTP 200 (${ids.length - bad.length}/${ids.length})`, bad.length === 0, bad.slice(0, 8).join(' '))
+}
+
+// ── 5. guest-first + habit loop ─────────────────────────────────
+{
+  const SHOTS = process.env.HABIT_SHOTS || OUT
+  fs.mkdirSync(SHOTS, { recursive: true })
+  const { ctx, p } = await newPage() // brand-new visitor: no seed at all
+  await p.goto(BASE, { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {})
+  await p.waitForTimeout(2000)
+  const land = await p.evaluate(() => ({ hash: location.hash, auth: !!document.querySelector('[data-testid="auth-form"]'), ob: !!document.querySelector('[data-testid="ob-create"],[data-testid="ob-guest"]'), plan: !!document.querySelector('[data-testid="daily-plan"]'), nav: !!document.querySelector('nav[aria-label="Main"]') }))
+  ok('new visitor lands on Today (#/home) with no login or setup wall', land.hash === '#/home' && !land.auth && !land.ob && land.plan && land.nav, JSON.stringify(land))
+  await p.screenshot({ path: `${SHOTS}/01-guest-today.png` })
+  ok('setup card offers optional personalisation', (await tid(p, 'setup-card').count()) === 1)
+  for (const r of ['#/train', '#/library', '#/analyze', '#/progress', '#/knowledge']) {
+    p.errs.length = 0
+    await go(p, r, 1500)
+    const wall = await p.evaluate(() => !!document.querySelector('[data-testid="auth-form"],[data-testid="ob-create"]') || !!document.querySelector('[data-testid="not-found"]'))
+    ok(`guest can open ${r} (no wall, no errors)`, !wall && p.errs.length === 0, p.errs.join(' | '))
+  }
+  await go(p, '#/home', 1500)
+  // daily plan
+  const items = await tid(p, 'daily-plan').locator('li').count()
+  const mins = await tid(p, 'daily-plan').locator('h2').innerText()
+  const m = +(mins.match(/~(\d+)/) || [])[1]
+  ok('daily plan: 4–5 exercises, 10–15 min', items >= 4 && items <= 5 && m >= 10 && m <= 15, `${items} items, ${mins}`)
+  ok('streak starts at 0 for a new visitor (no fake number)', (await tid(p, 'streak-n').innerText()) === '0')
+  // newest post card
+  const newest = await tid(p, 'new-post').getAttribute('data-post').catch(() => null)
+  const nFiles = (mp) => Object.values(mp || {}).reduce((a, xs) => a + xs.length, 0)
+  const withFiles = feed.posts.filter((x) => !x.empty && (x.cover || x.photos?.length || nFiles(x.pdfs) || nFiles(x.videos))).map((x) => x.number)
+  ok('newest D31 post is highlighted on Today', newest !== null && +newest === Math.max(...withFiles), `card #${newest}, highest with files #${Math.max(...withFiles)}`)
+  // workout done → streak 1 → login sheet
+  await tid(p, 'dp-done').click(); await p.waitForTimeout(1600)
+  ok('one tap "Workout done" → streak 1 and Done today', (await tid(p, 'streak-n').innerText()) === '1' && (await tid(p, 'done-today').count()) === 1)
+  ok('soft login sheet appears after saving the streak', (await tid(p, 'login-sheet').count()) === 1)
+  const soon = await tid(p, 'login-soon').count()
+  const live = await tid(p, 'ls-google').count()
+  ok('login sheet: Google + email link when Supabase is on, otherwise a clear "coming soon"', soon === 1 || live === 1, soon ? 'coming soon (Supabase not configured)' : 'live login')
+  await p.screenshot({ path: `${SHOTS}/02-login-sheet.png` })
+  await tid(p, 'login-later').click(); await p.waitForTimeout(500)
+  ok('login sheet is dismissible', (await tid(p, 'login-sheet').count()) === 0)
+  await p.screenshot({ path: `${SHOTS}/03-done-streak.png` })
+  // share card
+  await tid(p, 'share-open').click(); await p.waitForTimeout(2500)
+  const cv = await p.evaluate(() => { const c = document.querySelector('[data-testid="share-canvas"]'); if (!c) return null; const x = c.getContext('2d').getImageData(540, 1200, 1, 1).data; return { w: c.width, h: c.height, lit: x[0] + x[1] + x[2] > 60 } })
+  ok('share card renders 1080×1920 with real streak', cv && cv.w === 1080 && cv.h === 1920 && cv.lit, JSON.stringify(cv))
+  await p.screenshot({ path: `${SHOTS}/04-share-card.png` })
+  const png = await p.evaluate(() => document.querySelector('[data-testid="share-canvas"]')?.toDataURL('image/png'))
+  if (png) fs.writeFileSync(`${SHOTS}/share-card-full.png`, Buffer.from(png.split(',')[1], 'base64'))
+  await p.keyboard.press('Escape'); await p.waitForTimeout(400)
+  // reminder row
+  const note = await tid(p, 'reminder-note').innerText().catch(() => '')
+  ok('reminder row shows an honest note and a time picker', note.length > 20 && (await tid(p, 'reminder-time').count()) === 1, note.slice(0, 80))
+  // reload keeps streak; Progress counts it
+  await p.reload({ waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500)
+  ok('streak survives reload (saved on the phone as guest)', (await tid(p, 'streak-n').innerText().catch(() => '')) === '1')
+  await go(p, '#/progress', 1500)
+  const tile = await p.evaluate(() => { const c = document.querySelectorAll('main .grid.grid-cols-3 > .card')[2]; return c ? c.innerText.replace(/\n/g, ' ') : '' })
+  ok('Progress streak tile counts the Workout done day', /^1\b/.test(tile), tile)
+  await p.screenshot({ path: `${SHOTS}/05-progress.png` })
+  // undo
+  await go(p, '#/home', 1200)
+  await tid(p, 'dp-undo').click(); await p.waitForTimeout(500)
+  ok('Undo removes today’s tap (streak back to 0)', (await tid(p, 'streak-n').innerText()) === '0')
+  // setup flow (optional) → back on Today
+  await tid(p, 'setup-open').click(); await p.waitForTimeout(800)
+  for (let i = 0; i < 4; i++) { await tid(p, 'ob-next').last().click().catch(() => {}); await p.waitForTimeout(400) }
+  await p.waitForTimeout(800)
+  ok('optional setup finishes back on Today', (await p.evaluate(() => location.hash)) === '#/home' && (await tid(p, 'setup-card').count()) === 0, await p.evaluate(() => location.hash))
+  if (await tid(p, 'login-later').count()) await tid(p, 'login-later').click()
+  // i18n: no raw keys on Today in HI / GU
+  for (const l of ['hi', 'gu']) {
+    await p.evaluate((l) => { const k = 'd31-pro-v1'; const st = JSON.parse(localStorage.getItem(k)); st.state.lang = l; localStorage.setItem(k, JSON.stringify(st)) }, l)
+    await p.reload({ waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500)
+    const raw = await p.evaluate(() => (document.querySelector('[data-testid="daily-plan"]')?.innerText || '').match(/\b(dp[A-Z]\w+|focus_\w+|rem[A-Z]\w+|streak[A-Z]\w+|ls[A-Z]\w+|sc[A-Z]\w+|in[A-Z][a-z]\w*)\b/g) || [])
+    ok(`Today ${l.toUpperCase()}: habit card fully translated`, raw.length === 0, raw.join(','))
+    await p.screenshot({ path: `${SHOTS}/06-today-${l}.png` })
+  }
+  ok('guest flow: page errors 0', p.errs.length === 0, p.errs.slice(0, 4).join(' | '))
+  await ctx.close()
+}
+// install prompt: only from the 3rd visit; Android uses the browser prompt, iPhone gets steps
+{
+  const SHOTS = process.env.HABIT_SHOTS || OUT
+  const visits = (n) => ({ fn: (n) => { if (!sessionStorage.getItem('qa-v')) { sessionStorage.setItem('qa-v', '1'); localStorage.setItem('d31-visits', String(n)) } }, arg: n })
+  {
+    const { ctx, p } = await newPage(visits(0))
+    await p.goto(BASE + '#/home', { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {})
+    await p.evaluate(() => { const e = new Event('beforeinstallprompt'); e.prompt = async () => {}; e.userChoice = Promise.resolve({ outcome: 'dismissed' }); window.dispatchEvent(e) }); await p.waitForTimeout(500)
+    ok('install prompt hidden on the first visit', (await tid(p, 'install-banner').count()) === 0)
+    await ctx.close()
+  }
+  {
+    const { ctx, p } = await newPage(visits(2))
+    await p.goto(BASE + '#/home', { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {})
+    await p.evaluate(() => { const e = new Event('beforeinstallprompt'); e.prompt = async () => {}; e.userChoice = Promise.resolve({ outcome: 'dismissed' }); window.dispatchEvent(e) }); await p.waitForTimeout(600)
+    ok('Android: "Home screen pe add karo" banner on the 3rd visit', (await tid(p, 'install-banner').count()) === 1)
+    await p.screenshot({ path: `${SHOTS}/07-install-android.png` })
+    await tid(p, 'install-later').click(); await p.waitForTimeout(300)
+    await p.reload({ waitUntil: 'networkidle' }).catch(() => {})
+    await p.evaluate(() => { const e = new Event('beforeinstallprompt'); e.prompt = async () => {}; e.userChoice = Promise.resolve({ outcome: 'dismissed' }); window.dispatchEvent(e) }); await p.waitForTimeout(500)
+    ok('"Not now" hides the install banner (14-day snooze)', (await tid(p, 'install-banner').count()) === 0)
+    await ctx.close()
+  }
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, serviceWorkers: 'block',
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1' })
+    await ctx.addInitScript(visits(2).fn, 2)
+    const p = await ctx.newPage()
+    await p.goto(BASE + '#/home', { waitUntil: 'networkidle', timeout: 45000 }).catch(() => {}); await p.waitForTimeout(1200)
+    ok('iPhone: install banner with "How?" on the 3rd visit', (await tid(p, 'install-ios').count()) === 1)
+    await tid(p, 'install-how').click().catch(() => {}); await p.waitForTimeout(500)
+    ok('iPhone: Add to Home Screen steps sheet opens', (await tid(p, 'install-ios-steps').locator('li').count()) === 3)
+    await p.screenshot({ path: `${SHOTS}/08-install-iphone.png` })
+    await p.keyboard.press('Escape'); await p.waitForTimeout(300)
+    const note = await tid(p, 'reminder-note').innerText().catch(() => '')
+    ok('iPhone Safari: reminder explains Home Screen + iOS 16.4 (no broken button)', /16\.4/.test(note) && (await tid(p, 'reminder-btn').count()) === 0, note.slice(0, 90))
+    await ctx.close()
+  }
 }
 
 await browser.close()

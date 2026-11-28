@@ -195,5 +195,23 @@ await as(A, () => db.exec(`insert into public.plan_waitlist (plan, email, user_i
 const seenWaitB = await as(B, () => db.query('select count(*)::int c from public.plan_waitlist'))
 ok(seenWaitB.rows[0].c === 0, 'RLS: user B cannot read the waitlist')
 
+// 0011 habits: workout_done + user_habits + my_streak()
+await as(A, () => db.exec(`insert into public.workout_done (user_id, day, minutes, focus) values ('${A}', (now() at time zone 'Asia/Kolkata')::date, 12, 'full'), ('${A}', (now() at time zone 'Asia/Kolkata')::date - 1, 10, 'core')`))
+const doneB = await as(B, () => db.query('select count(*)::int c from public.workout_done'))
+ok(doneB.rows[0].c === 0, 'RLS: user B cannot see user A "workout done" days')
+blocked = false
+try { await as(B, () => db.exec(`insert into public.workout_done (user_id, day) values ('${A}', '2026-01-01')`)) } catch { blocked = true }
+ok(blocked, 'RLS: user B cannot mark a day done for user A')
+const stA = await as(A, () => db.query('select public.my_streak() n'))
+ok(stA.rows[0].n >= 2, `my_streak() counts consecutive days (got ${stA.rows[0].n})`)
+const stB = await as(B, () => db.query('select public.my_streak() n'))
+ok(stB.rows[0].n === 0, 'my_streak() is 0 with no data (no fake numbers)')
+await as(A, () => db.exec(`insert into public.user_habits (user_id, reminder_enabled, reminder_time) values ('${A}', true, '07:30')`))
+const hbB = await as(B, () => db.query('select count(*)::int c from public.user_habits'))
+ok(hbB.rows[0].c === 0, 'RLS: user B cannot read user A reminder settings')
+blocked = false
+try { await as(A, () => db.exec(`update public.user_habits set reminder_time = 'bad' where user_id = '${A}'`)) } catch { blocked = true }
+ok(blocked, 'reminder_time must be HH:MM')
+
 console.log(failures ? `\n${failures} check(s) failed` : '\nAll database checks passed')
 process.exit(failures ? 1 : 0)

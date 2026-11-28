@@ -19,7 +19,7 @@ import { Cover, CoverCard, useReveal } from '../components/PostCover'
 import { PostCascade } from '../components/PostCascade'
 import { SearchBox } from '../components/SearchBox'
 import { PdfViewer } from '../components/PdfViewer'
-import { canSaveType, sortPosts, isViewablePost, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, type KFile, type KLang, type KPost } from '../lib/knowledge'
+import { canSaveType, sortPosts, isViewablePost, fileTitle, kImg, kPreview, kStream, langsWith, pick, postDesc, postTitle, useKnowledge, visiblePosts, neighbours, type KFile, type KLang, type KPost } from '../lib/knowledge'
 import { IN_APP } from '../lib/appMode'
 import { PostPassBanner, PostPassButtons, Remain, showsPostPasses, useOpenUntil, useSlotCount } from '../components/PostPasses'
 
@@ -143,11 +143,38 @@ function SaveBtn({ f, type, post, ukey }: { f: KFile; type: DlType; post?: numbe
   )
 }
 
+/** Real cover of a PDF: page 1 rendered by Google Drive for that exact file (lazy). If Drive can't render it,
+ *  a plain branded card with the PDF's own title + language — never invented text. */
+function PdfCover({ f, locked, onClick }: { f: KFile; locked?: boolean; onClick?: () => void }) {
+  const [bad, setBad] = useState(false)
+  const title = fileTitle(f.name)
+  return (
+    <button type="button" onClick={onClick} data-testid={bad ? 'pdf-cover-fallback' : 'pdf-cover'} aria-label={title}
+      className="dark-zone relative block aspect-video w-full overflow-hidden border-b border-white/[0.07] bg-[#06080d]">
+      {!bad ? (
+        <img src={kImg(f.id, 640)} srcSet={`${kImg(f.id, 400)} 400w, ${kImg(f.id, 800)} 800w`} sizes="(max-width: 520px) 100vw, 480px"
+          alt={title} loading="lazy" decoding="async" referrerPolicy="no-referrer"
+          onError={() => setBad(true)} onLoad={(e) => { if (e.currentTarget.naturalWidth < 8) setBad(true) }}
+          className={`h-full w-full object-cover ${locked ? 'opacity-60 blur-[2px]' : ''}`} />
+      ) : (
+        <span className="absolute inset-0 flex flex-col justify-end bg-[radial-gradient(120%_90%_at_0%_0%,rgba(247,197,72,0.20),transparent_60%),radial-gradient(120%_90%_at_100%_100%,rgba(34,211,238,0.20),transparent_60%)] p-4 text-left">
+          <FileText size={26} className="mb-auto text-gold" />
+          <span className="line-clamp-2 text-[17px] font-bold leading-tight text-white">{title}</span>
+          {f.lang && <span className="mt-1 font-mono text-[10.5px] uppercase tracking-wider text-cyan">{LANG_LABEL[f.lang]} · PDF</span>}
+        </span>
+      )}
+      <span className="absolute right-2 top-2 rounded-full border border-gold/45 bg-black/70 px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-gold">PDF{f.lang ? ` · ${f.lang.toUpperCase()}` : ''}</span>
+      {locked && <span className="absolute inset-0 grid place-items-center"><Lock size={22} className="text-gold" /></span>}
+    </button>
+  )
+}
+
 function FileRow({ f, icon, onOpen, type, post, ukey, locked, onLocked, gif }: { f: KFile; icon: React.ReactNode; onOpen: () => void; type: DlType; post: number; ukey?: string; locked?: boolean; onLocked?: () => void; gif?: boolean }) {
   const t = useT()
   const bought = useUnlocked(ukey)
   return (
     <Card className="overflow-hidden" data-testid={locked ? 'k-file-locked' : 'k-file'}>
+    {type === 'pdf' && <PdfCover f={f} locked={locked} onClick={locked ? onLocked : onOpen} />}
     {gif && <KPreview id={f.id} locked={locked} label={f.lang ? LANG_LABEL[f.lang] : undefined} onClick={locked ? onLocked : onOpen} className="!rounded-none !border-0 !border-b" />}
     <div className="flex items-center gap-3 p-3">
       <button onClick={locked ? onLocked : onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -301,6 +328,24 @@ function Lightbox({ photos, index, onClose }: { photos: KFile[]; index: number; 
 
 type Tab = 'overview' | 'videos' | 'photos' | 'pdfs'
 
+/** ‹ previous · next › post, strictly by post number (#501 → #502 → #503 …). Hidden at the ends — no wrap-around. */
+function PostNav({ posts, number, lang }: { posts: KPost[]; number: number; lang: KLang }) {
+  const t = useT()
+  const { prev, next } = neighbours(posts, number)
+  if (!prev && !next) return null
+  const btn = (q: KPost | null, dir: 'prev' | 'next') => q ? (
+    <button type="button" data-testid={`kpost-${dir}`} onClick={() => { navigate(`/knowledge/${q.number}`); window.scrollTo(0, 0) }}
+      className={`flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5 ${dir === 'next' ? 'flex-row-reverse text-right' : 'text-left'}`}>
+      {dir === 'prev' ? <ChevronLeft size={18} className="shrink-0 text-cyan" /> : <ChevronRight size={18} className="shrink-0 text-cyan" />}
+      <span className="min-w-0">
+        <span className="block font-mono text-[11px] font-bold text-gold">#{q.number}</span>
+        <span className="block truncate text-[12.5px] text-muted">{postTitle(q, lang)}</span>
+      </span>
+    </button>
+  ) : <span className="flex-1" aria-hidden />
+  return <div className="mt-6 flex gap-2" data-testid="kpost-nav" aria-label={`${t('prevLbl')} / ${t('nextLbl')}`}>{btn(prev, 'prev')}{btn(next, 'next')}</div>
+}
+
 export function KnowledgePost({ id }: { id: string }) {
   const t = useT()
   const appLang = useApp((s) => s.lang) as KLang
@@ -334,7 +379,8 @@ export function KnowledgePost({ id }: { id: string }) {
           <p className="mt-1 text-[13.5px] leading-snug text-muted">{t('kSoonEmpty')}</p>
         </div>
       </Card>
-      <div className="mt-6"><Button variant="ghost" className="w-full" onClick={() => navigate('/knowledge')}>{t('kAll')}</Button></div>
+      <PostNav posts={visiblePosts(data)} number={p.number} lang={appLang} />
+      <div className="mt-3"><Button variant="ghost" className="w-full" onClick={() => navigate('/knowledge')}>{t('kAll')}</Button></div>
     </div>
   )
   const freeOpen = isViewablePost(p.number) // view all real files when VIEW_ALL_OPEN, else only OPEN_POSTS
@@ -498,7 +544,8 @@ export function KnowledgePost({ id }: { id: string }) {
       <PackBar />
       {pdf && <PdfViewer blob={pdf.blob} title={pdf.title} onClose={() => setPdf(null)} />}
       {photo !== null && <Lightbox photos={p.photos} index={photo} onClose={() => setPhoto(null)} />}
-      <div className="mt-6"><Button variant="ghost" className="w-full" onClick={() => navigate('/knowledge')}>{t('kAll')}</Button></div>
+      <PostNav posts={visiblePosts(data)} number={p.number} lang={appLang} />
+      <div className="mt-3"><Button variant="ghost" className="w-full" onClick={() => navigate('/knowledge')}>{t('kAll')}</Button></div>
     </div>
   )
 }

@@ -112,7 +112,7 @@ export function Profile() {
       <div className="label mb-2 mt-6">{t('account')}</div>
       <Card className="divide-y divide-white/[0.05] overflow-hidden">
         {s.user && <Row testid="edit-account" icon={<UserCog size={18} />} label={t('editAccount')} onClick={() => { setNm(s.user?.name || s.profile.name); setEm(s.user?.email || ''); setErr(null); setAcct(true) }} />}
-        <Row icon={<UserCog size={18} />} label={t('editProfile')} onClick={() => setEdit(true)} />
+        <Row testid="edit-profile" icon={<UserCog size={18} />} label={t('editProfile')} onClick={() => setEdit(true)} />
         <Row testid="downloads" icon={<Download size={18} />} label={t('downloadsLbl')} value={canDl ? undefined : <span className="flex items-center gap-1 text-[12px] font-bold text-gold"><Lock size={13} /> {t('plan_pro')}</span>} onClick={() => navigate('/downloads')} />
         {!IN_APP && <Row testid="referral" icon={<Users size={18} />} label={t('refTitle')} value={walletBal > 0 ? <span className="font-mono text-[12px] font-bold text-gold">{t('walletBal', { n: walletBal })}</span> : undefined} onClick={() => navigate('/referral')} />}
         <Row icon={<Cog size={18} />} label={t('settings')} onClick={() => navigate('/settings')} />

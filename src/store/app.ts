@@ -7,6 +7,7 @@ import type {
 import { dayKey, uid } from '../lib/util'
 import { dataKey } from '../lib/accountKeys'
 import { normalizePlan, passStatus } from '../lib/plans'
+import { repairBody } from '../lib/units'
 
 export type Membership = { plan: PlanId; until?: string; source: 'none' | 'razorpay' | 'launch_offer' | 'trial' | 'demo' }
 
@@ -66,7 +67,7 @@ const defaultProfile: Profile = {
   name: '', goal: 'muscle', level: 'beginner', equipment: ['none'], sex: 'male', age: 25, heightCm: 172, weightKg: 70, activity: 1.375,
 }
 
-export const STORE_VERSION = 5
+export const STORE_VERSION = 6
 /** A brand-new account's data (what gets written for a fresh account before it is loaded). */
 export function blankPersisted(extra: Partial<AppState> = {}) {
   const { toast: _t, ...rest } = initial
@@ -173,11 +174,18 @@ export const useApp = create<AppState>()(
           st.sessions = (st.sessions ?? []).map(fix)
           if (st.active) st.active.log.forEach((l) => l.sets.forEach((set) => { set.type = set.type ?? 'working' }))
         }
+        // v6: body values corrupted by the old per-keystroke clamp are repaired once
+        if (version < 6 && st.profile) st.profile = repairBody(st.profile, defaultProfile)
         // v5: the old fake "DEMO SAMPLE" analyses are removed
         st.analyses = (st.analyses ?? []).filter((a) => !a.demo)
         // v4: tiers are free / pro / platinum
         if (st.membership) st.membership = { ...st.membership, plan: normalizePlan(st.membership.plan as string) }
         return st as AppState
+      },
+      // a saved profile missing fields (older builds, partial imports) must never leave height/weight undefined
+      merge: (persisted, current) => {
+        const st = (persisted ?? {}) as Partial<AppState>
+        return { ...current, ...st, profile: repairBody({ ...defaultProfile, ...(st.profile ?? {}) }, defaultProfile, false) }
       },
       partialize: (s) => {
         const { toast: _t, set: _s, ...rest } = s

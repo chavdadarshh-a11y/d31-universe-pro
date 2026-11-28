@@ -14,7 +14,7 @@ type Props = { posts: KPost[]; lang: KLang; jump?: boolean; sub: (p: KPost) => s
 
 /** Knowledge posts: a vertical 3D "waterfall" of clean horizontal cards (reduced motion → plain horizontal swipe). */
 export function PostCascade(props: Props) {
-  const posts = useMemo(() => sortPosts(props.posts), [props.posts]) // open posts first, then "Coming soon"
+  const posts = useMemo(() => sortPosts(props.posts), [props.posts]) // strictly by post number: #501, #502, #503 …
   const [rm, setRm] = useState(reducedMotion)
   useEffect(() => {
     const q = matchMedia('(prefers-reduced-motion: reduce)')

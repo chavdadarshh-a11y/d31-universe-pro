@@ -1,11 +1,13 @@
 /** Unit conversion. Everything is STORED in kg / cm; only display and input convert. */
-import { useSettings } from '../store/settings'
+import { useSettings } from '../store/settings.ts'
 
-const LB = 2.2046226218
+const LB = 2.2046226218 // same as unitMath.LB_PER_KG
 const IN = 0.3937007874
 
 const r1 = (n: number) => Math.round(n * 10) / 10
 const clean = (n: number) => (Number.isInteger(r1(n)) ? String(Math.round(n)) : r1(n).toFixed(1))
+
+export { AGE, HEIGHT_CM, HEIGHT_IN, WEIGHT_KG, WEIGHT_LB, clampHeightCm, clampWeightKg, repairBody, kgToLb, lbToKg, cmToIn, inToCm } from './unitMath.ts'
 
 export const wUnit = () => useSettings.getState().weightUnit
 export const lUnit = () => useSettings.getState().lengthUnit

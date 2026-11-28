@@ -1,4 +1,4 @@
-import { useEffect, useId, type ReactNode, type ButtonHTMLAttributes } from 'react'
+import { useEffect, useId, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { Beam } from './Beam'
 import { ChevronLeft, Lock, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
@@ -95,6 +95,7 @@ export function Tabs<T extends string>({ value, onChange, items }: { value: T; o
         <button
           key={it.id}
           role="tab"
+          data-testid={`tab-${it.id}`}
           aria-selected={value === it.id}
           onClick={() => onChange(it.id)}
           className={`relative z-[1] h-9 flex-1 whitespace-nowrap rounded-xl px-3 text-[13px] font-semibold transition-colors duration-300 ${value === it.id ? 'text-frost' : 'text-muted hover:text-frost'}`}
@@ -198,23 +199,53 @@ export function LockTag({ label }: { label: string }) {
   )
 }
 
-export function Stepper({ value, onChange, step = 1, min = 0, max = 9999, suffix }: { value: number; onChange: (v: number) => void; step?: number; min?: number; max?: number; suffix?: string }) {
-  const clamp = (v: number) => Math.max(min, Math.min(max, Math.round(v * 100) / 100))
+/**
+ * Numeric field with −/+ buttons.
+ * While focused the field keeps the raw text the user types (no clamping, no re-formatting, no cursor jumps).
+ * The value is validated and clamped only on blur / Enter; an empty or invalid entry reverts to the last good value.
+ */
+export function Stepper({ value, onChange, step = 1, min = 0, max = 9999, suffix, label, testid }: { value: number; onChange: (v: number) => void; step?: number; min?: number; max?: number; suffix?: string; label?: string; testid?: string }) {
+  const round = (v: number) => Math.round(v * 100) / 100
+  const clamp = (v: number) => Math.max(min, Math.min(max, round(v)))
+  const shown = Number.isFinite(value) ? String(round(value)) : ''
+  const [draft, setDraft] = useState<string | null>(null)
+  const parse = (txt: string) => {
+    const n = parseFloat(txt.replace(',', '.').trim())
+    return Number.isFinite(n) ? n : null
+  }
+  const commit = () => {
+    if (draft === null) return
+    const n = parse(draft)
+    setDraft(null)
+    if (n !== null) { const c = clamp(n); if (c !== value) onChange(c) }
+  }
+  const base = () => { const n = draft !== null ? parse(draft) : null; return n ?? (Number.isFinite(value) ? value : min) }
+  const bump = (d: number) => { const c = clamp(base() + d); setDraft(null); onChange(c) }
   return (
-    <div className="flex h-11 items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a0d12]">
-      <button aria-label="Decrease" className="h-full w-10 text-lg text-muted hover:bg-white/5" onClick={() => onChange(clamp(value - step))}>−</button>
+    <div className="flex h-11 items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a0d12]" data-testid={testid}>
+      <button type="button" aria-label="Decrease" className="h-full w-10 shrink-0 text-lg text-muted hover:bg-white/5" onMouseDown={(e) => e.preventDefault()} onClick={() => bump(-step)}>−</button>
       <input
+        type="text"
         inputMode="decimal"
+        enterKeyHint="done"
+        autoComplete="off"
+        data-no-neon
         className="h-full w-full min-w-0 bg-transparent text-center text-[15px] font-semibold tabular-nums outline-none"
-        value={Number.isFinite(value) ? value : 0}
+        value={draft ?? shown}
+        onFocus={(e) => { setDraft(shown); const el = e.currentTarget; requestAnimationFrame(() => { try { el.select() } catch { /* ignore */ } }) }}
         onChange={(e) => {
-          const n = parseFloat(e.target.value.replace(',', '.'))
-          onChange(Number.isFinite(n) ? clamp(n) : 0)
+          const txt = e.target.value.replace(/[^0-9.,]/g, '')
+          setDraft(txt)
+          const n = parse(txt)
+          // live-update only when the number is already valid; never force a value while typing
+          if (n !== null && n >= min && n <= max && round(n) !== value) onChange(round(n))
         }}
-        aria-label={suffix}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur() }}
+        aria-label={label ?? suffix}
       />
       {suffix && <span className="pr-1 text-xs text-dim">{suffix}</span>}
-      <button aria-label="Increase" className="h-full w-10 text-lg text-muted hover:bg-white/5" onClick={() => onChange(clamp(value + step))}>+</button>
+      <button type="button" aria-label="Increase" className="h-full w-10 shrink-0 text-lg text-muted hover:bg-white/5" onMouseDown={(e) => e.preventDefault()} onClick={() => bump(step)}>+</button>
     </div>
   )
 }

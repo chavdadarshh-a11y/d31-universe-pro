@@ -146,7 +146,7 @@ function Body() {
   const save = () => {
     const m = s.addMeasurement(form)
     void cloud.measurement(m)
-    if (form.weightKg) s.setProfile({ weightKg: form.weightKg })
+    if (form.weightKg && form.weightKg >= 30 && form.weightKg <= 250) s.setProfile({ weightKg: Math.round(form.weightKg * 100) / 100 })
     setOpen(false)
   }
   const rows = [...s.measurements].reverse()
@@ -192,7 +192,7 @@ function Body() {
         <label className="block"><span className="label">{t('date')}</span><input type="date" className="field mt-1.5" value={form.date} max={dayKey()} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {fields.map(([k, label, step]) => (
-            <div key={k}><div className="label mb-1.5">{lbl(k, label)}</div><Stepper value={disp(k, (form[k as keyof typeof form] as number) ?? 0)} step={step} onChange={(v) => setForm({ ...form, [k]: v ? back(k, v) : undefined })} /></div>
+            <div key={k}><div className="label mb-1.5">{lbl(k, label)}</div><Stepper testid={`m-${String(k)}`} label={label} value={disp(k, (form[k as keyof typeof form] as number) ?? 0)} step={step} max={isW(k) ? (u.w === 'lb' ? 551 : 250) : k === 'bodyFat' ? 70 : u.l === 'in' ? 120 : 300} onChange={(v) => setForm({ ...form, [k]: v ? back(k, v) : undefined })} /></div>
           ))}
         </div>
         <Button className="mt-5 w-full" onClick={save}>{t('save')}</Button>

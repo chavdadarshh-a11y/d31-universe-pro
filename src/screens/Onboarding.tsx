@@ -9,7 +9,7 @@ import { navigate, hashQuery } from '../lib/router'
 import type { Equipment, Goal, Level, Profile } from '../types'
 import { PROGRAMS } from '../data/programs'
 import { cloud } from '../lib/cloud'
-import { useUnits } from '../lib/units'
+import { useUnits, AGE, HEIGHT_CM, HEIGHT_IN, WEIGHT_KG, WEIGHT_LB, clampHeightCm, clampWeightKg } from '../lib/units'
 import { useSettings } from '../store/settings'
 
 const GOALS: Goal[] = ['muscle', 'fatloss', 'strength', 'skills', 'mobility']
@@ -163,10 +163,10 @@ export function Onboarding({ editing = false, onDone }: { editing?: boolean; onD
               <button key={s} onClick={() => setProfile({ sex: s })} className={`h-11 rounded-xl border text-sm font-semibold ${profile.sex === s ? 'border-cyan/60 bg-cyan/10 text-cyan' : 'border-white/10 text-muted'}`}>{t(s)}</button>
             ))}
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            <label><span className="label">{t('age')}</span><div className="mt-1.5"><Stepper value={profile.age} onChange={(v) => setProfile({ age: v })} min={13} max={90} /></div></label>
-            <label><span className="label">{t('height').replace(/\s*\([^)]*\)\s*$/, '')} ({u.l})</span><div className="mt-1.5"><Stepper value={u.toL(profile.heightCm)} onChange={(v) => setProfile({ heightCm: Math.round(u.fromL(v)) })} min={u.l === 'in' ? 47 : 120} max={u.l === 'in' ? 91 : 230} /></div></label>
-            <label><span className="label">{t('weight').replace(/\s*\([^)]*\)\s*$/, '')} ({u.w})</span><div className="mt-1.5"><Stepper value={u.toW(profile.weightKg)} onChange={(v) => setProfile({ weightKg: Math.round(u.fromW(v) * 10) / 10 })} step={u.w === 'lb' ? 1 : 0.5} min={u.w === 'lb' ? 66 : 30} max={u.w === 'lb' ? 550 : 250} /></div></label>
+          <div className="grid grid-cols-1 gap-3 min-[560px]:grid-cols-3" data-testid="ob-body">
+            <div><span className="label">{t('age')}</span><div className="mt-1.5"><Stepper testid="ob-age" label={t('age')} value={profile.age} onChange={(v) => setProfile({ age: Math.round(v) })} min={AGE.min} max={AGE.max} /></div></div>
+            <div><span className="label">{t('height').replace(/\s*\([^)]*\)\s*$/, '')} ({u.l})</span><div className="mt-1.5"><Stepper testid="ob-height" label={t('height')} value={u.toL(profile.heightCm)} onChange={(v) => setProfile({ heightCm: clampHeightCm(u.fromL(v)) })} step={u.l === 'in' ? 0.5 : 1} min={u.l === 'in' ? HEIGHT_IN.min : HEIGHT_CM.min} max={u.l === 'in' ? HEIGHT_IN.max : HEIGHT_CM.max} /></div></div>
+            <div><span className="label">{t('weight').replace(/\s*\([^)]*\)\s*$/, '')} ({u.w})</span><div className="mt-1.5"><Stepper testid="ob-weight" label={t('weight')} value={u.toW(profile.weightKg)} onChange={(v) => setProfile({ weightKg: clampWeightKg(u.fromW(v)) })} step={u.w === 'lb' ? 1 : 0.5} min={u.w === 'lb' ? WEIGHT_LB.min : WEIGHT_KG.min} max={u.w === 'lb' ? WEIGHT_LB.max : WEIGHT_KG.max} /></div></div>
           </div>
           <div>
             <span className="label">{t('activity')}</span>

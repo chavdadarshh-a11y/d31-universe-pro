@@ -1,5 +1,5 @@
 import type { CheckIn, Profile, WorkoutSession, LoggedSet } from '../types'
-import { useSettings } from '../store/settings'
+import { useSettings } from '../store/settings.ts'
 
 export const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36))
 

@@ -97,9 +97,8 @@ export function useKnowledge() {
   return { data, error, loading: !data && !error }
 }
 
-/** open posts first (OPEN_POSTS order), then the "Coming soon" ones by number */
-const rankPost = (p: KPost) => { const i = OPEN_POSTS.indexOf(p.number); return i >= 0 ? i - 1e6 : p.number }
-export const sortPosts = (ps: KPost[]) => [...ps].sort((a, b) => rankPost(a) - rankPost(b))
+import { sortPosts } from './postOrder'
+export { comparePosts, sortPosts, neighbours } from './postOrder'
 export const visiblePosts = (m: KManifest | null) => sortPosts((m?.posts ?? []).filter((p) => !p.empty))
 
 // ---- media URLs (work for files shared "Anyone with the link") ----

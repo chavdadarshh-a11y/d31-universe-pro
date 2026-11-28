@@ -1,4 +1,4 @@
-import { wTxt } from './units'
+import { wTxt } from './units.ts'
 // Pure training logic (no store / DOM imports) so it can be unit-tested with plain Node.
 import type { LoggedSet, SetType, WorkoutSession } from '../types'
 import type { Criterion, Ladder } from '../data/ladders'

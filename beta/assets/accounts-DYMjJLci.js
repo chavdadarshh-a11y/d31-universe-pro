@@ -1,0 +1,1 @@
+export{g as adoptSupabaseUser}from"./boot-CTlOG6zx.js";

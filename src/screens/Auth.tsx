@@ -4,7 +4,7 @@ import type React from 'react'
 import { useT } from '../i18n'
 import { Button, Header } from '../components/ui'
 import { supabase } from '../lib/supabase'
-import { isLive } from '../lib/env'
+import { env, isLive } from '../lib/env'
 import { goBack, hashQuery, navigate } from '../lib/router'
 import { useApp } from '../store/app'
 import { LogoMark } from '../components/Brand'
@@ -129,8 +129,10 @@ export function Auth() {
         <button data-testid="tab-login" onClick={() => { setMode('in'); setMsg(null) }} className={`h-10 rounded-xl text-[13.5px] font-bold ${mode === 'in' ? 'bg-neon-static text-[#05080f]' : 'text-muted'}`}>{t('signIn')}</button>
       </div>
       <form className="mt-4 space-y-3" method="post" action="#" autoComplete="on" onSubmit={submit} noValidate data-testid="auth-form">
+        {env.googleAuth && (<>
         <GoogleButton onClick={google} label={t('googleContinue')} />
         <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-dim"><span className="h-px flex-1 bg-white/10" />{t('orEmail')}<span className="h-px flex-1 bg-white/10" /></div>
+        </>)}
         {mode === 'up' && <label className="block" htmlFor="d31-name"><span className="label">{t('obName')}</span><input id="d31-name" name="name" data-testid="su-name" className="field mt-1.5" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></label>}
         <label className="block" htmlFor="d31-email"><span className="label">{t('email')}</span><input id="d31-email" name="email" data-testid="su-email" className="field mt-1.5" type="email" inputMode="email" autoComplete="username" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
         {isLive && supabase && <button type="button" data-testid="magic-link" disabled={busy} onClick={() => void magic()} className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-gold/40 bg-gold/[0.07] text-[14px] font-semibold text-gold"><Mail size={16} /> {t('magicLink')}</button>}

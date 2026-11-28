@@ -6,6 +6,8 @@ export const env = {
   /** Google API key (Drive API, HTTP-referrer restricted) → direct in-app streaming + in-app saves of Knowledge videos/PDFs.
    *  Google blocks cross-site browser reads of drive.usercontent.google.com, so the Drive API is the only keyless-account-free route. */
   googleApiKey: (import.meta.env.VITE_GOOGLE_API_KEY as string | undefined)?.trim() || '',
+  /** Set VITE_GOOGLE_AUTH=1 only after the Google provider is enabled in Supabase; until then no Google button is shown (no broken button). */
+  googleAuth: (import.meta.env.VITE_GOOGLE_AUTH as string | undefined)?.trim() === '1',
   supportEmail: (import.meta.env.VITE_SUPPORT_EMAIL as string | undefined)?.trim() || 'dpchavda22@gmail.com',
   businessName: (import.meta.env.VITE_BUSINESS_NAME as string | undefined)?.trim() || 'D31.UNIVERSE by Darshan Chavda',
   socials: {

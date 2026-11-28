@@ -37,6 +37,7 @@ jobs:
           VITE_BETA: '1'
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GOOGLE_AUTH: ${{ vars.VITE_GOOGLE_AUTH }}
           VITE_GOATCOUNTER: ${{ secrets.VITE_GOATCOUNTER }}
           VITE_OWNER_EMAILS: ${{ secrets.VITE_OWNER_EMAILS }}
       - name: QA smoke (mobile crawl + typing + post order + PDF covers) — a failure stops the deploy
